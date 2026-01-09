@@ -50,3 +50,17 @@ Thread: https://ampcode.com/threads/T-019ba518-0b34-7729-8d4a-e09627893ffe
   - getTierDecision() returns reasoning string that should be logged for debugging
   - createQualityGateResult() handles all tier determination logic based on score
 ---
+
+## 2026-01-10 - US-004
+Thread: https://ampcode.com/threads/T-019ba519-957f-756e-b7fa-ad8b4c99564f
+- Created retry_queue table migration in /lib/supabase/migrations/005_add_retry_queue_table.sql
+- Table columns: id, brief_id, original_question, classification (JSONB), failure_reason, retry_params (JSONB), scheduled_at, attempts, status, created_at
+- Status values: 'pending', 'processing', 'completed', 'abandoned'
+- Added indexes for efficient queue polling (status, scheduled_at)
+- Updated Database interface in client.ts with retry_queue Row/Insert/Update types
+- Files changed: lib/supabase/migrations/005_add_retry_queue_table.sql (new), lib/supabase/client.ts (updated)
+- **Learnings for future iterations:**
+  - Migrations go in /lib/supabase/migrations/ directory (create if needed)
+  - Use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS` for idempotent migrations
+  - Database interface in client.ts needs Row, Insert, and Update types for each table
+---
