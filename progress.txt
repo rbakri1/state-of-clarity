@@ -77,3 +77,19 @@ Thread: https://ampcode.com/threads/T-019ba492-98d6-7616-952b-960e961f3ff5
   - Use CLARITY_DIMENSIONS to get all dimension names dynamically
   - EvaluatorVerdict.dimensionScores is an array, use find() to get specific dimension
 ---
+
+## Sat 10 Jan 2026 - US-006
+Thread: https://ampcode.com/threads/T-019ba494-ade9-710c-8a12-e00a96435547
+- Created /lib/agents/discussion-round-agent.ts with runDiscussionRound function
+- Each evaluator reviews other evaluators' scores in parallel using Promise.all
+- Prompt asks evaluators to revise scores or maintain position with justification
+- Returns DiscussionRoundOutput: revisedVerdicts, discussionSummary, changesCount, durationMs
+- Uses Claude Haiku for cost efficiency, targets <5 seconds total
+- Logs revision counts per evaluator for debugging
+- Files changed: lib/agents/discussion-round-agent.ts (new)
+- **Learnings for future iterations:**
+  - DiscussionRoundInput takes brief + verdicts from ConsensusInput
+  - applyRevisionsToVerdict updates dimensionScores and recalculates weighted overall score
+  - Discussion responses are JSON with revisedDimensions[] and maintainedPositions[]
+  - Max score change per dimension is capped at 2 points for stability
+---
