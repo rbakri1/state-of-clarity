@@ -63,3 +63,17 @@ Thread: https://ampcode.com/threads/T-019ba48d-80c8-7484-bbdc-be11f7e3bb22
   - logConsensusExecution() provides execution summary to console
   - Pre-existing type errors in page.tsx now fixed with inline types
 ---
+
+## Sat 10 Jan 2026 - US-005
+Thread: https://ampcode.com/threads/T-019ba492-98d6-7616-952b-960e961f3ff5
+- Added detectDisagreement() function to /lib/agents/consensus-scorer.ts
+- Calculates spread (max - min) for each dimension and overall score
+- Flags disagreement if any spread > 2 (DISAGREEMENT_THRESHOLD constant)
+- Returns DisagreementResult with hasDisagreement, disagreeingDimensions[], maxSpread, evaluatorPositions
+- Logs disagreement details to console when detected
+- Files changed: lib/agents/consensus-scorer.ts
+- **Learnings for future iterations:**
+  - DisagreementResult type is pre-defined in lib/types/clarity-scoring.ts
+  - Use CLARITY_DIMENSIONS to get all dimension names dynamically
+  - EvaluatorVerdict.dimensionScores is an array, use find() to get specific dimension
+---
