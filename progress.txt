@@ -201,3 +201,18 @@ Thread: https://ampcode.com/threads/T-019ba447-7e1e-739b-97e6-e3eec6aa1f75
   - Brief service uses `as any` type assertions for Supabase queries to handle type inference issues
   - generateTagsFromClassification() auto-generates tags from classification data
 ---
+
+## 2026-01-09 - US-013 (Verification)
+Thread: https://ampcode.com/threads/T-019ba44b-ab18-73b9-b699-8531aa4d471e
+- Verified parallel Summary agent execution already implemented in US-010
+- 4 parallel Summary nodes: summaryChildNode, summaryTeenNode, summaryUndergradNode, summaryPostdocNode
+- All 4 start simultaneously after Reconciliation via parallel LangGraph edges
+- Each agent receives Structure output via state + reading level prompt from getSummaryPrompt()
+- Results merged into single summaries object via Annotation reducer: `{ reducer: (prev, next) => ({ ...prev, ...next }) }`
+- Typecheck passes
+- Files verified: lib/agents/langgraph-orchestrator.ts
+- **Learnings for future iterations:**
+  - Parallel summary execution was included in US-010 orchestrator implementation
+  - LangGraph fan-out/fan-in pattern: add multiple edges from same source, multiple edges to same target
+  - The reducer function on summaries Annotation merges partial results from parallel nodes
+---

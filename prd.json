@@ -210,8 +210,8 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented in US-010/US-011, verified and marked passing"
     },
     {
       "id": "US-014",
