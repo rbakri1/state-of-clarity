@@ -123,3 +123,17 @@ Thread: https://ampcode.com/threads/T-019ba522-69b0-73f9-a53d-0f86b41cb806
   - Use "use client" directive for components with hooks like useState, useEffect
   - dev-browser skill not available for browser verification
 ---
+
+## 2026-01-10 - US-009
+Thread: https://ampcode.com/threads/T-019ba524-3929-75cf-905b-6fd1db33429e
+- Created QualityBadge component in /app/components/QualityBadge.tsx
+- Displays 'Quality: X/10' with color based on tier: green (≥8.0), amber (6.0-7.9), red (<6.0)
+- Tooltip on hover explains what the score means
+- Uses Shield icon for high quality, ShieldAlert for warning/failed
+- Optional showWarning prop to force display even for high quality
+- Files changed: app/components/QualityBadge.tsx (new)
+- **Learnings for future iterations:**
+  - Use lucide-react for icons (Shield, ShieldAlert, Info)
+  - Tailwind dark mode classes: dark:bg-*, dark:text-*, dark:border-*
+  - Use popover/popover-foreground colors for tooltips
+---
