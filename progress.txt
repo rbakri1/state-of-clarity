@@ -234,3 +234,19 @@ Thread: https://ampcode.com/threads/T-019ba44d-b125-73aa-8141-100ff562a75e
   - Track client connection with closure variable, check before sending events
   - LangGraph state can include callback functions for emitting events from nodes
 ---
+
+## 2026-01-09 - US-016
+Thread: https://ampcode.com/threads/T-019ba452-06dd-707d-bb9a-cc1a569ffa42
+- Created `/app/components/SwarmVisualization.tsx` with animated agent visualization
+- Shows 6 agents in circular swarm arrangement using trigonometric positioning
+- States: pending (dim), running (pulse + spin loader), completed (checkmark), failed (red)
+- Parallel indicator badge (∥) shown on agents that run concurrently
+- Stage labels mapped for user-friendly progress messages
+- Uses lucide-react icons and tailwind classes matching existing UI patterns
+- Files changed: app/components/SwarmVisualization.tsx (new)
+- **Learnings for future iterations:**
+  - Components directory created at `/app/components/` for reusable UI components
+  - Use `animate-pulse` for running state, `animate-spin` on Loader2 icon
+  - Position elements in circle using `Math.cos(angle) * radius` and `Math.sin(angle) * radius`
+  - Import AgentStatus type from generation-events.ts for type safety
+---
