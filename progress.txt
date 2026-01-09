@@ -109,3 +109,17 @@ Thread: https://ampcode.com/threads/T-019ba520-8447-73dd-b365-0fbfec3ff6d3
   - Credit service is a placeholder for Theme 6 - actual credit deduction/balance not yet implemented
   - Service logs refund action and records to database for audit trail
 ---
+
+## 2026-01-10 - US-008
+Thread: https://ampcode.com/threads/T-019ba522-69b0-73f9-a53d-0f86b41cb806
+- Created SwarmVisualization component in /app/components/SwarmVisualization.tsx
+- Component accepts isActive, startTime, and extendedMode props
+- Shows "Improving quality..." message after 45 seconds (EXTENDED_THRESHOLD_MS)
+- Animated swarm visualization with orbiting nodes
+- Subtle progress indicator showing elapsed time (not specific attempt counts)
+- Files changed: app/components/SwarmVisualization.tsx (new)
+- **Learnings for future iterations:**
+  - Components go in /app/components/ directory
+  - Use "use client" directive for components with hooks like useState, useEffect
+  - dev-browser skill not available for browser verification
+---
