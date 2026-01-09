@@ -99,3 +99,14 @@ Thread: https://ampcode.com/threads/T-019ba4de-33ae-7767-9771-1397f94f0966
   - Factual accuracy fixer follows identical pattern to other fixers
   - Focus areas: claim identification, source verification, hedging language, corrections
 ---
+
+## 2026-01-10 - US-009
+Thread: https://ampcode.com/threads/T-019ba4df-a07d-73dd-b9bf-a65b2c623670
+- Created /lib/agents/fixers/bias-fixer.ts extending BaseFixer
+- Prompt focuses on: loaded language, selective emphasis, framing bias, attribution/sourcing bias
+- Files changed: lib/agents/fixers/bias-fixer.ts (new)
+- **Learnings for future iterations:**
+  - Bias fixer follows identical pattern to other fixers
+  - Focus areas: loaded language, selective emphasis, framing, attribution bias
+  - All 7 fixer agents now complete (US-003 through US-009)
+---
