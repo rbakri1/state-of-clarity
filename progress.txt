@@ -31,3 +31,19 @@ Thread: https://ampcode.com/threads/T-019ba488-c944-7759-bd18-14d734438337
   - Arbiter persona already defined here to avoid circular dependencies later
   - focusDimensions maps to DimensionName[] from clarity-scoring.ts
 ---
+
+## Sat 10 Jan 2026 - US-003
+Thread: https://ampcode.com/threads/T-019ba48a-e1b4-73aa-a485-4da4638716fa
+- Created /lib/agents/clarity-evaluator-agent.ts with evaluateBrief function
+- Exports Brief type alias from Database["public"]["Tables"]["briefs"]["Row"]
+- Uses Claude Haiku (claude-3-5-haiku-20241022) for cost efficiency
+- Builds dynamic prompt with all 7 dimension scoring guidelines
+- Returns EvaluatorVerdict with dimension scores, issues, and critique
+- Calculates weighted overall score from dimension scores
+- Files changed: lib/agents/clarity-evaluator-agent.ts (new)
+- **Learnings for future iterations:**
+  - Brief type is defined in Database interface in lib/supabase/client.ts, not a standalone type
+  - EvaluateBriefInput interface allows passing minimal brief data without full DB row
+  - evaluateBrief accepts both Brief (full row) or EvaluateBriefInput (minimal)
+  - Pre-existing type errors in app/brief/[id]/page.tsx - don't block on those
+---
