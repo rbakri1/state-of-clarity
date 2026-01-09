@@ -12,7 +12,6 @@ import Anthropic from "@anthropic-ai/sdk";
 import {
   QualityGateResult,
   QualityTier,
-  getQualityTier,
   createQualityGateResult,
 } from "@/lib/types/quality-gate";
 import { Source } from "./research-agent";
@@ -62,17 +61,14 @@ export async function runQualityGate(
       `[Quality Gate] Consensus score: ${currentScore.score.toFixed(1)}/10`
     );
 
-    const tier = getQualityTier(currentScore.score);
+    const decision = getTierDecision(currentScore.score);
+    console.log(`[Quality Gate] Decision: ${decision.reasoning}`);
 
-    if (tier === QualityTier.HIGH) {
-      console.log("[Quality Gate] Score ≥8.0 - High quality, publishing");
+    if (decision.tier === QualityTier.HIGH) {
       return createQualityGateResult(currentScore.score, attempts);
     }
 
-    if (tier === QualityTier.ACCEPTABLE) {
-      console.log(
-        "[Quality Gate] Score 6.0-7.9 - Acceptable with warning badge"
-      );
+    if (decision.tier === QualityTier.ACCEPTABLE) {
       return createQualityGateResult(currentScore.score, attempts);
     }
 
@@ -98,7 +94,8 @@ export async function runQualityGate(
     }
   }
 
-  console.log("[Quality Gate] Score <6.0 after all attempts - Not publishable");
+  const finalDecision = getTierDecision(currentScore?.score || 0);
+  console.log(`[Quality Gate] Final decision: ${finalDecision.reasoning}`);
   return createQualityGateResult(currentScore?.score || 0, attempts);
 }
 
