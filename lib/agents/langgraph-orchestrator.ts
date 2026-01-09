@@ -39,6 +39,7 @@ import {
 import { runDiscussionRound, DiscussionRoundOutput } from "./discussion-round-agent";
 import { runTiebreaker, TiebreakerOutput } from "./tiebreaker-agent";
 import { updateBriefClassification, completeBriefGeneration } from "../services/brief-service";
+import { logFullConsensusScoringRun } from "./consensus-scoring-logger";
 import { EvaluateBriefInput } from "./clarity-evaluator-agent";
 
 export interface StructureOutput {
@@ -606,6 +607,23 @@ async function consensusScoringNode(
   console.log(
     `[Orchestrator] Consensus Scoring completed in ${duration}ms. Score: ${clarityScoreResult.overallScore.toFixed(1)}/10`
   );
+
+  // Log all scoring metrics to agent_execution_logs (non-blocking)
+  logFullConsensusScoringRun({
+    briefId: state.briefId,
+    verdicts,
+    evaluatorDurations: consensusInput.evaluatorDurations,
+    disagreement,
+    disagreementDetectionDurationMs: 1, // Disagreement detection is synchronous, <1ms
+    discussionRound: discussionRound ?? undefined,
+    discussionResolvedDisagreement: discussionRound ? !disagreement.hasDisagreement : undefined,
+    tiebreaker: tiebreakerResult ?? undefined,
+    disputedDimensions: disagreement.hasDisagreement ? disagreement.disagreeingDimensions : undefined,
+    clarityScore: clarityScoreResult,
+    totalDurationMs: duration,
+  }).catch((err) => {
+    console.error("[Orchestrator] Failed to log consensus scoring metrics:", err);
+  });
 
   return {
     clarityScore: legacyClarityScore,
