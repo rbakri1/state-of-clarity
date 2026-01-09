@@ -102,3 +102,19 @@ Thread: https://ampcode.com/threads/T-019ba3a9-fb52-70ba-b445-4e9b141b33c2
   - ReadingLevel type: 'child' | 'teen' | 'undergrad' | 'postdoc'
   - Each SummaryPrompt includes: level, name, targetAudience, wordCount (min/max), systemPrompt, exampleOutput
 ---
+
+## 2026-01-09 - US-008
+Thread: https://ampcode.com/threads/T-019ba3ac-5220-727d-9167-5488332ab21a
+- Created `/lib/agents/retry-wrapper.ts` with exponential backoff retry logic
+- Implemented `withRetry()` function: 3 attempts with 1s, 2s, 4s delays
+- Implemented `wrapWithRetry()` to create wrapped agent functions with built-in retry
+- Created `AgentRetryError` custom error class with aggregated error tracking
+- Added `withSmartRetry()` that only retries on transient errors (429, 5xx, network errors)
+- Added `isRetryableError()` helper to distinguish transient vs permanent failures
+- All retry attempts logged with error details, agent name, and attempt count
+- Files changed: lib/agents/retry-wrapper.ts (new)
+- **Learnings for future iterations:**
+  - Use `withRetry()` for simple retry, `wrapWithRetry()` to pre-wrap agent functions
+  - Exponential backoff formula: `initialDelayMs * (backoffMultiplier ^ (attempt - 1))`
+  - `AgentRetryError` collects all errors from all attempts for debugging
+---
