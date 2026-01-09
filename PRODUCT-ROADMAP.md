@@ -90,6 +90,28 @@
 
 ---
 
+### THEME 6: Monetization & Sustainability
+**Focus:** Revenue generation, cost recovery, sustainable unit economics
+
+**Epics:**
+1. **Epic 6.1: Credit System Infrastructure** - Purchase, track, and consume credits for brief generation
+2. **Epic 6.2: Cost Tracking & Pricing Engine** - Real-time cost calculation per brief with 20% margin
+3. **Epic 6.3: Payment Integration** - Stripe integration for credit purchases
+4. **Epic 6.4: Usage Dashboard** - User-facing credit balance, usage history, cost breakdown
+5. **Epic 6.5: Free Tier & Onboarding Credits** - New user credits, rate limiting for free tier
+
+**Key Innovation:** Credits-based model ensures every brief is profitable from day one. Cost + 20% margin = sustainable growth.
+
+**Pricing Model:**
+- Brief generation cost: ~£0.50 (API calls + infrastructure)
+- Credit price: £0.60 per brief (20% margin)
+- 1 credit = 1 brief generation
+- Bulk discounts: 10 credits = £5.50, 50 credits = £25, 100 credits = £45
+
+**MVP Requirement:** This theme is **critical path** - must be complete before beta launch (Epic 5.5).
+
+---
+
 ## Critical Path & Timeline (12 Weeks)
 
 ### Phase 1: Foundation - Parallel Execution (Weeks 2-5)
@@ -110,10 +132,11 @@
 
 ### Phase 3: Polish - Production Readiness (Weeks 9-12)
 - **Week 9:** Epic 4.3 (Caching) + Epic 4.4 (Monitoring) + Epic 1.5 (Agent Learning)
-- **Week 10-11:** Epic 4.5 (Security) + Epic 5.3 (Versioning) + Epic 5.4 (Showcase Briefs)
-- **Week 11-12:** Epic 5.5 (Alpha → Beta Launch)
+- **Week 10:** Epic 6.1 (Credit System) + Epic 6.2 (Cost Tracking) + Epic 6.3 (Payment Integration)
+- **Week 11:** Epic 6.4 (Usage Dashboard) + Epic 6.5 (Free Tier) + Epic 4.5 (Security) + Epic 5.4 (Showcase Briefs)
+- **Week 12:** Epic 5.5 (Alpha → Beta Launch)
 
-**Milestone:** Production launch to 5,000 waitlist users
+**Milestone:** Production launch to 5,000 waitlist users with monetization live from day one
 
 ---
 

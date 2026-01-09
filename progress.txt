@@ -21,3 +21,19 @@ Thread: https://ampcode.com/threads/T-019ba4d0-04d6-7331-bbb7-29dc7127c80f
   - brief.sources, brief.clarity_critique.breakdown, etc. need explicit types in .map()
   - Always run `npm run build` to catch type errors before committing
 ---
+
+## 2026-01-10 11:30 - US-002
+Thread: https://ampcode.com/threads/T-019ba4d4-6eb5-7392-a2b5-073f86b99111
+- Created /lib/agents/fixers/base-fixer.ts with abstract BaseFixer class
+- Implemented suggestEdits method returning Promise<FixerResult>
+- Added retry wrapper with exponential backoff (3 retries, 1s/2s/4s delays)
+- Common logic: prompt building, LLM call with Claude Haiku, JSON response parsing
+- System prompt template for fixer agents with standardized response format
+- Subclasses must implement: buildPrompt(input) and fixerType/description properties
+- Files changed: lib/agents/fixers/base-fixer.ts (new)
+- **Learnings for future iterations:**
+  - No existing retry-wrapper.ts exists; created inline withRetry function in base-fixer
+  - Use @anthropic-ai/sdk for LLM calls (already installed in project)
+  - Fixer agents directory structure: /lib/agents/fixers/
+  - Response parsing extracts JSON from LLM response using regex (Claude sometimes adds text)
+---
