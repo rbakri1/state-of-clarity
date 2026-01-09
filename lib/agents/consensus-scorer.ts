@@ -22,6 +22,8 @@ import {
   DimensionName,
   DimensionScore,
   ClarityScore,
+  PrioritizedIssue,
+  Issue,
   CLARITY_DIMENSIONS,
   getDimensionWeight,
 } from "../types/clarity-scoring";
@@ -501,5 +503,190 @@ export function calculateFinalScore(input: FinalScoreInput): ClarityScore {
     needsHumanReview,
     reviewReason,
     scoredAt: new Date().toISOString(),
+  };
+}
+
+export interface AggregatedCritique {
+  issues: PrioritizedIssue[];
+  summary: string;
+  topPriority: PrioritizedIssue | null;
+}
+
+interface IssueWithMeta {
+  issue: Issue;
+  evaluatorCount: number;
+  scoreImpact: number;
+}
+
+function normalizeIssueText(text: string): string {
+  return text.toLowerCase().replace(/[^\w\s]/g, "").trim();
+}
+
+function areIssuesSimilar(a: string, b: string): boolean {
+  const normA = normalizeIssueText(a);
+  const normB = normalizeIssueText(b);
+  
+  if (normA === normB) return true;
+  
+  const wordsA = new Set(normA.split(/\s+/));
+  const wordsB = new Set(normB.split(/\s+/));
+  
+  const intersection = new Set([...wordsA].filter(w => wordsB.has(w)));
+  const union = new Set([...wordsA, ...wordsB]);
+  
+  const jaccardSimilarity = intersection.size / union.size;
+  return jaccardSimilarity > 0.6;
+}
+
+function severityToScore(severity: Issue["severity"]): number {
+  switch (severity) {
+    case "high": return 3;
+    case "medium": return 2;
+    case "low": return 1;
+  }
+}
+
+function priorityFromScore(score: number): PrioritizedIssue["priority"] {
+  if (score >= 8) return "critical";
+  if (score >= 5) return "high";
+  if (score >= 3) return "medium";
+  return "low";
+}
+
+function mergeIssues(issues: Issue[], existingIssue: Issue): Issue {
+  const highestSeverity = issues.reduce((max, i) => {
+    return severityToScore(i.severity) > severityToScore(max) ? i.severity : max;
+  }, existingIssue.severity);
+  
+  const bestQuote = [...issues, existingIssue]
+    .map(i => i.quote)
+    .filter((q): q is string => !!q)
+    .sort((a, b) => b.length - a.length)[0];
+  
+  const bestFix = [...issues, existingIssue]
+    .map(i => i.suggestedFix)
+    .filter((f): f is string => !!f)
+    .sort((a, b) => b.length - a.length)[0];
+
+  return {
+    dimension: existingIssue.dimension,
+    severity: highestSeverity,
+    description: existingIssue.description,
+    quote: bestQuote,
+    suggestedFix: bestFix,
+  };
+}
+
+/**
+ * Aggregate critiques from all evaluators for refinement agent.
+ * 
+ * Process:
+ * 1. Merge issues from all evaluators, deduplicate similar issues
+ * 2. Prioritize by: agreement (all 3 flagged it), severity (score impact), actionability
+ * 3. Format as structured list: dimension, issue, suggested fix, priority
+ * 4. Limit to top 5 issues to keep refinement focused
+ * 5. Include specific quotes/sections that need attention
+ * 
+ * @param verdicts - Array of evaluator verdicts to aggregate
+ * @returns AggregatedCritique with prioritized issues and summary
+ */
+export function aggregateCritiques(verdicts: EvaluatorVerdict[]): AggregatedCritique {
+  if (verdicts.length === 0) {
+    return {
+      issues: [],
+      summary: "No evaluator verdicts available.",
+      topPriority: null,
+    };
+  }
+
+  const allIssues = verdicts.flatMap(v => v.issues);
+  
+  if (allIssues.length === 0) {
+    return {
+      issues: [],
+      summary: "No issues flagged by evaluators.",
+      topPriority: null,
+    };
+  }
+
+  const groupedIssues: Map<string, IssueWithMeta> = new Map();
+  
+  for (const issue of allIssues) {
+    let foundSimilar = false;
+    
+    for (const [key, existing] of groupedIssues) {
+      if (existing.issue.dimension === issue.dimension && 
+          areIssuesSimilar(existing.issue.description, issue.description)) {
+        groupedIssues.set(key, {
+          issue: mergeIssues([issue], existing.issue),
+          evaluatorCount: existing.evaluatorCount + 1,
+          scoreImpact: Math.max(existing.scoreImpact, severityToScore(issue.severity) * getDimensionWeight(issue.dimension)),
+        });
+        foundSimilar = true;
+        break;
+      }
+    }
+    
+    if (!foundSimilar) {
+      const key = `${issue.dimension}-${normalizeIssueText(issue.description).slice(0, 50)}`;
+      groupedIssues.set(key, {
+        issue,
+        evaluatorCount: 1,
+        scoreImpact: severityToScore(issue.severity) * getDimensionWeight(issue.dimension),
+      });
+    }
+  }
+
+  const evaluatorCount = verdicts.length;
+  const scoredIssues: Array<IssueWithMeta & { priorityScore: number }> = [];
+  
+  for (const meta of groupedIssues.values()) {
+    const agreementScore = (meta.evaluatorCount / evaluatorCount) * 4;
+    const severityScore = severityToScore(meta.issue.severity);
+    const actionabilityScore = meta.issue.suggestedFix ? 2 : 0;
+    
+    const priorityScore = agreementScore + severityScore + actionabilityScore + (meta.scoreImpact * 5);
+    
+    scoredIssues.push({
+      ...meta,
+      priorityScore,
+    });
+  }
+
+  scoredIssues.sort((a, b) => b.priorityScore - a.priorityScore);
+
+  const topIssues = scoredIssues.slice(0, 5);
+
+  const prioritizedIssues: PrioritizedIssue[] = topIssues.map((meta) => ({
+    dimension: meta.issue.dimension,
+    issue: meta.issue.description,
+    suggestedFix: meta.issue.suggestedFix ?? "Review and address this concern",
+    priority: priorityFromScore(meta.priorityScore),
+    quote: meta.issue.quote,
+    agreedByEvaluators: meta.evaluatorCount,
+  }));
+
+  const criticalCount = prioritizedIssues.filter(i => i.priority === "critical").length;
+  const highCount = prioritizedIssues.filter(i => i.priority === "high").length;
+  const mediumCount = prioritizedIssues.filter(i => i.priority === "medium").length;
+  
+  let summary: string;
+  if (prioritizedIssues.length === 0) {
+    summary = "No actionable issues identified.";
+  } else if (criticalCount > 0) {
+    summary = `${criticalCount} critical issue(s) require immediate attention. ${highCount} high-priority and ${mediumCount} medium-priority issues also flagged.`;
+  } else if (highCount > 0) {
+    summary = `${highCount} high-priority issue(s) should be addressed. ${mediumCount} medium-priority issues also noted.`;
+  } else {
+    summary = `${prioritizedIssues.length} issue(s) identified for refinement, mostly minor improvements.`;
+  }
+
+  console.log(`[Consensus Scorer] Aggregated ${allIssues.length} issues into ${prioritizedIssues.length} prioritized items`);
+  console.log(`[Consensus Scorer] Summary: ${summary}`);
+
+  return {
+    issues: prioritizedIssues,
+    summary,
+    topPriority: prioritizedIssues[0] ?? null,
   };
 }
