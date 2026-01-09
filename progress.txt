@@ -139,3 +139,18 @@ Thread: https://ampcode.com/threads/T-019ba49c-9bb1-7329-acee-a6011ba02bf4
   - consolidateCritiques merges all evaluator critiques with Markdown formatting
   - ClarityScore.consensusMethod is "median" | "post-discussion" | "tiebreaker"
 ---
+
+## Sat 10 Jan 2026 - US-010
+Thread: https://ampcode.com/threads/T-019ba4a0-9b36-7328-90cb-163babd730e9
+- Added aggregateCritiques function to /lib/agents/consensus-scorer.ts
+- Merges issues from all evaluators using Jaccard similarity (>0.6 threshold) for deduplication
+- Prioritizes by: agreement score (evaluatorCount/total * 4), severity (1-3), actionability (+2 if fix exists), scoreImpact
+- Returns AggregatedCritique with top 5 PrioritizedIssue items + summary
+- Each PrioritizedIssue has: dimension, issue, suggestedFix, priority (critical/high/medium/low), quote, agreedByEvaluators
+- Files changed: lib/agents/consensus-scorer.ts
+- **Learnings for future iterations:**
+  - PrioritizedIssue type pre-defined in lib/types/clarity-scoring.ts
+  - areIssuesSimilar uses Jaccard similarity on normalized words for fuzzy matching
+  - priorityFromScore thresholds: >=8 critical, >=5 high, >=3 medium, else low
+  - AggregatedCritique.topPriority is first item or null for quick access
+---
