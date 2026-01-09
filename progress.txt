@@ -161,3 +161,16 @@ Thread: https://ampcode.com/threads/T-019ba4ea-db8f-742f-b7ba-36a8fbb68f75
   - TARGET_SCORE = 8.0, MAX_ATTEMPTS = 3
   - trackDimensionScoreChanges() compares before/after ConsensusResult for dimension-level tracking
 ---
+
+## 2026-01-10 - US-013
+Thread: https://ampcode.com/threads/T-019ba4ee-67c5-71ec-866e-1e4ecdd7651d
+- Created migration /lib/supabase/migrations/004_add_quality_warning_columns.sql
+- Added quality_warning (boolean, default false), quality_warning_reason (text, nullable), refinement_metadata (JSONB) columns to briefs table
+- Updated Database interface in client.ts with Row, Insert, and Update types for new columns
+- Added partial index on quality_warning for efficient filtering of briefs needing attention
+- Files changed: lib/supabase/migrations/004_add_quality_warning_columns.sql (new), lib/supabase/client.ts
+- **Learnings for future iterations:**
+  - Migrations directory structure: /lib/supabase/migrations/
+  - Use IF NOT EXISTS for column/index additions to make migrations idempotent
+  - Database Row types need fields for all columns, Insert/Update types use optional for nullable/defaulted fields
+---
