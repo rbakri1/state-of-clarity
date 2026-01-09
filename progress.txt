@@ -154,3 +154,21 @@ Thread: https://ampcode.com/threads/T-019ba4a0-9b36-7328-90cb-163babd730e9
   - priorityFromScore thresholds: >=8 critical, >=5 high, >=3 medium, else low
   - AggregatedCritique.topPriority is first item or null for quick access
 ---
+
+## Sat 10 Jan 2026 - US-011
+Thread: https://ampcode.com/threads/T-019ba4a4-f64e-71a4-8add-c6018f0ea982
+- Integrated consensus scorer into langgraph-orchestrator.ts pipeline
+- Created /lib/agents/langgraph-orchestrator.ts with consensusScoringNode replacing old clarityScoringNode
+- Imports from other branch: execution-logger, retry-wrapper, reconciliation-agent, question-classifier, specialist-personas, summary-prompts, brief-service, classification types
+- Added ConsensusResult and ScoringMetadata interfaces to track scoring details
+- Implemented refinement loop: triggers if score <8.0, max 2 attempts
+- Flags needsHumanReview=true with reviewReason when tiebreaker is invoked
+- Updated brief-service.ts to store scoring_metadata, needs_human_review, review_reason fields
+- Pipeline flow: Research → Classification → [Structure || Narrative] → Reconciliation → [4x Summary] → Consensus Scoring (with optional refinement)
+- Files changed: lib/agents/langgraph-orchestrator.ts (new), lib/services/brief-service.ts (updated), plus imported files from parallel-execution branch
+- **Learnings for future iterations:**
+  - LangGraph conditional edges use addConditionalEdges(node, shouldXFn, {option1: "node1", option2: END})
+  - EvaluateBriefInput uses Record<string, unknown> for structuredData, cast using `as unknown as`
+  - Brief-service imports types from langgraph-orchestrator, so orchestrator must exist first
+  - Consensus scoring returns ClarityScore with consensusMethod field ("median" | "post-discussion" | "tiebreaker")
+---
