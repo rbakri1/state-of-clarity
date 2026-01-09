@@ -17,6 +17,7 @@ import { getSummaryPrompt, getAllReadingLevels } from "./summary-prompts";
 import { withRetry } from "./retry-wrapper";
 import { executeWithLogging, ExecutionContext } from "./execution-logger";
 import { reconcileOutputs as reconcileOutputsAgent } from "./reconciliation-agent";
+import { updateBriefClassification, completeBriefGeneration } from "../services/brief-service";
 
 export interface StructureOutput {
   factors: Array<{
@@ -158,6 +159,7 @@ async function researchNode(state: BriefState): Promise<Partial<BriefState>> {
 
 async function classificationNode(state: BriefState): Promise<Partial<BriefState>> {
   console.log('[Orchestrator] Starting Classification node');
+  const classificationStartTime = Date.now();
   
   const context = getExecutionContext(state, 'sequential');
   
@@ -171,7 +173,19 @@ async function classificationNode(state: BriefState): Promise<Partial<BriefState
     { inputText: state.question }
   );
   
+  const classificationDuration = Date.now() - classificationStartTime;
+  console.log(`[Orchestrator] Classification completed in ${classificationDuration}ms`);
+  console.log(`[Orchestrator] Classification result:`, JSON.stringify(classification));
+  
   const persona = getSpecialistPersona(classification.domain);
+  console.log(`[Orchestrator] Selected specialist persona: ${persona.name}`);
+  
+  // Save classification to brief record if briefId is available
+  if (state.briefId) {
+    updateBriefClassification(state.briefId, classification).catch((err) => {
+      console.error('[Orchestrator] Failed to save classification to database:', err);
+    });
+  }
   
   return {
     classification,
@@ -646,6 +660,13 @@ export async function generateBrief(question: string, briefId?: string): Promise
     
     console.log(`[Orchestrator] Brief generation completed in ${duration}ms`);
     console.log(`[Orchestrator] Completed steps: ${result.completedSteps?.join(', ')}`);
+    
+    // Save the complete brief to the database if briefId is available
+    if (result.briefId && !result.error) {
+      completeBriefGeneration(result.briefId, result as BriefState, duration).catch((err) => {
+        console.error('[Orchestrator] Failed to save completed brief to database:', err);
+      });
+    }
     
     return result as BriefState;
   } catch (error) {
