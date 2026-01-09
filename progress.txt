@@ -209,3 +209,23 @@ Thread: https://ampcode.com/threads/T-019ba4f6-bec1-7161-9df6-82a76ff79486
   - Supabase inserts still need `as never` cast, result needs explicit type cast
   - RefinementLoopInput now includes optional briefId for database linking
 ---
+
+## 2026-01-10 - US-016
+Thread: https://ampcode.com/threads/T-019ba4fc-f0bd-759c-abca-101637d5ccb4
+- Created /test-refinement.ts test script for the refinement system
+- Includes 4 test cases:
+  1. Verify correct fixers deployed based on dimension scores <7.0
+  2. Verify refinement loop with score improvement (stops early when target reached)
+  3. Verify loop stops at max 3 attempts when score never reaches target
+  4. Verify no refinement for already passing briefs (score ≥8.0)
+- Uses mock brief with known low-scoring dimensions (bias, objectivity, evidence quality)
+- Uses mock scoring function that simulates score progression
+- Tests verify edits are suggested, applied by reconciliation agent, and re-scoring happens
+- All tests pass with console output showing detailed results
+- Files changed: test-refinement.ts (new)
+- **Learnings for future iterations:**
+  - Mock scoring function can simulate score progression across attempts
+  - Database logging errors are expected in test environment without tables
+  - Tests run with `npx tsx test-refinement.ts`
+  - The refinement loop correctly deploys only fixers for dimensions scoring <7.0
+---
