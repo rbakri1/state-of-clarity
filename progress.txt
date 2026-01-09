@@ -1,3 +1,23 @@
 # Ralph Progress Log
 Started: Sat 10 Jan 2026 02:10:52 +04
+
+## Codebase Patterns
+- Use Claude Haiku (claude-3-5-haiku-20241022) for fast/cheap LLM operations like classification
+- Use Claude Sonnet for higher quality operations (reconciliation, complex analysis)
+- Types belong in /lib/types/ directory
+- Pre-existing type errors may exist in app/brief/[id]/page.tsx - use explicit type casts for JSONB fields
+
+---
+
+## 2026-01-10 11:15 - US-001
+Thread: https://ampcode.com/threads/T-019ba4d0-04d6-7331-bbb7-29dc7127c80f
+- Created /lib/types/refinement.ts with all fixer agent types
+- Defined FixerType enum with 7 dimensions (firstPrinciplesCoherence, internalConsistency, evidenceQuality, accessibility, objectivity, factualAccuracy, biasDetection)
+- Defined SuggestedEdit, FixerResult, RefinementAttempt, RefinementResult, FixerInput, DimensionScores, ConsensusResult, ReconciliationResult interfaces
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx (implicit any types in map callbacks)
+- Files changed: lib/types/refinement.ts (new), app/brief/[id]/page.tsx (fixes)
+- **Learnings for future iterations:**
+  - JSONB fields from Supabase need explicit type casts (e.g., `as Record<string, number>`)
+  - brief.sources, brief.clarity_critique.breakdown, etc. need explicit types in .map()
+  - Always run `npm run build` to catch type errors before committing
 ---
