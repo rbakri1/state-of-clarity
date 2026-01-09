@@ -180,7 +180,8 @@ async function classificationNode(state: BriefState): Promise<Partial<BriefState
 }
 
 async function structureNode(state: BriefState): Promise<Partial<BriefState>> {
-  console.log('[Orchestrator] Starting Structure node (parallel)');
+  const startTime = Date.now();
+  console.log('[Orchestrator] Starting Structure node (parallel with Narrative)');
   
   const context = getExecutionContext(state, 'parallel', 'structure-narrative');
   
@@ -193,6 +194,9 @@ async function structureNode(state: BriefState): Promise<Partial<BriefState>> {
     context
   );
   
+  const duration = Date.now() - startTime;
+  console.log(`[Orchestrator] Structure Agent completed in ${duration}ms (running parallel with Narrative)`);
+  
   return {
     structure,
     completedSteps: ['structure'],
@@ -200,7 +204,8 @@ async function structureNode(state: BriefState): Promise<Partial<BriefState>> {
 }
 
 async function narrativeNode(state: BriefState): Promise<Partial<BriefState>> {
-  console.log('[Orchestrator] Starting Narrative node (parallel)');
+  const startTime = Date.now();
+  console.log('[Orchestrator] Starting Narrative node (parallel with Structure)');
   
   const context = getExecutionContext(state, 'parallel', 'structure-narrative');
   
@@ -212,6 +217,9 @@ async function narrativeNode(state: BriefState): Promise<Partial<BriefState>> {
     ),
     context
   );
+  
+  const duration = Date.now() - startTime;
+  console.log(`[Orchestrator] Narrative Agent completed in ${duration}ms (running parallel with Structure)`);
   
   return {
     narrative,
