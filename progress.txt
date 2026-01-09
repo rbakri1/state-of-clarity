@@ -216,3 +216,21 @@ Thread: https://ampcode.com/threads/T-019ba44b-ab18-73b9-b699-8531aa4d471e
   - LangGraph fan-out/fan-in pattern: add multiple edges from same source, multiple edges to same target
   - The reducer function on summaries Annotation merges partial results from parallel nodes
 ---
+
+## 2026-01-09 - US-015
+Thread: https://ampcode.com/threads/T-019ba44d-b125-73aa-8141-100ff562a75e
+- Created `/app/api/briefs/generate/route.ts` as SSE endpoint for real-time generation status
+- Created `/lib/types/generation-events.ts` with GenerationEvent, GenerationEventEmitter types
+- Created `/lib/agents/langgraph-orchestrator-streaming.ts` - event-aware version of the orchestrator
+- SSE endpoint streams: agent_started, agent_completed, stage_changed, brief_ready, error events
+- Each event includes: agentName, timestamp, stageName, and optional metadata (durationMs, briefId, activeAgents)
+- Handles client disconnection via ReadableStream cancel() callback
+- Connection closes automatically when brief generation completes
+- Files changed: app/api/briefs/generate/route.ts (new), lib/types/generation-events.ts (new), lib/agents/langgraph-orchestrator-streaming.ts (new)
+- **Learnings for future iterations:**
+  - Next.js App Router SSE: Use ReadableStream with TextEncoder to send `data: ${JSON.stringify(event)}\n\n`
+  - Set headers: `Content-Type: text/event-stream`, `Cache-Control: no-cache`, `Connection: keep-alive`
+  - Use `export const runtime = 'nodejs'` and `export const dynamic = 'force-dynamic'` for SSE routes
+  - Track client connection with closure variable, check before sending events
+  - LangGraph state can include callback functions for emitting events from nodes
+---
