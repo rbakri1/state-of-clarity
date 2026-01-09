@@ -29,3 +29,15 @@ Thread: https://ampcode.com/threads/T-019ba399-7ada-771e-a0f7-9ba0b8fa3dff
   - Always validate LLM responses with fallback defaults for robustness
   - Use `{{PLACEHOLDER}}` template pattern in prompts for string substitution
 ---
+
+## 2026-01-09 - US-003
+Thread: https://ampcode.com/threads/T-019ba39c-10a8-735c-ae6c-9fd7017aa13f
+- Created `test-question-classifier.ts` with 14 diverse test cases
+- Tests cover: domain classification (5 questions), controversy levels (3 tests), question types (3 tests), temporal scopes (3 tests)
+- All tests pass successfully
+- Files changed: test-question-classifier.ts (new)
+- **Learnings for future iterations:**
+  - Follow test script pattern from test-research-agent.ts: load .env.local with dotenv, run with `npx tsx`
+  - LLM classifications may vary slightly - test for critical fields, allow flexibility on edge cases
+  - Classifier correctly handles: EU=high controversy, 4-day week=medium, factual defs=low
+---
