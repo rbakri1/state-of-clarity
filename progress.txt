@@ -16,3 +16,16 @@ Thread: https://ampcode.com/threads/T-019ba397-f2e7-715b-b16f-06aed11c6102
   - Types directory created at `/lib/types/` for shared type definitions
   - Classification types: Domain (11 values), ControversyLevel (3), QuestionType (4), TemporalScope (4)
 ---
+
+## 2026-01-09 - US-002
+Thread: https://ampcode.com/threads/T-019ba399-7ada-771e-a0f7-9ba0b8fa3dff
+- Created `/lib/agents/question-classifier.ts` with `classifyQuestion()` function
+- Uses Claude Haiku (claude-3-5-haiku-20241022) for cost efficiency
+- Prompt includes 10 diverse examples covering all domain categories
+- Validation functions ensure type safety even if Claude returns unexpected values
+- Files changed: lib/agents/question-classifier.ts (new)
+- **Learnings for future iterations:**
+  - Follow existing agent pattern from research-agent.ts: use Anthropic SDK, extract JSON from response
+  - Always validate LLM responses with fallback defaults for robustness
+  - Use `{{PLACEHOLDER}}` template pattern in prompts for string substitution
+---
