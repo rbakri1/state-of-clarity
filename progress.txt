@@ -154,3 +154,17 @@ Thread: https://ampcode.com/threads/T-019ba43c-9b17-7485-b4de-4cbaf39d2459
   - LangGraph automatically handles fan-in by waiting for all parallel branches before proceeding
   - Import `StateGraph, Annotation, END, START` from "@langchain/langgraph"
 ---
+
+## 2026-01-09 - US-011
+Thread: https://ampcode.com/threads/T-019ba440-a501-76bb-a363-d447d46a0d41
+- Verified and enhanced parallel Structure and Narrative agent execution
+- Structure and Narrative agents already run simultaneously via LangGraph parallel edges
+- Both agents receive same research sources via `state.sources`
+- Both agents use specialist persona from classification via `state.persona`
+- Added explicit timing logs for parallel execution visibility
+- Files changed: lib/agents/langgraph-orchestrator.ts (enhanced logging)
+- **Learnings for future iterations:**
+  - LangGraph parallel execution: adding multiple edges from same source node causes parallel execution
+  - The parallel execution was already implemented in US-010 - just needed timing logs for observability
+  - Use `Date.now()` for inline timing measurements in node functions
+---
