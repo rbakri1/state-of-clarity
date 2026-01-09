@@ -175,6 +175,33 @@ export interface Database {
           error_message?: string | null;
         };
       };
+      agent_execution_logs: {
+        Row: {
+          id: string;
+          brief_id: string | null;
+          agent_name: string;
+          started_at: string;
+          completed_at: string | null;
+          duration_ms: number | null;
+          status: "running" | "completed" | "failed";
+          error_message: string | null;
+          metadata: any; // JSONB
+        };
+        Insert: {
+          brief_id?: string | null;
+          agent_name: string;
+          started_at?: string;
+          status?: "running" | "completed" | "failed";
+          metadata?: any;
+        };
+        Update: {
+          completed_at?: string;
+          duration_ms?: number;
+          status?: "running" | "completed" | "failed";
+          error_message?: string | null;
+          metadata?: any;
+        };
+      };
     };
   };
 }

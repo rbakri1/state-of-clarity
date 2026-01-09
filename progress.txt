@@ -5,6 +5,8 @@ Started: Fri  9 Jan 2026 20:30:01 +04
 - Pre-existing typecheck errors in `app/brief/[id]/page.tsx` and `lib/supabase/client.ts` - these are unrelated to new changes
 - Agents live in `/lib/agents/` directory
 - Types should be organized in `/lib/types/` directory
+- Migrations go in `/lib/supabase/migrations/` directory - use `IF NOT EXISTS` for idempotent migrations
+- Database types are defined in `/lib/supabase/client.ts` Database interface - update Row, Insert, and Update for new columns
 
 ---
 
@@ -40,4 +42,30 @@ Thread: https://ampcode.com/threads/T-019ba39c-10a8-735c-ae6c-9fd7017aa13f
   - Follow test script pattern from test-research-agent.ts: load .env.local with dotenv, run with `npx tsx`
   - LLM classifications may vary slightly - test for critical fields, allow flexibility on edge cases
   - Classifier correctly handles: EU=high controversy, 4-day week=medium, factual defs=low
+---
+
+## 2026-01-09 - US-004
+Thread: https://ampcode.com/threads/T-019ba39f-2e79-7413-a8d7-8d319908e5fb
+- Added `classification` JSONB column to briefs table in schema.sql
+- Updated Database interface in client.ts with classification field in Row, Insert, and Update types
+- Created migration file: `/lib/supabase/migrations/001_add_classification_column.sql`
+- Files changed: lib/supabase/schema.sql, lib/supabase/client.ts, lib/supabase/migrations/001_add_classification_column.sql (new)
+- **Learnings for future iterations:**
+  - Migrations directory created at `/lib/supabase/migrations/` for database migrations
+  - Use `ADD COLUMN IF NOT EXISTS` for idempotent migrations that can be run multiple times safely
+  - When adding new columns, update all three places in Database interface: Row, Insert, Update
+  - Installed missing `tailwindcss-animate` dependency that was blocking builds
+---
+
+## 2026-01-09 - US-005
+Thread: https://ampcode.com/threads/T-019ba3a1-c42c-77dd-81eb-27acf81517a8
+- Created `/lib/agents/specialist-personas.ts` with 10 domain-specific agent personas
+- Each persona includes: name, domain, expertise, systemPrompt, keyConsiderations, preferredSources
+- Personas cover all 11 Domain types (economics, healthcare, climate, education, defense, immigration, housing, justice, technology, governance, other)
+- Exported `getSpecialistPersona(domain: Domain)` and `getAllPersonas()` functions
+- Files changed: lib/agents/specialist-personas.ts (new)
+- **Learnings for future iterations:**
+  - Specialist personas are mapped directly from Domain types in classification.ts
+  - Each persona includes UK-specific sources (e.g., ONS, NHS, IFS) as preferred sources
+  - The 'other' domain uses a generalist persona for cross-cutting topics
 ---

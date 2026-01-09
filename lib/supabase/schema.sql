@@ -187,6 +187,27 @@ CREATE TABLE public.brief_jobs (
   api_cost_gbp NUMERIC(6, 4) -- Track actual cost per brief
 );
 
+-- Agent execution logs (for observability and optimization)
+CREATE TABLE public.agent_execution_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  brief_id UUID REFERENCES public.briefs(id) ON DELETE CASCADE,
+
+  -- Agent details
+  agent_name TEXT NOT NULL,
+
+  -- Timing
+  started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMPTZ,
+  duration_ms INTEGER,
+
+  -- Status
+  status TEXT NOT NULL DEFAULT 'running' CHECK (status IN ('running', 'completed', 'failed')),
+  error_message TEXT,
+
+  -- Metadata (input/output sizes, parallel execution info, etc.)
+  metadata JSONB DEFAULT '{}'::jsonb
+);
+
 ---
 --- INDEXES
 ---
@@ -215,6 +236,10 @@ CREATE UNIQUE INDEX idx_unique_vote_per_user ON public.feedback(brief_id, user_i
 CREATE INDEX idx_brief_jobs_status ON public.brief_jobs(status);
 CREATE INDEX idx_brief_jobs_user_id ON public.brief_jobs(user_id);
 CREATE INDEX idx_brief_jobs_created_at ON public.brief_jobs(created_at DESC);
+
+-- Agent execution logs
+CREATE INDEX idx_agent_execution_logs_brief_id ON public.agent_execution_logs(brief_id);
+CREATE INDEX idx_agent_execution_logs_started_at ON public.agent_execution_logs(started_at DESC);
 
 ---
 --- FUNCTIONS
@@ -279,6 +304,7 @@ ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.saved_briefs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reading_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.brief_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.agent_execution_logs ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Public read, users can update their own
 CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles
@@ -348,6 +374,13 @@ CREATE POLICY "Users can view own brief jobs" ON public.brief_jobs
 CREATE POLICY "System can manage brief jobs" ON public.brief_jobs
   FOR ALL USING (true);
 
+-- Agent execution logs: Public read for observability, system can manage
+CREATE POLICY "Agent execution logs are viewable by everyone" ON public.agent_execution_logs
+  FOR SELECT USING (true);
+
+CREATE POLICY "System can manage agent execution logs" ON public.agent_execution_logs
+  FOR ALL USING (true);
+
 ---
 --- SEED DATA (Optional - for testing)
 ---
@@ -359,5 +392,6 @@ COMMENT ON TABLE public.briefs IS 'Stores generated policy briefs with all conte
 COMMENT ON TABLE public.sources IS 'Stores sources used in briefs with classification metadata';
 COMMENT ON TABLE public.feedback IS 'User feedback on briefs (votes, suggestions, error reports)';
 COMMENT ON TABLE public.brief_jobs IS 'Tracks async brief generation jobs for status updates';
+COMMENT ON TABLE public.agent_execution_logs IS 'Logs agent execution times and status for observability and optimization';
 COMMENT ON COLUMN public.briefs.clarity_score IS 'Overall quality score 0-10 from automated scoring algorithm';
 COMMENT ON COLUMN public.sources.political_lean IS 'Political bias classification for source diversity tracking';
