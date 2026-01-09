@@ -181,6 +181,39 @@ export interface Database {
           error_message?: string | null;
         };
       };
+      agent_execution_logs: {
+        Row: {
+          id: string;
+          brief_id: string | null;
+          agent_name: string;
+          agent_type: "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
+          started_at: string;
+          completed_at: string | null;
+          duration_ms: number | null;
+          status: "running" | "success" | "failed" | "skipped";
+          error_message: string | null;
+          metadata: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: {
+          brief_id?: string | null;
+          agent_name: string;
+          agent_type: "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
+          started_at?: string;
+          completed_at?: string | null;
+          duration_ms?: number | null;
+          status?: "running" | "success" | "failed" | "skipped";
+          error_message?: string | null;
+          metadata?: Record<string, unknown>;
+        };
+        Update: {
+          completed_at?: string | null;
+          duration_ms?: number | null;
+          status?: "running" | "success" | "failed" | "skipped";
+          error_message?: string | null;
+          metadata?: Record<string, unknown>;
+        };
+      };
     };
   };
 }

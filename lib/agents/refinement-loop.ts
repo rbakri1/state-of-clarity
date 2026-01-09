@@ -21,6 +21,12 @@ import {
   reconcileEdits,
   ReconciliationInput,
 } from "@/lib/agents/fixers/edit-reconciliation-agent";
+import {
+  logRefinementAttempt,
+  logRefinementSummary,
+  logOrchestratorExecution,
+  logReconciliationExecution,
+} from "@/lib/agents/execution-logger";
 
 const TARGET_SCORE = 8.0;
 const MAX_ATTEMPTS = 3;
@@ -30,6 +36,7 @@ const MAX_ATTEMPTS = 3;
  */
 export interface RefinementLoopInput {
   brief: string;
+  briefId?: string;
   initialConsensusResult: ConsensusResult;
   sources?: Array<{
     url: string;
@@ -103,7 +110,7 @@ export async function refineUntilPassing(
   input: RefinementLoopInput
 ): Promise<RefinementResult> {
   const startTime = Date.now();
-  const { brief, initialConsensusResult, sources, scoringFunction } = input;
+  const { brief, briefId, initialConsensusResult, sources, scoringFunction } = input;
   const maxAttempts = input.maxAttempts ?? MAX_ATTEMPTS;
 
   let currentBrief = brief;
@@ -143,7 +150,35 @@ export async function refineUntilPassing(
       sources,
     };
 
+    const orchestratorStartTime = Date.now();
     const orchestratorResult = await orchestrateFixes(orchestratorInput);
+    const orchestratorDuration = Date.now() - orchestratorStartTime;
+
+    const allFixerTypes: FixerType[] = [
+      FixerType.firstPrinciplesCoherence,
+      FixerType.internalConsistency,
+      FixerType.evidenceQuality,
+      FixerType.accessibility,
+      FixerType.objectivity,
+      FixerType.factualAccuracy,
+      FixerType.biasDetection,
+    ];
+    const fixersSkipped = allFixerTypes.filter(
+      (ft) => !orchestratorResult.fixersDeployed.includes(ft)
+    );
+    const dimensionScoresMap: Record<string, number> = {};
+    for (const ft of allFixerTypes) {
+      dimensionScoresMap[ft] = currentConsensusResult.dimensionScores[ft];
+    }
+
+    await logOrchestratorExecution(briefId, {
+      fixersDeployed: orchestratorResult.fixersDeployed,
+      fixersSkipped,
+      totalEditsCollected: orchestratorResult.allSuggestedEdits.length,
+      processingTimeMs: orchestratorDuration,
+      dimensionScores: dimensionScoresMap,
+      status: "success",
+    });
 
     console.log(
       `[RefinementLoop] Attempt ${attemptNumber}: Deployed ${orchestratorResult.fixersDeployed.length} fixers, got ${orchestratorResult.allSuggestedEdits.length} edit suggestions`
@@ -166,7 +201,19 @@ export async function refineUntilPassing(
       fixerResults: orchestratorResult.fixerResults,
     };
 
+    const reconciliationStartTime = Date.now();
     const reconciliationResult = await reconcileEdits(reconciliationInput);
+    const reconciliationDuration = Date.now() - reconciliationStartTime;
+
+    const totalEditsReceived = orchestratorResult.allSuggestedEdits.length;
+    await logReconciliationExecution(briefId, {
+      editsReceived: totalEditsReceived,
+      editsApplied: reconciliationResult.editsApplied.length,
+      editsSkipped: reconciliationResult.editsSkipped.length,
+      conflictsResolved: reconciliationResult.editsSkipped.length,
+      processingTimeMs: reconciliationDuration,
+      status: "success",
+    });
 
     console.log(
       `[RefinementLoop] Attempt ${attemptNumber}: Applied ${reconciliationResult.editsApplied.length} edits, skipped ${reconciliationResult.editsSkipped.length}`
@@ -220,11 +267,22 @@ export async function refineUntilPassing(
     };
     attempts.push(attemptRecord);
 
+    await logRefinementAttempt(briefId, attemptRecord);
+
     // Check if we've reached the target score
     if (scoreAfter >= TARGET_SCORE) {
       console.log(
         `[RefinementLoop] Target score (≥${TARGET_SCORE}) reached after ${attemptNumber} attempt(s)`
       );
+
+      await logRefinementSummary(briefId, {
+        attempts,
+        initialScore: initialConsensusResult.overallScore,
+        finalScore: scoreAfter,
+        success: true,
+        totalProcessingTimeMs: Date.now() - startTime,
+      });
+
       return {
         finalBrief: currentBrief,
         finalScore: scoreAfter,
@@ -237,9 +295,22 @@ export async function refineUntilPassing(
 
   // Max attempts exhausted without reaching target
   const finalScore = currentConsensusResult.overallScore;
+  const warningReason = attempts.length > 0 
+    ? generateWarningReason(finalScore, attempts) 
+    : `Brief scored ${finalScore.toFixed(1)}/10, no refinement attempts could be completed.`;
+
   console.log(
     `[RefinementLoop] Max attempts (${maxAttempts}) exhausted. Final score: ${finalScore.toFixed(1)}/10`
   );
+
+  await logRefinementSummary(briefId, {
+    attempts,
+    initialScore: initialConsensusResult.overallScore,
+    finalScore,
+    success: false,
+    totalProcessingTimeMs: Date.now() - startTime,
+    warningReason,
+  });
 
   return {
     finalBrief: currentBrief,
@@ -247,6 +318,6 @@ export async function refineUntilPassing(
     success: false,
     attempts,
     totalProcessingTime: Date.now() - startTime,
-    warningReason: generateWarningReason(finalScore, attempts),
+    warningReason,
   };
 }
