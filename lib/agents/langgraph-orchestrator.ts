@@ -16,6 +16,7 @@ import { getSpecialistPersona } from "./specialist-personas";
 import { getSummaryPrompt, getAllReadingLevels } from "./summary-prompts";
 import { withRetry } from "./retry-wrapper";
 import { executeWithLogging, ExecutionContext } from "./execution-logger";
+import { reconcileOutputs as reconcileOutputsAgent } from "./reconciliation-agent";
 
 export interface StructureOutput {
   factors: Array<{
@@ -476,56 +477,10 @@ async function reconcileOutputs(state: BriefState): Promise<ReconciliationOutput
     };
   }
   
-  const Anthropic = (await import("@anthropic-ai/sdk")).default;
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  
-  const message = await anthropic.messages.create({
-    model: "claude-3-5-haiku-20241022",
-    max_tokens: 2000,
-    messages: [{
-      role: "user",
-      content: `Compare these two outputs and identify any inconsistencies.
-
-STRUCTURE (Source of Truth):
-${JSON.stringify(state.structure, null, 2)}
-
-NARRATIVE:
-${JSON.stringify(state.narrative, null, 2)}
-
-Check:
-1. Do all factors in the Narrative appear in the Structure table?
-2. Do all policies mentioned align?
-3. Are there any contradictory statements?
-
-If inconsistencies exist, provide a corrected narrative that aligns with the Structure.
-
-Return a JSON object:
-{
-  "isConsistent": boolean,
-  "changes": ["List of changes made, or empty if consistent"],
-  "reconciledNarrative": {
-    "introduction": "...",
-    "mainBody": "...",
-    "conclusion": "...",
-    "keyTakeaways": ["..."]
-  }
-}
-
-If the narrative is already consistent, return it unchanged in reconciledNarrative.`
-    }],
+  return reconcileOutputsAgent({
+    structure: state.structure,
+    narrative: state.narrative,
   });
-  
-  const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    return {
-      reconciledNarrative: state.narrative,
-      changes: [],
-      isConsistent: true,
-    };
-  }
-  
-  return JSON.parse(jsonMatch[0]) as ReconciliationOutput;
 }
 
 async function generateSummary(state: BriefState, level: ReadingLevel): Promise<string> {
