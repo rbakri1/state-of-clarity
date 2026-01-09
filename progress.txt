@@ -110,3 +110,19 @@ Thread: https://ampcode.com/threads/T-019ba4df-a07d-73dd-b9bf-a65b2c623670
   - Focus areas: loaded language, selective emphasis, framing, attribution bias
   - All 7 fixer agents now complete (US-003 through US-009)
 ---
+
+## 2026-01-10 - US-010
+Thread: https://ampcode.com/threads/T-019ba4e1-312f-71fe-ad6a-788583aa3af5
+- Created /lib/agents/fixers/fixer-orchestrator.ts
+- Receives ConsensusResult with dimension breakdown
+- Determines which fixers to deploy based on dimension scores <7.0 threshold
+- Creates fixer instances dynamically based on FixerType
+- Runs all needed fixers in parallel using Promise.all
+- Collects all SuggestedEdit arrays from fixer results
+- Logs deployment decisions, dimension scores, and results with timing
+- Files changed: lib/agents/fixers/fixer-orchestrator.ts (new)
+- **Learnings for future iterations:**
+  - Orchestrator returns OrchestratorResult with fixersDeployed, fixerResults, allSuggestedEdits
+  - Use createFixerInstance(fixerType) to dynamically instantiate fixer classes
+  - SCORE_THRESHOLD = 7.0 for triggering fixer deployment
+---
