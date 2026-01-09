@@ -20,8 +20,12 @@ import {
   EvaluatorVerdict,
   DisagreementResult,
   DimensionName,
+  DimensionScore,
+  ClarityScore,
   CLARITY_DIMENSIONS,
+  getDimensionWeight,
 } from "../types/clarity-scoring";
+import { ARBITER_WEIGHT_MULTIPLIER } from "./tiebreaker-agent";
 
 export interface ConsensusInput {
   brief: Brief | EvaluateBriefInput;
@@ -304,5 +308,198 @@ export function detectDisagreement(
     disagreeingDimensions,
     maxSpread,
     evaluatorPositions,
+  };
+}
+
+export interface FinalScoreInput {
+  verdicts: EvaluatorVerdict[];
+  disagreement?: DisagreementResult;
+  arbiterVerdict?: EvaluatorVerdict;
+  discussionOccurred?: boolean;
+}
+
+function getMedian(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+  return sorted[mid];
+}
+
+function calculateDimensionMedianScores(
+  verdicts: EvaluatorVerdict[]
+): DimensionScore[] {
+  const dimensionNames = Object.keys(CLARITY_DIMENSIONS) as DimensionName[];
+  
+  return dimensionNames.map((dimension) => {
+    const scores = verdicts.map((v) => {
+      const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+      return dimScore?.score ?? 0;
+    });
+    
+    const medianScore = getMedian(scores);
+    const allReasonings = verdicts
+      .map((v) => {
+        const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+        return dimScore ? `[${v.evaluatorRole}] ${dimScore.reasoning}` : "";
+      })
+      .filter(Boolean);
+    
+    const allIssues = verdicts.flatMap((v) => {
+      const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+      return dimScore?.issues ?? [];
+    });
+
+    return {
+      dimension,
+      score: Math.round(medianScore * 10) / 10,
+      reasoning: allReasonings.join("\n\n"),
+      issues: [...new Set(allIssues)],
+    };
+  });
+}
+
+function calculateDimensionScoresWithArbiter(
+  verdicts: EvaluatorVerdict[],
+  arbiterVerdict: EvaluatorVerdict,
+  disagreeingDimensions: DimensionName[]
+): DimensionScore[] {
+  const dimensionNames = Object.keys(CLARITY_DIMENSIONS) as DimensionName[];
+  
+  return dimensionNames.map((dimension) => {
+    const isDisputed = disagreeingDimensions.includes(dimension);
+    
+    const primaryScores = verdicts.map((v) => {
+      const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+      return dimScore?.score ?? 0;
+    });
+    
+    const arbiterScore = arbiterVerdict.dimensionScores.find(
+      (d) => d.dimension === dimension
+    )?.score ?? 0;
+
+    let finalScore: number;
+    if (isDisputed) {
+      const totalWeight = verdicts.length + ARBITER_WEIGHT_MULTIPLIER;
+      const sum = primaryScores.reduce((acc, s) => acc + s, 0) + (arbiterScore * ARBITER_WEIGHT_MULTIPLIER);
+      finalScore = sum / totalWeight;
+    } else {
+      finalScore = getMedian(primaryScores);
+    }
+
+    const allReasonings = verdicts
+      .map((v) => {
+        const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+        return dimScore ? `[${v.evaluatorRole}] ${dimScore.reasoning}` : "";
+      })
+      .filter(Boolean);
+    
+    const arbiterReasoning = arbiterVerdict.dimensionScores.find(
+      (d) => d.dimension === dimension
+    )?.reasoning;
+    if (arbiterReasoning) {
+      allReasonings.push(`[Arbiter${isDisputed ? " - TIEBREAKER" : ""}] ${arbiterReasoning}`);
+    }
+
+    const allIssues = [...verdicts, arbiterVerdict].flatMap((v) => {
+      const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+      return dimScore?.issues ?? [];
+    });
+
+    return {
+      dimension,
+      score: Math.round(finalScore * 10) / 10,
+      reasoning: allReasonings.join("\n\n"),
+      issues: [...new Set(allIssues)],
+    };
+  });
+}
+
+function consolidateCritiques(verdicts: EvaluatorVerdict[], arbiterVerdict?: EvaluatorVerdict): string {
+  const critiques = verdicts.map((v) => `**${v.evaluatorRole}:** ${v.critique}`);
+  
+  if (arbiterVerdict) {
+    critiques.push(`**Arbiter (Tiebreaker):** ${arbiterVerdict.critique}`);
+  }
+  
+  return critiques.join("\n\n---\n\n");
+}
+
+function calculateWeightedOverall(dimensionScores: DimensionScore[]): number {
+  let weightedSum = 0;
+  let totalWeight = 0;
+  
+  for (const dimScore of dimensionScores) {
+    const weight = getDimensionWeight(dimScore.dimension);
+    weightedSum += dimScore.score * weight;
+    totalWeight += weight;
+  }
+  
+  return Math.round((weightedSum / totalWeight) * 10) / 10;
+}
+
+/**
+ * Calculate the final clarity score from the consensus panel output.
+ * 
+ * Calculation methods:
+ * - median: Use median of 3 evaluator scores per dimension (no disagreement)
+ * - post-discussion: Use post-discussion scores (disagreement resolved by discussion)
+ * - tiebreaker: Weight Arbiter 1.5x for disputed dimensions
+ * 
+ * @param input - Verdicts from evaluators, optional disagreement result and arbiter verdict
+ * @returns ClarityScore with overall score, dimension breakdown, and consolidated critique
+ */
+export function calculateFinalScore(input: FinalScoreInput): ClarityScore {
+  const { verdicts, disagreement, arbiterVerdict, discussionOccurred } = input;
+  
+  let consensusMethod: ClarityScore["consensusMethod"];
+  let dimensionBreakdown: DimensionScore[];
+  let needsHumanReview = false;
+  let reviewReason: string | undefined;
+
+  if (arbiterVerdict && disagreement?.hasDisagreement) {
+    consensusMethod = "tiebreaker";
+    dimensionBreakdown = calculateDimensionScoresWithArbiter(
+      verdicts,
+      arbiterVerdict,
+      disagreement.disagreeingDimensions
+    );
+    needsHumanReview = true;
+    reviewReason = `Tiebreaker invoked due to ${disagreement.disagreeingDimensions.length} disputed dimension(s): ${disagreement.disagreeingDimensions.join(", ")}. Max spread: ${disagreement.maxSpread.toFixed(1)}.`;
+    
+    console.log(`[Consensus Scorer] Using tiebreaker method (Arbiter weight: ${ARBITER_WEIGHT_MULTIPLIER}x for disputed dimensions)`);
+  } else if (discussionOccurred && disagreement?.hasDisagreement) {
+    consensusMethod = "post-discussion";
+    dimensionBreakdown = calculateDimensionMedianScores(verdicts);
+    
+    console.log(`[Consensus Scorer] Using post-discussion method`);
+  } else {
+    consensusMethod = "median";
+    dimensionBreakdown = calculateDimensionMedianScores(verdicts);
+    
+    console.log(`[Consensus Scorer] Using median method`);
+  }
+
+  const overallScore = calculateWeightedOverall(dimensionBreakdown);
+  const critique = consolidateCritiques(verdicts, arbiterVerdict);
+  
+  const allVerdicts = arbiterVerdict ? [...verdicts, arbiterVerdict] : verdicts;
+  const avgConfidence = allVerdicts.reduce((sum, v) => sum + v.confidence, 0) / allVerdicts.length;
+
+  console.log(`[Consensus Scorer] Final score: ${overallScore.toFixed(1)} (method: ${consensusMethod})`);
+
+  return {
+    overallScore,
+    dimensionBreakdown,
+    critique,
+    confidence: Math.round(avgConfidence * 100) / 100,
+    evaluatorVerdicts: allVerdicts,
+    consensusMethod,
+    hasDisagreement: disagreement?.hasDisagreement ?? false,
+    needsHumanReview,
+    reviewReason,
+    scoredAt: new Date().toISOString(),
   };
 }
