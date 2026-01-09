@@ -172,7 +172,13 @@ Guidelines:
   });
 
   const responseText = message.content[0].type === "text" ? message.content[0].text : "";
-  const classifications = JSON.parse(responseText);
+
+  // Extract JSON from response (Claude sometimes adds explanation text)
+  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    throw new Error("Could not extract JSON from Claude response");
+  }
+  const classifications = JSON.parse(jsonMatch[0]);
 
   return sources.map((source, index) => ({
     ...source,

@@ -126,10 +126,7 @@ CREATE TABLE public.feedback (
   reviewed_at TIMESTAMPTZ,
 
   -- Timestamps
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-
-  -- Prevent duplicate votes
-  CONSTRAINT unique_vote_per_user UNIQUE (brief_id, user_id, type) WHERE type IN ('upvote', 'downvote')
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Saved briefs (user bookmarks)
@@ -206,6 +203,10 @@ CREATE INDEX idx_sources_publication_date ON public.sources(publication_date DES
 CREATE INDEX idx_feedback_brief_id ON public.feedback(brief_id);
 CREATE INDEX idx_feedback_status ON public.feedback(status);
 CREATE INDEX idx_feedback_created_at ON public.feedback(created_at DESC);
+
+-- Prevent duplicate votes (partial unique index)
+CREATE UNIQUE INDEX idx_unique_vote_per_user ON public.feedback(brief_id, user_id, type)
+  WHERE type IN ('upvote', 'downvote');
 
 -- Brief jobs
 CREATE INDEX idx_brief_jobs_status ON public.brief_jobs(status);
