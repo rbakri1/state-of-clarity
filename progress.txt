@@ -39,3 +39,14 @@ Thread: https://ampcode.com/threads/T-019ba516-016d-778e-b0f8-6e2bcf259c44
   - The 3 evaluators run in parallel via Promise.all for performance
   - JSON extraction from Claude uses regex match /\{[\s\S]*\}/ pattern
 ---
+
+## 2026-01-10 - US-003
+Thread: https://ampcode.com/threads/T-019ba518-0b34-7729-8d4a-e09627893ffe
+- Verified tiered publishing logic in quality-gate.ts
+- Updated runQualityGate() to use getTierDecision() for logging decisions with reasoning
+- Tier logic: HIGH (≥8.0) → publishable, no warning; ACCEPTABLE (6.0-7.9) → publishable with warning; FAILED (<6.0) → not publishable, refund required
+- Files changed: lib/agents/quality-gate.ts (updated import and logging)
+- **Learnings for future iterations:**
+  - getTierDecision() returns reasoning string that should be logged for debugging
+  - createQualityGateResult() handles all tier determination logic based on score
+---

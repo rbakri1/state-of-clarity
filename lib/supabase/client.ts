@@ -172,6 +172,36 @@ export interface Database {
           error_message?: string | null;
         };
       };
+      retry_queue: {
+        Row: {
+          id: string;
+          brief_id: string | null;
+          original_question: string;
+          classification: Record<string, unknown> | null;
+          failure_reason: string;
+          retry_params: Record<string, unknown>;
+          scheduled_at: string;
+          attempts: number;
+          status: "pending" | "processing" | "completed" | "abandoned";
+          created_at: string;
+        };
+        Insert: {
+          brief_id?: string | null;
+          original_question: string;
+          classification?: Record<string, unknown> | null;
+          failure_reason: string;
+          retry_params?: Record<string, unknown>;
+          scheduled_at: string;
+          attempts?: number;
+          status?: "pending" | "processing" | "completed" | "abandoned";
+        };
+        Update: {
+          retry_params?: Record<string, unknown>;
+          scheduled_at?: string;
+          attempts?: number;
+          status?: "pending" | "processing" | "completed" | "abandoned";
+        };
+      };
     };
   };
 }
