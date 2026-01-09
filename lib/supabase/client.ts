@@ -56,6 +56,7 @@ export interface Database {
           foundational_principles: any | null; // JSONB
           clarity_score: number | null;
           clarity_critique: any | null; // JSONB
+          classification: any | null; // JSONB - QuestionClassification
           metadata: any; // JSONB
           fork_of: string | null;
         };
@@ -66,6 +67,7 @@ export interface Database {
           narrative: string;
           user_id?: string | null;
           clarity_score?: number | null;
+          classification?: any | null;
           metadata?: any;
         };
         Update: {
@@ -73,6 +75,7 @@ export interface Database {
           structured_data?: any;
           narrative?: string;
           clarity_score?: number | null;
+          classification?: any | null;
         };
       };
       sources: {

@@ -53,6 +53,9 @@ CREATE TABLE public.briefs (
   clarity_score NUMERIC(3, 1),
   clarity_critique JSONB,
 
+  -- Question classification (for specialist agent routing)
+  classification JSONB,
+
   -- Metadata
   metadata JSONB DEFAULT '{}'::jsonb,
 
