@@ -1,0 +1,18 @@
+# Ralph Progress Log
+Started: Fri  9 Jan 2026 20:30:01 +04
+
+## Codebase Patterns
+- Pre-existing typecheck errors in `app/brief/[id]/page.tsx` and `lib/supabase/client.ts` - these are unrelated to new changes
+- Agents live in `/lib/agents/` directory
+- Types should be organized in `/lib/types/` directory
+
+---
+
+## 2026-01-09 - US-001
+Thread: https://ampcode.com/threads/T-019ba397-f2e7-715b-b16f-06aed11c6102
+- Created `/lib/types/classification.ts` with all classification taxonomy types
+- Files changed: lib/types/classification.ts (new)
+- **Learnings for future iterations:**
+  - Types directory created at `/lib/types/` for shared type definitions
+  - Classification types: Domain (11 values), ControversyLevel (3), QuestionType (4), TemporalScope (4)
+---
