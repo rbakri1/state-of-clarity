@@ -30,7 +30,7 @@ Run these in order after current epic completes.
 |-------|------|----------|---------|----------|
 | **Next** | 5.1 User Accounts | `tasks/prd-user-accounts.json` | 17 | Critical (needed for monetization) |
 | 2 | 6.1-6.3 Credit System & Payments | `tasks/prd-credit-system-payments.json` | 15 | Critical |
-| 3 | 6.4-6.5 Usage Dashboard & Free Tier | *Not yet created* | TBD | Critical |
+| 3 | 6.4-6.5 Usage Dashboard & Free Tier | `tasks/prd-usage-dashboard-free-tier.json` | 12 | Critical |
 
 ---
 
@@ -39,6 +39,7 @@ Run these in order after current epic completes.
 | Theme | Epic | Description | Priority |
 |-------|------|-------------|----------|
 | 2 | 2.2 Research Enhancement | Multi-strategy swarm search | Medium |
+| 7 | 7.1-7.5 Grift Hunter | Civic investigation tool for citizen journalism | Post-MVP |
 | 3 | 3.2 Brief Reading Interface | Multi-layer navigation | High |
 | 3 | 3.3 Smart Question Suggestions | Autocomplete, templates | Medium |
 | 3 | 3.4 Community Feedback | Vote, suggest sources | Medium |
@@ -90,6 +91,9 @@ Or just tell the assistant "Ralph is done" and they'll do it for you.
 | 4. Infrastructure | 2 | 5 | 40% |
 | 5. Community | 0 | 5 | 0% |
 | 6. Monetization | 0 | 5 | 0% |
-| **TOTAL** | **12** | **30** | **40%** |
+| 7. Grift Hunter | 0 | 5 | 0% (Post-MVP) |
+| **TOTAL MVP** | **12** | **30** | **40%** |
+| **TOTAL ALL** | **12** | **35** | **34%** |
 
-*Note: Epic 2.5 (Quality Gate) currently running - will be 43% when complete.*
+*Note: Epic 2.5 (Quality Gate) currently running - will be 43% MVP when complete.*
+*Theme 7 (Grift Hunter) is post-MVP, scheduled for Q1 2026.*

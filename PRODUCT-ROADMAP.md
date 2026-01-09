@@ -90,6 +90,56 @@
 
 ---
 
+### THEME 6: Monetization & Sustainability
+**Focus:** Revenue generation, cost recovery, sustainable unit economics
+
+**Epics:**
+1. **Epic 6.1: Credit System Infrastructure** - Purchase, track, and consume credits for brief generation
+2. **Epic 6.2: Cost Tracking & Pricing Engine** - Real-time cost calculation per brief with 20% margin
+3. **Epic 6.3: Payment Integration** - Stripe integration for credit purchases
+4. **Epic 6.4: Usage Dashboard** - User-facing credit balance, usage history, cost breakdown
+5. **Epic 6.5: Free Tier & Onboarding Credits** - New user credits, rate limiting for free tier
+
+**Key Innovation:** Credits-based model ensures every brief is profitable from day one. Cost + 20% margin = sustainable growth.
+
+**Pricing Model:**
+- Brief generation cost: ~£0.50 (API calls + infrastructure)
+- Credit price: £0.60 per brief (20% margin)
+- 1 credit = 1 brief generation
+- Bulk discounts: 10 credits = £6.00, 50 credits = £28.00, 100 credits = £52.00
+
+**MVP Requirement:** This theme is **critical path** - must be complete before beta launch (Epic 5.5).
+
+---
+
+### THEME 7: Grift Hunter (Civic Investigation Tool)
+**Focus:** Empowering citizen journalism through structured corruption investigation
+
+**Epics:**
+1. **Epic 7.1: Entity Research & Profiling** - Background research on person/entity (position, affiliates, financial disclosures)
+2. **Epic 7.2: Corruption Pattern Analysis** - "If they were corrupt, how might they do it?" based on position and known patterns
+3. **Epic 7.3: Investigation Strategy Generator** - Actionable investigation steps for citizen journalists
+4. **Epic 7.4: Desktop Research Agent** - Deep research mode (premium credits) for comprehensive investigation
+5. **Epic 7.5: Disclaimer & Responsible Use Framework** - Legal disclaimers, ethical guidelines, anti-defamation safeguards
+
+**Key Innovation:** Democratize investigative journalism. Sunlight is the best disinfectant - give citizens tools to investigate their representatives.
+
+**Critical Safeguards:**
+- Clear disclaimer: "This is not an accusation. This is a research aid for responsible citizen journalism."
+- No definitive claims - only hypothetical scenarios and investigation suggestions
+- User accepts responsibility terms before using
+- Rate limiting to prevent harassment campaigns
+- Audit log of all investigations for accountability
+
+**Pricing Model:**
+- Entity profile: 2 credits
+- Investigation strategy: 3 credits  
+- Desktop research investigation: 10-20 credits (intensive agentic chain)
+
+**Timeline:** Post-MVP (Q1 2026) - after core platform stabilizes
+
+---
+
 ## Critical Path & Timeline (12 Weeks)
 
 ### Phase 1: Foundation - Parallel Execution (Weeks 2-5)
@@ -340,8 +390,8 @@ Research Agent → ├→ Summary Swarm (4 parallel, 10s) ├→ Reconciliation 
 ## Conclusion
 
 This MECE roadmap integrates agentic swarming into State of Clarity through:
-- **5 mutually exclusive themes** (Intelligence, Content, UX, Infrastructure, Community)
-- **25 collectively exhaustive epics** covering all aspects from parallel execution to beta launch
+- **7 mutually exclusive themes** (Intelligence, Content, UX, Infrastructure, Community, Monetization, Grift Hunter)
+- **35 collectively exhaustive epics** covering all aspects from parallel execution to civic investigation tools
 - **12-week timeline** maintaining original MVP schedule
 - **£2,862 budget** with only +1% cost increase for swarm enhancements
 

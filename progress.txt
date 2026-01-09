@@ -137,3 +137,18 @@ Thread: https://ampcode.com/threads/T-019ba524-3929-75cf-905b-6fd1db33429e
   - Tailwind dark mode classes: dark:bg-*, dark:text-*, dark:border-*
   - Use popover/popover-foreground colors for tooltips
 ---
+
+## 2026-01-10 - US-010
+Thread: https://ampcode.com/threads/T-019ba525-a008-719b-bf9a-faaad72a1fa1
+- Created GenerationFailed component in /app/components/GenerationFailed.tsx
+- Displays friendly error message explaining brief couldn't be generated
+- Shows credits refunded with green confirmation badge
+- Provides suggestions: rephrase question, try related topic, wait for auto-retry
+- Includes 'Try Again' button that calls onTryAgain callback
+- Props: question, creditsRefunded, onTryAgain, hasAutoRetry
+- Files changed: app/components/GenerationFailed.tsx (new)
+- **Learnings for future iterations:**
+  - Use lucide-react icons for consistency (AlertCircle, RefreshCw, CreditCard, Lightbulb)
+  - Use HTML entities for quotes: &ldquo; &rdquo; and &apos; for apostrophes
+  - Follow existing component patterns from QualityBadge.tsx for dark mode styling
+---
