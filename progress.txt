@@ -1,0 +1,26 @@
+# Ralph Progress Log
+Started: Sat 10 Jan 2026 03:21:33 +04
+---
+
+## Codebase Patterns
+- Use explicit type annotations in .map() callbacks to avoid implicit any errors
+- Types can be defined in /lib/types/ directory as separate modules
+- Quality gate tiers: high (≥8.0), acceptable (6.0-7.9), failed (<6.0)
+
+---
+
+## 2026-01-10 - US-001
+Thread: https://ampcode.com/threads/T-019ba510-b8ef-74c1-88b7-6e4f6f37396e
+- Implemented quality gate types and interfaces in /lib/types/quality-gate.ts
+- Defined QualityTier enum with HIGH, ACCEPTABLE, FAILED values
+- Created QualityGateResult interface with tier, finalScore, attempts, publishable, warningBadge, refundRequired
+- Created RetryQueueItem interface with briefId, originalQuestion, classification, failureReason, retryParams, scheduledAt, attempts, status
+- Created RetryParams interface and RetryStatus type
+- Added helper functions: getQualityTier() and createQualityGateResult()
+- Fixed pre-existing implicit any type errors in app/brief/[id]/page.tsx
+- Files changed: lib/types/quality-gate.ts (new), app/brief/[id]/page.tsx (type fixes)
+- **Learnings for future iterations:**
+  - Pre-existing type errors in the codebase need to be fixed when switching branches
+  - Use explicit type annotations in .map() callbacks: `(item: Type, i: number) =>`
+  - Use `as Record<string, Type>` cast for Object.entries() with JSONB fields
+---
