@@ -144,3 +144,20 @@ Thread: https://ampcode.com/threads/T-019ba4e6-e892-77cd-9588-c26e505d4320
   - Conflict detection uses text overlap (one originalText contains another)
   - Priority weights: critical=4, high=3, medium=2, low=1
 ---
+
+## 2026-01-10 - US-012
+Thread: https://ampcode.com/threads/T-019ba4ea-db8f-742f-b7ba-36a8fbb68f75
+- Created /lib/agents/refinement-loop.ts
+- Implemented refineUntilPassing(input: RefinementLoopInput): Promise<RefinementResult>
+- Accepts: brief, initialConsensusResult, sources, scoringFunction, maxAttempts (default 3)
+- Each iteration: orchestrateFixes -> reconcileEdits -> scoringFunction (re-score)
+- Stops early if score >= 8.0 (TARGET_SCORE)
+- Tracks all attempts with before/after scores for dimensions
+- Returns final brief, final score, attempts array, success boolean, and warning reason if failed
+- Files changed: lib/agents/refinement-loop.ts (new)
+- **Learnings for future iterations:**
+  - Refinement loop accepts scoringFunction as dependency injection for testability
+  - RefinementLoopInput interface requires: brief, initialConsensusResult, scoringFunction
+  - TARGET_SCORE = 8.0, MAX_ATTEMPTS = 3
+  - trackDimensionScoreChanges() compares before/after ConsensusResult for dimension-level tracking
+---

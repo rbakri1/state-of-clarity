@@ -58,6 +58,9 @@ export interface Database {
           clarity_critique: any | null; // JSONB
           metadata: any; // JSONB
           fork_of: string | null;
+          quality_warning: boolean;
+          quality_warning_reason: string | null;
+          refinement_metadata: any | null; // JSONB
         };
         Insert: {
           question: string;
@@ -67,12 +70,18 @@ export interface Database {
           user_id?: string | null;
           clarity_score?: number | null;
           metadata?: any;
+          quality_warning?: boolean;
+          quality_warning_reason?: string | null;
+          refinement_metadata?: any | null;
         };
         Update: {
           summaries?: any;
           structured_data?: any;
           narrative?: string;
           clarity_score?: number | null;
+          quality_warning?: boolean;
+          quality_warning_reason?: string | null;
+          refinement_metadata?: any | null;
         };
       };
       sources: {
