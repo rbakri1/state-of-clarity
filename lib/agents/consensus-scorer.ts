@@ -16,7 +16,12 @@ import {
   Brief,
   EvaluateBriefInput,
 } from "./clarity-evaluator-agent";
-import { EvaluatorVerdict } from "../types/clarity-scoring";
+import {
+  EvaluatorVerdict,
+  DisagreementResult,
+  DimensionName,
+  CLARITY_DIMENSIONS,
+} from "../types/clarity-scoring";
 
 export interface ConsensusInput {
   brief: Brief | EvaluateBriefInput;
@@ -200,4 +205,104 @@ export function logConsensusExecution(input: ConsensusInput): void {
     input.verdicts.reduce((sum, v) => sum + v.overallScore, 0) /
     input.verdicts.length;
   console.log(`[Consensus Scorer] Average score: ${avgScore.toFixed(1)}`);
+}
+
+const DISAGREEMENT_THRESHOLD = 2;
+
+/**
+ * Detect when evaluators strongly disagree on dimensions or overall scores.
+ * 
+ * Flags disagreement if:
+ * - Any dimension has a spread (max - min) > 2
+ * - Overall score spread across evaluators > 2
+ * 
+ * @param verdicts - Array of evaluator verdicts to analyze
+ * @returns DisagreementResult with details about disagreeing dimensions
+ */
+export function detectDisagreement(
+  verdicts: EvaluatorVerdict[]
+): DisagreementResult {
+  if (verdicts.length < 2) {
+    return {
+      hasDisagreement: false,
+      disagreeingDimensions: [],
+      maxSpread: 0,
+      evaluatorPositions: verdicts.map((v) => ({
+        evaluator: v.evaluatorRole,
+        overallScore: v.overallScore,
+        divergentDimensions: [],
+      })),
+    };
+  }
+
+  const dimensionNames = Object.keys(CLARITY_DIMENSIONS) as DimensionName[];
+  const disagreeingDimensions: DimensionName[] = [];
+  let maxDimensionSpread = 0;
+
+  const dimensionSpreads: Map<DimensionName, { min: number; max: number; spread: number }> = new Map();
+
+  for (const dimension of dimensionNames) {
+    const scores = verdicts.map((v) => {
+      const dimScore = v.dimensionScores.find((d) => d.dimension === dimension);
+      return dimScore?.score ?? 0;
+    });
+
+    const minScore = Math.min(...scores);
+    const maxScore = Math.max(...scores);
+    const spread = maxScore - minScore;
+
+    dimensionSpreads.set(dimension, { min: minScore, max: maxScore, spread });
+
+    if (spread > DISAGREEMENT_THRESHOLD) {
+      disagreeingDimensions.push(dimension);
+    }
+
+    if (spread > maxDimensionSpread) {
+      maxDimensionSpread = spread;
+    }
+  }
+
+  const overallScores = verdicts.map((v) => v.overallScore);
+  const overallMin = Math.min(...overallScores);
+  const overallMax = Math.max(...overallScores);
+  const overallSpread = overallMax - overallMin;
+
+  const hasOverallDisagreement = overallSpread > DISAGREEMENT_THRESHOLD;
+  const maxSpread = Math.max(maxDimensionSpread, overallSpread);
+
+  const evaluatorPositions = verdicts.map((verdict) => {
+    const divergentDimensions: { dimension: DimensionName; score: number }[] = [];
+
+    for (const dimension of disagreeingDimensions) {
+      const dimScore = verdict.dimensionScores.find((d) => d.dimension === dimension);
+      if (dimScore) {
+        divergentDimensions.push({
+          dimension,
+          score: dimScore.score,
+        });
+      }
+    }
+
+    return {
+      evaluator: verdict.evaluatorRole,
+      overallScore: verdict.overallScore,
+      divergentDimensions,
+    };
+  });
+
+  const hasDisagreement = disagreeingDimensions.length > 0 || hasOverallDisagreement;
+
+  if (hasDisagreement) {
+    console.log(`[Consensus Scorer] Disagreement detected:`);
+    console.log(`[Consensus Scorer]   Overall spread: ${overallSpread.toFixed(1)}`);
+    console.log(`[Consensus Scorer]   Disagreeing dimensions: ${disagreeingDimensions.join(", ") || "none"}`);
+    console.log(`[Consensus Scorer]   Max spread: ${maxSpread.toFixed(1)}`);
+  }
+
+  return {
+    hasDisagreement,
+    disagreeingDimensions,
+    maxSpread,
+    evaluatorPositions,
+  };
 }

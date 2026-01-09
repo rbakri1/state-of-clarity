@@ -47,3 +47,19 @@ Thread: https://ampcode.com/threads/T-019ba48a-e1b4-73aa-a485-4da4638716fa
   - evaluateBrief accepts both Brief (full row) or EvaluateBriefInput (minimal)
   - Pre-existing type errors in app/brief/[id]/page.tsx - don't block on those
 ---
+
+## Sat 10 Jan 2026 - US-004
+Thread: https://ampcode.com/threads/T-019ba48d-80c8-7484-bbdc-be11f7e3bb22
+- Created /lib/agents/consensus-scorer.ts with parallel evaluator execution
+- runParallelEvaluators() runs Skeptic, Advocate, Generalist concurrently with Promise.all
+- Built retry wrapper with exponential backoff (2 retries, 500ms base delay)
+- Logs execution time per evaluator and total duration
+- Returns ConsensusInput with verdicts, timing info, and evaluator durations
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx (added inline type annotations)
+- Files changed: lib/agents/consensus-scorer.ts (new), app/brief/[id]/page.tsx (type fixes)
+- **Learnings for future iterations:**
+  - ConsensusInput contains brief + verdicts + timing metadata for downstream use
+  - evaluateWithRetry wraps evaluateBrief with retry and timing logic
+  - logConsensusExecution() provides execution summary to console
+  - Pre-existing type errors in page.tsx now fixed with inline types
+---
