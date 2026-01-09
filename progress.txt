@@ -79,3 +79,13 @@ Thread: https://ampcode.com/threads/T-019ba4db-8e59-7329-ae05-fdb4838c0d0d
   - Accessibility fixer follows identical pattern to other fixers
   - Focus areas: jargon replacement, sentence simplification, reading level, structure
 ---
+
+## 2026-01-10 - US-007
+Thread: https://ampcode.com/threads/T-019ba4dc-de11-7361-bfce-7a90f7222737
+- Created /lib/agents/fixers/objectivity-fixer.ts extending BaseFixer
+- Prompt focuses on: underrepresented perspectives, missing counterarguments, one-sided framing, balance and proportion
+- Files changed: lib/agents/fixers/objectivity-fixer.ts (new)
+- **Learnings for future iterations:**
+  - Objectivity fixer follows identical pattern to other fixers
+  - Focus areas: perspectives, counterarguments, framing neutrality, balance
+---
