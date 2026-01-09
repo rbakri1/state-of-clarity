@@ -172,3 +172,21 @@ Thread: https://ampcode.com/threads/T-019ba4a4-f64e-71a4-8add-c6018f0ea982
   - Brief-service imports types from langgraph-orchestrator, so orchestrator must exist first
   - Consensus scoring returns ClarityScore with consensusMethod field ("median" | "post-discussion" | "tiebreaker")
 ---
+
+## Sat 10 Jan 2026 - US-012
+Thread: https://ampcode.com/threads/T-019ba4ae-55c6-74db-8092-ccf9b005e2f4
+- Created /lib/agents/consensus-scoring-logger.ts with comprehensive logging for consensus scoring
+- Logs each evaluator's verdict (role, scores, issues, confidence, duration) to agent_execution_logs
+- Logs disagreement detection results (hasDisagreement, dimensions, spreads, positions)
+- Logs discussion round output (changesCount, revisions, summary length, resolution status)
+- Logs tiebreaker verdict (arbiter score, resolved dimensions)
+- Logs final consensus score (overall score, method, confidence, dimension breakdown, human review status)
+- Integrated logFullConsensusScoringRun() into langgraph-orchestrator.ts consensusScoringNode
+- All logging is non-blocking (fire and forget with .catch())
+- Files changed: lib/agents/consensus-scoring-logger.ts (new), lib/agents/langgraph-orchestrator.ts (updated)
+- **Learnings for future iterations:**
+  - Use insertLogEntry helper pattern for consistent DB logging with error handling
+  - DisagreementResult.evaluatorPositions.divergentDimensions is Array<{dimension, score}>, not string[]
+  - Non-blocking logging with Promise.catch() pattern prevents slow DB writes from blocking pipeline
+  - Typed metadata interfaces (EvaluatorVerdictLogMetadata, etc.) help with JSONB structured data
+---
