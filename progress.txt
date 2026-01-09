@@ -24,3 +24,18 @@ Thread: https://ampcode.com/threads/T-019ba510-b8ef-74c1-88b7-6e4f6f37396e
   - Use explicit type annotations in .map() callbacks: `(item: Type, i: number) =>`
   - Use `as Record<string, Type>` cast for Object.entries() with JSONB fields
 ---
+
+## 2026-01-10 - US-002
+Thread: https://ampcode.com/threads/T-019ba516-016d-778e-b0f8-6e2bcf259c44
+- Implemented quality gate orchestrator in /lib/agents/quality-gate.ts
+- runQualityGate() orchestrates: consensus scoring -> threshold check -> refinement loop -> final decision
+- runConsensusScoring() uses 3 evaluator agents (Clarity Expert, Evidence Analyst, Objectivity Judge)
+- runRefinementLoop() targets the lowest scorer's feedback for improvements
+- getTierDecision() helper for logging tier classification with reasoning
+- MAX_REFINEMENT_ATTEMPTS = 3 before declaring failure
+- Files changed: lib/agents/quality-gate.ts (new)
+- **Learnings for future iterations:**
+  - Quality gate uses Claude Haiku for consensus scoring (cheaper) and Sonnet for refinement (better quality)
+  - The 3 evaluators run in parallel via Promise.all for performance
+  - JSON extraction from Claude uses regex match /\{[\s\S]*\}/ pattern
+---
