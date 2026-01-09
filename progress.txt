@@ -6,6 +6,7 @@ Started: Sat 10 Jan 2026 03:21:33 +04
 - Use explicit type annotations in .map() callbacks to avoid implicit any errors
 - Types can be defined in /lib/types/ directory as separate modules
 - Quality gate tiers: high (≥8.0), acceptable (6.0-7.9), failed (<6.0)
+- Supabase type workarounds: use `as never` for insert/update, type assertions on .single() results
 
 ---
 
@@ -63,4 +64,18 @@ Thread: https://ampcode.com/threads/T-019ba519-957f-756e-b7fa-ad8b4c99564f
   - Migrations go in /lib/supabase/migrations/ directory (create if needed)
   - Use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS` for idempotent migrations
   - Database interface in client.ts needs Row, Insert, and Update types for each table
+---
+
+## 2026-01-10 - US-005
+Thread: https://ampcode.com/threads/T-019ba51b-805c-701c-bf0b-6557f8de65d8
+- Implemented retry queue service in /lib/services/retry-queue-service.ts
+- Created addToRetryQueue(): adds failed brief to queue with 1 hour retry delay
+- Created getNextRetryItem(): fetches next pending item ready for processing
+- Created markRetryComplete(): marks retry as completed, pending for re-retry, or abandoned after 2 attempts
+- Created generateRetryParams(): generates retry parameters based on failure reason (low evidence, low objectivity, low clarity)
+- Files changed: lib/services/retry-queue-service.ts (new)
+- **Learnings for future iterations:**
+  - Use type aliases for Supabase table types: `type RetryQueueRow = Database["public"]["Tables"]["retry_queue"]["Row"]`
+  - Use `as never` cast for Supabase `.insert()` and `.update()` calls when types don't align properly
+  - Use explicit type assertions on `.single()` results: `as { data: RowType | null; error: { message: string } | null }`
 ---
