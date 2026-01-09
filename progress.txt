@@ -126,3 +126,21 @@ Thread: https://ampcode.com/threads/T-019ba4e1-312f-71fe-ad6a-788583aa3af5
   - Use createFixerInstance(fixerType) to dynamically instantiate fixer classes
   - SCORE_THRESHOLD = 7.0 for triggering fixer deployment
 ---
+
+## 2026-01-10 - US-011
+Thread: https://ampcode.com/threads/T-019ba4e6-e892-77cd-9588-c26e505d4320
+- Created /lib/agents/fixers/edit-reconciliation-agent.ts
+- Receives original brief + FixerResult[] from orchestrator
+- Groups edits by section to detect conflicts
+- Prioritizes edits by: priority weight (critical>high>medium>low), fixer agreement count
+- Detects conflicts via text overlap detection (editsConflict function)
+- Selects non-conflicting edits, skips lower-priority conflicts with reasons
+- Uses Claude Sonnet (claude-sonnet-4-20250514) for high-quality edit application
+- Returns ReconciliationResult: revisedBrief, editsApplied, editsSkipped with reasons
+- Files changed: lib/agents/fixers/edit-reconciliation-agent.ts (new)
+- **Learnings for future iterations:**
+  - Use ReconciliationInput interface: { originalBrief: string, fixerResults: FixerResult[] }
+  - reconcileEdits() is the main function to call
+  - Conflict detection uses text overlap (one originalText contains another)
+  - Priority weights: critical=4, high=3, medium=2, low=1
+---
