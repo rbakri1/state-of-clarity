@@ -29,7 +29,7 @@ Run these in order after current epic completes.
 | Order | Epic | PRD File | Stories | Priority |
 |-------|------|----------|---------|----------|
 | **Next** | 5.1 User Accounts | `tasks/prd-user-accounts.json` | 17 | Critical (needed for monetization) |
-| 2 | 6.1-6.3 Credit System & Payments | *Not yet created* | TBD | Critical |
+| 2 | 6.1-6.3 Credit System & Payments | `tasks/prd-credit-system-payments.json` | 15 | Critical |
 | 3 | 6.4-6.5 Usage Dashboard & Free Tier | *Not yet created* | TBD | Critical |
 
 ---

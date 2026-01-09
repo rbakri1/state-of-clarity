@@ -79,3 +79,20 @@ Thread: https://ampcode.com/threads/T-019ba51b-805c-701c-bf0b-6557f8de65d8
   - Use `as never` cast for Supabase `.insert()` and `.update()` calls when types don't align properly
   - Use explicit type assertions on `.single()` results: `as { data: RowType | null; error: { message: string } | null }`
 ---
+
+## 2026-01-10 - US-006
+Thread: https://ampcode.com/threads/T-019ba51e-38f9-777d-a659-42f3f73f3a98
+- Implemented retry executor agent in /lib/agents/retry-executor.ts
+- Created processNextRetry(): picks pending items from queue where scheduled_at <= now
+- Created executeRetryWithAdjustedParams(): runs full brief generation with adjusted params
+- Created adjustParametersForRetry(): adjusts params based on failure reason (low evidence, low objectivity, low clarity)
+- Created gatherSourcesWithAdjustedParams(): uses research agent with adjusted source requirements
+- Created generateBriefWithAdjustedParams(): generates brief with persona and prompt adjustments
+- Created processAllPendingRetries(): batch processes all pending retries
+- Max 2 retry attempts before marking as 'abandoned' (handled by markRetryComplete in retry-queue-service)
+- Files changed: lib/agents/retry-executor.ts (new)
+- **Learnings for future iterations:**
+  - Retry executor uses researchAgent() for source gathering and runQualityGate() for evaluation
+  - Different specialist personas are cycled: "Investigative Journalist", "Policy Analyst", "Research Scholar"
+  - On second attempt, all adjustment params are forced (increased sources, opposing views)
+---

@@ -202,6 +202,26 @@ export interface Database {
           status?: "pending" | "processing" | "completed" | "abandoned";
         };
       };
+      credit_refunds: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          reason: string;
+          brief_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          amount: number;
+          reason: string;
+          brief_id?: string | null;
+        };
+        Update: {
+          amount?: number;
+          reason?: string;
+        };
+      };
     };
   };
 }
