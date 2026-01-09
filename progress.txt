@@ -2,7 +2,8 @@
 Started: Fri  9 Jan 2026 20:30:01 +04
 
 ## Codebase Patterns
-- Pre-existing typecheck errors in `app/brief/[id]/page.tsx` and `lib/supabase/client.ts` - these are unrelated to new changes
+- When adding map callbacks in TSX, always add type annotations (e.g., `(item: any, i: number)`) to avoid implicit any errors
+- Missing `@supabase/ssr` package - install it if needed for server-side Supabase client
 - Agents live in `/lib/agents/` directory
 - Types should be organized in `/lib/types/` directory
 - Migrations go in `/lib/supabase/migrations/` directory - use `IF NOT EXISTS` for idempotent migrations
@@ -68,4 +69,20 @@ Thread: https://ampcode.com/threads/T-019ba3a1-c42c-77dd-81eb-27acf81517a8
   - Specialist personas are mapped directly from Domain types in classification.ts
   - Each persona includes UK-specific sources (e.g., ONS, NHS, IFS) as preferred sources
   - The 'other' domain uses a generalist persona for cross-cutting topics
+---
+
+## 2026-01-09 - US-006
+Thread: https://ampcode.com/threads/T-019ba3a3-daaf-709c-ba02-cdabb2e963bf
+- Added `agent_execution_logs` table to schema.sql with columns: id, brief_id, agent_name, started_at, completed_at, duration_ms, status, error_message, metadata (JSONB)
+- Created migration: `/lib/supabase/migrations/002_add_agent_execution_logs_table.sql`
+- Updated Database interface in client.ts with Row, Insert, Update types for agent_execution_logs
+- Added indexes on brief_id and started_at
+- Added RLS policies for public read and system write access
+- Fixed pre-existing typecheck errors in app/brief/[id]/page.tsx (added type annotations to map callbacks)
+- Installed missing `@supabase/ssr` dependency
+- Files changed: lib/supabase/schema.sql, lib/supabase/client.ts, lib/supabase/migrations/002_add_agent_execution_logs_table.sql (new), app/brief/[id]/page.tsx, package.json
+- **Learnings for future iterations:**
+  - Always add type annotations to map callbacks in TSX (e.g., `(item: any, i: number)`) to avoid implicit any errors
+  - Install `@supabase/ssr` if it's missing for server-side client functionality
+  - Migration uses `IF NOT EXISTS` patterns for idempotent execution
 ---
