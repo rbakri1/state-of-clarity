@@ -49,3 +49,13 @@ Thread: https://ampcode.com/threads/T-019ba4d6-7d6e-72bf-803d-0e442331c197
   - FixerType enum uses camelCase (e.g., firstPrinciplesCoherence, not FirstPrinciplesCoherence)
   - Pattern for fixer subclasses: implement fixerType, description, and buildPrompt(input)
 ---
+
+## 2026-01-10 - US-004
+Thread: https://ampcode.com/threads/T-019ba4d8-c1d5-7044-8c1f-2db5981d2a91
+- Created /lib/agents/fixers/consistency-fixer.ts extending BaseFixer
+- Prompt focuses on: contradictions between sections, source support resolution, terminology consistency, narrative coherence
+- Files changed: lib/agents/fixers/consistency-fixer.ts (new)
+- **Learnings for future iterations:**
+  - All fixer agents follow same pattern: extend BaseFixer, set fixerType & description, implement buildPrompt(input)
+  - Import FixerType and FixerInput from @/lib/types/refinement
+---
