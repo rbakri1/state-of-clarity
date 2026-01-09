@@ -118,3 +118,20 @@ Thread: https://ampcode.com/threads/T-019ba3ac-5220-727d-9167-5488332ab21a
   - Exponential backoff formula: `initialDelayMs * (backoffMultiplier ^ (attempt - 1))`
   - `AgentRetryError` collects all errors from all attempts for debugging
 ---
+
+## 2026-01-09 - US-009
+Thread: https://ampcode.com/threads/T-019ba3ae-6089-7229-bc3b-dce94681dc40
+- Created `/lib/agents/execution-logger.ts` with comprehensive logging utilities
+- Functions: `logAgentStart`, `logAgentComplete`, `logAgentFailed`, `withExecutionLogging`, `executeWithLogging`
+- Includes `estimateTokenCount()` for input/output size estimation (~4 chars per token)
+- Supports `ExecutionMode`: 'parallel' | 'sequential' and `parallelGroup` for grouping parallel agents
+- Includes `getExecutionLogsForBrief()` and `getBriefPerformanceSummary()` for retrieving logs
+- All database operations are async and non-blocking (fire-and-forget pattern)
+- Uses `as any` type assertions for Supabase queries on agent_execution_logs table (type inference issues)
+- Files changed: lib/agents/execution-logger.ts (new)
+- **Learnings for future iterations:**
+  - Supabase type inference may fail for new tables - use `as any` on `.from('table')` if needed
+  - Pattern: `(supabase.from('table') as any).insert(...)`
+  - For map callbacks on Supabase data, add type annotation: `(row: any) =>`
+  - Non-blocking logging uses `.catch(() => {})` to prevent unhandled rejections
+---
