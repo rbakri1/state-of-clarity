@@ -59,3 +59,23 @@ Thread: https://ampcode.com/threads/T-019ba4d8-c1d5-7044-8c1f-2db5981d2a91
   - All fixer agents follow same pattern: extend BaseFixer, set fixerType & description, implement buildPrompt(input)
   - Import FixerType and FixerInput from @/lib/types/refinement
 ---
+
+## 2026-01-10 - US-005
+Thread: https://ampcode.com/threads/T-019ba4da-226f-739d-9186-0c8a0a5df0f9
+- Created /lib/agents/fixers/evidence-fixer.ts extending BaseFixer
+- Prompt focuses on: claims lacking citation, weak/inadequate citations, over-reliance on single source, source-claim alignment
+- Files changed: lib/agents/fixers/evidence-fixer.ts (new)
+- **Learnings for future iterations:**
+  - Evidence fixer follows identical pattern to other fixers
+  - Each fixer focuses on 4 key areas within its dimension
+---
+
+## 2026-01-10 - US-006
+Thread: https://ampcode.com/threads/T-019ba4db-8e59-7329-ae05-fdb4838c0d0d
+- Created /lib/agents/fixers/accessibility-fixer.ts extending BaseFixer
+- Prompt focuses on: jargon/technical terms, overly complex sentences, reading level alignment, structural clarity
+- Files changed: lib/agents/fixers/accessibility-fixer.ts (new)
+- **Learnings for future iterations:**
+  - Accessibility fixer follows identical pattern to other fixers
+  - Focus areas: jargon replacement, sentence simplification, reading level, structure
+---
