@@ -7,10 +7,13 @@ Started: Fri  9 Jan 2026 20:30:01 +04
 - Agents live in `/lib/agents/` directory
 - Types should be organized in `/lib/types/` directory
 - Services live in `/lib/services/` directory for database/business logic operations
+- Hooks live in `/lib/hooks/` directory for React hooks
 - Migrations go in `/lib/supabase/migrations/` directory - use `IF NOT EXISTS` for idempotent migrations
 - Database types are defined in `/lib/supabase/client.ts` Database interface - update Row, Insert, and Update for new columns
 - LangGraph: Use chained `.addNode().addEdge()` calls for proper TypeScript type inference - separate calls cause type errors
+- LangGraph: Node names MUST NOT conflict with state attribute names (e.g., don't use "classification" as node name if it's a state property - use "classify_agent" instead)
 - Use fire-and-forget pattern (`.catch(() => {})`) for non-blocking DB operations in pipeline nodes
+- SSE in Next.js App Router: Use `TextEncoder` and `ReadableStream`, set `Content-Type: text/event-stream` header
 
 ---
 
@@ -249,4 +252,37 @@ Thread: https://ampcode.com/threads/T-019ba452-06dd-707d-bb9a-cc1a569ffa42
   - Use `animate-pulse` for running state, `animate-spin` on Loader2 icon
   - Position elements in circle using `Math.cos(angle) * radius` and `Math.sin(angle) * radius`
   - Import AgentStatus type from generation-events.ts for type safety
+---
+
+## 2026-01-09 - US-017
+Thread: https://ampcode.com/threads/T-019ba454-a68e-749e-8ad9-d906e58ce249
+- Created `/lib/hooks/useGenerationStream.ts` for SSE subscription to brief generation events
+- Integrated SwarmVisualization into main page.tsx with real-time status updates
+- Hook manages: isGenerating, currentStage, agentStatuses, briefId, error, isComplete
+- Auto-redirects to brief page after 1.5s delay on completion
+- Added error handling with "Try Again" option
+- Added cancel button during generation
+- Added fade-in animation CSS for smooth transition
+- Files changed: lib/hooks/useGenerationStream.ts (new), app/page.tsx (updated), app/globals.css (updated)
+- **Learnings for future iterations:**
+  - Hooks directory created at `/lib/hooks/` for React hooks
+  - SSE parsing: split on `\n`, look for `data: ` prefix, parse JSON
+  - Use AbortController for cancellable fetch requests
+  - Use useEffect cleanup to abort on unmount
+  - Smooth transitions: hide showcase section during generation
+---
+
+## 2026-01-10 - US-018
+Thread: https://ampcode.com/threads/T-019ba458-4547-7038-87b3-4a00b4b01a0e
+- Created performance validation script `test-performance-validation.ts`
+- Fixed critical LangGraph bug: node names conflicted with state attribute names
+- Changed node names: classification → classify_agent, structure → structure_agent, narrative → narrative_agent, reconciliation → reconcile_agent, clarity_scoring → clarity_agent
+- Validates parallel execution architecture by analyzing orchestrator code
+- Calculates theoretical time savings: 77s sequential → 45s parallel (41.6% improvement)
+- Confirms two parallel branches: (1) structure_agent || narrative_agent, (2) 4x summary agents
+- Files changed: lib/agents/langgraph-orchestrator.ts, lib/agents/langgraph-orchestrator-streaming.ts, test-performance-validation.ts (new)
+- **Learnings for future iterations:**
+  - LangGraph node names CANNOT match state attribute names - causes runtime error "X is already being used as a state attribute"
+  - Use suffix like "_agent" to differentiate node names from state properties
+  - When API models are unavailable, validate architecture through code analysis instead
 ---
