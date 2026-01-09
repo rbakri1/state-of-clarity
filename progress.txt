@@ -123,3 +123,19 @@ Thread: https://ampcode.com/threads/T-019ba49a-6edf-7791-83b4-d3173b1a734f
   - Use IF NOT EXISTS for columns and indexes in migrations for idempotency
   - Database types in client.ts have Row (full), Insert (required+optional), Update (all optional) patterns
 ---
+
+## Sat 10 Jan 2026 - US-009
+Thread: https://ampcode.com/threads/T-019ba49c-9bb1-7329-acee-a6011ba02bf4
+- Added calculateFinalScore function to /lib/agents/consensus-scorer.ts
+- Implements 3 calculation methods: median (no disagreement), post-discussion, tiebreaker
+- For tiebreaker: Arbiter scores weighted 1.5x for disputed dimensions using ARBITER_WEIGHT_MULTIPLIER
+- Uses getMedian helper for calculating median scores across evaluators
+- Returns ClarityScore with overallScore (0-10, one decimal), dimensionBreakdown, critique, consensusMethod
+- Flags needsHumanReview=true and sets reviewReason when tiebreaker is invoked
+- Files changed: lib/agents/consensus-scorer.ts
+- **Learnings for future iterations:**
+  - FinalScoreInput has verdicts, disagreement?, arbiterVerdict?, discussionOccurred? to determine method
+  - calculateDimensionMedianScores for median/post-discussion, calculateDimensionScoresWithArbiter for tiebreaker
+  - consolidateCritiques merges all evaluator critiques with Markdown formatting
+  - ClarityScore.consensusMethod is "median" | "post-discussion" | "tiebreaker"
+---
