@@ -6,9 +6,11 @@ Started: Fri  9 Jan 2026 20:30:01 +04
 - Missing `@supabase/ssr` package - install it if needed for server-side Supabase client
 - Agents live in `/lib/agents/` directory
 - Types should be organized in `/lib/types/` directory
+- Services live in `/lib/services/` directory for database/business logic operations
 - Migrations go in `/lib/supabase/migrations/` directory - use `IF NOT EXISTS` for idempotent migrations
 - Database types are defined in `/lib/supabase/client.ts` Database interface - update Row, Insert, and Update for new columns
 - LangGraph: Use chained `.addNode().addEdge()` calls for proper TypeScript type inference - separate calls cause type errors
+- Use fire-and-forget pattern (`.catch(() => {})`) for non-blocking DB operations in pipeline nodes
 
 ---
 
@@ -182,4 +184,20 @@ Thread: https://ampcode.com/threads/T-019ba442-ded3-7638-a9fe-5b7ec0c8fdbb
   - Follow pattern: export dedicated interface types (ReconciliationInput, ReconciliationOutput)
   - Validation functions ensure robustness even if LLM response is malformed
   - Prompt instructs minimal changes to avoid unnecessary rewrites
+---
+
+## 2026-01-09 - US-014
+Thread: https://ampcode.com/threads/T-019ba447-7e1e-739b-97e6-e3eec6aa1f75
+- Integrated question classifier into the brief generation pipeline
+- Classification runs after research agent and is stored in state for all downstream agents
+- Created `/lib/services/brief-service.ts` with functions: createBrief, updateBriefClassification, updateBriefFromState, saveBriefSources, completeBriefGeneration
+- Classification is logged with timing info (duration, result JSON, selected persona)
+- Classification data is saved to brief record via `updateBriefClassification()` when briefId is available
+- Complete brief state is saved via `completeBriefGeneration()` when pipeline completes
+- Files changed: lib/agents/langgraph-orchestrator.ts (added classification logging + DB save), lib/services/brief-service.ts (new)
+- **Learnings for future iterations:**
+  - Services directory created at `/lib/services/` for database operations
+  - Use fire-and-forget pattern (`.catch()`) for non-blocking DB operations in pipeline nodes
+  - Brief service uses `as any` type assertions for Supabase queries to handle type inference issues
+  - generateTagsFromClassification() auto-generates tags from classification data
 ---
