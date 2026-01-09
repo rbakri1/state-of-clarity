@@ -96,3 +96,16 @@ Thread: https://ampcode.com/threads/T-019ba51e-38f9-777d-a659-42f3f73f3a98
   - Different specialist personas are cycled: "Investigative Journalist", "Policy Analyst", "Research Scholar"
   - On second attempt, all adjustment params are forced (increased sources, opposing views)
 ---
+
+## 2026-01-10 - US-007
+Thread: https://ampcode.com/threads/T-019ba520-8447-73dd-b365-0fbfec3ff6d3
+- Created credit service placeholder in /lib/services/credit-service.ts
+- Implemented refundCredits(userId, amount, reason, briefId?): logs refund and records to database
+- Created migration /lib/supabase/migrations/006_add_credit_refunds_table.sql
+- Table has: id, user_id, amount, reason, brief_id, created_at with RLS policies
+- Updated Database interface in client.ts with credit_refunds Row/Insert/Update types
+- Files changed: lib/services/credit-service.ts (new), lib/supabase/migrations/006_add_credit_refunds_table.sql (new), lib/supabase/client.ts (updated)
+- **Learnings for future iterations:**
+  - Credit service is a placeholder for Theme 6 - actual credit deduction/balance not yet implemented
+  - Service logs refund action and records to database for audit trail
+---
