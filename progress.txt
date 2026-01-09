@@ -8,6 +8,8 @@ Started: Sat 10 Jan 2026 02:10:52 +04
 - Pre-existing type errors may exist in app/brief/[id]/page.tsx - use explicit type casts for JSONB fields
 - FixerType enum uses camelCase (e.g., FixerType.firstPrinciplesCoherence, not FirstPrinciplesCoherence)
 - Fixer subclass pattern: extend BaseFixer, set fixerType & description, implement buildPrompt(input)
+- langgraph-orchestrator.ts is the main pipeline entry point - use runPipeline() for new briefs
+- Supabase inserts need type casts: `as never` for insert() and explicit result type casting
 
 ---
 
@@ -173,4 +175,21 @@ Thread: https://ampcode.com/threads/T-019ba4ee-67c5-71ec-866e-1e4ecdd7651d
   - Migrations directory structure: /lib/supabase/migrations/
   - Use IF NOT EXISTS for column/index additions to make migrations idempotent
   - Database Row types need fields for all columns, Insert/Update types use optional for nullable/defaulted fields
+---
+
+## 2026-01-10 - US-014
+Thread: https://ampcode.com/threads/T-019ba4f0-f589-74cc-8689-ae14b5790536
+- Created /lib/agents/langgraph-orchestrator.ts as the main pipeline orchestrator
+- Integrates refinement loop after consensus scoring (triggers if score < 8.0)
+- Implements runPipeline() function that coordinates: generate brief → score → refine → save
+- Sets quality_warning=true and quality_warning_reason if refinement fails after 3 attempts
+- Stores refinement_metadata with attempt details (attempts count, scores, success status)
+- Saves final brief and score to database via saveBriefToDatabase()
+- Includes runPipelineWithExistingBrief() for re-scoring existing briefs
+- Files changed: lib/agents/langgraph-orchestrator.ts (new), prd.json
+- **Learnings for future iterations:**
+  - langgraph-orchestrator.ts didn't exist yet, had to create it fresh
+  - Supabase client generic types can be tricky - use `as never` for insert and cast the result explicitly
+  - scoreWithConsensusPanel() is a placeholder - needs real consensus panel integration later
+  - RefinementMetadata interface tracks: refinementTriggered, initialScore, finalScore, attemptsCount, success, attempts, totalRefinementTime
 ---
