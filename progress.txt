@@ -6,6 +6,8 @@ Started: Sat 10 Jan 2026 02:10:52 +04
 - Use Claude Sonnet for higher quality operations (reconciliation, complex analysis)
 - Types belong in /lib/types/ directory
 - Pre-existing type errors may exist in app/brief/[id]/page.tsx - use explicit type casts for JSONB fields
+- FixerType enum uses camelCase (e.g., FixerType.firstPrinciplesCoherence, not FirstPrinciplesCoherence)
+- Fixer subclass pattern: extend BaseFixer, set fixerType & description, implement buildPrompt(input)
 
 ---
 
@@ -36,4 +38,14 @@ Thread: https://ampcode.com/threads/T-019ba4d4-6eb5-7392-a2b5-073f86b99111
   - Use @anthropic-ai/sdk for LLM calls (already installed in project)
   - Fixer agents directory structure: /lib/agents/fixers/
   - Response parsing extracts JSON from LLM response using regex (Claude sometimes adds text)
+---
+
+## 2026-01-10 12:00 - US-003
+Thread: https://ampcode.com/threads/T-019ba4d6-7d6e-72bf-803d-0e442331c197
+- Created /lib/agents/fixers/first-principles-fixer.ts extending BaseFixer
+- Prompt focuses on: gaps in logical chain, unstated assumptions, incomplete reasoning, foundation clarity
+- Files changed: lib/agents/fixers/first-principles-fixer.ts (new)
+- **Learnings for future iterations:**
+  - FixerType enum uses camelCase (e.g., firstPrinciplesCoherence, not FirstPrinciplesCoherence)
+  - Pattern for fixer subclasses: implement fixerType, description, and buildPrompt(input)
 ---
