@@ -250,7 +250,8 @@ async function reconciliationNode(state: BriefState): Promise<Partial<BriefState
 }
 
 async function summaryChildNode(state: BriefState): Promise<Partial<BriefState>> {
-  console.log('[Orchestrator] Starting Summary Child node (parallel)');
+  const startTime = Date.now();
+  console.log('[Orchestrator] Starting Summary Child node (parallel with Teen, Undergrad, Postdoc)');
   
   const context = getExecutionContext(state, 'parallel', 'summaries');
   
@@ -263,6 +264,9 @@ async function summaryChildNode(state: BriefState): Promise<Partial<BriefState>>
     context
   );
   
+  const duration = Date.now() - startTime;
+  console.log(`[Orchestrator] Summary Agent (Child) completed in ${duration}ms (parallel execution)`);
+  
   return {
     summaries: { child: summary },
     completedSteps: ['summary-child'],
@@ -270,7 +274,8 @@ async function summaryChildNode(state: BriefState): Promise<Partial<BriefState>>
 }
 
 async function summaryTeenNode(state: BriefState): Promise<Partial<BriefState>> {
-  console.log('[Orchestrator] Starting Summary Teen node (parallel)');
+  const startTime = Date.now();
+  console.log('[Orchestrator] Starting Summary Teen node (parallel with Child, Undergrad, Postdoc)');
   
   const context = getExecutionContext(state, 'parallel', 'summaries');
   
@@ -283,6 +288,9 @@ async function summaryTeenNode(state: BriefState): Promise<Partial<BriefState>> 
     context
   );
   
+  const duration = Date.now() - startTime;
+  console.log(`[Orchestrator] Summary Agent (Teen) completed in ${duration}ms (parallel execution)`);
+  
   return {
     summaries: { teen: summary },
     completedSteps: ['summary-teen'],
@@ -290,7 +298,8 @@ async function summaryTeenNode(state: BriefState): Promise<Partial<BriefState>> 
 }
 
 async function summaryUndergradNode(state: BriefState): Promise<Partial<BriefState>> {
-  console.log('[Orchestrator] Starting Summary Undergrad node (parallel)');
+  const startTime = Date.now();
+  console.log('[Orchestrator] Starting Summary Undergrad node (parallel with Child, Teen, Postdoc)');
   
   const context = getExecutionContext(state, 'parallel', 'summaries');
   
@@ -303,6 +312,9 @@ async function summaryUndergradNode(state: BriefState): Promise<Partial<BriefSta
     context
   );
   
+  const duration = Date.now() - startTime;
+  console.log(`[Orchestrator] Summary Agent (Undergrad) completed in ${duration}ms (parallel execution)`);
+  
   return {
     summaries: { undergrad: summary },
     completedSteps: ['summary-undergrad'],
@@ -310,7 +322,8 @@ async function summaryUndergradNode(state: BriefState): Promise<Partial<BriefSta
 }
 
 async function summaryPostdocNode(state: BriefState): Promise<Partial<BriefState>> {
-  console.log('[Orchestrator] Starting Summary Postdoc node (parallel)');
+  const startTime = Date.now();
+  console.log('[Orchestrator] Starting Summary Postdoc node (parallel with Child, Teen, Undergrad)');
   
   const context = getExecutionContext(state, 'parallel', 'summaries');
   
@@ -322,6 +335,9 @@ async function summaryPostdocNode(state: BriefState): Promise<Partial<BriefState
     ),
     context
   );
+  
+  const duration = Date.now() - startTime;
+  console.log(`[Orchestrator] Summary Agent (Postdoc) completed in ${duration}ms (parallel execution)`);
   
   return {
     summaries: { postdoc: summary },

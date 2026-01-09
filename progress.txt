@@ -168,3 +168,18 @@ Thread: https://ampcode.com/threads/T-019ba440-a501-76bb-a363-d447d46a0d41
   - The parallel execution was already implemented in US-010 - just needed timing logs for observability
   - Use `Date.now()` for inline timing measurements in node functions
 ---
+
+## 2026-01-09 - US-012
+Thread: https://ampcode.com/threads/T-019ba442-ded3-7638-a9fe-5b7ec0c8fdbb
+- Created `/lib/agents/reconciliation-agent.ts` as dedicated module
+- Agent receives Structure + Narrative inputs and performs 5 consistency checks
+- Returns ReconciliationOutput with: reconciledNarrative, changes array, isConsistent boolean
+- Structure is treated as source of truth - Narrative is adjusted to align
+- Uses Claude Haiku for fast execution (<10 seconds)
+- Updated orchestrator to import from new module
+- Files changed: lib/agents/reconciliation-agent.ts (new), lib/agents/langgraph-orchestrator.ts (updated import)
+- **Learnings for future iterations:**
+  - Follow pattern: export dedicated interface types (ReconciliationInput, ReconciliationOutput)
+  - Validation functions ensure robustness even if LLM response is malformed
+  - Prompt instructs minimal changes to avoid unnecessary rewrites
+---
