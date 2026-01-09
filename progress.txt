@@ -17,3 +17,17 @@ Thread: https://ampcode.com/threads/T-019ba485-42a1-721c-b0f7-f9413c443106
   - Pre-existing type errors exist in app/brief/[id]/page.tsx - don't block on those
   - Dimension scoring guidelines follow 10/8-9/6-7/4-5/1-3 band structure
 ---
+
+## Sat 10 Jan 2026 - US-002
+Thread: https://ampcode.com/threads/T-019ba488-c944-7759-bd18-14d734438337
+- Created /lib/agents/clarity-evaluator-personas.ts with 4 evaluator personas
+- Defined Skeptic (evidence/accuracy focus), Advocate (balance/objectivity focus), Generalist (accessibility focus)
+- Also defined Arbiter persona for tiebreaker (US-007 dependency) with 1.5x weight note
+- Each persona has: name, role, systemPrompt, focusDimensions array
+- Exported: getEvaluatorPersona(role), getAllEvaluatorPersonas(), getPrimaryEvaluatorRoles()
+- Files changed: lib/agents/clarity-evaluator-personas.ts (new)
+- **Learnings for future iterations:**
+  - EvaluatorRole type includes "Arbiter" for future US-007 tiebreaker implementation
+  - Arbiter persona already defined here to avoid circular dependencies later
+  - focusDimensions maps to DimensionName[] from clarity-scoring.ts
+---
