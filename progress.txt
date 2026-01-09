@@ -93,3 +93,33 @@ Thread: https://ampcode.com/threads/T-019ba494-ade9-710c-8a12-e00a96435547
   - Discussion responses are JSON with revisedDimensions[] and maintainedPositions[]
   - Max score change per dimension is capped at 2 points for stability
 ---
+
+## Sat 10 Jan 2026 - US-007
+Thread: https://ampcode.com/threads/T-019ba497-ba38-76cd-ae51-058718adb441
+- Created /lib/agents/tiebreaker-agent.ts with runTiebreaker function
+- Arbiter persona was already defined in clarity-evaluator-personas.ts from US-002
+- Arbiter receives: brief, all 3 verdicts, disagreement result, optional discussion summary
+- Provides definitive scores for disputed dimensions with detailed reasoning
+- Exports ARBITER_WEIGHT_MULTIPLIER = 1.5 for use in final score calculation
+- TiebreakerOutput includes verdict, resolutionSummary, and durationMs
+- Uses Claude Haiku, targets <5 seconds completion
+- Files changed: lib/agents/tiebreaker-agent.ts (new)
+- **Learnings for future iterations:**
+  - TiebreakerInput requires DisagreementResult from detectDisagreement()
+  - ArbiterResponse has disputedDimensionEvaluations[] for detailed resolution
+  - ARBITER_WEIGHT_MULTIPLIER (1.5x) should be used by calculateFinalScore in US-009
+  - buildArbiterVerdict creates full EvaluatorVerdict with role "Arbiter"
+---
+
+## Sat 10 Jan 2026 - US-008
+Thread: https://ampcode.com/threads/T-019ba49a-6edf-7791-83b4-d3173b1a734f
+- Created /lib/supabase/migrations/003_add_human_review_columns.sql migration
+- Added needs_human_review BOOLEAN (default FALSE), review_reason TEXT, scoring_metadata JSONB columns
+- Created partial index on needs_human_review WHERE TRUE for efficient querying
+- Updated Database interface in client.ts with new columns in Row, Insert, and Update types
+- Files changed: lib/supabase/migrations/003_add_human_review_columns.sql (new), lib/supabase/client.ts
+- **Learnings for future iterations:**
+  - No existing migrations folder - created lib/supabase/migrations/ directory
+  - Use IF NOT EXISTS for columns and indexes in migrations for idempotency
+  - Database types in client.ts have Row (full), Insert (required+optional), Update (all optional) patterns
+---
