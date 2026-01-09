@@ -86,3 +86,19 @@ Thread: https://ampcode.com/threads/T-019ba3a3-daaf-709c-ba02-cdabb2e963bf
   - Install `@supabase/ssr` if it's missing for server-side client functionality
   - Migration uses `IF NOT EXISTS` patterns for idempotent execution
 ---
+
+## 2026-01-09 - US-007
+Thread: https://ampcode.com/threads/T-019ba3a9-fb52-70ba-b445-4e9b141b33c2
+- Created `/lib/agents/summary-prompts.ts` with 4 reading level prompts
+- Child: 100-150 words, simple vocabulary, uses analogies, no jargon
+- Teen: 200-250 words, accessible with defined key terms
+- Undergrad: 350-400 words, academic vocabulary, cites sources
+- Postdoc: 450-500 words, technical depth, methodological nuance
+- Each prompt includes complete example output for reference
+- Exported: `getSummaryPrompt(level)`, `getAllSummaryPrompts()`, `getAllReadingLevels()`
+- Files changed: lib/agents/summary-prompts.ts (new)
+- **Learnings for future iterations:**
+  - Summary prompts follow same pattern as specialist-personas.ts: interface, const objects, map, getter functions
+  - ReadingLevel type: 'child' | 'teen' | 'undergrad' | 'postdoc'
+  - Each SummaryPrompt includes: level, name, targetAudience, wordCount (min/max), systemPrompt, exampleOutput
+---
