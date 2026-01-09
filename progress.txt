@@ -8,6 +8,7 @@ Started: Fri  9 Jan 2026 20:30:01 +04
 - Types should be organized in `/lib/types/` directory
 - Migrations go in `/lib/supabase/migrations/` directory - use `IF NOT EXISTS` for idempotent migrations
 - Database types are defined in `/lib/supabase/client.ts` Database interface - update Row, Insert, and Update for new columns
+- LangGraph: Use chained `.addNode().addEdge()` calls for proper TypeScript type inference - separate calls cause type errors
 
 ---
 
@@ -134,4 +135,22 @@ Thread: https://ampcode.com/threads/T-019ba3ae-6089-7229-bc3b-dce94681dc40
   - Pattern: `(supabase.from('table') as any).insert(...)`
   - For map callbacks on Supabase data, add type annotation: `(row: any) =>`
   - Non-blocking logging uses `.catch(() => {})` to prevent unhandled rejections
+---
+
+## 2026-01-09 - US-010
+Thread: https://ampcode.com/threads/T-019ba43c-9b17-7485-b4de-4cbaf39d2459
+- Created `/lib/agents/langgraph-orchestrator.ts` with full pipeline orchestration
+- Implemented LangGraph StateGraph with parallel execution using chained `.addNode()` and `.addEdge()` calls
+- Pipeline: Research → Classification → [Structure || Narrative] → Reconciliation → [4x Summary] → Clarity Scoring
+- Parallel branches for Structure/Narrative (merge at Reconciliation) and 4 Summary agents (merge at Clarity Scoring)
+- Integrated retry wrapper (`withRetry`) and execution logger (`executeWithLogging`) for all agents
+- Defined comprehensive state with `Annotation.Root` including sources, classification, persona, structure, narrative, summaries, clarityScore
+- Created agent placeholder functions: `generateStructure`, `generateNarrative`, `reconcileOutputs`, `generateSummary`, `scoreClarityInternal`
+- Files changed: lib/agents/langgraph-orchestrator.ts (new)
+- **Learnings for future iterations:**
+  - LangGraph TypeScript requires chained `.addNode().addEdge()` calls for proper type inference - separate `graph.addEdge()` calls cause type errors
+  - Use `Annotation.Root({...})` for state schema with `Annotation<T>({ reducer, default })` for each field
+  - Parallel execution works by adding multiple edges from the same source node (e.g., classification → structure AND classification → narrative)
+  - LangGraph automatically handles fan-in by waiting for all parallel branches before proceeding
+  - Import `StateGraph, Annotation, END, START` from "@langchain/langgraph"
 ---
