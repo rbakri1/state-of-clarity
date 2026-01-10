@@ -233,3 +233,18 @@ Thread: https://ampcode.com/threads/T-019ba97e-0108-7088-839c-5d5f1b00f520
   - Clean .next cache with `rm -rf .next` when build fails with manifest errors
   - Production build with `npm run build && npm run start` is more reliable than dev mode
 ---
+
+## 2026-01-11 - US-016
+Thread: https://ampcode.com/threads/T-019ba98b-31ce-7729-a387-dd8c5b2b68b1
+- Added forwardRef and useImperativeHandle to QuestionInput for programmatic control
+- Exposed `focus()` and `setValue()` methods via QuestionInputHandle interface
+- Updated homepage to use nativeInputRef and handleQuestionClick function
+- Input receives focus after prefill via setTimeout pattern
+- Autocomplete triggers automatically when value changes (via useEffect on value)
+- Files changed: app/components/QuestionInput.tsx, app/page.tsx
+- **Learnings for future iterations:**
+  - Use forwardRef + useImperativeHandle to expose imperative methods from components
+  - setTimeout with 0ms delay ensures DOM has updated before focusing
+  - QuestionInput exports both default component and QuestionInputHandle interface
+  - Database not seeded in local dev environment - example questions show "No questions available"
+---
