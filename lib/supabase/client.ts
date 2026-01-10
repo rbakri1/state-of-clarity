@@ -172,9 +172,93 @@ export interface Database {
           error_message?: string | null;
         };
       };
+      credit_packages: {
+        Row: {
+          id: string;
+          name: string;
+          credits: number;
+          price_gbp: number;
+          stripe_price_id: string | null;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          name: string;
+          credits: number;
+          price_gbp: number;
+          stripe_price_id?: string | null;
+          active?: boolean;
+        };
+        Update: {
+          name?: string;
+          credits?: number;
+          price_gbp?: number;
+          stripe_price_id?: string | null;
+          active?: boolean;
+        };
+      };
+      user_credits: {
+        Row: {
+          id: string;
+          user_id: string;
+          balance: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          balance?: number;
+        };
+        Update: {
+          balance?: number;
+        };
+      };
+      credit_batches: {
+        Row: {
+          id: string;
+          user_id: string;
+          credits_remaining: number;
+          purchased_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          user_id: string;
+          credits_remaining: number;
+          expires_at: string;
+        };
+        Update: {
+          credits_remaining?: number;
+        };
+      };
+      credit_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          transaction_type: CreditTransactionType;
+          description: string | null;
+          brief_id: string | null;
+          stripe_payment_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          amount: number;
+          transaction_type: CreditTransactionType;
+          description?: string | null;
+          brief_id?: string | null;
+          stripe_payment_id?: string | null;
+        };
+        Update: {
+          description?: string | null;
+        };
+      };
     };
   };
 }
+
+// Credit transaction types
+export type CreditTransactionType = "purchase" | "usage" | "refund" | "expiry" | "bonus";
 
 /**
  * Browser Client
