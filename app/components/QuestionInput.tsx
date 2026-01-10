@@ -194,6 +194,7 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
         <input
           ref={inputRef}
           type="text"
+          inputMode="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -226,7 +227,7 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
       {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 overflow-hidden">
           {isLoadingSuggestions && suggestions.length === 0 ? (
-            <div className="px-4 py-3 flex items-center gap-2 text-muted-foreground">
+            <div className="px-4 py-3 min-h-11 flex items-center gap-2 text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">Loading suggestions...</span>
             </div>
@@ -237,7 +238,7 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
                 type="button"
                 onClick={() => handleSuggestionClick(suggestion)}
                 onMouseEnter={() => setHighlightedIndex(index)}
-                className={`w-full px-4 py-3 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center justify-between gap-2 ${
+                className={`w-full px-4 py-3 min-h-11 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center justify-between gap-2 ${
                   index === highlightedIndex
                     ? "bg-primary/10 dark:bg-primary/20"
                     : "hover:bg-gray-100 dark:hover:bg-gray-700"
