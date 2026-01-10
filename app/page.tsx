@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
+import { Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
 import TopicCategoriesGrid from "./components/TopicCategoriesGrid";
 import QuestionInput, { QuestionInputHandle } from "./components/QuestionInput";
@@ -11,35 +11,13 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const urlQuestion = searchParams.get("q") || "";
   
-  const [question, setQuestion] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const questionInputRef = useRef<QuestionInputHandle>(null);
-  const nativeInputRef = useRef<HTMLInputElement>(null);
-  
-  useEffect(() => {
-    if (urlQuestion && question === "") {
-      setQuestion(urlQuestion);
-      setTimeout(() => {
-        nativeInputRef.current?.focus();
-      }, 100);
-    }
-  }, [urlQuestion, question]);
 
   const handleQuestionClick = (text: string) => {
-    setQuestion(text);
-    // Focus native input after prefill
-    setTimeout(() => {
-      nativeInputRef.current?.focus();
-    }, 0);
-    // Also call QuestionInput ref if it's being used
     questionInputRef.current?.setValue(text);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim()) return;
-
-    setIsLoading(true);
+  const handleSubmit = async (question: string) => {
     // TODO: Implement API call
     // For now, redirect to sample brief
     window.location.href = "/brief/uk-four-day-week";
@@ -121,29 +99,13 @@ function HomeContent() {
           </p>
 
           {/* Ask Anything Interface */}
-          <form onSubmit={handleSubmit} className="mt-8">
-            <div className="relative max-w-2xl mx-auto">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <input
-                ref={nativeInputRef}
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask anything... (e.g., 'What are the economic impacts of a 4-day work week?')"
-                className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition text-base"
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={isLoading || !question.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-              >
-                {isLoading ? "Generating..." : "Get Brief"}
-              </button>
-            </div>
-          </form>
+          <div className="mt-8">
+            <QuestionInput
+              ref={questionInputRef}
+              onSubmit={handleSubmit}
+              initialValue={urlQuestion}
+            />
+          </div>
 
           {/* Topic Categories */}
           <div className="mt-8">

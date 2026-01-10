@@ -248,3 +248,47 @@ Thread: https://ampcode.com/threads/T-019ba98b-31ce-7729-a387-dd8c5b2b68b1
   - QuestionInput exports both default component and QuestionInputHandle interface
   - Database not seeded in local dev environment - example questions show "No questions available"
 ---
+
+## 2026-01-11 - US-017
+Thread: https://ampcode.com/threads/T-019ba990-93ec-738d-bba3-ec6b5b164777
+- Added useSearchParams hook to homepage for reading ?q= URL parameter
+- Wrapped HomeContent component in Suspense boundary (required for useSearchParams)
+- URL param value prefills the input field on page load
+- Input receives focus after prefill with 100ms delay
+- Updated QuestionInput onFocus handler to show dropdown when value >= 2 chars
+- Files changed: app/page.tsx, app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - useSearchParams requires Suspense boundary in Next.js client components
+  - Don't initialize useState with useSearchParams value directly - use useEffect to set it after hydration
+  - URL prefill logic: `urlQuestion && question === ""` to avoid overwriting user edits
+---
+
+## 2026-01-11 - US-018
+Thread: https://ampcode.com/threads/T-019ba994-c040-71f3-8386-4329e02dd5bf
+- Added mobile optimizations to QuestionInput component
+- Added `min-h-11` (44px) to dropdown items for adequate touch targets
+- Added `inputMode="text"` attribute to input element for proper mobile keyboard
+- Tapping suggestions already works via existing onClick handler
+- Dropdown positioned below input, not obscured by virtual keyboard
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - QuestionInput component is not yet integrated into homepage (that's US-019)
+  - The homepage still uses a native form input, but has QuestionInput imported via ref
+  - min-h-11 in Tailwind equals 44px (the recommended minimum touch target size)
+---
+
+## 2026-01-11 - US-019
+Thread: https://ampcode.com/threads/T-019ba998-b743-7428-a266-eafd56001e14
+- Replaced native form/input on homepage with QuestionInput component
+- Connected QuestionInput to homepage via ref for onQuestionClick handler
+- Removed unused state (question, isLoading, nativeInputRef) from page.tsx
+- TopicCategoriesGrid appears below QuestionInput with proper spacing (mt-8)
+- QuestionInput receives initialValue from URL param (?q=) for prefilling
+- Submit flow redirects to /brief/uk-four-day-week (existing behavior maintained)
+- Files changed: app/page.tsx
+- **Learnings for future iterations:**
+  - QuestionInput exposes setValue and focus methods via forwardRef + useImperativeHandle
+  - The onSubmit prop receives the question text directly (not a form event)
+  - TopicCategoriesGrid's onQuestionClick calls questionInputRef.current?.setValue()
+  - Database question_templates table may not be seeded in local dev - shows "No questions available"
+---
