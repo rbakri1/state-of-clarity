@@ -173,3 +173,14 @@ Thread: https://ampcode.com/threads/T-019ba9e1-768f-73f1-9419-c969af0a63d4
   - Default to pending (approved: false, flagged: false) on any AI error for graceful degradation
   - FeedbackType = "source_suggestion" | "error_report" | "edit_proposal"
 ---
+
+## 2026-01-11 - US-014
+Thread: https://ampcode.com/threads/T-019ba9e3-2aa7-7592-8fb8-5ee1cafd38a2
+- Applied AI screening to source suggestions
+- Files changed:
+  - app/api/briefs/[id]/suggest-source/route.ts - Added async AI screening after insert, updates status based on result
+- **Learnings for future iterations:**
+  - AI screening is called asynchronously after insert using an IIFE: `(async () => { ... })()`
+  - Status logic: flagged → 'flagged', approved && confidence > 0.9 → 'approved', else 'pending'
+  - Same pattern will apply to error reports (US-015) and edit proposals (US-016)
+---

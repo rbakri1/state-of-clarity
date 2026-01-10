@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/client";
+import { screenFeedback, ScreeningResult } from "@/lib/services/feedback-screening";
 
 const ERROR_TYPES = ["factual", "outdated", "misleading", "other"] as const;
 type ErrorType = (typeof ERROR_TYPES)[number];
@@ -72,5 +73,34 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, id: data.id });
+  const reportId = data.id;
+
+  (async () => {
+    try {
+      const screeningResult: ScreeningResult = await screenFeedback("error_report", {
+        error_type: body.error_type,
+        description: body.description,
+      });
+
+      let newStatus = "pending";
+      if (screeningResult.flagged) {
+        newStatus = "flagged";
+      } else if (screeningResult.approved && screeningResult.confidence > 0.9) {
+        newStatus = "approved";
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from("error_reports")
+        .update({
+          ai_screening_result: screeningResult,
+          status: newStatus,
+        })
+        .eq("id", reportId);
+    } catch (e) {
+      console.error("Failed to screen error report:", e);
+    }
+  })();
+
+  return NextResponse.json({ success: true, id: reportId });
 }
