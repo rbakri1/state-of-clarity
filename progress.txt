@@ -1,0 +1,25 @@
+# Ralph Progress Log
+Started: Sat 10 Jan 2026 10:27:18 +04
+
+## Codebase Patterns
+- Database types are defined in lib/supabase/client.ts (not a separate types.ts file)
+- Use `IF NOT EXISTS` for migrations to make them idempotent
+- RLS policies: users can SELECT their own, service_role can manage all
+- Credit amounts: positive = purchase/refund/bonus, negative = usage/expiry
+
+---
+
+## 2026-01-10 - US-001
+Thread: https://ampcode.com/threads/T-019ba696-7eeb-75ea-9215-46281cbf853c
+- Created migration 008_add_credits_tables.sql with 4 tables:
+  - credit_packages: purchasable credit bundles
+  - user_credits: per-user balance tracking
+  - credit_batches: individual purchases with expiry dates
+  - credit_transactions: audit log of all movements
+- Added TypeScript types to Database interface in client.ts
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx
+- **Learnings for future iterations:**
+  - The prd.json and progress.txt get stashed when switching branches - be careful with git stash/checkout
+  - Pre-existing type errors need to be fixed before build passes
+  - Database types live in client.ts on this branch (not a separate types.ts)
+---
