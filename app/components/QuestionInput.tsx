@@ -14,15 +14,6 @@ interface QuestionInputProps {
   initialValue?: string;
 }
 
-const PLACEHOLDER_SUGGESTIONS: Suggestion[] = [
-  { text: "What are the current UK inflation rates?", source: "template", category: "Economy" },
-  { text: "How does the NHS funding compare to other countries?", source: "template", category: "Healthcare" },
-  { text: "What are the UK's net zero climate targets?", source: "history", category: "Climate" },
-  { text: "How is education spending distributed across regions?", source: "template", category: "Education" },
-  { text: "What are the latest immigration policy changes?", source: "history", category: "Immigration" },
-  { text: "How do housing prices affect first-time buyers?", source: "ai", category: "Housing" },
-];
-
 export default function QuestionInput({
   onSubmit,
   initialValue = "",
@@ -32,9 +23,11 @@ export default function QuestionInput({
   const [showDropdown, setShowDropdown] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLFormElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (initialValue) {
@@ -42,24 +35,68 @@ export default function QuestionInput({
     }
   }, [initialValue]);
 
+  // Debounced API call for suggestions
   useEffect(() => {
-    if (value.length >= 2) {
-      const filtered = PLACEHOLDER_SUGGESTIONS.filter((s) =>
-        s.text.toLowerCase().includes(value.toLowerCase())
-      ).slice(0, 6);
-      
-      if (filtered.length === 0) {
-        setSuggestions(PLACEHOLDER_SUGGESTIONS.slice(0, 6));
-      } else {
-        setSuggestions(filtered);
-      }
-      setShowDropdown(true);
-      setHighlightedIndex(0);
-    } else {
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    if (value.length < 2) {
       setShowDropdown(false);
       setSuggestions([]);
       setHighlightedIndex(0);
+      setIsLoadingSuggestions(false);
+      return;
     }
+
+    // Set loading state and show dropdown
+    setIsLoadingSuggestions(true);
+    setShowDropdown(true);
+
+    // Debounce the API call by 150ms
+    const timeoutId = setTimeout(async () => {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      try {
+        const response = await fetch(
+          `/api/questions/suggest?q=${encodeURIComponent(value)}`,
+          { signal: controller.signal }
+        );
+
+        if (!response.ok) {
+          // Hide dropdown on error
+          setShowDropdown(false);
+          setSuggestions([]);
+          return;
+        }
+
+        const data: Suggestion[] = await response.json();
+
+        if (data.length === 0) {
+          // Hide dropdown if no results
+          setShowDropdown(false);
+          setSuggestions([]);
+        } else {
+          setSuggestions(data);
+          setHighlightedIndex(0);
+          setShowDropdown(true);
+        }
+      } catch (error) {
+        // Ignore abort errors, hide dropdown on other errors
+        if (error instanceof Error && error.name !== "AbortError") {
+          setShowDropdown(false);
+          setSuggestions([]);
+        }
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 150);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [value]);
 
   useEffect(() => {
@@ -160,23 +197,30 @@ export default function QuestionInput({
         </button>
       </div>
 
-      {showDropdown && suggestions.length > 0 && (
+      {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 overflow-hidden">
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => handleSuggestionClick(suggestion)}
-              onMouseEnter={() => setHighlightedIndex(index)}
-              className={`w-full px-4 py-3 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${
-                index === highlightedIndex
-                  ? "bg-primary/10 dark:bg-primary/20"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              <span className="text-sm text-foreground">{suggestion.text}</span>
-            </button>
-          ))}
+          {isLoadingSuggestions && suggestions.length === 0 ? (
+            <div className="px-4 py-3 flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Loading suggestions...</span>
+            </div>
+          ) : (
+            suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleSuggestionClick(suggestion)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                className={`w-full px-4 py-3 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${
+                  index === highlightedIndex
+                    ? "bg-primary/10 dark:bg-primary/20"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <span className="text-sm text-foreground">{suggestion.text}</span>
+              </button>
+            ))
+          )}
         </div>
       )}
     </form>
