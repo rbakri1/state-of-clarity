@@ -217,3 +217,19 @@ Thread: https://ampcode.com/threads/T-019ba978-1cd2-72ee-bb87-3f1562ed7452
   - Show loading state in dropdown container, not in suggestions list
   - QuestionInput is not yet integrated into homepage (that's US-019)
 ---
+
+## 2026-01-11 - US-015
+Thread: https://ampcode.com/threads/T-019ba97e-0108-7088-839c-5d5f1b00f520
+- Added source badges to QuestionInput autocomplete suggestions
+- Each suggestion row now shows a badge on the right side
+- Template suggestions show "Curated" badge
+- History suggestions show "Popular" badge
+- AI suggestions show "AI ✨" badge
+- Badges styled with text-xs, text-muted-foreground, and shrink-0
+- Updated button className to use flex layout with justify-between
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Browser server needs to be restarted if it crashes (pkill chromium, then run server.sh)
+  - Clean .next cache with `rm -rf .next` when build fails with manifest errors
+  - Production build with `npm run build && npm run start` is more reliable than dev mode
+---
