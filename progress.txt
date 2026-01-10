@@ -78,3 +78,16 @@ Thread: https://ampcode.com/threads/T-019ba9c3-135a-721d-bbda-f0f5b2d0883f
   - Status field defaults to 'pending' on creation
 ---
 
+## 2026-01-11 - US-006
+Thread: https://ampcode.com/threads/T-019ba9c5-0a2b-724a-bd3f-7a444f69b23f
+- Created suggest source modal component
+- Files changed:
+  - app/components/SuggestSourceModal.tsx - New file with Radix Dialog-based modal
+- **Learnings for future iterations:**
+  - Use @radix-ui/react-dialog for modals (already in package.json)
+  - Controlled modal pattern: accept `open` and `onOpenChange` props
+  - Check auth on modal open, not on mount, to avoid unnecessary auth checks
+  - Show success state inline in modal before auto-close for better UX
+  - Modal will be integrated into brief page via FeedbackActions component (US-011/US-012)
+---
+
