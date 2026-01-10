@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/client";
 
 export interface Suggestion {
   text: string;
@@ -16,7 +17,25 @@ export async function GET(request: NextRequest) {
 
   const suggestions: Suggestion[] = [];
 
-  // TODO US-010: Add template-based suggestions (query question_templates with ILIKE)
+  // US-010: Add template-based suggestions (query question_templates with ILIKE)
+  const supabase = await createServerSupabaseClient();
+  const { data: templates } = await supabase
+    .from("question_templates")
+    .select("question_text, category")
+    .ilike("question_text", `%${q}%`)
+    .order("display_order")
+    .limit(3);
+
+  if (templates && templates.length > 0) {
+    for (const template of templates as { question_text: string; category: string }[]) {
+      suggestions.push({
+        text: template.question_text,
+        source: "template",
+        category: template.category,
+      });
+    }
+  }
+
   // TODO US-011: Add history-based suggestions (query briefs table)
   // TODO US-012: Add AI-generated suggestions (call Claude Haiku)
 
