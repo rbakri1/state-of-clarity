@@ -207,3 +207,15 @@ Thread: https://ampcode.com/threads/T-019ba6c2-a2f3-711e-b1fd-dabf831db093
   - Some stories may duplicate work from earlier stories - verify before implementing
   - Migration 009 was created as part of US-004 Stripe integration
 ---
+
+## 2026-01-10 - US-015
+Thread: https://ampcode.com/threads/T-019ba6c4-05df-73ba-a4bd-6e7eb906ab37
+- Created test-payments.ts with comprehensive manual testing checklist
+- Documents 10 test cases covering: purchases, credit deductions, refunds, webhooks, insufficient credits, low balance warnings, declines, retry logic, transaction history, and balance display
+- Includes Stripe test card numbers (4242... for success, 4000...9995 for decline)
+- Prints formatted checklist to console with steps and expected results
+- **Learnings for future iterations:**
+  - Test scripts should be runnable with `npx tsx` for TypeScript files
+  - Good checklist format includes: test ID, description, steps, expected result
+  - Document prerequisites (dev server, Stripe keys, webhook forwarding)
+---
