@@ -31,7 +31,9 @@ export default function QuestionInput({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -52,9 +54,11 @@ export default function QuestionInput({
         setSuggestions(filtered);
       }
       setShowDropdown(true);
+      setHighlightedIndex(0);
     } else {
       setShowDropdown(false);
       setSuggestions([]);
+      setHighlightedIndex(0);
     }
   }, [value]);
 
@@ -70,10 +74,38 @@ export default function QuestionInput({
   }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      setShowDropdown(false);
+    if (!showDropdown || suggestions.length === 0) {
+      if (e.key === "Escape") {
+        setShowDropdown(false);
+      }
+      return;
     }
-  }, []);
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        break;
+      case "Enter":
+        if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
+          e.preventDefault();
+          handleSuggestionClick(suggestions[highlightedIndex]);
+        }
+        break;
+      case "Escape":
+        setShowDropdown(false);
+        break;
+      case "Tab":
+        setShowDropdown(false);
+        break;
+    }
+  }, [showDropdown, suggestions, highlightedIndex]);
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
     setValue(suggestion.text);
@@ -112,6 +144,7 @@ export default function QuestionInput({
           disabled={isSubmitting}
         />
         <button
+          ref={submitButtonRef}
           type="submit"
           disabled={isSubmitting || !value.trim()}
           className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium flex items-center gap-2"
@@ -134,7 +167,12 @@ export default function QuestionInput({
               key={index}
               type="button"
               onClick={() => handleSuggestionClick(suggestion)}
-              className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+              onMouseEnter={() => setHighlightedIndex(index)}
+              className={`w-full px-4 py-3 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${
+                index === highlightedIndex
+                  ? "bg-primary/10 dark:bg-primary/20"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
             >
               <span className="text-sm text-foreground">{suggestion.text}</span>
             </button>
