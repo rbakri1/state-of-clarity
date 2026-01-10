@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Coins, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { CreditBalance } from "../components/CreditBalance";
 
 interface CreditPackage {
   id: string;
@@ -108,6 +109,7 @@ export default function CreditsPage() {
               </div>
               <span className="text-xl font-bold">State of Clarity</span>
             </Link>
+            <CreditBalance />
           </div>
         </div>
       </header>

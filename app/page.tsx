@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { CreditBalance } from "./components/CreditBalance";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -64,6 +65,7 @@ export default function Home() {
               >
                 Browse Briefs
               </Link>
+              <CreditBalance />
               <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition">
                 Sign In
               </button>

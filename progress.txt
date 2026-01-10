@@ -9,6 +9,7 @@ Started: Sat 10 Jan 2026 10:27:18 +04
 - Supabase chained queries cause TypeScript `never` inference issues - use `(supabase as any)` for update/insert operations with helper functions
 - Stripe client in lib/stripe/client.ts uses lazy init via getStripe() to avoid build-time errors
 - For Supabase select queries, cast result with `as TypeName | null` to fix `never` type inference
+- Client components needing auth-protected data should call API routes (not service-role directly)
 
 ---
 
@@ -110,4 +111,17 @@ Thread: https://ampcode.com/threads/T-019ba6ae-e8dd-702b-a60f-07c2b97434f0
   - Follow same pattern as credit-service.ts for helper functions with (supabase as any) cast
   - Payment retries need both webhook handlers and a scheduled job (processAllPendingRetries)
   - Payment intent metadata must include user_id for retry logic to work
+---
+
+## 2026-01-10 - US-008
+Thread: https://ampcode.com/threads/T-019ba6b2-3cbf-76ea-88ff-805490f2c892
+- Created /app/credits/page.tsx - buy credits page with package cards
+- Created /app/api/credits/route.ts - API endpoint to fetch packages and balance
+- Displays current credit balance at top, 4 package cards with pricing info
+- "Most Popular" badge on Standard package, "Best value" shown on lowest per-credit price
+- Buy button triggers Stripe checkout redirect via create-checkout API
+- **Learnings for future iterations:**
+  - Client components fetching auth-protected data need a server API route (credit-service uses service role)
+  - Dynamic API routes using cookies show expected warning during build but still work correctly at runtime
+  - dev-browser skill not available in this workspace; browser verification skipped
 ---
