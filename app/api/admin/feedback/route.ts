@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/client";
 
 const ADMIN_EMAILS = ["admin@stateofclarity.com"];
@@ -6,6 +6,70 @@ const ADMIN_EMAILS = ["admin@stateofclarity.com"];
 function isAdmin(email: string | undefined): boolean {
   if (!email) return false;
   return ADMIN_EMAILS.includes(email) || email.endsWith("@stateofclarity.com");
+}
+
+const VALID_TYPES = ["source_suggestion", "error_report", "edit_proposal"] as const;
+const VALID_STATUSES = ["pending", "approved", "rejected", "flagged"] as const;
+
+type FeedbackType = (typeof VALID_TYPES)[number];
+type FeedbackStatus = (typeof VALID_STATUSES)[number];
+
+const TYPE_TO_TABLE: Record<FeedbackType, string> = {
+  source_suggestion: "source_suggestions",
+  error_report: "error_reports",
+  edit_proposal: "edit_proposals",
+};
+
+export async function PATCH(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || !isAdmin(user.email)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const { type, id, status } = body as {
+    type?: string;
+    id?: string;
+    status?: string;
+  };
+
+  if (!type || !VALID_TYPES.includes(type as FeedbackType)) {
+    return NextResponse.json(
+      { error: "Invalid type. Must be one of: source_suggestion, error_report, edit_proposal" },
+      { status: 400 }
+    );
+  }
+
+  if (!id) {
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  }
+
+  if (!status || !VALID_STATUSES.includes(status as FeedbackStatus)) {
+    return NextResponse.json(
+      { error: "Invalid status. Must be one of: pending, approved, rejected, flagged" },
+      { status: 400 }
+    );
+  }
+
+  const tableName = TYPE_TO_TABLE[type as FeedbackType];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from(tableName)
+    .update({ status })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Failed to update feedback status:", error);
+    return NextResponse.json({ error: "Failed to update status" }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true, id, status });
 }
 
 export async function GET() {

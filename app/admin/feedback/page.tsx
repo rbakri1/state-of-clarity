@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   Flag,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,6 +47,8 @@ export default function AdminFeedbackPage() {
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   useEffect(() => {
     const checkAdminAndFetch = async () => {
@@ -83,6 +86,43 @@ export default function AdminFeedbackPage() {
       }
     } catch (err) {
       console.error("Failed to fetch feedback:", err);
+    }
+  };
+
+  const updateFeedbackStatus = async (
+    type: FeedbackType,
+    id: string,
+    status: "approved" | "rejected"
+  ) => {
+    const key = `${type}-${id}`;
+    setActionLoading(key);
+
+    try {
+      const res = await fetch("/api/admin/feedback", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, id, status }),
+      });
+
+      if (res.ok) {
+        setToast({
+          message: `Feedback ${status === "approved" ? "approved" : "rejected"} successfully`,
+          type: "success",
+        });
+        await fetchFeedback();
+      } else {
+        const data = await res.json();
+        setToast({
+          message: data.error || "Failed to update status",
+          type: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update feedback status:", err);
+      setToast({ message: "Failed to update status", type: "error" });
+    } finally {
+      setActionLoading(null);
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
@@ -384,12 +424,64 @@ export default function AdminFeedbackPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* Action Buttons */}
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateFeedbackStatus(item.type, item.id, "approved");
+                        }}
+                        disabled={actionLoading === `${item.type}-${item.id}` || item.status === "approved"}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {actionLoading === `${item.type}-${item.id}` ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4" />
+                        )}
+                        Approve
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateFeedbackStatus(item.type, item.id, "rejected");
+                        }}
+                        disabled={actionLoading === `${item.type}-${item.id}` || item.status === "rejected"}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {actionLoading === `${item.type}-${item.id}` ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <XCircle className="w-4 h-4" />
+                        )}
+                        Reject
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ))
           )}
         </div>
+
+        {/* Toast Notification */}
+        {toast && (
+          <div
+            className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
+              toast.type === "success"
+                ? "bg-green-600 text-white"
+                : "bg-red-600 text-white"
+            }`}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : (
+              <XCircle className="w-5 h-5" />
+            )}
+            {toast.message}
+          </div>
+        )}
       </div>
     </div>
   );

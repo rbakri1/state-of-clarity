@@ -204,3 +204,16 @@ Thread: https://ampcode.com/threads/T-019ba9e5-b8d3-7481-8bbc-0a54d81637c6
   - Same pattern as source suggestions and error reports: async IIFE after insert, status logic (flagged → 'flagged', approved && confidence > 0.9 → 'approved', else 'pending')
   - Pass original_text, proposed_text, rationale to screenFeedback with type "edit_proposal"
 ---
+
+## 2026-01-11 - US-017
+Thread: https://ampcode.com/threads/T-019ba9e7-0837-7559-8544-f1f0da8c6c4c
+- Created admin feedback review page with protected route
+- Files changed:
+  - app/admin/feedback/page.tsx - New admin page with tabs, feedback list, expandable rows
+  - app/api/admin/feedback/route.ts - New GET endpoint to fetch all feedback items
+- **Learnings for future iterations:**
+  - Admin routes use email check: ADMIN_EMAILS includes or ends with @stateofclarity.com
+  - Fetching from multiple tables (source_suggestions, error_reports, edit_proposals) and combining into unified FeedbackItem type
+  - Use `(supabase as any)` workaround with eslint-disable comment for Supabase never type inference issues
+  - Browser verification may need dev server restart if new pages aren't picked up (rm -rf .next)
+---
