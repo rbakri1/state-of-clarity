@@ -187,3 +187,19 @@ Thread: https://ampcode.com/threads/T-019ba732-0717-740c-aed1-8478dd763fe3
   - Use clarity_critique.strengths and clarity_critique.gaps for callout content when available
   - Modal uses body overflow:hidden to prevent background scroll when open
 ---
+
+## 2026-01-10 - US-011
+Thread: https://ampcode.com/threads/T-019ba73a-1399-7347-8df8-6a6ce88efd53
+- Added clickable clarity score badge to brief header
+- Replaced div with button element for accessibility
+- Implemented color-coded styling: green (>=8), yellow (6-7.9), red (<6)
+- Added state for modal open/close: isClarityModalOpen
+- Integrated ClarityScoreModal with score, breakdown, strengths, and gaps props
+- Modal opens on badge click, closes on X/backdrop/Escape
+- **Files changed:**
+  - app/brief/[id]/page.tsx (import ClarityScoreModal, add state, update badge, render modal)
+- **Learnings for future iterations:**
+  - ClarityScoreModal expects breakdown with keys: first_principles, source_diversity, primary_ratio, logical_completeness, readability, recency, user_feedback
+  - brief.clarity_critique contains breakdown, strengths, and gaps arrays
+  - Use aria-label on interactive elements for accessibility
+---
