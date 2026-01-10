@@ -1,22 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Sparkles, TrendingUp, BookOpen, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim()) return;
-
-    setIsLoading(true);
-    // TODO: Implement API call
-    // For now, redirect to sample brief
-    window.location.href = "/brief/uk-four-day-week";
-  };
+  const [voteCounts, setVoteCounts] = useState<Record<string, number>>({});
 
   const showcaseBriefs = [
     {
@@ -38,6 +29,38 @@ export default function Home() {
       tags: ["Climate", "Energy", "Economics"],
     },
   ];
+
+  useEffect(() => {
+    const fetchVoteCounts = async () => {
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        showcaseBriefs.map(async (brief) => {
+          try {
+            const res = await fetch(`/api/briefs/${brief.id}/vote`);
+            if (res.ok) {
+              const data = await res.json();
+              counts[brief.id] = data.upvotes;
+            }
+          } catch {
+            // Ignore errors, just don't show count
+          }
+        })
+      );
+      setVoteCounts(counts);
+    };
+    fetchVoteCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+
+    setIsLoading(true);
+    // TODO: Implement API call
+    // For now, redirect to sample brief
+    window.location.href = "/brief/uk-four-day-week";
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
@@ -182,6 +205,12 @@ export default function Home() {
                   <Sparkles className="w-4 h-4" />
                   <span>{brief.clarity_score}/10</span>
                 </div>
+                {voteCounts[brief.id] > 0 && (
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <ThumbsUp className="w-4 h-4" />
+                    <span>{voteCounts[brief.id]}</span>
+                  </div>
+                )}
               </div>
 
               <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition">
