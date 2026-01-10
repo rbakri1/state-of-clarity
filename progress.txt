@@ -14,3 +14,16 @@ Started: Sun 11 Jan 2026
 
 ---
 
+## 2026-01-11 - US-001
+Thread: https://ampcode.com/threads/T-019ba9ab-ecb5-762e-b7e8-f60e0c1f4c72
+- Created feedback database schema for community feedback system
+- Files changed:
+  - lib/supabase/schema.sql - Added 4 new tables: brief_votes, source_suggestions, error_reports, edit_proposals with RLS policies
+  - lib/supabase/client.ts - Added TypeScript types for all new tables
+  - app/brief/[id]/page.tsx - Fixed implicit any type errors in map callbacks (pre-existing issue)
+- **Learnings for future iterations:**
+  - Schema uses IF NOT EXISTS for table creation
+  - RLS policies for user-created content follow pattern: insert requires auth.uid() = user_id, update uses USING (true) for system access
+  - Use explicit type annotations in map callbacks: `(item: any, i: number) =>` or cast objects: `Object.entries(obj as Record<string, number>)`
+---
+
