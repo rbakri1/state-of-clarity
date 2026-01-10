@@ -217,3 +217,16 @@ Thread: https://ampcode.com/threads/T-019ba9e7-0837-7559-8544-f1f0da8c6c4c
   - Use `(supabase as any)` workaround with eslint-disable comment for Supabase never type inference issues
   - Browser verification may need dev server restart if new pages aren't picked up (rm -rf .next)
 ---
+
+## 2026-01-11 - US-018
+Thread: https://ampcode.com/threads/T-019ba9ec-74f8-738d-b24d-4c53a9119073
+- Added admin approval/rejection actions to feedback review page
+- Files changed:
+  - app/api/admin/feedback/route.ts - Added PATCH handler to update feedback status
+  - app/admin/feedback/page.tsx - Added Approve/Reject buttons, loading state, toast notifications
+- **Learnings for future iterations:**
+  - PATCH handler pattern: validate type, id, status; map type to table name; update with status
+  - Toast notification pattern: fixed position bottom-right, auto-dismiss after 3 seconds with setTimeout
+  - Button disable pattern: disabled during loading (actionLoading === key) or when already in that status
+  - Browser testing may fail if not authenticated; code structure is verified by build passing
+---
