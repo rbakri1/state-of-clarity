@@ -1,0 +1,36 @@
+# Ralph Progress Log
+Started: Sat 10 Jan 2026 12:04:02 +04
+
+## Codebase Patterns
+- Reading levels use 'simple', 'standard', 'advanced' keys (not child/teen/undergrad/postdoc)
+- BriefSummaries interface and ReadingLevel type are exported from lib/supabase/client.ts
+- Use type assertions (as any) for Supabase tables not fully typed in schema (e.g., saved_briefs)
+- Missing lib modules (auth/providers, user/useUserDisplay, paywall/usePaywall, saved-briefs/useSavedBriefs) were created as stubs
+
+---
+
+## 2026-01-10 - US-001
+Thread: https://ampcode.com/threads/T-019ba6ef-0f7d-7539-8313-09a040d12dc8
+- Updated brief summaries schema from 4 levels (child/teen/undergrad/postdoc) to 3 levels (simple/standard/advanced)
+- Created BriefSummaries interface and ReadingLevel type in lib/supabase/client.ts
+- Updated sample-briefs/what-is-a-state.json with new 3-level structure
+- Updated sample-briefs/uk-four-day-week.json with new 3-level structure
+- Updated app/brief/[id]/page.tsx reading level selector and default level
+- Fixed multiple type errors in brief page (added explicit types to map callbacks)
+- Created missing modules: lib/auth/providers.ts, lib/supabase/browser.ts, lib/user/useUserDisplay.ts, lib/paywall/usePaywall.ts, lib/saved-briefs/useSavedBriefs.ts
+- Added saved_briefs table to Database type
+- **Files changed:**
+  - lib/supabase/client.ts
+  - lib/supabase/browser.ts (new)
+  - lib/auth/providers.ts (new)
+  - lib/user/useUserDisplay.ts (new)
+  - lib/paywall/usePaywall.ts (new)
+  - lib/saved-briefs/useSavedBriefs.ts (new)
+  - app/brief/[id]/page.tsx
+  - sample-briefs/what-is-a-state.json
+  - sample-briefs/uk-four-day-week.json
+- **Learnings for future iterations:**
+  - Several auth/user modules were missing stubs - these need to be properly implemented later
+  - When working on briefs, remember summaries use simple/standard/advanced keys
+  - Supabase typed client requires table definitions in Database interface
+---

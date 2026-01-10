@@ -11,6 +11,16 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 // Type definitions for database schema
+// Reading level types for briefs
+export type ReadingLevel = "simple" | "standard" | "advanced";
+
+// Summaries structure for briefs
+export interface BriefSummaries {
+  simple: string;
+  standard: string;
+  advanced: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -48,7 +58,7 @@ export interface Database {
           user_id: string | null;
           created_at: string;
           updated_at: string;
-          summaries: any; // JSONB
+          summaries: BriefSummaries; // JSONB - simple, standard, advanced keys
           structured_data: any; // JSONB
           narrative: string;
           posit: any | null; // JSONB
@@ -61,7 +71,7 @@ export interface Database {
         };
         Insert: {
           question: string;
-          summaries: any;
+          summaries: BriefSummaries;
           structured_data: any;
           narrative: string;
           user_id?: string | null;
@@ -69,7 +79,7 @@ export interface Database {
           metadata?: any;
         };
         Update: {
-          summaries?: any;
+          summaries?: BriefSummaries;
           structured_data?: any;
           narrative?: string;
           clarity_score?: number | null;
@@ -170,6 +180,22 @@ export interface Database {
           progress?: number;
           brief_id?: string | null;
           error_message?: string | null;
+        };
+      };
+      saved_briefs: {
+        Row: {
+          id: string;
+          user_id: string;
+          brief_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          brief_id: string;
+        };
+        Update: {
+          user_id?: string;
+          brief_id?: string;
         };
       };
     };

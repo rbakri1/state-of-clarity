@@ -19,11 +19,11 @@ import Link from "next/link";
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
 import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
 
-type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
+import type { ReadingLevel } from "@/lib/supabase/client";
 
 export default function BriefPage() {
   const params = useParams();
-  const [activeLevel, setActiveLevel] = useState<ReadingLevel>("undergrad");
+  const [activeLevel, setActiveLevel] = useState<ReadingLevel>("standard");
   const [expandedSections, setExpandedSections] = useState({
     posit: true,
     definitions: true,
@@ -50,10 +50,9 @@ export default function BriefPage() {
   };
 
   const readingLevels = [
-    { key: "child" as const, label: "Child", age: "8-12" },
-    { key: "teen" as const, label: "Teen", age: "13-17" },
-    { key: "undergrad" as const, label: "Undergrad", age: "18-22" },
-    { key: "postdoc" as const, label: "Post-doc", age: "Graduate" },
+    { key: "simple" as const, label: "Simple", description: "Easy to understand" },
+    { key: "standard" as const, label: "Standard", description: "Balanced detail" },
+    { key: "advanced" as const, label: "Advanced", description: "Full depth" },
   ];
 
   const getClarityScoreClass = (score: number) => {
@@ -277,7 +276,7 @@ export default function BriefPage() {
                     }`}
                   >
                     <div className="text-sm">{level.label}</div>
-                    <div className="text-xs opacity-75">{level.age}</div>
+                    <div className="text-xs opacity-75">{level.description}</div>
                   </button>
                 ))}
               </div>
@@ -294,7 +293,7 @@ export default function BriefPage() {
             <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-bold mb-4">Narrative Analysis</h2>
               <div className="prose prose-clarity max-w-none">
-                {brief.narrative.split("\n\n").map((paragraph, i) => (
+                {brief.narrative.split("\n\n").map((paragraph: string, i: number) => (
                   <p key={i} className="mb-4 text-base leading-relaxed">
                     {paragraph}
                   </p>
@@ -369,7 +368,7 @@ export default function BriefPage() {
 
                 {expandedSections.factors && (
                   <div className="space-y-4">
-                    {brief.structured_data.factors.map((factor, i) => (
+                    {brief.structured_data.factors.map((factor: { name: string; impact: string; evidence: string[] }, i: number) => (
                       <div
                         key={i}
                         className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
@@ -383,7 +382,7 @@ export default function BriefPage() {
                         <div className="text-sm text-muted-foreground mb-2">
                           <strong>Evidence:</strong>
                           <ul className="list-disc list-inside mt-1 space-y-1">
-                            {factor.evidence.map((ev, j) => (
+                            {factor.evidence.map((ev: string, j: number) => (
                               <li key={j}>{ev}</li>
                             ))}
                           </ul>
@@ -412,7 +411,7 @@ export default function BriefPage() {
 
                 {expandedSections.policies && (
                   <div className="space-y-4">
-                    {brief.structured_data.policies.map((policy, i) => (
+                    {brief.structured_data.policies.map((policy: { name: string; pros: string[]; cons: string[] }, i: number) => (
                       <div
                         key={i}
                         className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
@@ -424,7 +423,7 @@ export default function BriefPage() {
                               Pros:
                             </div>
                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.pros.map((pro, j) => (
+                              {policy.pros.map((pro: string, j: number) => (
                                 <li key={j}>{pro}</li>
                               ))}
                             </ul>
@@ -434,7 +433,7 @@ export default function BriefPage() {
                               Cons:
                             </div>
                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.cons.map((con, j) => (
+                              {policy.cons.map((con: string, j: number) => (
                                 <li key={j}>{con}</li>
                               ))}
                             </ul>
@@ -465,7 +464,7 @@ export default function BriefPage() {
 
                 {expandedSections.consequences && (
                   <div className="space-y-4">
-                    {brief.structured_data.consequences.map((consequence, i) => (
+                    {brief.structured_data.consequences.map((consequence: { action: string; first_order: string; second_order: string }, i: number) => (
                       <div
                         key={i}
                         className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
@@ -534,8 +533,8 @@ export default function BriefPage() {
               <h3 className="font-semibold mb-4">Clarity Score Breakdown</h3>
 
               <div className="space-y-3">
-                {Object.entries(brief.clarity_critique.breakdown).map(
-                  ([key, value]) => (
+                {Object.entries(brief.clarity_critique.breakdown as Record<string, number>).map(
+                  ([key, value]: [string, number]) => (
                     <div key={key}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm capitalize">
@@ -559,7 +558,7 @@ export default function BriefPage() {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="font-medium mb-2">Strengths</h4>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  {brief.clarity_critique.strengths.map((strength, i) => (
+                  {(brief.clarity_critique.strengths as string[]).map((strength: string, i: number) => (
                     <li key={i}>{strength}</li>
                   ))}
                 </ul>
@@ -568,7 +567,7 @@ export default function BriefPage() {
               <div className="mt-4">
                 <h4 className="font-medium mb-2">Gaps</h4>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  {brief.clarity_critique.gaps.map((gap, i) => (
+                  {(brief.clarity_critique.gaps as string[]).map((gap: string, i: number) => (
                     <li key={i}>{gap}</li>
                   ))}
                 </ul>
@@ -582,7 +581,7 @@ export default function BriefPage() {
               </h3>
 
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {brief.sources.map((source) => (
+                {(brief.sources as { id: string; url: string; title: string; author: string; publication_date: string; political_lean: string; source_type: string }[]).map((source) => (
                   <a
                     key={source.id}
                     href={source.url}
