@@ -91,3 +91,14 @@ Thread: https://ampcode.com/threads/T-019ba9c5-0a2b-724a-bd3f-7a444f69b23f
   - Modal will be integrated into brief page via FeedbackActions component (US-011/US-012)
 ---
 
+## 2026-01-11 - US-007
+Thread: https://ampcode.com/threads/T-019ba9c7-e1f8-749c-9c91-d66d1036dbea
+- Created report error API endpoint
+- Files changed:
+  - app/api/briefs/[id]/report-error/route.ts - New POST endpoint for error reports
+- **Learnings for future iterations:**
+  - Same pattern as suggest-source: POST handler with auth check, validation, insert with status 'pending'
+  - Error type validation uses const array and type inference: `const ERROR_TYPES = [...] as const; type ErrorType = (typeof ERROR_TYPES)[number]`
+  - Description min length validation: simple `body.description.length < 20` check
+---
+
