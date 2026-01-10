@@ -18,6 +18,12 @@ import { addToRetryQueue, generateRetryParams } from "../services/retry-queue-se
 import { refundCredits } from "../services/credit-service";
 import { createServiceRoleClient, type Database } from "../supabase/client";
 import { QualityTier, type QualityGateResult } from "../types/quality-gate";
+import {
+  createExecutionContext,
+  logPipelineStep,
+  logQualityGateDecision,
+  type ExecutionContext,
+} from "../services/quality-gate-metrics";
 
 type BriefInsert = Database["public"]["Tables"]["briefs"]["Insert"];
 
@@ -52,30 +58,46 @@ export async function generateBriefWithQualityGate(
   userId?: string | null,
   classification?: QuestionClassification
 ): Promise<GenerationResult> {
-  const startTime = Date.now();
+  const execContext = createExecutionContext();
   console.log("[Orchestrator] Starting brief generation pipeline");
+  console.log(`[Orchestrator] Execution ID: ${execContext.executionId}`);
   console.log(`[Orchestrator] Question: "${question}"`);
 
   try {
     // Step 1: Research - Gather sources
     console.log("[Orchestrator] Step 1: Gathering sources via Research Agent");
     const sources = await researchAgent(question);
-    logPipelineStep("research", startTime, { sourceCount: sources.length });
+    await logPipelineStep(execContext, {
+      name: "Gather sources via Research Agent",
+      type: "research",
+      status: "completed",
+      metadata: { sourceCount: sources.length },
+    });
 
     // Step 2: Generate brief content
     console.log("[Orchestrator] Step 2: Generating brief content");
     const briefContent = await generateBriefContent(question, sources);
-    logPipelineStep("generation", startTime, { title: briefContent.title });
+    await logPipelineStep(execContext, {
+      name: "Generate brief content",
+      type: "generation",
+      status: "completed",
+      metadata: { title: briefContent.title },
+    });
 
     // Step 3: Quality Gate - Score and decide
     console.log("[Orchestrator] Step 3: Running Quality Gate");
     const qualityResult = await runQualityGate(briefContent, sources);
     const decision = getTierDecision(qualityResult.finalScore);
-    logPipelineStep("quality_gate", startTime, {
-      score: qualityResult.finalScore,
-      tier: qualityResult.tier,
-      attempts: qualityResult.attempts,
-      publishable: qualityResult.publishable,
+    await logPipelineStep(execContext, {
+      name: "Run Quality Gate",
+      type: "quality_gate",
+      status: "completed",
+      metadata: {
+        score: qualityResult.finalScore,
+        tier: qualityResult.tier,
+        attempts: qualityResult.attempts,
+        publishable: qualityResult.publishable,
+      },
     });
 
     // Step 4: Final Actions based on quality tier
@@ -90,9 +112,21 @@ export async function generateBriefWithQualityGate(
         userId
       );
 
-      logPipelineStep("save", startTime, {
-        briefId,
-        qualityWarning: qualityResult.warningBadge,
+      // Update context with brief ID for logging
+      execContext.briefId = briefId;
+
+      await logPipelineStep(execContext, {
+        name: "Save brief to database",
+        type: "save",
+        status: "completed",
+        metadata: { briefId, qualityWarning: qualityResult.warningBadge },
+      });
+
+      // Log quality gate decision
+      await logQualityGateDecision(execContext, question, qualityResult, {
+        decisionReasoning: decision.reasoning,
+        refundTriggered: false,
+        retryScheduled: false,
       });
 
       console.log(
@@ -113,7 +147,12 @@ export async function generateBriefWithQualityGate(
       if (userId) {
         await refundCredits(userId, 1, `Quality gate failure: ${decision.reasoning}`);
         refundTriggered = true;
-        logPipelineStep("refund", startTime, { userId, amount: 1 });
+        await logPipelineStep(execContext, {
+          name: "Refund credits",
+          type: "refund",
+          status: "completed",
+          metadata: { userId, amount: 1 },
+        });
       }
 
       // Add to retry queue
@@ -126,9 +165,18 @@ export async function generateBriefWithQualityGate(
         retryParams
       );
 
-      logPipelineStep("retry_queue", startTime, {
-        failureReason: decision.reasoning,
-        retryParams,
+      await logPipelineStep(execContext, {
+        name: "Add to retry queue",
+        type: "retry_queue",
+        status: "completed",
+        metadata: { failureReason: decision.reasoning, retryParams },
+      });
+
+      // Log quality gate decision
+      await logQualityGateDecision(execContext, question, qualityResult, {
+        decisionReasoning: decision.reasoning,
+        refundTriggered,
+        retryScheduled: true,
       });
 
       console.log(
@@ -147,7 +195,12 @@ export async function generateBriefWithQualityGate(
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("[Orchestrator] Pipeline failed:", errorMessage);
 
-    logPipelineStep("error", startTime, { error: errorMessage });
+    await logPipelineStep(execContext, {
+      name: "Pipeline error",
+      type: "error",
+      status: "failed",
+      metadata: { error: errorMessage },
+    });
 
     return {
       success: false,
@@ -343,19 +396,6 @@ function calculatePoliticalBalance(sources: Source[]): Record<string, number> {
   });
 
   return percentages;
-}
-
-/**
- * Log pipeline step for observability
- * Note: In future, these will be stored in agent_execution_logs table (US-012)
- */
-function logPipelineStep(
-  step: string,
-  startTime: number,
-  metadata: Record<string, unknown>
-): void {
-  const elapsed = Date.now() - startTime;
-  console.log(`[Orchestrator][${step}] ${elapsed}ms`, JSON.stringify(metadata));
 }
 
 /**

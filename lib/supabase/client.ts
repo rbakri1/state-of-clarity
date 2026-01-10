@@ -58,6 +58,7 @@ export interface Database {
           clarity_critique: any | null; // JSONB
           metadata: any; // JSONB
           fork_of: string | null;
+          quality_gate_metadata: Record<string, unknown> | null; // JSONB - US-012
         };
         Insert: {
           question: string;
@@ -67,12 +68,14 @@ export interface Database {
           user_id?: string | null;
           clarity_score?: number | null;
           metadata?: any;
+          quality_gate_metadata?: Record<string, unknown> | null;
         };
         Update: {
           summaries?: any;
           structured_data?: any;
           narrative?: string;
           clarity_score?: number | null;
+          quality_gate_metadata?: Record<string, unknown> | null;
         };
       };
       sources: {
@@ -220,6 +223,75 @@ export interface Database {
         Update: {
           amount?: number;
           reason?: string;
+        };
+      };
+      agent_execution_logs: {
+        Row: {
+          id: string;
+          brief_id: string | null;
+          execution_id: string;
+          step_name: string;
+          step_type: "research" | "generation" | "quality_gate" | "refinement" | "save" | "refund" | "retry_queue" | "error";
+          status: "started" | "completed" | "failed";
+          metadata: Record<string, unknown>;
+          duration_ms: number | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id?: string | null;
+          execution_id: string;
+          step_name: string;
+          step_type: "research" | "generation" | "quality_gate" | "refinement" | "save" | "refund" | "retry_queue" | "error";
+          status: "started" | "completed" | "failed";
+          metadata?: Record<string, unknown>;
+          duration_ms?: number | null;
+        };
+        Update: {
+          status?: "started" | "completed" | "failed";
+          metadata?: Record<string, unknown>;
+          duration_ms?: number | null;
+        };
+      };
+      quality_gate_decisions: {
+        Row: {
+          id: string;
+          brief_id: string | null;
+          execution_id: string;
+          question: string;
+          initial_score: number | null;
+          final_score: number;
+          tier: "high" | "acceptable" | "failed";
+          attempts: number;
+          publishable: boolean;
+          refund_triggered: boolean;
+          retry_scheduled: boolean;
+          evaluator_scores: Record<string, unknown> | null;
+          refinement_history: Record<string, unknown> | null;
+          decision_reasoning: string | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id?: string | null;
+          execution_id: string;
+          question: string;
+          initial_score?: number | null;
+          final_score: number;
+          tier: "high" | "acceptable" | "failed";
+          attempts?: number;
+          publishable: boolean;
+          refund_triggered?: boolean;
+          retry_scheduled?: boolean;
+          evaluator_scores?: Record<string, unknown> | null;
+          refinement_history?: Record<string, unknown> | null;
+          decision_reasoning?: string | null;
+        };
+        Update: {
+          final_score?: number;
+          tier?: "high" | "acceptable" | "failed";
+          attempts?: number;
+          publishable?: boolean;
+          refund_triggered?: boolean;
+          retry_scheduled?: boolean;
         };
       };
     };
