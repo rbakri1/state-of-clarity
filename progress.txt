@@ -194,3 +194,13 @@ Thread: https://ampcode.com/threads/T-019ba9e4-4dae-7013-abc7-35cac4f6a323
   - Same pattern as source suggestions: async IIFE after insert, status logic (flagged → 'flagged', approved && confidence > 0.9 → 'approved', else 'pending')
   - Pass error_type and description to screenFeedback with type "error_report"
 ---
+
+## 2026-01-11 - US-016
+Thread: https://ampcode.com/threads/T-019ba9e5-b8d3-7481-8bbc-0a54d81637c6
+- Applied AI screening to edit proposals
+- Files changed:
+  - app/api/briefs/[id]/propose-edit/route.ts - Added async AI screening after insert, updates status based on result
+- **Learnings for future iterations:**
+  - Same pattern as source suggestions and error reports: async IIFE after insert, status logic (flagged → 'flagged', approved && confidence > 0.9 → 'approved', else 'pending')
+  - Pass original_text, proposed_text, rationale to screenFeedback with type "edit_proposal"
+---
