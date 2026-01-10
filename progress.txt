@@ -230,3 +230,15 @@ Thread: https://ampcode.com/threads/T-019ba9ec-74f8-738d-b24d-4c53a9119073
   - Button disable pattern: disabled during loading (actionLoading === key) or when already in that status
   - Browser testing may fail if not authenticated; code structure is verified by build passing
 ---
+
+## 2026-01-11 - US-019
+Thread: https://ampcode.com/threads/T-019ba9f0-19b5-752a-9b89-16f475ad1eeb
+- Added vote counts to brief cards on homepage
+- Files changed:
+  - app/page.tsx - Added useEffect to fetch vote counts for all showcase briefs, display ThumbsUp icon + count when count > 0
+- **Learnings for future iterations:**
+  - Homepage showcaseBriefs are hardcoded in the component (not from database)
+  - Vote counts fetched via Promise.all for all briefs in parallel
+  - Conditional render with `{voteCounts[brief.id] > 0 && ...}` to only show when there are votes
+  - ThumbsUp icon from lucide-react used for vote count display
+---
