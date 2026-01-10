@@ -11,6 +11,7 @@ Started: Sun 11 Jan 2026
 - Components go in app/components/ directory
 - Use lucide-react for icons
 - Clean .next cache with `rm -rf .next` if build fails with manifest errors
+- Supabase TS types may infer `never` for insert/update; use `(supabase as any)` workaround with eslint-disable comment
 
 ---
 
@@ -25,5 +26,16 @@ Thread: https://ampcode.com/threads/T-019ba9ab-ecb5-762e-b7e8-f60e0c1f4c72
   - Schema uses IF NOT EXISTS for table creation
   - RLS policies for user-created content follow pattern: insert requires auth.uid() = user_id, update uses USING (true) for system access
   - Use explicit type annotations in map callbacks: `(item: any, i: number) =>` or cast objects: `Object.entries(obj as Record<string, number>)`
+---
+
+## 2026-01-11 - US-002
+Thread: https://ampcode.com/threads/T-019ba9b0-5af0-7029-8c53-4ffc37693cdc
+- Created vote API endpoints for brief voting system
+- Files changed:
+  - app/api/briefs/[id]/vote/route.ts - New file with GET, POST, DELETE handlers
+- **Learnings for future iterations:**
+  - Next.js 14+ dynamic route params are `Promise<{ id: string }>` - must await them
+  - Use `(supabase as any)` for insert/update when Supabase types infer `never`
+  - API route handlers use `params: Promise<...>` pattern, not direct object access
 ---
 
