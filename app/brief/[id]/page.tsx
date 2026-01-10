@@ -7,14 +7,12 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  ThumbsUp,
-  ThumbsDown,
   Share2,
   BookmarkPlus,
-  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import VoteButtons from "@/app/components/VoteButtons";
+import FeedbackActions from "@/app/components/FeedbackActions";
 
 // Import sample briefs (in production, this would come from API)
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
@@ -504,30 +502,11 @@ export default function BriefPage() {
 
             {/* Feedback Section */}
             <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold mb-4">Help Improve This Brief</h2>
+              <h2 className="text-xl font-bold mb-2">Help improve this brief</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Found an issue or have a suggestion? Your feedback helps make
-                this brief more accurate and useful.
+                Suggest sources, report errors, or propose edits
               </p>
-
-              <div className="flex flex-wrap gap-3">
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <ThumbsUp className="w-4 h-4" />
-                  <span className="text-sm">Helpful</span>
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <ThumbsDown className="w-4 h-4" />
-                  <span className="text-sm">Not Helpful</span>
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="text-sm">Suggest Source</span>
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <AlertCircle className="w-4 h-4" />
-                  <span className="text-sm">Spot Error</span>
-                </button>
-              </div>
+              <FeedbackActions briefId={params.id as string} />
             </section>
           </div>
 

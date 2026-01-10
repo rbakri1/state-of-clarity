@@ -137,3 +137,15 @@ Thread: https://ampcode.com/threads/T-019ba9d0-0a6c-7688-9c95-f806ad4ae9be
   - Modal will be integrated via FeedbackActions component (US-011/US-012)
 ---
 
+
+## 2026-01-11 - US-011
+Thread: https://ampcode.com/threads/T-019ba9db-96a6-750d-91ef-5ab7bb8ddcab
+- Created FeedbackActions component with 3 feedback buttons
+- Files changed:
+  - app/components/FeedbackActions.tsx - New file with Suggest Source, Spot Error, Propose Edit buttons
+- **Learnings for future iterations:**
+  - FeedbackActions is a client component that manages modal open/close state internally
+  - All three modals use same controlled pattern: `open` and `onOpenChange` props
+  - Responsive design: `hidden sm:inline` for text to show icon-only on mobile
+  - Will be integrated into brief page in US-012
+---
