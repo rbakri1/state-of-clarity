@@ -2,9 +2,9 @@
 Started: Sun 11 Jan 2026
 
 ## Codebase Patterns
-- Database types are defined in lib/supabase/client.ts (not a separate types.ts file)
+- Database types are in lib/supabase/types.ts, re-exported from lib/supabase/client.ts
 - SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
-- Browser-safe Supabase client: use createBrowserClient from lib/supabase/client.ts in client components
+- **Browser client**: import from lib/supabase/browser.ts in client components (NOT client.ts which has server-side imports)
 - Use explicit type annotations in React map callbacks to avoid implicit any errors
 - Wrap useSearchParams() in Suspense boundary for Next.js static page generation
 - API routes go in app/api/ directory, use createServerSupabaseClient from lib/supabase/client.ts
@@ -50,5 +50,20 @@ Thread: https://ampcode.com/threads/T-019ba9b5-60e3-775d-ae93-f473f977848b
   - Use createBrowserClient from lib/supabase/client.ts in client components
   - Optimistic UI: store previousState before API call, revert on error
   - Show different UI states: loading, authenticated, unauthenticated
+---
+
+## 2026-01-11 - US-004
+Thread: https://ampcode.com/threads/T-019ba9b9-926a-75cb-bc76-8b4a11e5d02c
+- Integrated VoteButtons component into brief page header
+- Files changed:
+  - app/brief/[id]/page.tsx - Added VoteButtons import and component next to clarity score
+  - app/components/VoteButtons.tsx - Updated import to use browser.ts instead of client.ts
+  - lib/supabase/browser.ts - New file for browser-only Supabase client
+  - lib/supabase/types.ts - New file for shared database types
+  - lib/supabase/client.ts - Refactored to use types.ts and re-export browser client
+- **Learnings for future iterations:**
+  - next/headers import makes a file server-only; split browser vs server Supabase clients into separate files
+  - Browser client components must import from lib/supabase/browser.ts, not lib/supabase/client.ts
+  - VoteButtons fetches vote state on mount via useEffect, shows loading skeleton during fetch
 ---
 
