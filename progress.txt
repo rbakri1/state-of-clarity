@@ -3,6 +3,7 @@ Started: Sat 10 Jan 2026 10:27:18 +04
 
 ## Codebase Patterns
 - Database types are defined in lib/supabase/client.ts (not a separate types.ts file)
+- Browser-safe Supabase client: use lib/supabase/browser.ts (not client.ts) in client components to avoid next/headers import errors
 - Use `IF NOT EXISTS` for migrations to make them idempotent
 - RLS policies: users can SELECT their own, service_role can manage all
 - Credit amounts: positive = purchase/refund/bonus, negative = usage/expiry
@@ -218,4 +219,17 @@ Thread: https://ampcode.com/threads/T-019ba6c4-05df-73ba-a4bd-6e7eb906ab37
   - Test scripts should be runnable with `npx tsx` for TypeScript files
   - Good checklist format includes: test ID, description, steps, expected result
   - Document prerequisites (dev server, Stripe keys, webhook forwarding)
+---
+
+## 2026-01-10 - Build Fix
+Thread: https://ampcode.com/threads/T-019ba6d2-6be2-76a8-b596-7cd85633c096
+- Fixed build failures caused by missing lib modules
+- Created lib/supabase/browser.ts - browser-safe Supabase client that doesn't import next/headers
+- Created lib/reading-history/useReadingHistory.ts hook for reading history fetching
+- Created lib/question-history/useQuestionHistory.ts hook for question history fetching
+- Committed previously unstaged pages (history, saved, settings, auth/callback)
+- **Learnings for future iterations:**
+  - lib/supabase/client.ts imports next/headers which makes it server-only
+  - Client components MUST use lib/supabase/browser.ts instead of client.ts
+  - When git stash/checkout moves between branches, verify all files exist before build
 ---
