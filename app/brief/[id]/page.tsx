@@ -24,6 +24,7 @@ import { ReadingLevelSelector } from "@/app/components/ReadingLevelSelector";
 import { StructuredDataSections } from "@/app/components/StructuredDataSections";
 import { NarrativeSection } from "@/app/components/NarrativeSection";
 import { SourcesSection, type Source } from "@/app/components/SourcesSection";
+import ClarityScoreModal from "@/app/components/ClarityScoreModal";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -82,6 +83,7 @@ export default function BriefPage() {
     posit: true,
     principles: false,
   });
+  const [isClarityModalOpen, setIsClarityModalOpen] = useState(false);
 
   // In production, fetch brief by ID from API
   const briefs: { [key: string]: any } = {
@@ -98,10 +100,10 @@ export default function BriefPage() {
     }));
   };
 
-  const getClarityScoreClass = (score: number) => {
-    if (score >= 8) return "high";
-    if (score >= 6) return "medium";
-    return "low";
+  const getClarityScoreColorClass = (score: number) => {
+    if (score >= 8) return "bg-green-500 text-white";
+    if (score >= 6) return "bg-yellow-500 text-white";
+    return "bg-red-500 text-white";
   };
 
   const getPoliticalLeanClass = (lean: string) => {
@@ -143,14 +145,14 @@ export default function BriefPage() {
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl sm:text-4xl font-bold">{brief.question}</h1>
-            <div
-              className={`clarity-score-badge ${getClarityScoreClass(
-                brief.clarity_score
-              )} shrink-0`}
+            <button
+              onClick={() => setIsClarityModalOpen(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-sm shrink-0 hover:opacity-90 transition cursor-pointer ${getClarityScoreColorClass(brief.clarity_score)}`}
+              aria-label="View clarity score breakdown"
             >
               <Sparkles className="w-4 h-4" />
               <span>{brief.clarity_score}/10</span>
-            </div>
+            </button>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -425,6 +427,16 @@ export default function BriefPage() {
           </div>
         </div>
       </div>
+
+      {/* Clarity Score Modal */}
+      <ClarityScoreModal
+        isOpen={isClarityModalOpen}
+        onClose={() => setIsClarityModalOpen(false)}
+        score={brief.clarity_score}
+        breakdown={brief.clarity_critique.breakdown}
+        strengths={brief.clarity_critique.strengths}
+        gaps={brief.clarity_critique.gaps}
+      />
     </div>
   );
 }
