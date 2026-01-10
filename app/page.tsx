@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
+import TopicCategoriesGrid from "./components/TopicCategoriesGrid";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -116,6 +117,11 @@ export default function Home() {
               </button>
             </div>
           </form>
+
+          {/* Topic Categories */}
+          <div className="mt-8">
+            <TopicCategoriesGrid />
+          </div>
 
           {/* Features */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">

@@ -21,3 +21,15 @@ Thread: https://ampcode.com/threads/T-019ba81d-1b96-7199-9db6-2811118dbf28
   - Schema.sql is a single file containing all tables, not individual migration files
   - question_templates table: id (UUID), category (TEXT), question_text (TEXT), is_featured (BOOLEAN), display_order (INTEGER), created_at (TIMESTAMPTZ)
 ---
+
+## 2026-01-10 18:15 - US-002
+Thread: https://ampcode.com/threads/T-019ba823-5349-7756-8054-dbb3b62768f6
+- Created seed-question-templates.sql with 57 curated policy questions
+- 10 categories: Economy, Healthcare, Climate, Education, Defense, Immigration, Housing, Justice, Technology, Governance
+- 5-6 questions per category, with 1-2 featured per category (15 featured total)
+- display_order set for consistent ordering within each category
+- Files changed: lib/supabase/seed-question-templates.sql
+- **Learnings for future iterations:**
+  - Seed files should use DELETE before INSERT to allow re-seeding
+  - Use single quotes for SQL strings, double-escape apostrophes with ''
+---
