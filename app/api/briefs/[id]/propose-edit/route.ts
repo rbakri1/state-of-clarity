@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/client";
+import { screenFeedback, ScreeningResult } from "@/lib/services/feedback-screening";
 
 const SECTIONS = ["summary", "narrative", "structured_data"] as const;
 type Section = (typeof SECTIONS)[number];
@@ -96,5 +97,35 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, id: data.id });
+  const proposalId = data.id;
+
+  (async () => {
+    try {
+      const screeningResult: ScreeningResult = await screenFeedback("edit_proposal", {
+        original_text: body.original_text,
+        proposed_text: body.proposed_text,
+        rationale: body.rationale,
+      });
+
+      let newStatus = "pending";
+      if (screeningResult.flagged) {
+        newStatus = "flagged";
+      } else if (screeningResult.approved && screeningResult.confidence > 0.9) {
+        newStatus = "approved";
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from("edit_proposals")
+        .update({
+          ai_screening_result: screeningResult,
+          status: newStatus,
+        })
+        .eq("id", proposalId);
+    } catch (e) {
+      console.error("Failed to screen edit proposal:", e);
+    }
+  })();
+
+  return NextResponse.json({ success: true, id: proposalId });
 }
