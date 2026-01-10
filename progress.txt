@@ -256,3 +256,24 @@ Thread: https://ampcode.com/threads/T-019ba753-7abf-7674-8c90-de30e7b32004
   - params is now a Promise in Next.js 14+ - must await it in generateMetadata
   - Use NEXT_PUBLIC_SITE_URL env var for production URL in metadata
 ---
+
+## 2026-01-10 - US-015
+Thread: https://ampcode.com/threads/T-019ba756-a5a7-7758-9392-fa9c995bab75
+- Created BookmarkButton component at app/components/BookmarkButton.tsx
+- Created API route at app/api/briefs/[id]/save/route.ts with GET/POST/DELETE methods
+- GET checks if brief is saved by current user (returns saved + authenticated status)
+- POST saves a brief to saved_briefs table (with duplicate check)
+- DELETE removes a brief from saved_briefs table
+- Button shows filled (BookmarkCheck) or outline (Bookmark) icon based on saved state
+- Optimistic UI: button updates immediately, reverts on error
+- Sign-in prompt popover for unauthenticated users (dismissible with "Later" button)
+- Integrated into brief header, replacing static BookmarkPlus button
+- **Files changed:**
+  - app/api/briefs/[id]/save/route.ts (new)
+  - app/components/BookmarkButton.tsx (new)
+  - app/brief/[id]/BriefPageClient.tsx (integrated BookmarkButton)
+- **Learnings for future iterations:**
+  - Use `params: Promise<{ id: string }>` pattern for Next.js 14+ dynamic route params
+  - Use (supabase as any) type assertion for tables not fully typed in schema
+  - Optimistic UI: save previous state, update immediately, revert on error
+---
