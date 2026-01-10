@@ -211,13 +211,18 @@ export default function QuestionInput({
                 type="button"
                 onClick={() => handleSuggestionClick(suggestion)}
                 onMouseEnter={() => setHighlightedIndex(index)}
-                className={`w-full px-4 py-3 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${
+                className={`w-full px-4 py-3 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center justify-between gap-2 ${
                   index === highlightedIndex
                     ? "bg-primary/10 dark:bg-primary/20"
                     : "hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
                 <span className="text-sm text-foreground">{suggestion.text}</span>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {suggestion.source === "template" && "Curated"}
+                  {suggestion.source === "history" && "Popular"}
+                  {suggestion.source === "ai" && "AI ✨"}
+                </span>
               </button>
             ))
           )}
