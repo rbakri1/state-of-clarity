@@ -21,6 +21,7 @@ import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
 
 import type { ReadingLevel } from "@/lib/supabase/client";
 import { ReadingLevelSelector } from "@/app/components/ReadingLevelSelector";
+import { StructuredDataSections } from "@/app/components/StructuredDataSections";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -77,11 +78,6 @@ export default function BriefPage() {
   }, [searchParams, router]);
   const [expandedSections, setExpandedSections] = useState({
     posit: true,
-    definitions: true,
-    factors: true,
-    policies: false,
-    consequences: false,
-    historical: false,
     principles: false,
   });
 
@@ -209,58 +205,7 @@ export default function BriefPage() {
               </section>
             )}
 
-            {/* Historical Summary (if present) */}
-            {brief.historical_summary && (
-              <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-                <button
-                  onClick={() => toggleSection("historical")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h2 className="text-xl font-bold">Historical Summary</h2>
-                  {expandedSections.historical ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
 
-                {expandedSections.historical && (
-                  <div className="prose prose-clarity max-w-none space-y-4">
-                    <p className="text-sm italic text-muted-foreground">
-                      {brief.historical_summary.introduction}
-                    </p>
-
-                    <div>
-                      <h3 className="font-semibold mb-2">Origins and Early Development</h3>
-                      <p className="text-sm text-muted-foreground">{brief.historical_summary.origins}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold mb-2">Key Milestones</h3>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                        {brief.historical_summary.key_milestones.map((milestone: string, i: number) => (
-                          <li key={i}>{milestone}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold mb-2">Modern Context</h3>
-                      <p className="text-sm text-muted-foreground">{brief.historical_summary.modern_context}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold mb-2">Lessons from the Past</h3>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                        {brief.historical_summary.lessons.map((lesson: string, i: number) => (
-                          <li key={i}>{lesson}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
 
             {/* Foundational Principles (if present) */}
             {brief.foundational_principles?.enabled && (
@@ -340,200 +285,13 @@ export default function BriefPage() {
               </div>
             </section>
 
-            {/* Structured Data */}
+            {/* Structured Data Sections */}
             <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-bold mb-6">Structured Analysis</h2>
-
-              {/* Definitions */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("definitions")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Key Definitions ({brief.structured_data.definitions.length})
-                  </h3>
-                  {expandedSections.definitions ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
-
-                {expandedSections.definitions && (
-                  <div className="space-y-3">
-                    {brief.structured_data.definitions.map((def: any, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <dt className="font-semibold text-primary mb-2">
-                          {def.term}
-                        </dt>
-                        <dd className="text-sm mb-2">
-                          {def.definition}
-                        </dd>
-                        {def.source && (
-                          <dd className="text-xs text-muted-foreground mb-2">
-                            <strong>Source:</strong> {def.source}
-                          </dd>
-                        )}
-                        {def.points_of_contention && (
-                          <dd className="text-xs text-orange-600 dark:text-orange-400">
-                            <strong>⚠ Points of Contention:</strong> {def.points_of_contention}
-                          </dd>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Factors */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("factors")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Key Factors ({brief.structured_data.factors.length})
-                  </h3>
-                  {expandedSections.factors ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
-
-                {expandedSections.factors && (
-                  <div className="space-y-4">
-                    {brief.structured_data.factors.map((factor: { name: string; impact: string; evidence: string[] }, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold">{factor.name}</h4>
-                          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-                            {factor.impact}
-                          </span>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          <strong>Evidence:</strong>
-                          <ul className="list-disc list-inside mt-1 space-y-1">
-                            {factor.evidence.map((ev: string, j: number) => (
-                              <li key={j}>{ev}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Policies */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("policies")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Policy Options ({brief.structured_data.policies.length})
-                  </h3>
-                  {expandedSections.policies ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
-
-                {expandedSections.policies && (
-                  <div className="space-y-4">
-                    {brief.structured_data.policies.map((policy: { name: string; pros: string[]; cons: string[] }, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <h4 className="font-semibold mb-3">{policy.name}</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="font-medium text-green-600 dark:text-green-400 mb-2">
-                              Pros:
-                            </div>
-                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.pros.map((pro: string, j: number) => (
-                                <li key={j}>{pro}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <div className="font-medium text-red-600 dark:text-red-400 mb-2">
-                              Cons:
-                            </div>
-                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.cons.map((con: string, j: number) => (
-                                <li key={j}>{con}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Consequences */}
-              <div>
-                <button
-                  onClick={() => toggleSection("consequences")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Second-Order Effects (
-                    {brief.structured_data.consequences.length})
-                  </h3>
-                  {expandedSections.consequences ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
-
-                {expandedSections.consequences && (
-                  <div className="space-y-4">
-                    {brief.structured_data.consequences.map((consequence: { action: string; first_order: string; second_order: string }, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <h4 className="font-semibold mb-3">
-                          {consequence.action}
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="font-medium">
-                              First-order:
-                            </span>{" "}
-                            <span className="text-muted-foreground">
-                              {consequence.first_order}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="font-medium">
-                              Second-order:
-                            </span>{" "}
-                            <span className="text-muted-foreground">
-                              {consequence.second_order}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <StructuredDataSections
+                structuredData={brief.structured_data}
+                historicalSummary={brief.historical_summary}
+              />
             </section>
 
             {/* Feedback Section */}

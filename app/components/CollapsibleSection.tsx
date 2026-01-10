@@ -40,10 +40,10 @@ export function CollapsibleSection({
   }, [isExpanded]);
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className={`w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isExpanded ? 'rounded-t-lg' : 'rounded-lg'}`}
         aria-expanded={isExpanded}
       >
         <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -74,7 +74,8 @@ export function CollapsibleSection({
         style={{
           height: contentHeight,
           transition: "height 200ms ease-out",
-          overflow: "hidden",
+          overflowY: "hidden",
+          overflowX: "auto",
         }}
       >
         <div ref={contentRef} className="p-4">
