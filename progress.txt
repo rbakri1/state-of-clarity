@@ -114,3 +114,26 @@ Thread: https://ampcode.com/threads/T-019ba9c9-3ebf-7680-9ef6-579f2c53cfe7
   - Modal will be integrated via FeedbackActions component (US-011/US-012)
 ---
 
+## 2026-01-11 - US-009
+Thread: https://ampcode.com/threads/T-019ba9ce-390c-74af-a04f-252471be4f54
+- Created propose edit API endpoint
+- Files changed:
+  - app/api/briefs/[id]/propose-edit/route.ts - New POST endpoint for edit proposals
+- **Learnings for future iterations:**
+  - Same pattern as other feedback endpoints: POST handler with auth check, validation, insert with status 'pending'
+  - Section validation uses const array: `const SECTIONS = ["summary", "narrative", "structured_data"] as const`
+  - All three text fields (original_text, proposed_text, rationale) validated for min 20 chars
+---
+
+## 2026-01-11 - US-010
+Thread: https://ampcode.com/threads/T-019ba9d0-0a6c-7688-9c95-f806ad4ae9be
+- Created propose edit modal component
+- Files changed:
+  - app/components/ProposeEditModal.tsx - New file with Radix Dialog-based modal for edit proposals
+- **Learnings for future iterations:**
+  - Same controlled modal pattern as other feedback modals: accept `open` and `onOpenChange` props
+  - Character count display with color feedback (green when min reached) for all three text fields
+  - Submit button uses blue color scheme to match edit/improve theme
+  - Modal will be integrated via FeedbackActions component (US-011/US-012)
+---
+
