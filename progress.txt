@@ -129,3 +129,16 @@ Thread: https://ampcode.com/threads/T-019ba84a-d121-7580-a588-06f009714d95
   - Mouse onMouseEnter should sync with highlightedIndex for consistent UX
   - Production mode (npm start) works better than dev mode when .next cache issues occur
 ---
+
+## 2026-01-10 20:15 - US-009
+Thread: https://ampcode.com/threads/T-019ba857-9cd5-7253-ac33-a4768a9ef8a7
+- Created /app/api/questions/suggest/route.ts endpoint
+- Accepts query param `q`, returns empty array if < 2 chars
+- Returns array of { text, source, category } with source types 'template' | 'history' | 'ai'
+- Limits to 6 results total
+- Exported Suggestion interface for reuse
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - This is a shell endpoint - actual data fetching implemented in US-010, US-011, US-012
+  - Suggestion interface exported from this file can be imported by other components
+---
