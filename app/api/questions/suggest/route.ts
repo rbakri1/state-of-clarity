@@ -4,8 +4,9 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export interface Suggestion {
   text: string;
-  source: "template" | "history" | "ai";
+  source: "template" | "history" | "ai" | "refinement";
   category?: string;
+  isRefinement?: boolean;
 }
 
 // US-013: Cache for AI suggestions with TTL
@@ -15,6 +16,7 @@ interface CacheEntry {
 }
 
 const aiSuggestionsCache = new Map<string, CacheEntry>();
+const refinementSuggestionsCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 function normalizeQuery(query: string): string {
@@ -43,6 +45,107 @@ function setCachedSuggestions(query: string, suggestions: Suggestion[]): void {
     suggestions,
     expiresAt: Date.now() + CACHE_TTL_MS,
   });
+}
+
+// US-020: Cache helpers for refinement suggestions
+function getCachedRefinements(query: string): Suggestion[] | null {
+  const key = normalizeQuery(query);
+  const entry = refinementSuggestionsCache.get(key);
+  
+  if (!entry) {
+    return null;
+  }
+  
+  if (Date.now() > entry.expiresAt) {
+    refinementSuggestionsCache.delete(key);
+    return null;
+  }
+  
+  return entry.suggestions;
+}
+
+function setCachedRefinements(query: string, suggestions: Suggestion[]): void {
+  const key = normalizeQuery(query);
+  refinementSuggestionsCache.set(key, {
+    suggestions,
+    expiresAt: Date.now() + CACHE_TTL_MS,
+  });
+}
+
+// US-020: Detect vague patterns
+function isVagueQuery(query: string): boolean {
+  const trimmed = query.trim();
+  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+  
+  // Single word
+  if (words.length === 1) {
+    return true;
+  }
+  
+  // Less than 5 words
+  if (words.length < 5) {
+    return true;
+  }
+  
+  // Starts with "What about"
+  if (trimmed.toLowerCase().startsWith("what about")) {
+    return true;
+  }
+  
+  return false;
+}
+
+// US-020: Generate refined question suggestions
+async function generateRefinementSuggestions(query: string): Promise<Suggestion[]> {
+  try {
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    const message = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      max_tokens: 400,
+      messages: [
+        {
+          role: "user",
+          content: `The user typed a vague query: "${query}"
+
+Generate 3 more specific, well-formed policy questions that refine this vague query by adding context like:
+- Geographic scope (UK, England, Scotland, Wales, Northern Ireland)
+- Timeframe (2024, 2025, next 5 years, since 2020)
+- Specific policy area (budget, legislation, targets, spending)
+- Affected groups (young people, pensioners, businesses, NHS)
+
+Requirements:
+- Each question must be a complete, clear sentence ending with a question mark
+- Focus on UK public policy
+- Questions should be progressively more specific
+- Each question should take a different angle on the topic
+
+Return ONLY a JSON array of 3 strings:
+["question 1?", "question 2?", "question 3?"]`,
+        },
+      ],
+    });
+
+    const responseText =
+      message.content[0].type === "text" ? message.content[0].text : "";
+
+    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      return [];
+    }
+
+    const questions = JSON.parse(jsonMatch[0]) as string[];
+    return questions.slice(0, 3).map((text) => ({
+      text,
+      source: "refinement" as const,
+      isRefinement: true,
+    }));
+  } catch (error) {
+    console.error("[Refinement Suggestions] Failed to generate:", error);
+    return [];
+  }
 }
 
 async function generateAiSuggestions(query: string): Promise<Suggestion[]> {
@@ -145,6 +248,29 @@ export async function GET(request: NextRequest) {
         });
         historyCount++;
       }
+    }
+  }
+
+  // US-020: Check if query is vague and generate refinement suggestions
+  const vague = isVagueQuery(q);
+  
+  if (vague) {
+    // For vague queries, return refinement suggestions
+    const cachedRefinements = getCachedRefinements(q);
+    let refinements: Suggestion[];
+    
+    if (cachedRefinements !== null) {
+      refinements = cachedRefinements;
+    } else {
+      refinements = await generateRefinementSuggestions(q);
+      if (refinements.length > 0) {
+        setCachedRefinements(q, refinements);
+      }
+    }
+    
+    // If we have refinements, return them (they take priority for vague queries)
+    if (refinements.length > 0) {
+      return NextResponse.json(refinements);
     }
   }
 

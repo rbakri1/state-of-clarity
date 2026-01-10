@@ -5,8 +5,9 @@ import { Search, Loader2 } from "lucide-react";
 
 interface Suggestion {
   text: string;
-  source: "template" | "history" | "ai";
+  source: "template" | "history" | "ai" | "refinement";
   category?: string;
+  isRefinement?: boolean;
 }
 
 interface QuestionInputProps {
@@ -232,26 +233,38 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
               <span className="text-sm">Loading suggestions...</span>
             </div>
           ) : (
-            suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => handleSuggestionClick(suggestion)}
-                onMouseEnter={() => setHighlightedIndex(index)}
-                className={`w-full px-4 py-3 min-h-11 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center justify-between gap-2 ${
-                  index === highlightedIndex
-                    ? "bg-primary/10 dark:bg-primary/20"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                <span className="text-sm text-foreground">{suggestion.text}</span>
-                <span className="text-xs text-muted-foreground shrink-0">
-                  {suggestion.source === "template" && "Curated"}
-                  {suggestion.source === "history" && "Popular"}
-                  {suggestion.source === "ai" && "AI ✨"}
-                </span>
-              </button>
-            ))
+            <>
+              {suggestions.length > 0 && suggestions[0].isRefinement && (
+                <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
+                  <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                    💡 Try being more specific:
+                  </span>
+                </div>
+              )}
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  onMouseEnter={() => setHighlightedIndex(index)}
+                  className={`w-full px-4 py-3 min-h-11 text-left transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 flex items-center justify-between gap-2 ${
+                    index === highlightedIndex
+                      ? "bg-primary/10 dark:bg-primary/20"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                  } ${suggestion.isRefinement ? "pl-6" : ""}`}
+                >
+                  <span className={`text-sm ${suggestion.isRefinement ? "text-amber-800 dark:text-amber-200" : "text-foreground"}`}>
+                    {suggestion.text}
+                  </span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {suggestion.source === "template" && "Curated"}
+                    {suggestion.source === "history" && "Popular"}
+                    {suggestion.source === "ai" && "AI ✨"}
+                    {suggestion.source === "refinement" && "Suggestion ✨"}
+                  </span>
+                </button>
+              ))}
+            </>
           )}
         </div>
       )}
