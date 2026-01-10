@@ -184,3 +184,19 @@ Thread: https://ampcode.com/threads/T-019ba974-21c8-73be-a3e8-f965218d70f1
   - Parse JSON with regex match(/\[[\s\S]*\]/) to handle Claude's sometimes-extra text
   - Wrap in try/catch and return empty array on failure for graceful degradation
 ---
+
+## 2026-01-10 21:30 - US-013
+Thread: https://ampcode.com/threads/T-019ba975-f47b-75c8-bd69-8968ae98c3f2
+- Added caching for AI suggestions in /app/api/questions/suggest/route.ts
+- Created CacheEntry interface with suggestions and expiresAt
+- Implemented aiSuggestionsCache Map with 5 minute TTL (CACHE_TTL_MS)
+- normalizeQuery() function for consistent cache keys (lowercase, trimmed)
+- getCachedSuggestions() checks cache and handles TTL expiration
+- setCachedSuggestions() stores results with expiration timestamp
+- Cache checked before calling AI, results stored after successful AI call
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - In-memory Map cache works for single-instance serverless, but won't persist across cold starts
+  - For multi-instance or persistent caching, would need Redis or similar
+  - Module-level variables (like the Map) persist across requests in warm serverless instances
+---
