@@ -36,7 +36,32 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // TODO US-011: Add history-based suggestions (query briefs table)
+  // US-011: Add history-based suggestions (query briefs table)
+  // Only include briefs that exist (treated as published)
+  const { data: historyBriefs } = await supabase
+    .from("briefs")
+    .select("question")
+    .ilike("question", `%${q}%`)
+    .order("created_at", { ascending: false })
+    .limit(5); // Fetch more than needed for deduplication
+
+  if (historyBriefs && historyBriefs.length > 0) {
+    // Get template texts for deduplication
+    const templateTexts = new Set(suggestions.map((s) => s.text.toLowerCase()));
+    
+    let historyCount = 0;
+    for (const brief of historyBriefs as { question: string }[]) {
+      // Deduplicate against template results
+      if (!templateTexts.has(brief.question.toLowerCase()) && historyCount < 2) {
+        suggestions.push({
+          text: brief.question,
+          source: "history",
+        });
+        historyCount++;
+      }
+    }
+  }
+
   // TODO US-012: Add AI-generated suggestions (call Claude Haiku)
 
   // Limit to 6 results total
