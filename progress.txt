@@ -170,3 +170,20 @@ Thread: https://ampcode.com/threads/T-019ba72e-7762-77a1-9112-8f77e8d150b3
   - Political lean color coding: left=blue, center-left=sky, center=gray, center-right=orange, right=red
   - Source type badges: primary=purple, secondary=indigo
 ---
+
+## 2026-01-10 - US-010
+Thread: https://ampcode.com/threads/T-019ba732-0717-740c-aed1-8478dd763fe3
+- Created ClarityScoreModal component at app/components/ClarityScoreModal.tsx
+- Displays table with 7 dimensions: First-Principles, Source Diversity, Primary Source Ratio, Logical Completeness, Readability, Recency, User Feedback
+- Each row shows: dimension name, weight %, score (normalized to 0-10), contribution to total
+- Includes horizontal bar chart visualization for each dimension
+- Shows Strengths callout (top 2 scoring dimensions) and Opportunities callout (bottom 2)
+- Modal closes on backdrop click, X button, or Escape key
+- Uses clarity_critique.breakdown from brief data structure
+- **Files changed:**
+  - app/components/ClarityScoreModal.tsx (new)
+- **Learnings for future iterations:**
+  - clarity_critique.breakdown scores are 0-1 floats; normalize to 0-10 for display
+  - Use clarity_critique.strengths and clarity_critique.gaps for callout content when available
+  - Modal uses body overflow:hidden to prevent background scroll when open
+---
