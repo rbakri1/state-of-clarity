@@ -25,6 +25,7 @@ import { SourcesSection, type Source } from "@/app/components/SourcesSection";
 import ClarityScoreModal from "@/app/components/ClarityScoreModal";
 import { ShareMenu } from "@/app/components/ShareMenu";
 import { BookmarkButton } from "@/app/components/BookmarkButton";
+import { ReadingProgressBar } from "@/app/components/ReadingProgressBar";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -114,6 +115,9 @@ export default function BriefPageClient() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+      {/* Reading Progress Bar */}
+      <ReadingProgressBar contentSelector="[data-brief-content]" />
+      
       {/* Header */}
       <header className="border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -139,7 +143,7 @@ export default function BriefPageClient() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-brief-content>
         {/* Brief Header */}
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">
