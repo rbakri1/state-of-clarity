@@ -149,3 +149,14 @@ Thread: https://ampcode.com/threads/T-019ba9db-96a6-750d-91ef-5ab7bb8ddcab
   - Responsive design: `hidden sm:inline` for text to show icon-only on mobile
   - Will be integrated into brief page in US-012
 ---
+
+## 2026-01-11 - US-012
+Thread: https://ampcode.com/threads/T-019ba9de-5207-77e6-b596-c697694b192d
+- Integrated FeedbackActions component into brief page
+- Files changed:
+  - app/brief/[id]/page.tsx - Replaced placeholder feedback section with FeedbackActions component, updated imports
+- **Learnings for future iterations:**
+  - FeedbackActions replaces the old placeholder feedback section in the brief page
+  - Section uses same styling pattern as other brief page sections (bg-white, rounded-xl, border, p-6)
+  - Removed unused imports (ThumbsUp, ThumbsDown, AlertCircle) after replacing placeholder buttons
+---
