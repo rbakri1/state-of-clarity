@@ -10,6 +10,7 @@ Started: Sat 10 Jan 2026 10:27:18 +04
 - Stripe client in lib/stripe/client.ts uses lazy init via getStripe() to avoid build-time errors
 - For Supabase select queries, cast result with `as TypeName | null` to fix `never` type inference
 - Client components needing auth-protected data should call API routes (not service-role directly)
+- Wrap useSearchParams() in Suspense boundary for Next.js static page generation
 
 ---
 
@@ -153,4 +154,18 @@ Thread: https://ampcode.com/threads/T-019ba6b7-810f-722d-81cf-29972e30e4d8
   - Use HTTP 402 Payment Required for insufficient credits scenarios
   - Clarity score calculation is a placeholder - will integrate real evaluation in future
   - refundCredits creates a new batch with 12-month expiry (same as addCredits pattern)
+---
+
+## 2026-01-10 - US-011
+Thread: https://ampcode.com/threads/T-019ba6ba-fedd-7423-bda5-159fd449e600
+- Created /app/credits/success/page.tsx - purchase success confirmation page
+- Created /app/api/payments/session/route.ts - retrieves Stripe session details for success page
+- Shows "Thank you for your purchase!" heading with success checkmark
+- Displays credits added, new total balance, and expiry date (12 months from now)
+- Primary CTA: "Generate a brief" linking to home
+- Wrapped useSearchParams in Suspense boundary (Next.js requirement)
+- **Learnings for future iterations:**
+  - useSearchParams must be wrapped in Suspense boundary for Next.js static page generation
+  - Stripe session.metadata contains user_id, package_id, credits from checkout creation
+  - Calculate expiry date client-side (12 months from now) rather than storing/retrieving
 ---
