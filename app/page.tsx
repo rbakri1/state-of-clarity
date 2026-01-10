@@ -1,16 +1,29 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
 import TopicCategoriesGrid from "./components/TopicCategoriesGrid";
 import QuestionInput, { QuestionInputHandle } from "./components/QuestionInput";
 
-export default function Home() {
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const urlQuestion = searchParams.get("q") || "";
+  
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const questionInputRef = useRef<QuestionInputHandle>(null);
   const nativeInputRef = useRef<HTMLInputElement>(null);
+  
+  useEffect(() => {
+    if (urlQuestion && question === "") {
+      setQuestion(urlQuestion);
+      setTimeout(() => {
+        nativeInputRef.current?.focus();
+      }, 100);
+    }
+  }, [urlQuestion, question]);
 
   const handleQuestionClick = (text: string) => {
     setQuestion(text);
@@ -292,5 +305,13 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

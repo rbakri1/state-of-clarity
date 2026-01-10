@@ -37,6 +37,10 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
   useEffect(() => {
     if (initialValue) {
       setValue(initialValue);
+      // Focus input if there's an initial value (e.g., from URL param)
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     }
   }, [initialValue]);
 
@@ -193,7 +197,11 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={() => value.length >= 2 && suggestions.length > 0 && setShowDropdown(true)}
+          onFocus={() => {
+            if (value.length >= 2) {
+              setShowDropdown(true);
+            }
+          }}
           placeholder="Ask any policy question..."
           className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition text-base"
           disabled={isSubmitting}
