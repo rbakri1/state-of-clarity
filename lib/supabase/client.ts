@@ -172,6 +172,28 @@ export interface Database {
           error_message?: string | null;
         };
       };
+      question_templates: {
+        Row: {
+          id: string;
+          category: string;
+          question_text: string;
+          is_featured: boolean;
+          display_order: number;
+          created_at: string;
+        };
+        Insert: {
+          category: string;
+          question_text: string;
+          is_featured?: boolean;
+          display_order?: number;
+        };
+        Update: {
+          category?: string;
+          question_text?: string;
+          is_featured?: boolean;
+          display_order?: number;
+        };
+      };
     };
   };
 }

@@ -156,6 +156,16 @@ CREATE TABLE public.reading_history (
   PRIMARY KEY (user_id, brief_id)
 );
 
+-- Question templates (curated example questions for autocomplete)
+CREATE TABLE public.question_templates (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  category TEXT NOT NULL,
+  question_text TEXT NOT NULL,
+  is_featured BOOLEAN DEFAULT false,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Brief generation jobs (for tracking async generation)
 CREATE TABLE public.brief_jobs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -276,6 +286,7 @@ ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.saved_briefs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reading_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.brief_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.question_templates ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Public read, users can update their own
 CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles
@@ -344,6 +355,13 @@ CREATE POLICY "Users can view own brief jobs" ON public.brief_jobs
 
 CREATE POLICY "System can manage brief jobs" ON public.brief_jobs
   FOR ALL USING (true);
+
+-- Question templates: Public read, service_role write
+CREATE POLICY "Question templates are viewable by everyone" ON public.question_templates
+  FOR SELECT USING (true);
+
+CREATE POLICY "Service role can manage question templates" ON public.question_templates
+  FOR ALL USING (auth.role() = 'service_role');
 
 ---
 --- SEED DATA (Optional - for testing)
