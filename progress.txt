@@ -1,0 +1,23 @@
+# Ralph Progress Log
+Started: Sat 10 Jan 2026 18:00:00 +04
+
+## Codebase Patterns
+- TypeScript types for Supabase tables go in lib/supabase/client.ts in the Database interface
+- SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
+- When adding tables, also add RLS policies and enable RLS
+- Use explicit type annotations in React map callbacks to avoid implicit any errors
+
+---
+
+## 2026-01-10 18:05 - US-001
+Thread: https://ampcode.com/threads/T-019ba81d-1b96-7199-9db6-2811118dbf28
+- Created question_templates table in schema.sql
+- Added RLS policy: public read, service_role write
+- Added TypeScript types to Database interface in lib/supabase/client.ts
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx
+- Files changed: lib/supabase/schema.sql, lib/supabase/client.ts, app/brief/[id]/page.tsx
+- **Learnings for future iterations:**
+  - The brief page had many implicit any errors from map callbacks - always add explicit types
+  - Schema.sql is a single file containing all tables, not individual migration files
+  - question_templates table: id (UUID), category (TEXT), question_text (TEXT), is_featured (BOOLEAN), display_order (INTEGER), created_at (TIMESTAMPTZ)
+---
