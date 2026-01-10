@@ -125,3 +125,32 @@ Thread: https://ampcode.com/threads/T-019ba6b2-3cbf-76ea-88ff-805490f2c892
   - Dynamic API routes using cookies show expected warning during build but still work correctly at runtime
   - dev-browser skill not available in this workspace; browser verification skipped
 ---
+
+## 2026-01-10 - US-009
+Thread: https://ampcode.com/threads/T-019ba6b4-fbb1-7434-83ad-32c76dd89f41
+- Created /app/components/CreditBalance.tsx - reusable component for header nav
+- Created /app/api/credits/balance/route.ts - lightweight endpoint returning only balance
+- Component shows: balance with coin icon, warning styling (amber) when <= 2 credits, "Buy credits" button when 0
+- Integrated into home page and credits page headers
+- Component only renders when user is authenticated (gracefully hides if not)
+- **Learnings for future iterations:**
+  - No UserMenu component exists - integrated directly into header nav on each page
+  - Keep API routes focused: /credits/balance returns just balance, /credits returns packages too
+  - Use amber warning colors for low balance states (amber-100/700 light, amber-900/300 dark)
+---
+
+## 2026-01-10 - US-010
+Thread: https://ampcode.com/threads/T-019ba6b7-810f-722d-81cf-29972e30e4d8
+- Created /app/api/briefs/generate/route.ts - main brief generation API with credit integration
+- Checks hasCredits(userId, 1) before starting generation
+- Returns 402 with error message and /credits link if insufficient credits
+- Deducts 1 credit via deductCredits() when generation starts (with brief_id)
+- Refunds credit via refundCredits() if quality gate < 6.0 or generation fails
+- All transactions logged with brief_id for audit trail
+- Updated home page to call the new API and display credit-related errors
+- **Learnings for future iterations:**
+  - The brief generation orchestrator was a TODO - created as API route /api/briefs/generate
+  - Use HTTP 402 Payment Required for insufficient credits scenarios
+  - Clarity score calculation is a placeholder - will integrate real evaluation in future
+  - refundCredits creates a new batch with 12-month expiry (same as addCredits pattern)
+---

@@ -9,14 +9,45 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
 
     setIsLoading(true);
-    // TODO: Implement API call
-    // For now, redirect to sample brief
-    window.location.href = "/brief/uk-four-day-week";
+    setError(null);
+
+    try {
+      const response = await fetch("/api/briefs/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402 && data.creditsLink) {
+          setError(`${data.error} `);
+          setTimeout(() => {
+            window.location.href = data.creditsLink;
+          }, 2000);
+          return;
+        }
+        throw new Error(data.error || "Failed to generate brief");
+      }
+
+      if (data.success && data.briefId) {
+        window.location.href = `/brief/${data.briefId}`;
+      } else if (data.creditRefunded) {
+        setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate brief");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const showcaseBriefs = [
@@ -118,6 +149,18 @@ export default function Home() {
               </button>
             </div>
           </form>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 max-w-2xl mx-auto p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+              {error}
+              {error.includes("credits") && (
+                <a href="/credits" className="ml-1 underline hover:no-underline font-medium">
+                  Buy credits →
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Features */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">
