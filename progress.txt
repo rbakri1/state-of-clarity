@@ -154,3 +154,17 @@ Thread: https://ampcode.com/threads/T-019ba859-4384-7288-afcc-3c1a5de2064a
   - Need explicit type casting for Supabase query results when using select with partial fields: `templates as { question_text: string; category: string }[]`
   - Clear .next cache with `rm -rf .next` if build manifest errors occur
 ---
+
+## 2026-01-10 21:00 - US-011
+Thread: https://ampcode.com/threads/T-019ba972-bac2-74fa-a63f-39d6322bbcf8
+- Added history-based suggestions to /app/api/questions/suggest/route.ts
+- Query briefs table with ILIKE '%query%' pattern, ordered by created_at DESC
+- Deduplicate against template results using Set of lowercase text
+- Limit history results to 2, with source: 'history'
+- History appears after templates in combined list
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - Briefs table doesn't have explicit status field - all existing briefs are treated as published
+  - Use Set for efficient deduplication: `new Set(suggestions.map(s => s.text.toLowerCase()))`
+  - Fetch more than needed (5 instead of 2) to account for duplicates being filtered out
+---
