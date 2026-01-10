@@ -23,6 +23,7 @@ import type { ReadingLevel } from "@/lib/supabase/client";
 import { ReadingLevelSelector } from "@/app/components/ReadingLevelSelector";
 import { StructuredDataSections } from "@/app/components/StructuredDataSections";
 import { NarrativeSection } from "@/app/components/NarrativeSection";
+import { SourcesSection, type Source } from "@/app/components/SourcesSection";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -290,6 +291,11 @@ export default function BriefPage() {
                 structuredData={brief.structured_data}
                 historicalSummary={brief.historical_summary}
               />
+            </section>
+
+            {/* Sources Section */}
+            <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <SourcesSection sources={brief.sources as Source[]} />
             </section>
 
             {/* Feedback Section */}
