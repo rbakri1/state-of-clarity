@@ -238,3 +238,21 @@ Thread: https://ampcode.com/threads/T-019ba750-daa5-7337-9b09-3aab162dfe6c
   - Use URL object constructor to safely add query params without breaking existing params
   - UTM params: utm_source identifies the platform, utm_medium=social for all social shares
 ---
+
+## 2026-01-10 - US-014
+Thread: https://ampcode.com/threads/T-019ba753-7abf-7674-8c90-de30e7b32004
+- Added Open Graph and Twitter Card meta tags for rich social sharing previews
+- Split brief page into server component (page.tsx) and client component (BriefPageClient.tsx)
+- Created generateMetadata function that extracts title (question), description (standard summary truncated to 155 chars)
+- Set og:type=article, og:url (canonical), og:site_name (State of Clarity)
+- Set twitter:card=summary_large_image with matching title/description
+- Added placeholder og:image and twitter:image pointing to /og-default.png
+- Uses NEXT_PUBLIC_SITE_URL env var for canonical URL generation
+- **Files changed:**
+  - app/brief/[id]/page.tsx (converted to server component with generateMetadata)
+  - app/brief/[id]/BriefPageClient.tsx (new - moved client component logic here)
+- **Learnings for future iterations:**
+  - Next.js App Router requires server components for generateMetadata; use client component wrapper pattern
+  - params is now a Promise in Next.js 14+ - must await it in generateMetadata
+  - Use NEXT_PUBLIC_SITE_URL env var for production URL in metadata
+---
