@@ -305,7 +305,7 @@ export default function BriefPage() {
             {/* Progressive Summaries */}
             <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-bold mb-4">
-                Progressive Summaries
+                Summary
               </h2>
 
               {/* Reading Level Selector */}
@@ -316,9 +316,13 @@ export default function BriefPage() {
                 />
               </div>
 
-              {/* Active Summary */}
-              <div className="prose prose-clarity max-w-none">
-                <p className="text-base leading-relaxed">
+              {/* Active Summary with fade transition */}
+              <div 
+                key={activeLevel}
+                className="animate-fade-in"
+                style={{ maxWidth: '65ch' }}
+              >
+                <p className="text-base leading-relaxed text-muted-foreground">
                   {brief.summaries[activeLevel]}
                 </p>
               </div>

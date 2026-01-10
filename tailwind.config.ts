@@ -53,6 +53,15 @@ const config: Config = {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'Consolas', 'monospace'],
       },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 200ms ease-out',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
