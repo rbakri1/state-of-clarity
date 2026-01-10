@@ -1,12 +1,27 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
+
+interface Suggestion {
+  text: string;
+  source: "template" | "history" | "ai";
+  category?: string;
+}
 
 interface QuestionInputProps {
   onSubmit: (question: string) => void;
   initialValue?: string;
 }
+
+const PLACEHOLDER_SUGGESTIONS: Suggestion[] = [
+  { text: "What are the current UK inflation rates?", source: "template", category: "Economy" },
+  { text: "How does the NHS funding compare to other countries?", source: "template", category: "Healthcare" },
+  { text: "What are the UK's net zero climate targets?", source: "history", category: "Climate" },
+  { text: "How is education spending distributed across regions?", source: "template", category: "Education" },
+  { text: "What are the latest immigration policy changes?", source: "history", category: "Immigration" },
+  { text: "How do housing prices affect first-time buyers?", source: "ai", category: "Housing" },
+];
 
 export default function QuestionInput({
   onSubmit,
@@ -14,7 +29,10 @@ export default function QuestionInput({
 }: QuestionInputProps) {
   const [value, setValue] = useState(initialValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (initialValue) {
@@ -22,11 +40,53 @@ export default function QuestionInput({
     }
   }, [initialValue]);
 
+  useEffect(() => {
+    if (value.length >= 2) {
+      const filtered = PLACEHOLDER_SUGGESTIONS.filter((s) =>
+        s.text.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 6);
+      
+      if (filtered.length === 0) {
+        setSuggestions(PLACEHOLDER_SUGGESTIONS.slice(0, 6));
+      } else {
+        setSuggestions(filtered);
+      }
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
+      setSuggestions([]);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setShowDropdown(false);
+    }
+  }, []);
+
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    setValue(suggestion.text);
+    setShowDropdown(false);
+    inputRef.current?.focus();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!value.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
+    setShowDropdown(false);
     try {
       await onSubmit(value.trim());
     } finally {
@@ -35,7 +95,7 @@ export default function QuestionInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto" ref={containerRef}>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-muted-foreground" />
@@ -45,6 +105,8 @@ export default function QuestionInput({
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => value.length >= 2 && suggestions.length > 0 && setShowDropdown(true)}
           placeholder="Ask any policy question..."
           className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition text-base"
           disabled={isSubmitting}
@@ -64,6 +126,21 @@ export default function QuestionInput({
           )}
         </button>
       </div>
+
+      {showDropdown && suggestions.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 overflow-hidden">
+          {suggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+            >
+              <span className="text-sm text-foreground">{suggestion.text}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </form>
   );
 }

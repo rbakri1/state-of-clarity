@@ -77,3 +77,36 @@ Thread: https://ampcode.com/threads/T-019ba832-c434-76be-93d7-13663e0aeeb4
   - Use ilike for case-insensitive matching in Supabase queries
   - May need to clean .next cache (rm -rf .next) if build fails with manifest errors
 ---
+
+## 2026-01-10 19:00 - US-006
+Thread: https://ampcode.com/threads/T-019ba834-b578-728b-889e-7e65cad77673
+- Created QuestionInput.tsx component shell in app/components/
+- Input field with placeholder "Ask any policy question..."
+- Submit button with "Get Brief" text, shows loading spinner when submitting
+- Props: onSubmit callback, initialValue (optional)
+- Controlled input with useState, syncs with initialValue via useEffect
+- Uses Search and Loader2 icons from lucide-react
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - QuestionInput is a standalone component not yet integrated into homepage (US-019 does integration)
+  - Component follows same styling patterns as existing form in page.tsx
+  - Use ref for input to enable focus control in future stories
+---
+
+## 2026-01-10 19:30 - US-007
+Thread: https://ampcode.com/threads/T-019ba840-57fe-7498-a421-6f5479184656
+- Added autocomplete dropdown to QuestionInput.tsx component
+- Dropdown appears after typing 2+ characters
+- Positioned directly below input, full width, with shadow-lg and rounded corners
+- Max 6 suggestions displayed (filtering from PLACEHOLDER_SUGGESTIONS)
+- Dismisses on blur (click outside) or Escape key
+- Clicking a suggestion fills input and refocuses
+- Added Suggestion interface and placeholder data for testing
+- Also added error.tsx and global-error.tsx for Next.js error handling
+- Files changed: app/components/QuestionInput.tsx, app/error.tsx, app/global-error.tsx
+- **Learnings for future iterations:**
+  - Use useRef<HTMLFormElement> for form refs (not HTMLDivElement)
+  - Need both error.tsx and global-error.tsx for proper Next.js error boundaries
+  - Clean .next cache (rm -rf .next) before running dev server if errors occur
+  - Placeholder suggestions use Suggestion interface: { text, source, category }
+---
