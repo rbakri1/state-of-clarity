@@ -302,8 +302,8 @@
         "Typecheck passes"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Added comprehensive @media print styles to globals.css. Added print:hidden classes to header, progress bar, reading level selector, and feedback section. Sources show full URLs via CSS ::after pseudo-element. Tables use page-break-inside: avoid for rows. Collapsible sections auto-expand in print via data-collapsible-content selector."
     }
   ]
 }

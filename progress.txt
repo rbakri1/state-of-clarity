@@ -313,3 +313,27 @@ Thread: https://ampcode.com/threads/T-019ba75e-4bf4-719a-b935-a872fa1fba95
   - Single-column layouts are cleaner for article-like content
   - mb-12 provides good section separation without excessive whitespace
 ---
+
+## 2026-01-10 - US-018
+Thread: https://ampcode.com/threads/T-019ba76c-9e2b-74f8-bcc4-0e95b8609f8b
+- Added comprehensive @media print styles to globals.css
+- Print styles hide: header, navigation, progress bar, reading level selector, share buttons, feedback section, all buttons
+- Print styles show: question, clarity score (text only), summary, all structured data tables, narrative, sources
+- Tables fit within page margins (100% width, 10pt font size, page-break-inside: avoid)
+- Sources display full URLs via CSS ::after pseudo-element with word-break
+- Collapsible sections auto-expand in print via data-collapsible-content selector (height: auto)
+- Added print:hidden classes to interactive components
+- Added data-reading-progress and data-collapsible-content attributes for print targeting
+- Added source-card class to SourcesSection for print URL display
+- Added print-only clarity score text display in header
+- **Files changed:**
+  - app/globals.css (added ~110 lines of @media print styles)
+  - app/brief/[id]/BriefPageClient.tsx (added print:hidden classes, print-only clarity score)
+  - app/components/ReadingProgressBar.tsx (added print:hidden, data-reading-progress)
+  - app/components/CollapsibleSection.tsx (added data-collapsible-content)
+  - app/components/SourcesSection.tsx (added source-card class, print styles)
+- **Learnings for future iterations:**
+  - Use CSS ::after with attr(href) to display URLs in print without JavaScript
+  - Use data-* attributes to target elements in print CSS without affecting component structure
+  - Tailwind's print: prefix works for inline styles but complex print layouts need @media print in CSS
+---
