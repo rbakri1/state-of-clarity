@@ -120,7 +120,7 @@ export default function Home() {
 
           {/* Topic Categories */}
           <div className="mt-8">
-            <TopicCategoriesGrid />
+            <TopicCategoriesGrid onQuestionClick={(text) => setQuestion(text)} />
           </div>
 
           {/* Features */}

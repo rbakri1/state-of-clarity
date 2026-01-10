@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   DollarSign,
   Heart,
@@ -11,12 +12,20 @@ import {
   Scale,
   Cpu,
   Landmark,
+  Loader2,
 } from "lucide-react";
+import { createBrowserClient } from "@/lib/supabase/browser";
 
 interface TopicCategory {
   id: string;
   label: string;
   icon: React.ReactNode;
+}
+
+interface QuestionTemplate {
+  id: string;
+  question_text: string;
+  category: string;
 }
 
 const categories: TopicCategory[] = [
@@ -33,45 +42,118 @@ const categories: TopicCategory[] = [
 ];
 
 interface TopicCategoriesGridProps {
-  onCategoryClick?: (categoryId: string) => void;
-  selectedCategory?: string | null;
+  onQuestionClick?: (questionText: string) => void;
 }
 
 export default function TopicCategoriesGrid({
-  onCategoryClick,
-  selectedCategory,
+  onQuestionClick,
 }: TopicCategoriesGridProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<QuestionTemplate[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedCategory) {
+      setQuestions([]);
+      return;
+    }
+
+    async function fetchQuestions() {
+      setIsLoading(true);
+      try {
+        const supabase = createBrowserClient();
+        const { data, error } = await supabase
+          .from("question_templates")
+          .select("id, question_text, category")
+          .ilike("category", selectedCategory!)
+          .order("display_order", { ascending: true })
+          .limit(6);
+
+        if (error) throw error;
+        setQuestions(data || []);
+      } catch (err) {
+        console.error("Failed to fetch questions:", err);
+        setQuestions([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchQuestions();
+  }, [selectedCategory]);
+
+  const handleCategoryClick = (categoryId: string) => {
+    if (selectedCategory === categoryId) {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(categoryId);
+    }
+  };
+
+  const selectedCategoryLabel = categories.find(c => c.id === selectedCategory)?.label;
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      {categories.map((category: TopicCategory) => (
-        <button
-          key={category.id}
-          onClick={() => onCategoryClick?.(category.id)}
-          className={`
-            flex flex-col items-center justify-center gap-2 p-4 rounded-xl
-            border transition-all duration-200 cursor-pointer
-            ${
-              selectedCategory === category.id
-                ? "border-primary bg-primary/5 text-primary"
-                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary/50 hover:scale-[1.02]"
-            }
-          `}
-        >
-          <div
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {categories.map((category: TopicCategory) => (
+          <button
+            key={category.id}
+            onClick={() => handleCategoryClick(category.id)}
             className={`
-            w-10 h-10 rounded-lg flex items-center justify-center
-            ${
-              selectedCategory === category.id
-                ? "bg-primary/10 text-primary"
-                : "bg-muted text-muted-foreground"
-            }
-          `}
+              flex flex-col items-center justify-center gap-2 p-4 rounded-xl
+              border transition-all duration-200 cursor-pointer
+              ${
+                selectedCategory === category.id
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary/50 hover:scale-[1.02]"
+              }
+            `}
           >
-            {category.icon}
-          </div>
-          <span className="text-sm font-medium">{category.label}</span>
-        </button>
-      ))}
+            <div
+              className={`
+              w-10 h-10 rounded-lg flex items-center justify-center
+              ${
+                selectedCategory === category.id
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground"
+              }
+            `}
+            >
+              {category.icon}
+            </div>
+            <span className="text-sm font-medium">{category.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {selectedCategory && (
+        <div className="mt-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">
+            Example {selectedCategoryLabel} questions:
+          </h3>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : questions.length > 0 ? (
+            <div className="space-y-2">
+              {questions.map((q: QuestionTemplate) => (
+                <button
+                  key={q.id}
+                  onClick={() => onQuestionClick?.(q.question_text)}
+                  className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors cursor-pointer"
+                >
+                  {q.question_text}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground py-2">
+              No questions available for this category.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
