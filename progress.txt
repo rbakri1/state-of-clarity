@@ -34,3 +34,17 @@ Thread: https://ampcode.com/threads/T-019ba6ef-0f7d-7539-8313-09a040d12dc8
   - When working on briefs, remember summaries use simple/standard/advanced keys
   - Supabase typed client requires table definitions in Database interface
 ---
+
+## 2026-01-10 - US-002
+Thread: https://ampcode.com/threads/T-019ba6fa-97ea-7793-be2e-356d1eb17279
+- Created reusable ReadingLevelSelector component
+- Component displays 3 pill buttons: Simple, Standard, Advanced
+- Accepts level prop and onLevelChange callback
+- Selected level uses filled styling, unselected uses outline
+- Typecheck passes, verified in browser
+- **Files changed:**
+  - app/components/ReadingLevelSelector.tsx (new)
+- **Learnings for future iterations:**
+  - Brief page already has inline reading level selector - US-003 will replace it with this reusable component
+  - Component uses ReadingLevel type from lib/supabase/client.ts for type safety
+---
