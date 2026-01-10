@@ -9,7 +9,6 @@ import {
   ExternalLink,
   ThumbsUp,
   ThumbsDown,
-  BookmarkPlus,
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -25,6 +24,7 @@ import { NarrativeSection } from "@/app/components/NarrativeSection";
 import { SourcesSection, type Source } from "@/app/components/SourcesSection";
 import ClarityScoreModal from "@/app/components/ClarityScoreModal";
 import { ShareMenu } from "@/app/components/ShareMenu";
+import { BookmarkButton } from "@/app/components/BookmarkButton";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -130,9 +130,7 @@ export default function BriefPageClient() {
                 title={brief.question}
                 excerpt={brief.summaries.standard?.slice(0, 100)}
               />
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
-                <BookmarkPlus className="w-5 h-5" />
-              </button>
+              <BookmarkButton briefId={params.id as string} />
               <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition">
                 Ask Follow-up
               </button>
