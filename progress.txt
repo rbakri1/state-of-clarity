@@ -63,3 +63,17 @@ Thread: https://ampcode.com/threads/T-019ba82c-20c3-7330-b709-fcd298f98bba
   - Created browser.ts with browser-only Supabase client to avoid SSR conflicts
   - Use createBrowserClient from lib/supabase/browser.ts in client components
 ---
+
+## 2026-01-10 18:45 - US-005
+Thread: https://ampcode.com/threads/T-019ba832-c434-76be-93d7-13663e0aeeb4
+- Created API endpoint at /app/api/questions/templates/route.ts
+- Accepts optional `category` query param with case-insensitive filter (using ilike)
+- Returns featured questions (is_featured=true) if no category provided
+- Orders by display_order, returns { id, category, question_text }
+- Files changed: app/api/questions/templates/route.ts
+- **Learnings for future iterations:**
+  - API routes go in app/api/ directory structure
+  - Use createServerSupabaseClient from lib/supabase/client.ts in API routes
+  - Use ilike for case-insensitive matching in Supabase queries
+  - May need to clean .next cache (rm -rf .next) if build fails with manifest errors
+---
