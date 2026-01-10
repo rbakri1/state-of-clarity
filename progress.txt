@@ -79,3 +79,19 @@ Thread: https://ampcode.com/threads/T-019ba705-971e-778d-83e9-3d0c6cae1f59
   - Use key={value} on elements to trigger re-mounting for CSS animations
   - The animate-fade-in class triggers when component key changes
 ---
+
+## 2026-01-10 - US-005
+Thread: https://ampcode.com/threads/T-019ba70c-8039-7438-9205-dc5b6c579d03
+- Created reusable CollapsibleSection component at app/components/CollapsibleSection.tsx
+- Props: title, itemCount (optional), defaultExpanded (defaults false), children
+- Header displays title with optional item count in parentheses (e.g., "Factors (12)")
+- Chevron icon rotates 180° on expand/collapse with transition-transform duration-200
+- Smooth 200ms height animation using ResizeObserver and scrollHeight
+- Verified in browser: expand/collapse toggles work correctly
+- **Files changed:**
+  - app/components/CollapsibleSection.tsx (new)
+- **Learnings for future iterations:**
+  - Use ResizeObserver to track content height for dynamic children
+  - For height animations, set height explicitly via style with transition, not Tailwind class
+  - Use aria-expanded for accessibility on collapsible buttons
+---
