@@ -160,3 +160,16 @@ Thread: https://ampcode.com/threads/T-019ba9de-5207-77e6-b596-c697694b192d
   - Section uses same styling pattern as other brief page sections (bg-white, rounded-xl, border, p-6)
   - Removed unused imports (ThumbsUp, ThumbsDown, AlertCircle) after replacing placeholder buttons
 ---
+
+## 2026-01-11 - US-013
+Thread: https://ampcode.com/threads/T-019ba9e1-768f-73f1-9419-c969af0a63d4
+- Created AI feedback screening service using Claude Haiku
+- Files changed:
+  - lib/services/feedback-screening.ts - New file with screenFeedback() function
+- **Learnings for future iterations:**
+  - Use same Anthropic pattern as research-agent.ts: new Anthropic({ apiKey }) + messages.create()
+  - Use claude-3-5-haiku-20241022 for fast/cheap screening
+  - Parse JSON with regex match(/\{[\s\S]*\}/) to handle Claude's sometimes-extra text
+  - Default to pending (approved: false, flagged: false) on any AI error for graceful degradation
+  - FeedbackType = "source_suggestion" | "error_report" | "edit_proposal"
+---
