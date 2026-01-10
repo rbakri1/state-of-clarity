@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/client";
+import { screenFeedback, ScreeningResult } from "@/lib/services/feedback-screening";
 
 interface SuggestSourceRequest {
   url: string;
@@ -68,5 +69,34 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, id: data.id });
+  const suggestionId = data.id;
+
+  (async () => {
+    try {
+      const screeningResult: ScreeningResult = await screenFeedback("source_suggestion", {
+        url: body.url,
+        notes: body.notes,
+      });
+
+      let newStatus = "pending";
+      if (screeningResult.flagged) {
+        newStatus = "flagged";
+      } else if (screeningResult.approved && screeningResult.confidence > 0.9) {
+        newStatus = "approved";
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from("source_suggestions")
+        .update({
+          ai_screening_result: screeningResult,
+          status: newStatus,
+        })
+        .eq("id", suggestionId);
+    } catch (e) {
+      console.error("Failed to screen source suggestion:", e);
+    }
+  })();
+
+  return NextResponse.json({ success: true, id: suggestionId });
 }
