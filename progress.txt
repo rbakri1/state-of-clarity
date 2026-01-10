@@ -203,3 +203,21 @@ Thread: https://ampcode.com/threads/T-019ba73a-1399-7347-8df8-6a6ce88efd53
   - brief.clarity_critique contains breakdown, strengths, and gaps arrays
   - Use aria-label on interactive elements for accessibility
 ---
+
+## 2026-01-10 - US-012
+Thread: https://ampcode.com/threads/T-019ba73d-94bb-76b8-bdaf-51dc67695efb
+- Created ShareMenu component at app/components/ShareMenu.tsx
+- Component features a popover menu with 6 sharing options: Copy Link, X/Twitter, LinkedIn, Facebook, Reddit, Email
+- Copy Link copies current URL (with reading level param) to clipboard using navigator.clipboard API
+- Shows "Link copied!" toast notification on successful copy (2s duration)
+- Click-outside handling closes the menu (using mousedown event listener)
+- All social share links open in new tabs with proper encoding
+- Integrated into brief page header, replacing standalone Share2 icon button
+- **Files changed:**
+  - app/components/ShareMenu.tsx (new)
+  - app/brief/[id]/page.tsx (integrated ShareMenu, removed unused Share2 import)
+- **Learnings for future iterations:**
+  - Use `window.location.href` in useEffect to get URL for SSR-safe hydration
+  - Use `renderIcon: () => React.ReactNode` pattern for mixed icon types (Lucide components vs SVG elements)
+  - Twitter share URL uses `twitter.com/intent/tweet` with text and url params
+---
