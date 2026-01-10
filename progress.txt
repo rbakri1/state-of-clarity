@@ -168,3 +168,23 @@ Thread: https://ampcode.com/threads/T-019ba52d-64cc-7308-8ea2-21d03449e78d
   - Pipeline orchestrator should log timing at each step for debugging
   - Use service role client for database operations that bypass RLS
 ---
+
+## 2026-01-10 - US-012
+Thread: https://ampcode.com/threads/T-019ba534-886f-754f-a485-d34fcee7d104
+- Created migration 007_add_quality_gate_metadata.sql with:
+  - quality_gate_metadata JSONB column on briefs table
+  - agent_execution_logs table for pipeline step logging
+  - quality_gate_decisions table for decision tracking
+- Created /lib/services/quality-gate-metrics.ts with:
+  - createExecutionContext(): creates unique execution context for pipeline run
+  - logPipelineStep(): logs each step to agent_execution_logs
+  - logQualityGateDecision(): logs quality gate decisions with all metadata
+  - calculateQualityGateMetrics(): calculates pass rate, avg attempts, refund rate
+- Updated langgraph-orchestrator.ts to use the new metrics logging
+- Updated Database interface with agent_execution_logs and quality_gate_decisions types
+- Files changed: lib/supabase/migrations/007_add_quality_gate_metadata.sql (new), lib/services/quality-gate-metrics.ts (new), lib/agents/langgraph-orchestrator.ts (updated), lib/supabase/client.ts (updated)
+- **Learnings for future iterations:**
+  - Use `as QualityGateDecisionRow[]` cast on Supabase query results to fix "never" type issues
+  - Each pipeline run gets a unique executionId via uuid for tracing
+  - Metrics service provides QualityGateMetricsSummary with pass rate, avg attempts, refund rate
+---
