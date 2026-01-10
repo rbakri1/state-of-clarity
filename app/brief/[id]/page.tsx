@@ -9,7 +9,6 @@ import {
   ExternalLink,
   ThumbsUp,
   ThumbsDown,
-  Share2,
   BookmarkPlus,
   AlertCircle,
 } from "lucide-react";
@@ -25,6 +24,7 @@ import { StructuredDataSections } from "@/app/components/StructuredDataSections"
 import { NarrativeSection } from "@/app/components/NarrativeSection";
 import { SourcesSection, type Source } from "@/app/components/SourcesSection";
 import ClarityScoreModal from "@/app/components/ClarityScoreModal";
+import { ShareMenu } from "@/app/components/ShareMenu";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -126,9 +126,10 @@ export default function BriefPage() {
             </Link>
 
             <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
-                <Share2 className="w-5 h-5" />
-              </button>
+              <ShareMenu
+                title={brief.question}
+                excerpt={brief.summaries.standard?.slice(0, 100)}
+              />
               <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
                 <BookmarkPlus className="w-5 h-5" />
               </button>
