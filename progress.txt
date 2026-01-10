@@ -4,7 +4,7 @@ Started: Sun 11 Jan 2026
 ## Codebase Patterns
 - Database types are defined in lib/supabase/client.ts (not a separate types.ts file)
 - SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
-- Browser-safe Supabase client: use lib/supabase/browser.ts (not client.ts) in client components
+- Browser-safe Supabase client: use createBrowserClient from lib/supabase/client.ts in client components
 - Use explicit type annotations in React map callbacks to avoid implicit any errors
 - Wrap useSearchParams() in Suspense boundary for Next.js static page generation
 - API routes go in app/api/ directory, use createServerSupabaseClient from lib/supabase/client.ts
@@ -12,6 +12,7 @@ Started: Sun 11 Jan 2026
 - Use lucide-react for icons
 - Clean .next cache with `rm -rf .next` if build fails with manifest errors
 - Supabase TS types may infer `never` for insert/update; use `(supabase as any)` workaround with eslint-disable comment
+- For optimistic UI: store previousState before API call, revert if response not ok
 
 ---
 
@@ -37,5 +38,17 @@ Thread: https://ampcode.com/threads/T-019ba9b0-5af0-7029-8c53-4ffc37693cdc
   - Next.js 14+ dynamic route params are `Promise<{ id: string }>` - must await them
   - Use `(supabase as any)` for insert/update when Supabase types infer `never`
   - API route handlers use `params: Promise<...>` pattern, not direct object access
+---
+
+## 2026-01-11 - US-003
+Thread: https://ampcode.com/threads/T-019ba9b5-60e3-775d-ae93-f473f977848b
+- Created VoteButtons component with upvote/downvote functionality
+- Files changed:
+  - app/components/VoteButtons.tsx - New file with interactive vote buttons
+- **Learnings for future iterations:**
+  - Components go in app/components/ directory (created it for this project)
+  - Use createBrowserClient from lib/supabase/client.ts in client components
+  - Optimistic UI: store previousState before API call, revert on error
+  - Show different UI states: loading, authenticated, unauthenticated
 ---
 

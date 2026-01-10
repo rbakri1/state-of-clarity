@@ -1,0 +1,340 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/smart-question-suggestions",
+  "description": "Smart Question Suggestions - Autocomplete, curated templates, AI suggestions, topic grid, and keyboard navigation for the Ask Anything experience",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create question templates database table",
+      "description": "As a developer, I need a database table to store curated question templates.",
+      "acceptanceCriteria": [
+        "Create migration for question_templates table: id (UUID), category (TEXT), question_text (TEXT), is_featured (BOOLEAN default false), display_order (INTEGER default 0), created_at (TIMESTAMPTZ)",
+        "Add RLS policy: public read access, service_role write",
+        "Add TypeScript types to Database interface in lib/supabase/client.ts",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Seed question templates with curated examples",
+      "description": "As a user, I need curated example questions available for each topic category.",
+      "acceptanceCriteria": [
+        "Create seed migration with 5-6 questions per category",
+        "Categories: Economy, Healthcare, Climate, Education, Defense, Immigration, Housing, Justice, Technology, Governance",
+        "Total 50-60 curated questions",
+        "Mark 1-2 per category as is_featured=true",
+        "Set display_order for consistent ordering",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create topic categories grid component",
+      "description": "As a visitor, I want to see popular policy topics on the homepage.",
+      "acceptanceCriteria": [
+        "Create /app/components/TopicCategoriesGrid.tsx",
+        "Display 10 topic category cards with icon and label",
+        "Categories: Economy, Healthcare, Climate, Education, Defense, Immigration, Housing, Justice, Technology, Governance",
+        "Each card has simple icon (use lucide-react icons)",
+        "Grid responsive: 5 cols desktop, 3 cols tablet, 2 cols mobile",
+        "Cards have hover effect (slight scale or border)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add category click to show example questions",
+      "description": "As a visitor, I want to see example questions when I click a topic category.",
+      "acceptanceCriteria": [
+        "Clicking category card expands/shows example questions section",
+        "Fetch questions from question_templates table filtered by category",
+        "Display 4-6 example questions for selected category",
+        "Clicking a different category switches the questions",
+        "Clicking same category collapses the section",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create API endpoint for fetching templates by category",
+      "description": "As a developer, I need an API to fetch question templates.",
+      "acceptanceCriteria": [
+        "Create /app/api/questions/templates/route.ts",
+        "Accept optional query param: category",
+        "If category provided, filter by category (case-insensitive)",
+        "If no category, return featured questions (is_featured=true)",
+        "Order by display_order",
+        "Return array of { id, category, question_text }",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create QuestionInput component shell",
+      "description": "As a developer, I need a base autocomplete input component.",
+      "acceptanceCriteria": [
+        "Create /app/components/QuestionInput.tsx",
+        "Input field with placeholder: 'Ask any policy question...'",
+        "Submit button beside or below input",
+        "Props: onSubmit callback, initialValue (optional)",
+        "Controlled input with internal state",
+        "No dropdown yet (added in next story)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Add autocomplete dropdown to QuestionInput",
+      "description": "As a user, I want suggestions to appear as I type.",
+      "acceptanceCriteria": [
+        "Dropdown appears after 2+ characters typed",
+        "Dropdown positioned directly below input, full width",
+        "Max 6 suggestions displayed",
+        "Dropdown has subtle shadow and rounded corners",
+        "Dropdown dismisses on blur or Escape key",
+        "Suggestions are placeholder data for now (real API in next stories)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Add keyboard navigation to dropdown",
+      "description": "As a power user, I want to navigate suggestions with keyboard.",
+      "acceptanceCriteria": [
+        "Arrow Down moves highlight to next suggestion",
+        "Arrow Up moves highlight to previous suggestion",
+        "Enter selects highlighted suggestion and closes dropdown",
+        "Escape closes dropdown without selecting",
+        "Tab closes dropdown and moves focus to submit button",
+        "First item highlighted by default when dropdown opens",
+        "Visual highlight distinct from hover state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create autocomplete suggestions API endpoint",
+      "description": "As a developer, I need an API to fetch autocomplete suggestions.",
+      "acceptanceCriteria": [
+        "Create /app/api/questions/suggest/route.ts",
+        "Accept query param: q (partial question text, min 2 chars)",
+        "Return array of { text, source, category }",
+        "Source types: 'template', 'history', 'ai'",
+        "Limit to 6 results total",
+        "Return empty array if q < 2 chars",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add template-based suggestions to API",
+      "description": "As a user, I want to see curated templates matching my input.",
+      "acceptanceCriteria": [
+        "Query question_templates with ILIKE '%query%' pattern",
+        "Return matches with source: 'template'",
+        "Templates are highest priority (appear first)",
+        "Limit template results to 3",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Add history-based suggestions to API",
+      "description": "As a user, I want to see previously asked questions matching my input.",
+      "acceptanceCriteria": [
+        "Query briefs table for question field with ILIKE pattern",
+        "Only include published briefs",
+        "Return with source: 'history'",
+        "Deduplicate against template results",
+        "Limit history results to 2",
+        "History appears after templates in combined list",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Add AI-generated suggestions to API",
+      "description": "As a user, I want AI to suggest refined questions when few matches exist.",
+      "acceptanceCriteria": [
+        "If template + history < 4 total, call Claude Haiku for suggestions",
+        "Prompt: Generate 2 well-formed policy questions related to '[input]'",
+        "Parse response and return with source: 'ai'",
+        "AI suggestions appear last in list",
+        "If AI fails, gracefully return without AI suggestions",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Add caching for AI suggestions",
+      "description": "As a developer, I need to cache AI responses to reduce latency and cost.",
+      "acceptanceCriteria": [
+        "Cache key: normalized lowercase trimmed query",
+        "Store AI suggestions in memory cache (Map or similar)",
+        "TTL: 5 minutes",
+        "Check cache before calling AI",
+        "Store result in cache after successful AI call",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Connect QuestionInput to suggestions API",
+      "description": "As a user, I want real suggestions from the API as I type.",
+      "acceptanceCriteria": [
+        "Call /api/questions/suggest with debounced input (150ms)",
+        "Display returned suggestions in dropdown",
+        "Show loading state while fetching",
+        "Handle empty results gracefully (hide dropdown)",
+        "Handle API errors gracefully (hide dropdown, no error shown)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Add source badges to suggestions",
+      "description": "As a user, I want to see where suggestions come from.",
+      "acceptanceCriteria": [
+        "Each suggestion row shows source badge on right",
+        "Template: 'Curated' badge (muted gray)",
+        "History: 'Popular' badge (muted gray)",
+        "AI: 'AI ✨' badge (muted with sparkle)",
+        "Badges use text-xs and text-muted-foreground styling",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Make example questions clickable to prefill input",
+      "description": "As a user, I want to click example questions to prefill the Ask Anything input.",
+      "acceptanceCriteria": [
+        "Example questions in category expansion are clickable",
+        "Clicking sets question text in QuestionInput",
+        "Input receives focus after prefill",
+        "Autocomplete triggers with prefilled text",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Support URL parameter prefill",
+      "description": "As a user clicking a shared link, I want the question to prefill from URL.",
+      "acceptanceCriteria": [
+        "Support URL param: ?q=encoded+question+text",
+        "Read param on page load and set as initialValue",
+        "QuestionInput prefills with decoded value",
+        "Autocomplete dropdown shows on focus if text present",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Mobile optimize QuestionInput",
+      "description": "As a mobile user, I want the autocomplete to work well on touch devices.",
+      "acceptanceCriteria": [
+        "Dropdown items have min 44px height for touch targets",
+        "Tapping suggestion selects and closes dropdown",
+        "Input uses inputmode='text' attribute",
+        "Dropdown doesn't get obscured by virtual keyboard (test on mobile)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Integrate QuestionInput into homepage",
+      "description": "As a user, I want the smart input on the homepage.",
+      "acceptanceCriteria": [
+        "Replace existing Ask Anything input on homepage with QuestionInput",
+        "TopicCategoriesGrid appears below the input",
+        "Maintain existing submit flow (generation/credit check)",
+        "Layout looks cohesive (proper spacing)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Add question refinement suggestions",
+      "description": "As a user typing a vague question, I want suggestions to help me be more specific.",
+      "acceptanceCriteria": [
+        "Detect vague patterns: single word, <5 words, starts with 'What about'",
+        "When vague detected, show refinement header: 'Try being more specific:'",
+        "AI generates 2-3 refined versions with added context (geography, timeframe, policy)",
+        "Example: 'climate' → 'What are the UK's climate policy targets for 2030?'",
+        "Refinements appear in dropdown with special styling",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

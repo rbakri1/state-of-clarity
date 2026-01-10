@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
-import { createBrowserClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/browser";
 import Link from "next/link";
 
 interface VoteButtonsProps {

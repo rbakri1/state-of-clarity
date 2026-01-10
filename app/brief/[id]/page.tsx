@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import VoteButtons from "@/app/components/VoteButtons";
 
 // Import sample briefs (in production, this would come from API)
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
@@ -101,13 +102,16 @@ export default function BriefPage() {
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl sm:text-4xl font-bold">{brief.question}</h1>
-            <div
-              className={`clarity-score-badge ${getClarityScoreClass(
-                brief.clarity_score
-              )} shrink-0`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{brief.clarity_score}/10</span>
+            <div className="flex items-center gap-3 shrink-0">
+              <VoteButtons briefId={params.id as string} />
+              <div
+                className={`clarity-score-badge ${getClarityScoreClass(
+                  brief.clarity_score
+                )}`}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{brief.clarity_score}/10</span>
+              </div>
             </div>
           </div>
 
