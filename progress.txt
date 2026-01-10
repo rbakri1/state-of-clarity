@@ -131,3 +131,22 @@ Thread: https://ampcode.com/threads/T-019ba71d-40f4-70aa-a78c-31934b3e5295
   - Use optional chaining (policy.pros?.map) when data fields might be undefined
   - For tooltip positioning, use getBoundingClientRect() and window.innerHeight to calculate available space
 ---
+
+## 2026-01-10 - US-008
+Thread: https://ampcode.com/threads/T-019ba728-8716-7321-9cf4-561a7aac094a
+- Created NarrativeSection component at app/components/NarrativeSection.tsx
+- Component parses narrative text for [n] citation markers using regex
+- Renders citations as superscript numbers wrapped in CitationTooltip component
+- Clicking a citation scrolls to the corresponding source (using source-N id)
+- Added highlight flash effect (2s ring animation) when scrolling to source
+- Set max-width 65ch on narrative container for comfortable reading width
+- Added id attributes to source elements in brief page for scroll linking
+- Integrated NarrativeSection into brief page, replacing inline narrative rendering
+- **Files changed:**
+  - app/components/NarrativeSection.tsx (new)
+  - app/brief/[id]/page.tsx (integrated NarrativeSection, added source ids)
+- **Learnings for future iterations:**
+  - Sample briefs don't currently have [n] markers in narrative - feature is ready for when they do
+  - Use prose class without max-w-none when wanting to apply custom max-width
+  - Source ids follow pattern source-{index+1} matching citation numbers
+---
