@@ -67,3 +67,14 @@ Thread: https://ampcode.com/threads/T-019ba9b9-926a-75cb-bc76-8b4a11e5d02c
   - VoteButtons fetches vote state on mount via useEffect, shows loading skeleton during fetch
 ---
 
+## 2026-01-11 - US-005
+Thread: https://ampcode.com/threads/T-019ba9c3-135a-721d-bbda-f0f5b2d0883f
+- Created suggest source API endpoint
+- Files changed:
+  - app/api/briefs/[id]/suggest-source/route.ts - New POST endpoint for source suggestions
+- **Learnings for future iterations:**
+  - URL validation: use `new URL(urlString)` in try/catch, returns false on exception
+  - Pattern for returning created entity ID: `.select("id").single()` after insert
+  - Status field defaults to 'pending' on creation
+---
+
