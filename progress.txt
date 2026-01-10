@@ -200,3 +200,20 @@ Thread: https://ampcode.com/threads/T-019ba975-f47b-75c8-bd69-8968ae98c3f2
   - For multi-instance or persistent caching, would need Redis or similar
   - Module-level variables (like the Map) persist across requests in warm serverless instances
 ---
+
+## 2026-01-10 23:59 - US-014
+Thread: https://ampcode.com/threads/T-019ba978-1cd2-72ee-bb87-3f1562ed7452
+- Connected QuestionInput component to /api/questions/suggest API
+- Added 150ms debounce using setTimeout in useEffect
+- Added AbortController to cancel pending requests when input changes
+- Added isLoadingSuggestions state for loading indicator
+- Shows "Loading suggestions..." spinner in dropdown while fetching
+- Hides dropdown when API returns empty results or errors
+- Gracefully handles API errors (no error shown to user)
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Use AbortController with fetch to cancel stale requests on rapid typing
+  - Debounce pattern: setTimeout + clearTimeout in useEffect cleanup
+  - Show loading state in dropdown container, not in suggestions list
+  - QuestionInput is not yet integrated into homepage (that's US-019)
+---
