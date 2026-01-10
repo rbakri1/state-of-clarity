@@ -102,3 +102,15 @@ Thread: https://ampcode.com/threads/T-019ba9c7-e1f8-749c-9c91-d66d1036dbea
   - Description min length validation: simple `body.description.length < 20` check
 ---
 
+## 2026-01-11 - US-008
+Thread: https://ampcode.com/threads/T-019ba9c9-3ebf-7680-9ef6-579f2c53cfe7
+- Created spot error modal component
+- Files changed:
+  - app/components/SpotErrorModal.tsx - New file with Radix Dialog-based modal for error reporting
+- **Learnings for future iterations:**
+  - Same controlled modal pattern as SuggestSourceModal: accept `open` and `onOpenChange` props
+  - Character count display with color feedback (green when min reached)
+  - Submit button uses orange color scheme to match error/warning theme
+  - Modal will be integrated via FeedbackActions component (US-011/US-012)
+---
+
