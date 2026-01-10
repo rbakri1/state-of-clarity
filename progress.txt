@@ -39,3 +39,14 @@ Thread: https://ampcode.com/threads/T-019ba69b-c5a0-72d7-8a88-fdebe47f437f
   - Solution: wrap update/insert in helper functions using `(supabase as any)` cast
   - Service follows pattern: getClient() returns typed client, helper functions do mutations
 ---
+
+## 2026-01-10 - US-003
+Thread: https://ampcode.com/threads/T-019ba6a5-59bb-741e-9999-0c321fd1256d
+- Added expireOldCredits() function to expire batches past their expiry date
+- Added getExpiringCreditsWarnings() to find credits expiring within 30 days
+- Added sendExpiryWarningNotifications() placeholder for future notification integration
+- **Learnings for future iterations:**
+  - FIFO deduction was already implemented in deductCredits() from US-002
+  - Batch expiry set credits_remaining to 0 and deducts from user_credits balance
+  - Expiry transactions logged with type 'expiry' and negative amount
+---

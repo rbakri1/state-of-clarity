@@ -253,6 +253,88 @@ State of Clarity _ Claude/
 
 ---
 
+## Step 7: Set Up Stripe Payments
+
+State of Clarity uses Stripe for credit purchases. Follow these steps to configure Stripe:
+
+### 1. Create Stripe Account
+
+1. Sign up at [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Complete account verification (can use test mode initially)
+
+### 2. Get API Keys
+
+1. Go to **Developers > API Keys** in Stripe Dashboard
+2. Copy the **Publishable key** (starts with `pk_test_` or `pk_live_`)
+3. Copy the **Secret key** (starts with `sk_test_` or `sk_live_`)
+4. Add to `.env.local`:
+   ```env
+   STRIPE_SECRET_KEY=sk_test_your-key-here
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-key-here
+   ```
+
+### 3. Create Products and Prices
+
+Create 4 products in Stripe Dashboard (**Products > Add Product**):
+
+| Product Name | Price (GBP) | Type       |
+|--------------|-------------|------------|
+| Single       | £0.65       | One-time   |
+| Starter      | £6.00       | One-time   |
+| Standard     | £28.00      | One-time   |
+| Pro          | £52.00      | One-time   |
+
+For each product:
+1. Create the product with the name above
+2. Add a one-time price in GBP
+3. Copy the **Price ID** (starts with `price_`)
+4. Update the `stripe_price_id` in your `credit_packages` database table
+
+### 4. Set Up Webhooks
+
+1. Go to **Developers > Webhooks** in Stripe Dashboard
+2. Click **Add endpoint**
+3. Enter your endpoint URL: `https://your-domain.com/api/webhooks/stripe`
+4. Select events to listen for:
+   - `checkout.session.completed`
+   - `payment_intent.payment_failed`
+5. Copy the **Signing secret** (starts with `whsec_`)
+6. Add to `.env.local`:
+   ```env
+   STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret-here
+   ```
+
+### 5. Local Webhook Testing
+
+For local development, use the Stripe CLI:
+
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Login to your Stripe account
+stripe login
+
+# Forward webhooks to local server
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+The CLI will display a webhook signing secret for local testing - use this for `STRIPE_WEBHOOK_SECRET` during development.
+
+### 6. Test Cards
+
+Use these test card numbers in test mode:
+
+| Card Number         | Result                    |
+|---------------------|---------------------------|
+| 4242 4242 4242 4242 | Successful payment        |
+| 4000 0000 0000 9995 | Declined (insufficient)   |
+| 4000 0000 0000 0002 | Card declined             |
+
+Use any future expiry date, any 3-digit CVC, and any postal code.
+
+---
+
 ## Getting Help
 
 - **Notion Page Issue**: The Notion page you shared requires authentication. Please export it as Markdown or make it publicly accessible to integrate your existing content.
