@@ -63,3 +63,19 @@ Thread: https://ampcode.com/threads/T-019ba702-4e2c-705d-9782-5b9ef959f02b
   - localStorage key uses 'soc_' prefix for State of Clarity namespace
   - isValidReadingLevel type guard ensures type safety when reading from URL/localStorage
 ---
+
+## 2026-01-10 - US-004
+Thread: https://ampcode.com/threads/T-019ba705-971e-778d-83e9-3d0c6cae1f59
+- Added summary section that reads from brief.summaries[activeLevel]
+- Implemented 200ms fade transition using animate-fade-in class with key={activeLevel}
+- Added max-width: 65ch inline style for readable line length
+- Added leading-relaxed class for readable line height
+- Added fade-in keyframes and animation to tailwind.config.ts
+- **Files changed:**
+  - app/brief/[id]/page.tsx
+  - tailwind.config.ts
+- **Learnings for future iterations:**
+  - Tailwind arbitrary values like max-w-[65ch] may not work in all contexts; use inline style as fallback
+  - Use key={value} on elements to trigger re-mounting for CSS animations
+  - The animate-fade-in class triggers when component key changes
+---

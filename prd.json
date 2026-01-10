@@ -62,8 +62,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Summary section displays content from brief.summaries[activeLevel], fade-in animation via key prop, max-width 65ch applied with inline style."
     },
     {
       "id": "US-005",
