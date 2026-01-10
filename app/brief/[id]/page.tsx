@@ -22,6 +22,7 @@ import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
 import type { ReadingLevel } from "@/lib/supabase/client";
 import { ReadingLevelSelector } from "@/app/components/ReadingLevelSelector";
 import { StructuredDataSections } from "@/app/components/StructuredDataSections";
+import { NarrativeSection } from "@/app/components/NarrativeSection";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -276,13 +277,10 @@ export default function BriefPage() {
             {/* Narrative Analysis */}
             <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-bold mb-4">Narrative Analysis</h2>
-              <div className="prose prose-clarity max-w-none">
-                {brief.narrative.split("\n\n").map((paragraph: string, i: number) => (
-                  <p key={i} className="mb-4 text-base leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              <NarrativeSection
+                narrative={brief.narrative}
+                sources={brief.sources}
+              />
             </section>
 
             {/* Structured Data Sections */}
@@ -378,9 +376,10 @@ export default function BriefPage() {
               </h3>
 
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {(brief.sources as { id: string; url: string; title: string; author: string; publication_date: string; political_lean: string; source_type: string }[]).map((source) => (
+                {(brief.sources as { id: string; url: string; title: string; author: string; publication_date: string; political_lean: string; source_type: string }[]).map((source, index) => (
                   <a
                     key={source.id}
+                    id={`source-${index + 1}`}
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
