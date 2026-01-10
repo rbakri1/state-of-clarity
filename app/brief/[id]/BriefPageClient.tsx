@@ -101,7 +101,7 @@ export default function BriefPageClient() {
       <ReadingProgressBar contentSelector="[data-brief-content]" />
       
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50">
+      <header className="border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50 print:hidden">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
@@ -133,12 +133,16 @@ export default function BriefPageClient() {
             <h1 className="text-3xl sm:text-4xl font-bold leading-tight">{brief.question}</h1>
             <button
               onClick={() => setIsClarityModalOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-sm shrink-0 hover:opacity-90 transition cursor-pointer ${getClarityScoreColorClass(brief.clarity_score)}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-sm shrink-0 hover:opacity-90 transition cursor-pointer print:hidden ${getClarityScoreColorClass(brief.clarity_score)}`}
               aria-label="View clarity score breakdown"
             >
               <Sparkles className="w-4 h-4" />
               <span>{brief.clarity_score}/10</span>
             </button>
+            {/* Print-only clarity score display */}
+            <span className="hidden print:inline-block text-sm font-medium text-gray-600 shrink-0">
+              Clarity Score: {brief.clarity_score}/10
+            </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -163,7 +167,7 @@ export default function BriefPageClient() {
         </section>
 
         {/* Reading Level Selector */}
-        <section className="mb-10">
+        <section className="mb-10 print:hidden">
           <ReadingLevelSelector
             level={activeLevel}
             onLevelChange={handleLevelChange}
@@ -208,7 +212,7 @@ export default function BriefPageClient() {
         </section>
 
         {/* Feedback Section */}
-        <section className="pt-8 border-t border-gray-200 dark:border-gray-700">
+        <section className="pt-8 border-t border-gray-200 dark:border-gray-700 print:hidden">
           <h2 className="text-xl font-bold mb-4">Help Improve This Brief</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Found an issue or have a suggestion? Your feedback helps make

@@ -48,7 +48,7 @@ function SourceCard({ source, index }: { source: Source; index: number }) {
   return (
     <div
       id={`source-${index + 1}`}
-      className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 transition-shadow hover:shadow-md"
+      className="source-card p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 transition-shadow hover:shadow-md print:bg-white print:border-gray-300"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-start gap-3">

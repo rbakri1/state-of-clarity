@@ -71,6 +71,7 @@ export function CollapsibleSection({
         </svg>
       </button>
       <div
+        data-collapsible-content
         style={{
           height: contentHeight,
           transition: "height 200ms ease-out",

@@ -78,8 +78,9 @@ export function ReadingProgressBar({ contentSelector }: ReadingProgressBarProps)
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-[60] h-[3px] bg-gray-200/50 dark:bg-gray-800/50"
+      className="fixed top-0 left-0 right-0 z-[60] h-[3px] bg-gray-200/50 dark:bg-gray-800/50 print:hidden"
       role="progressbar"
+      data-reading-progress
       aria-valuenow={Math.round(progress)}
       aria-valuemin={0}
       aria-valuemax={100}
