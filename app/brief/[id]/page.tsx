@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import {
   Sparkles,
   ChevronDown,
@@ -20,10 +20,61 @@ import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
 import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
 
 import type { ReadingLevel } from "@/lib/supabase/client";
+import { ReadingLevelSelector } from "@/app/components/ReadingLevelSelector";
+
+const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
+
+function isValidReadingLevel(level: string | null): level is ReadingLevel {
+  return level === "simple" || level === "standard" || level === "advanced";
+}
 
 export default function BriefPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // Initialize level from URL, then localStorage, then default to 'standard'
+  const getInitialLevel = useCallback((): ReadingLevel => {
+    const urlLevel = searchParams.get("level");
+    if (isValidReadingLevel(urlLevel)) {
+      return urlLevel;
+    }
+    if (typeof window !== "undefined") {
+      const storedLevel = localStorage.getItem(READING_LEVEL_STORAGE_KEY);
+      if (isValidReadingLevel(storedLevel)) {
+        return storedLevel;
+      }
+    }
+    return "standard";
+  }, [searchParams]);
+
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("standard");
+
+  // Sync URL to state on mount
+  useEffect(() => {
+    const initialLevel = getInitialLevel();
+    setActiveLevel(initialLevel);
+    
+    // Sync URL if it doesn't match the determined level
+    const urlLevel = searchParams.get("level");
+    if (urlLevel !== initialLevel) {
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.set("level", initialLevel);
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+    }
+  }, []);
+
+  const handleLevelChange = useCallback((level: ReadingLevel) => {
+    setActiveLevel(level);
+    
+    // Update URL without page reload
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("level", level);
+    router.replace(`?${newParams.toString()}`, { scroll: false });
+    
+    // Store in localStorage
+    localStorage.setItem(READING_LEVEL_STORAGE_KEY, level);
+  }, [searchParams, router]);
   const [expandedSections, setExpandedSections] = useState({
     posit: true,
     definitions: true,
@@ -48,12 +99,6 @@ export default function BriefPage() {
       [section]: !prev[section],
     }));
   };
-
-  const readingLevels = [
-    { key: "simple" as const, label: "Simple", description: "Easy to understand" },
-    { key: "standard" as const, label: "Standard", description: "Balanced detail" },
-    { key: "advanced" as const, label: "Advanced", description: "Full depth" },
-  ];
 
   const getClarityScoreClass = (score: number) => {
     if (score >= 8) return "high";
@@ -264,21 +309,11 @@ export default function BriefPage() {
               </h2>
 
               {/* Reading Level Selector */}
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                {readingLevels.map((level) => (
-                  <button
-                    key={level.key}
-                    onClick={() => setActiveLevel(level.key)}
-                    className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
-                      activeLevel === level.key
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    <div className="text-sm">{level.label}</div>
-                    <div className="text-xs opacity-75">{level.description}</div>
-                  </button>
-                ))}
+              <div className="mb-6">
+                <ReadingLevelSelector
+                  level={activeLevel}
+                  onLevelChange={handleLevelChange}
+                />
               </div>
 
               {/* Active Summary */}
