@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { CreditBalance } from "./components/CreditBalance";
+import { LowBalanceWarning } from "./components/LowBalanceWarning";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -104,6 +105,11 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Low Balance Warning */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <LowBalanceWarning />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">

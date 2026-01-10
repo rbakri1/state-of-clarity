@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { LowBalanceWarning } from "@/app/components/LowBalanceWarning";
 
 // Import sample briefs (in production, this would come from API)
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
@@ -97,6 +98,9 @@ export default function BriefPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Low Balance Warning */}
+        <LowBalanceWarning className="mb-6" />
+
         {/* Brief Header */}
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">

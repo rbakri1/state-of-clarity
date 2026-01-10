@@ -169,3 +169,16 @@ Thread: https://ampcode.com/threads/T-019ba6ba-fedd-7423-bda5-159fd449e600
   - Stripe session.metadata contains user_id, package_id, credits from checkout creation
   - Calculate expiry date client-side (12 months from now) rather than storing/retrieving
 ---
+
+## 2026-01-10 - US-012
+Thread: https://ampcode.com/threads/T-019ba6be-0471-748f-af8a-b519cdbda010
+- Created /app/credits/history/page.tsx - transaction history with pagination
+- Created /app/api/credits/history/route.ts - fetches transactions with pagination
+- Table displays: date, type (with color-coded badges), amount (+/-), description
+- Links usage transactions to /brief/[id] if brief_id exists
+- Pagination shows when >20 transactions (page size 20)
+- **Learnings for future iterations:**
+  - Follow same API route pattern: createServerSupabaseClient, check user, cast types
+  - Use color-coded badges for transaction types (green=purchase, blue=usage, amber=refund, red=expiry)
+  - Pagination needs both count query and range query to Supabase
+---
