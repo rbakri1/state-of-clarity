@@ -94,3 +94,20 @@ Thread: https://ampcode.com/threads/T-019ba6ad-554a-72ea-8ebd-a1e1d0f3867d
   - Credits value stored as string in metadata, needs parseInt
   - credit_batches record is created inside addCredits(), no separate call needed
 ---
+
+## 2026-01-10 - US-007
+Thread: https://ampcode.com/threads/T-019ba6ae-e8dd-702b-a60f-07c2b97434f0
+- Created migration 010_add_payment_retries_table.sql with payment_retries table
+- Added PaymentRetryStatus type and payment_retries types to Database interface
+- Created lib/services/payment-retry-service.ts with:
+  - createPaymentRetry(), handlePaymentFailure(), markRetrySucceeded()
+  - processRetry(), processAllPendingRetries() for scheduled retry processing
+  - getUserPendingRetries() for UI display
+- Updated webhook to handle payment_intent.payment_failed and payment_intent.succeeded events
+- Retry schedule: 1 hour, 6 hours, 24 hours (3 attempts max)
+- After 3 failures, logs notification placeholder
+- **Learnings for future iterations:**
+  - Follow same pattern as credit-service.ts for helper functions with (supabase as any) cast
+  - Payment retries need both webhook handlers and a scheduled job (processAllPendingRetries)
+  - Payment intent metadata must include user_id for retry logic to work
+---
