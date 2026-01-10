@@ -150,3 +150,23 @@ Thread: https://ampcode.com/threads/T-019ba728-8716-7321-9cf4-561a7aac094a
   - Use prose class without max-w-none when wanting to apply custom max-width
   - Source ids follow pattern source-{index+1} matching citation numbers
 ---
+
+## 2026-01-10 - US-009
+Thread: https://ampcode.com/threads/T-019ba72e-7762-77a1-9112-8f77e8d150b3
+- Created SourcesSection component at app/components/SourcesSection.tsx
+- Component displays all sources numbered (1, 2, 3...) matching inline citation numbers
+- Each source shows: title with external link, author, publisher, date
+- Added type badge (primary/secondary) and political lean badge with color coding
+- Added credibility score with horizontal progress bar
+- Excerpt with truncation at 200 chars and "Show more" toggle
+- Section header shows source count (e.g., "Sources (15)")
+- Each source has id attribute (source-{n}) for scroll-to-citation linking
+- Integrated into brief page after Structured Data section
+- **Files changed:**
+  - app/components/SourcesSection.tsx (new)
+  - app/brief/[id]/page.tsx (integrated SourcesSection)
+- **Learnings for future iterations:**
+  - Source interface includes: id, url, title, author, publication_date, publisher, source_type, political_lean, credibility_score, excerpt
+  - Political lean color coding: left=blue, center-left=sky, center=gray, center-right=orange, right=red
+  - Source type badges: primary=purple, secondary=indigo
+---
