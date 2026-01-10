@@ -182,3 +182,28 @@ Thread: https://ampcode.com/threads/T-019ba6be-0471-748f-af8a-b519cdbda010
   - Use color-coded badges for transaction types (green=purchase, blue=usage, amber=refund, red=expiry)
   - Pagination needs both count query and range query to Supabase
 ---
+
+## 2026-01-10 - US-013
+Thread: https://ampcode.com/threads/T-019ba6c0-44a5-739d-b253-4a2011553ec9
+- Created /app/components/LowBalanceWarning.tsx - dismissible warning banner component
+- Shows amber warning when balance > 0 and balance <= 2 credits
+- Features: dismiss button uses sessionStorage to hide for current session
+- "Top up now" button links to /credits page
+- Integrated into home page (dashboard) and brief/[id] page
+- **Learnings for future iterations:**
+  - LowBalanceWarning uses same /api/credits/balance endpoint as CreditBalance component
+  - Use sessionStorage (not localStorage) for session-only dismissal
+  - Component returns null if balance is 0 (CreditBalance handles that case differently)
+---
+
+## 2026-01-10 - US-014
+Thread: https://ampcode.com/threads/T-019ba6c2-a2f3-711e-b1fd-dabf831db093
+- Verified all acceptance criteria already completed in US-004:
+  - Seed migration 009_seed_credit_packages.sql with 4 packages (Single, Starter, Standard, Pro)
+  - Stripe product/price creation documented in SETUP.md Step 7 Section 3
+  - stripe_price_id placeholders in place
+- Build passes with typecheck
+- **Learnings for future iterations:**
+  - Some stories may duplicate work from earlier stories - verify before implementing
+  - Migration 009 was created as part of US-004 Stripe integration
+---
