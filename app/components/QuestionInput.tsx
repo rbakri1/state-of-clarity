@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Search, Loader2 } from "lucide-react";
 
 interface Suggestion {
@@ -14,10 +14,15 @@ interface QuestionInputProps {
   initialValue?: string;
 }
 
-export default function QuestionInput({
+export interface QuestionInputHandle {
+  focus: () => void;
+  setValue: (value: string) => void;
+}
+
+const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(function QuestionInput({
   onSubmit,
   initialValue = "",
-}: QuestionInputProps) {
+}, ref) {
   const [value, setValue] = useState(initialValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -34,6 +39,19 @@ export default function QuestionInput({
       setValue(initialValue);
     }
   }, [initialValue]);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current?.focus();
+    },
+    setValue: (newValue: string) => {
+      setValue(newValue);
+      // Trigger focus after setting value
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+    },
+  }), []);
 
   // Debounced API call for suggestions
   useEffect(() => {
@@ -230,4 +248,6 @@ export default function QuestionInput({
       )}
     </form>
   );
-}
+});
+
+export default QuestionInput;

@@ -1,13 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
 import TopicCategoriesGrid from "./components/TopicCategoriesGrid";
+import QuestionInput, { QuestionInputHandle } from "./components/QuestionInput";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const questionInputRef = useRef<QuestionInputHandle>(null);
+  const nativeInputRef = useRef<HTMLInputElement>(null);
+
+  const handleQuestionClick = (text: string) => {
+    setQuestion(text);
+    // Focus native input after prefill
+    setTimeout(() => {
+      nativeInputRef.current?.focus();
+    }, 0);
+    // Also call QuestionInput ref if it's being used
+    questionInputRef.current?.setValue(text);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +114,7 @@ export default function Home() {
                 <Search className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
+                ref={nativeInputRef}
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
@@ -120,7 +134,7 @@ export default function Home() {
 
           {/* Topic Categories */}
           <div className="mt-8">
-            <TopicCategoriesGrid onQuestionClick={(text) => setQuestion(text)} />
+            <TopicCategoriesGrid onQuestionClick={handleQuestionClick} />
           </div>
 
           {/* Features */}
