@@ -7,6 +7,7 @@ Started: Sat 10 Jan 2026 03:21:33 +04
 - Types can be defined in /lib/types/ directory as separate modules
 - Quality gate tiers: high (≥8.0), acceptable (6.0-7.9), failed (<6.0)
 - Supabase type workarounds: use `as never` for insert/update, type assertions on .single() results
+- Add index signature `[key: string]: unknown` to interfaces passed to Record<string, unknown> params
 
 ---
 
@@ -151,4 +152,19 @@ Thread: https://ampcode.com/threads/T-019ba525-a008-719b-bf9a-faaad72a1fa1
   - Use lucide-react icons for consistency (AlertCircle, RefreshCw, CreditCard, Lightbulb)
   - Use HTML entities for quotes: &ldquo; &rdquo; and &apos; for apostrophes
   - Follow existing component patterns from QualityBadge.tsx for dark mode styling
+---
+
+## 2026-01-10 - US-011
+Thread: https://ampcode.com/threads/T-019ba52d-64cc-7308-8ea2-21d03449e78d
+- Created langgraph-orchestrator.ts as main brief generation pipeline
+- generateBriefWithQualityGate(): orchestrates research -> generation -> quality gate -> save/refund
+- Pipeline steps: research (gather sources), generation (Claude Sonnet), quality gate (scoring), final actions
+- If publishable: saves brief with quality_warning metadata flag
+- If not publishable: triggers refund via credit-service, adds to retry queue
+- Logs pipeline steps with timing for observability (console for now, agent_execution_logs in US-012)
+- Files changed: lib/agents/langgraph-orchestrator.ts (new)
+- **Learnings for future iterations:**
+  - When passing typed interfaces to Record<string, unknown>, add index signature `[key: string]: unknown`
+  - Pipeline orchestrator should log timing at each step for debugging
+  - Use service role client for database operations that bypass RLS
 ---
