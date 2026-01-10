@@ -142,3 +142,15 @@ Thread: https://ampcode.com/threads/T-019ba857-9cd5-7253-ac33-a4768a9ef8a7
   - This is a shell endpoint - actual data fetching implemented in US-010, US-011, US-012
   - Suggestion interface exported from this file can be imported by other components
 ---
+
+## 2026-01-10 20:45 - US-010
+Thread: https://ampcode.com/threads/T-019ba859-4384-7288-afcc-3c1a5de2064a
+- Added template-based suggestions to /app/api/questions/suggest/route.ts
+- Query question_templates with ILIKE '%query%' pattern
+- Returns matches with source: 'template', templates appear first (highest priority)
+- Limited template results to 3
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - Need explicit type casting for Supabase query results when using select with partial fields: `templates as { question_text: string; category: string }[]`
+  - Clear .next cache with `rm -rf .next` if build manifest errors occur
+---
