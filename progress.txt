@@ -110,3 +110,22 @@ Thread: https://ampcode.com/threads/T-019ba840-57fe-7498-a421-6f5479184656
   - Clean .next cache (rm -rf .next) before running dev server if errors occur
   - Placeholder suggestions use Suggestion interface: { text, source, category }
 ---
+
+## 2026-01-10 20:05 - US-008
+Thread: https://ampcode.com/threads/T-019ba84a-d121-7580-a588-06f009714d95
+- Added keyboard navigation to QuestionInput autocomplete dropdown
+- Added highlightedIndex state to track which suggestion is highlighted
+- Arrow Down/Up moves highlight between suggestions (with bounds checking)
+- Enter selects highlighted suggestion and closes dropdown
+- Escape closes dropdown without selecting
+- Tab closes dropdown (focus moves naturally to submit button)
+- First item highlighted by default when dropdown opens (highlightedIndex reset to 0)
+- Visual highlight uses bg-primary/10 (distinct from hover:bg-gray-100)
+- Mouse hover also updates highlighted index for seamless keyboard/mouse interaction
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Use useCallback with dependencies for keyboard handlers that reference state
+  - Prevent default on Arrow keys to avoid cursor movement in input
+  - Mouse onMouseEnter should sync with highlightedIndex for consistent UX
+  - Production mode (npm start) works better than dev mode when .next cache issues occur
+---
