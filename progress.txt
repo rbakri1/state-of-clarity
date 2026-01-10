@@ -221,3 +221,20 @@ Thread: https://ampcode.com/threads/T-019ba73d-94bb-76b8-bdaf-51dc67695efb
   - Use `renderIcon: () => React.ReactNode` pattern for mixed icon types (Lucide components vs SVG elements)
   - Twitter share URL uses `twitter.com/intent/tweet` with text and url params
 ---
+
+## 2026-01-10 - US-013
+Thread: https://ampcode.com/threads/T-019ba750-daa5-7337-9b09-3aab162dfe6c
+- Implemented UTM parameter tracking for all social share links
+- Added addUtmParams() helper function to append utm_source and utm_medium=social
+- Added getShareUrl() function to generate platform-specific share URLs
+- All platforms now include proper UTM tracking: Twitter, LinkedIn, Facebook, Reddit, Email
+- Twitter uses title + excerpt (first 100 chars) with URL
+- Reddit uses title as suggested title
+- Email includes full excerpt in body with link
+- All links open in new tabs (target="_blank")
+- **Files changed:**
+  - app/components/ShareMenu.tsx (added UTM params)
+- **Learnings for future iterations:**
+  - Use URL object constructor to safely add query params without breaking existing params
+  - UTM params: utm_source identifies the platform, utm_medium=social for all social shares
+---
