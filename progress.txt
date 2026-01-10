@@ -114,3 +114,20 @@ Thread: https://ampcode.com/threads/T-019ba710-429b-7358-921b-445361ab8409
   - For mobile-responsive tables, use min-width on table element with overflow-x: auto wrapper
   - Historical summary is optional - component conditionally renders it when present in data
 ---
+
+## 2026-01-10 - US-007
+Thread: https://ampcode.com/threads/T-019ba71d-40f4-70aa-a78c-31934b3e5295
+- Created CitationTooltip component at app/components/CitationTooltip.tsx
+- Component displays source title, publisher, date, political lean badge, and credibility score
+- Political lean uses color coding: left=blue, center=gray, right=red (with gradients for center-left, center-right)
+- Tooltip appears on hover with 100ms delay using setTimeout
+- Smart positioning: adjusts to show above or below based on viewport space
+- Also fixed StructuredDataSections.tsx to handle both policy formats (pros/cons and detail/justification/case_studies)
+- **Files changed:**
+  - app/components/CitationTooltip.tsx (new)
+  - app/components/StructuredDataSections.tsx (updated Policy interface and rendering)
+- **Learnings for future iterations:**
+  - Sample briefs have different policy data formats - some have pros/cons, others have detail/justification/case_studies
+  - Use optional chaining (policy.pros?.map) when data fields might be undefined
+  - For tooltip positioning, use getBoundingClientRect() and window.innerHeight to calculate available space
+---
