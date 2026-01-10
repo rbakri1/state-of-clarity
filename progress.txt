@@ -188,3 +188,19 @@ Thread: https://ampcode.com/threads/T-019ba534-886f-754f-a485-d34fcee7d104
   - Each pipeline run gets a unique executionId via uuid for tracing
   - Metrics service provides QualityGateMetricsSummary with pass rate, avg attempts, refund rate
 ---
+
+## 2026-01-10 - US-013
+Thread: https://ampcode.com/threads/T-019ba539-d825-740b-999c-11dbb8c36659
+- Created test-quality-gate.ts script with 24 comprehensive tests
+- Scenario 1: Tested score 8.5 → HIGH tier, publishable=true, warningBadge=false, refundRequired=false
+- Scenario 2: Tested score 7.2 → ACCEPTABLE tier, publishable=true, warningBadge=true, refundRequired=false
+- Scenario 3: Tested score 5.5 → FAILED tier, publishable=false, warningBadge=false, refundRequired=true
+- Added boundary condition tests (8.0, 7.99, 6.0, 5.99)
+- Tested retry queue param generation via generateRetryParams() for different failure reasons
+- All 24 tests pass, typecheck passes
+- Files changed: test-quality-gate.ts (new)
+- **Learnings for future iterations:**
+  - Tests can use pure functions (getQualityTier, createQualityGateResult, generateRetryParams) without database
+  - Boundary conditions are important: test exact thresholds (8.0, 6.0) and just below (7.99, 5.99)
+  - Run tests with `npx tsx test-quality-gate.ts`
+---
