@@ -80,3 +80,17 @@ Thread: https://ampcode.com/threads/T-019ba6aa-40f6-724e-b40b-1a46a6899d64
   - Use type casting with `as CreditPackage | null` to work around Supabase's `never` type inference issue
   - Payment method types only `['card']` is used; Apple Pay and Google Pay are enabled via Stripe Dashboard configuration, not via API
 ---
+
+## 2026-01-10 - US-006
+Thread: https://ampcode.com/threads/T-019ba6ad-554a-72ea-8ebd-a1e1d0f3867d
+- Created /app/api/webhooks/stripe/route.ts
+- Verifies webhook signature using STRIPE_WEBHOOK_SECRET
+- Handles checkout.session.completed event
+- Extracts user_id, package_id, and credits from session metadata
+- Adds credits to user via addCredits() which creates credit_batches with 12-month expiry
+- Returns { received: true } on success
+- **Learnings for future iterations:**
+  - Use getStripe() directly for webhook signature verification, not the proxy object
+  - Credits value stored as string in metadata, needs parseInt
+  - credit_batches record is created inside addCredits(), no separate call needed
+---

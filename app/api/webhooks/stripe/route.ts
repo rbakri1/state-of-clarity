@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe/client';
 import { addCredits } from '@/lib/services/credit-service';
+import { handlePaymentFailure, markRetrySucceeded } from '@/lib/services/payment-retry-service';
 import type Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -42,6 +43,12 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed':
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
         break;
+      case 'payment_intent.payment_failed':
+        await handlePaymentIntentFailed(event.data.object as Stripe.PaymentIntent);
+        break;
+      case 'payment_intent.succeeded':
+        await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+        break;
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -79,4 +86,25 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   await addCredits(userId, credits, 'purchase', stripePaymentId, expiresAt);
 
   console.log(`Added ${credits} credits to user ${userId} (package: ${packageId}, payment: ${stripePaymentId})`);
+}
+
+async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
+  const userId = paymentIntent.metadata?.user_id;
+  const packageId = paymentIntent.metadata?.package_id || null;
+
+  if (!userId) {
+    console.log('Payment intent failed without user_id metadata, skipping retry logic');
+    return;
+  }
+
+  const errorMessage = paymentIntent.last_payment_error?.message || 'Payment failed';
+
+  await handlePaymentFailure(userId, paymentIntent.id, packageId, errorMessage);
+
+  console.log(`Payment failed for user ${userId}, payment intent ${paymentIntent.id}: ${errorMessage}`);
+}
+
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  await markRetrySucceeded(paymentIntent.id);
+  console.log(`Payment intent succeeded: ${paymentIntent.id}`);
 }

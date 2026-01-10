@@ -253,12 +253,46 @@ export interface Database {
           description?: string | null;
         };
       };
+      payment_retries: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_payment_intent_id: string;
+          attempts: number;
+          last_attempt_at: string | null;
+          next_retry_at: string | null;
+          status: PaymentRetryStatus;
+          package_id: string | null;
+          error_message: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          stripe_payment_intent_id: string;
+          attempts?: number;
+          last_attempt_at?: string | null;
+          next_retry_at?: string | null;
+          status?: PaymentRetryStatus;
+          package_id?: string | null;
+          error_message?: string | null;
+        };
+        Update: {
+          attempts?: number;
+          last_attempt_at?: string | null;
+          next_retry_at?: string | null;
+          status?: PaymentRetryStatus;
+          error_message?: string | null;
+        };
+      };
     };
   };
 }
 
 // Credit transaction types
 export type CreditTransactionType = "purchase" | "usage" | "refund" | "expiry" | "bonus";
+
+// Payment retry status types
+export type PaymentRetryStatus = "pending" | "retrying" | "succeeded" | "failed";
 
 /**
  * Browser Client
