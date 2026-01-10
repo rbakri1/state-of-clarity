@@ -95,3 +95,22 @@ Thread: https://ampcode.com/threads/T-019ba70c-8039-7438-9205-dc5b6c579d03
   - For height animations, set height explicitly via style with transition, not Tailwind class
   - Use aria-expanded for accessibility on collapsible buttons
 ---
+
+## 2026-01-10 - US-006
+Thread: https://ampcode.com/threads/T-019ba710-429b-7358-921b-445361ab8409
+- Created StructuredDataSections component at app/components/StructuredDataSections.tsx
+- Component displays 5 CollapsibleSections: Definitions, Historical Summary, Factors, Policy Suggestions, Consequences
+- Smart defaults: Definitions and Factors expanded, others collapsed
+- Each section renders appropriate table with proper formatting
+- Tables have horizontal scroll on mobile (min-width with overflow-x: auto)
+- Replaced inline structured data sections in brief page with the new component
+- Modified CollapsibleSection to allow horizontal scrolling (removed overflow-hidden from container)
+- **Files changed:**
+  - app/components/StructuredDataSections.tsx (new)
+  - app/components/CollapsibleSection.tsx (modified for overflow)
+  - app/brief/[id]/page.tsx (integrated StructuredDataSections)
+- **Learnings for future iterations:**
+  - CollapsibleSection's overflow-hidden on container blocks child horizontal scrolling; use overflowY: hidden, overflowX: auto on the content div instead
+  - For mobile-responsive tables, use min-width on table element with overflow-x: auto wrapper
+  - Historical summary is optional - component conditionally renders it when present in data
+---
