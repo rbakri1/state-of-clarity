@@ -277,3 +277,39 @@ Thread: https://ampcode.com/threads/T-019ba756-a5a7-7758-9392-fa9c995bab75
   - Use (supabase as any) type assertion for tables not fully typed in schema
   - Optimistic UI: save previous state, update immediately, revert on error
 ---
+
+## 2026-01-10 - US-016
+Thread: https://ampcode.com/threads/T-019ba75b-23ba-754b-a1cc-a5808bec3886
+- Created ReadingProgressBar component at app/components/ReadingProgressBar.tsx
+- Component tracks scroll position using requestAnimationFrame for smooth performance
+- Uses contentSelector prop to target main content area (excludes header/footer)
+- Styled with 3px height, bg-primary brand color, fixed position at z-60 (above header)
+- Added aria attributes (role="progressbar", aria-valuenow, aria-valuemin, aria-valuemax)
+- Integrated into BriefPageClient with data-brief-content attribute on content container
+- Verified in browser: progress bar tracks 0% at top, ~50% at middle, 100% at bottom
+- **Files changed:**
+  - app/components/ReadingProgressBar.tsx (new)
+  - app/brief/[id]/BriefPageClient.tsx (import and integrate component)
+- **Learnings for future iterations:**
+  - Use requestAnimationFrame for scroll handlers to avoid jank
+  - Use z-60 for elements that need to be above the header (z-50)
+  - contentSelector approach allows excluding header/footer from progress calculation
+---
+
+## 2026-01-10 - US-017
+Thread: https://ampcode.com/threads/T-019ba75e-4bf4-719a-b935-a872fa1fba95
+- Reorganized BriefPageClient to use single-column centered layout
+- Changed from 3-column grid (with sidebar) to simple max-w-3xl (768px) centered layout
+- Reordered sections: Header → ReadingLevelSelector → Summary → StructuredData → Narrative → Sources → Feedback
+- Removed sidebar containing Clarity Score Breakdown and Sources preview (users now view score via modal and sources inline)
+- Added generous mb-12 spacing between main sections
+- Removed unused POSIT and Foundational Principles collapsible sections from layout
+- Changed header container from max-w-7xl to max-w-3xl to match content width
+- Changed main content padding from py-8 to py-12 for more breathing room
+- **Files changed:**
+  - app/brief/[id]/BriefPageClient.tsx (major layout reorganization)
+- **Learnings for future iterations:**
+  - max-w-3xl in Tailwind equals ~768px which is optimal for reading content
+  - Single-column layouts are cleaner for article-like content
+  - mb-12 provides good section separation without excessive whitespace
+---

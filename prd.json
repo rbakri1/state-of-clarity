@@ -268,8 +268,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Created ReadingProgressBar component with 3px height, bg-primary color, fixed top position with z-60, contentSelector prop to exclude header/footer. Uses requestAnimationFrame for smooth scroll tracking."
     },
     {
       "id": "US-017",
@@ -285,8 +285,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Reorganized BriefPageClient to use single-column max-w-3xl (768px) centered layout. Removed 3-column grid sidebar. Sections flow: Header → ReadingLevelSelector → Summary → StructuredData → Narrative → Sources → Feedback. Added mb-12 spacing between sections."
     },
     {
       "id": "US-018",
