@@ -17,8 +17,11 @@ interface Factor {
 
 interface Policy {
   name: string;
-  pros: string[];
-  cons: string[];
+  detail?: string;
+  justification?: string;
+  case_studies?: string[];
+  pros?: string[];
+  cons?: string[];
   evidence?: string[];
 }
 
@@ -218,47 +221,86 @@ export function StructuredDataSections({
           defaultExpanded={false}
         >
           <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <table className="min-w-[560px] text-sm border-collapse">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-2 px-3 font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap" style={{ width: '150px' }}>
-                    Policy
-                  </th>
-                  <th className="text-left py-2 px-3 font-semibold text-gray-900 dark:text-gray-100">
-                    Pros
-                  </th>
-                  <th className="text-left py-2 px-3 font-semibold text-gray-900 dark:text-gray-100">
-                    Cons
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+            {/* Render detailed policy format (with detail, justification, case_studies) */}
+            {policies[0]?.detail ? (
+              <div className="space-y-4">
                 {policies.map((policy, i) => (
-                  <tr
+                  <div
                     key={i}
-                    className="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700"
                   >
-                    <td className="py-3 px-3 align-top font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                       {policy.name}
-                    </td>
-                    <td className="py-3 px-3 align-top text-green-700 dark:text-green-400">
-                      <ul className="list-disc list-inside space-y-1">
-                        {policy.pros.map((pro, j) => (
-                          <li key={j}>{pro}</li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td className="py-3 px-3 align-top text-red-700 dark:text-red-400">
-                      <ul className="list-disc list-inside space-y-1">
-                        {policy.cons.map((con, j) => (
-                          <li key={j}>{con}</li>
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
+                    </h4>
+                    {policy.detail && (
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                        {policy.detail}
+                      </p>
+                    )}
+                    {policy.justification && (
+                      <p className="text-sm text-muted-foreground italic mb-2">
+                        <strong>Justification:</strong> {policy.justification}
+                      </p>
+                    )}
+                    {policy.case_studies && policy.case_studies.length > 0 && (
+                      <div className="mt-2">
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          Case Studies:
+                        </span>
+                        <ul className="list-disc list-inside space-y-1 mt-1 text-sm text-gray-600 dark:text-gray-400">
+                          {policy.case_studies.map((study, j) => (
+                            <li key={j}>{study}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ) : (
+              /* Render simple pros/cons format */
+              <table className="min-w-[560px] text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-2 px-3 font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap" style={{ width: '150px' }}>
+                      Policy
+                    </th>
+                    <th className="text-left py-2 px-3 font-semibold text-gray-900 dark:text-gray-100">
+                      Pros
+                    </th>
+                    <th className="text-left py-2 px-3 font-semibold text-gray-900 dark:text-gray-100">
+                      Cons
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {policies.map((policy, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    >
+                      <td className="py-3 px-3 align-top font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                        {policy.name}
+                      </td>
+                      <td className="py-3 px-3 align-top text-green-700 dark:text-green-400">
+                        <ul className="list-disc list-inside space-y-1">
+                          {policy.pros?.map((pro, j) => (
+                            <li key={j}>{pro}</li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="py-3 px-3 align-top text-red-700 dark:text-red-400">
+                        <ul className="list-disc list-inside space-y-1">
+                          {policy.cons?.map((con, j) => (
+                            <li key={j}>{con}</li>
+                          ))}
+                        </ul>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </CollapsibleSection>
       )}
