@@ -7,6 +7,7 @@ Started: Sat 10 Jan 2026 10:27:18 +04
 - RLS policies: users can SELECT their own, service_role can manage all
 - Credit amounts: positive = purchase/refund/bonus, negative = usage/expiry
 - Supabase chained queries cause TypeScript `never` inference issues - use `(supabase as any)` for update/insert operations with helper functions
+- Stripe client in lib/stripe/client.ts, use `apiVersion: '2025-12-15.clover'` for current Stripe SDK
 
 ---
 
@@ -49,4 +50,16 @@ Thread: https://ampcode.com/threads/T-019ba6a5-59bb-741e-9999-0c321fd1256d
   - FIFO deduction was already implemented in deductCredits() from US-002
   - Batch expiry set credits_remaining to 0 and deducts from user_credits balance
   - Expiry transactions logged with type 'expiry' and negative amount
+---
+
+## 2026-01-10 - US-004
+Thread: https://ampcode.com/threads/T-019ba6a7-80f8-7326-8bfb-6017e5fc0622
+- Installed stripe and @stripe/stripe-js packages
+- Created lib/stripe/client.ts with server-side Stripe client
+- Added STRIPE_SECRET_KEY, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET to .env.example
+- Created migration 009_seed_credit_packages.sql with 4 packages
+- Added comprehensive Stripe setup documentation to SETUP.md
+- **Learnings for future iterations:**
+  - Use `apiVersion: '2025-12-15.clover'` for current Stripe SDK (API version must match installed package)
+  - Also needed to install @supabase/ssr to fix pre-existing type error
 ---
