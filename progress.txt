@@ -33,3 +33,17 @@ Thread: https://ampcode.com/threads/T-019ba823-5349-7756-8054-dbb3b62768f6
   - Seed files should use DELETE before INSERT to allow re-seeding
   - Use single quotes for SQL strings, double-escape apostrophes with ''
 ---
+
+## 2026-01-10 18:25 - US-003
+Thread: https://ampcode.com/threads/T-019ba825-9a2a-7338-a3bd-3452a3d32dfa
+- Created TopicCategoriesGrid.tsx component with 10 policy topic cards
+- Used lucide-react icons: DollarSign, Heart, Leaf, GraduationCap, Shield, Users, Home, Scale, Cpu, Landmark
+- Responsive grid: grid-cols-2 (mobile), sm:grid-cols-3 (tablet), lg:grid-cols-5 (desktop)
+- Cards have hover effect with scale and border color change
+- Integrated into homepage below the search form
+- Files changed: app/components/TopicCategoriesGrid.tsx, app/page.tsx
+- **Learnings for future iterations:**
+  - Component should be created in app/components/ directory (created new directory)
+  - Use props for onCategoryClick and selectedCategory to enable category selection in future stories
+  - Next.js dev server can conflict with build - stop dev server before running npm run build
+---
