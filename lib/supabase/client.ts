@@ -172,6 +172,115 @@ export interface Database {
           error_message?: string | null;
         };
       };
+      brief_votes: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          vote_type: "up" | "down";
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          vote_type: "up" | "down";
+        };
+        Update: {
+          vote_type?: "up" | "down";
+        };
+      };
+      source_suggestions: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          url: string;
+          title: string | null;
+          publisher: string | null;
+          political_lean:
+            | "left"
+            | "center-left"
+            | "center"
+            | "center-right"
+            | "right"
+            | "unknown"
+            | null;
+          notes: string | null;
+          status: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result: any | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          url: string;
+          title?: string | null;
+          publisher?: string | null;
+          political_lean?:
+            | "left"
+            | "center-left"
+            | "center"
+            | "center-right"
+            | "right"
+            | "unknown"
+            | null;
+          notes?: string | null;
+        };
+        Update: {
+          status?: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result?: any;
+        };
+      };
+      error_reports: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          error_type: "factual" | "outdated" | "misleading" | "other";
+          description: string;
+          location_hint: string | null;
+          status: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result: any | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          error_type: "factual" | "outdated" | "misleading" | "other";
+          description: string;
+          location_hint?: string | null;
+        };
+        Update: {
+          status?: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result?: any;
+        };
+      };
+      edit_proposals: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          section: "summary" | "narrative" | "structured_data";
+          original_text: string;
+          proposed_text: string;
+          rationale: string;
+          status: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result: any | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          section: "summary" | "narrative" | "structured_data";
+          original_text: string;
+          proposed_text: string;
+          rationale: string;
+        };
+        Update: {
+          status?: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result?: any;
+        };
+      };
     };
   };
 }
