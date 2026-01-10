@@ -206,7 +206,6 @@ export async function refundCredits(
   reason: string
 ): Promise<void> {
   const supabase = getClient();
-  const now = new Date().toISOString();
 
   const { data, error: fetchError } = await supabase
     .from("user_credits")
@@ -243,4 +242,126 @@ export async function refundCredits(
     description: `Refund: ${reason}`,
     brief_id: briefId,
   });
+}
+
+/**
+ * Expire old credits (batches past their expiry date)
+ * This should be run periodically (e.g., via cron job)
+ */
+export async function expireOldCredits(): Promise<{ usersAffected: number; creditsExpired: number }> {
+  const supabase = getClient();
+  const now = new Date().toISOString();
+
+  const { data: expiredBatches, error: fetchError } = await supabase
+    .from("credit_batches")
+    .select("id, user_id, credits_remaining")
+    .gt("credits_remaining", 0)
+    .lt("expires_at", now);
+
+  if (fetchError) {
+    throw new Error(`Failed to fetch expired batches: ${fetchError.message}`);
+  }
+
+  const batches = expiredBatches as Pick<CreditBatch, "id" | "user_id" | "credits_remaining">[] | null;
+  
+  if (!batches || batches.length === 0) {
+    return { usersAffected: 0, creditsExpired: 0 };
+  }
+
+  const userCreditsToExpire = new Map<string, number>();
+  
+  for (const batch of batches) {
+    const current = userCreditsToExpire.get(batch.user_id) ?? 0;
+    userCreditsToExpire.set(batch.user_id, current + batch.credits_remaining);
+    
+    await updateCreditBatch(batch.id, 0);
+  }
+
+  for (const [userId, expiredAmount] of userCreditsToExpire) {
+    const currentBalance = await getBalance(userId);
+    const newBalance = Math.max(0, currentBalance - expiredAmount);
+    await updateUserCredits(userId, newBalance);
+
+    await insertCreditTransaction({
+      user_id: userId,
+      amount: -expiredAmount,
+      transaction_type: "expiry",
+      description: `${expiredAmount} credits expired`,
+    });
+  }
+
+  return {
+    usersAffected: userCreditsToExpire.size,
+    creditsExpired: Array.from(userCreditsToExpire.values()).reduce((a, b) => a + b, 0),
+  };
+}
+
+/**
+ * Get users with credits expiring soon (within 30 days)
+ * Placeholder for expiry warning notification system
+ */
+export async function getExpiringCreditsWarnings(): Promise<
+  Array<{ userId: string; creditsExpiring: number; expiresAt: Date }>
+> {
+  const supabase = getClient();
+  const now = new Date();
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+  const { data, error } = await supabase
+    .from("credit_batches")
+    .select("user_id, credits_remaining, expires_at")
+    .gt("credits_remaining", 0)
+    .gt("expires_at", now.toISOString())
+    .lt("expires_at", thirtyDaysFromNow.toISOString())
+    .order("expires_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch expiring batches: ${error.message}`);
+  }
+
+  const batches = data as Pick<CreditBatch, "user_id" | "credits_remaining" | "expires_at">[] | null;
+
+  if (!batches || batches.length === 0) {
+    return [];
+  }
+
+  const userWarnings = new Map<string, { creditsExpiring: number; expiresAt: Date }>();
+
+  for (const batch of batches) {
+    const existing = userWarnings.get(batch.user_id);
+    const batchExpiry = new Date(batch.expires_at);
+    
+    if (existing) {
+      existing.creditsExpiring += batch.credits_remaining;
+      if (batchExpiry < existing.expiresAt) {
+        existing.expiresAt = batchExpiry;
+      }
+    } else {
+      userWarnings.set(batch.user_id, {
+        creditsExpiring: batch.credits_remaining,
+        expiresAt: batchExpiry,
+      });
+    }
+  }
+
+  return Array.from(userWarnings.entries()).map(([userId, data]) => ({
+    userId,
+    ...data,
+  }));
+}
+
+/**
+ * Send expiry warning notifications (placeholder)
+ * TODO: Integrate with actual notification system (email, in-app, etc.)
+ */
+export async function sendExpiryWarningNotifications(): Promise<void> {
+  const warnings = await getExpiringCreditsWarnings();
+  
+  for (const warning of warnings) {
+    console.log(
+      `[NOTIFICATION PLACEHOLDER] User ${warning.userId}: ` +
+      `${warning.creditsExpiring} credits expiring on ${warning.expiresAt.toISOString().split('T')[0]}`
+    );
+  }
 }

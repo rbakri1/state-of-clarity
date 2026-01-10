@@ -6,6 +6,7 @@ Started: Sat 10 Jan 2026 10:27:18 +04
 - Use `IF NOT EXISTS` for migrations to make them idempotent
 - RLS policies: users can SELECT their own, service_role can manage all
 - Credit amounts: positive = purchase/refund/bonus, negative = usage/expiry
+- Supabase chained queries cause TypeScript `never` inference issues - use `(supabase as any)` for update/insert operations with helper functions
 
 ---
 
@@ -22,4 +23,19 @@ Thread: https://ampcode.com/threads/T-019ba696-7eeb-75ea-9215-46281cbf853c
   - The prd.json and progress.txt get stashed when switching branches - be careful with git stash/checkout
   - Pre-existing type errors need to be fixed before build passes
   - Database types live in client.ts on this branch (not a separate types.ts)
+---
+
+## 2026-01-10 - US-002
+Thread: https://ampcode.com/threads/T-019ba69b-c5a0-72d7-8a88-fdebe47f437f
+- Created lib/services/credit-service.ts with 5 main functions:
+  - getBalance(userId): Get user's credit balance
+  - hasCredits(userId, amount): Check if user has enough credits
+  - deductCredits(userId, amount, briefId, description): Deduct from oldest non-expired batches (FIFO)
+  - addCredits(userId, amount, transactionType, stripePaymentId, expiresAt): Add credits with expiry tracking
+  - refundCredits(userId, amount, briefId, reason): Refund credits for failed briefs
+- All operations create transaction records for audit trail
+- **Learnings for future iterations:**
+  - Supabase v2 with TypeScript has `never` type inference bugs on chained queries
+  - Solution: wrap update/insert in helper functions using `(supabase as any)` cast
+  - Service follows pattern: getClient() returns typed client, helper functions do mutations
 ---
