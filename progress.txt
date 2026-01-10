@@ -6,6 +6,7 @@ Started: Sat 10 Jan 2026 18:00:00 +04
 - SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
 - When adding tables, also add RLS policies and enable RLS
 - Use explicit type annotations in React map callbacks to avoid implicit any errors
+- Use createBrowserClient from lib/supabase/browser.ts in client components (NOT client.ts which imports next/headers)
 
 ---
 
@@ -46,4 +47,19 @@ Thread: https://ampcode.com/threads/T-019ba825-9a2a-7338-a3bd-3452a3d32dfa
   - Component should be created in app/components/ directory (created new directory)
   - Use props for onCategoryClick and selectedCategory to enable category selection in future stories
   - Next.js dev server can conflict with build - stop dev server before running npm run build
+---
+
+## 2026-01-10 18:35 - US-004
+Thread: https://ampcode.com/threads/T-019ba82c-20c3-7330-b709-fcd298f98bba
+- Added category click functionality to TopicCategoriesGrid.tsx
+- Clicking a category expands a section showing example questions from database
+- Fetches from question_templates table filtered by category (case-insensitive)
+- Toggle behavior: clicking same category collapses section
+- Created lib/supabase/browser.ts for client-side Supabase access (separates from server-side client)
+- Connected onQuestionClick prop in homepage to prefill input
+- Files changed: app/components/TopicCategoriesGrid.tsx, app/page.tsx, lib/supabase/browser.ts
+- **Learnings for future iterations:**
+  - Cannot import lib/supabase/client.ts in client components due to next/headers import
+  - Created browser.ts with browser-only Supabase client to avoid SSR conflicts
+  - Use createBrowserClient from lib/supabase/browser.ts in client components
 ---
