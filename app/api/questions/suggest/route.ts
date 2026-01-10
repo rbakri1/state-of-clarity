@@ -8,6 +8,43 @@ export interface Suggestion {
   category?: string;
 }
 
+// US-013: Cache for AI suggestions with TTL
+interface CacheEntry {
+  suggestions: Suggestion[];
+  expiresAt: number;
+}
+
+const aiSuggestionsCache = new Map<string, CacheEntry>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function normalizeQuery(query: string): string {
+  return query.toLowerCase().trim();
+}
+
+function getCachedSuggestions(query: string): Suggestion[] | null {
+  const key = normalizeQuery(query);
+  const entry = aiSuggestionsCache.get(key);
+  
+  if (!entry) {
+    return null;
+  }
+  
+  if (Date.now() > entry.expiresAt) {
+    aiSuggestionsCache.delete(key);
+    return null;
+  }
+  
+  return entry.suggestions;
+}
+
+function setCachedSuggestions(query: string, suggestions: Suggestion[]): void {
+  const key = normalizeQuery(query);
+  aiSuggestionsCache.set(key, {
+    suggestions,
+    expiresAt: Date.now() + CACHE_TTL_MS,
+  });
+}
+
 async function generateAiSuggestions(query: string): Promise<Suggestion[]> {
   try {
     const anthropic = new Anthropic({
@@ -112,9 +149,18 @@ export async function GET(request: NextRequest) {
   }
 
   // US-012: Add AI-generated suggestions if template + history < 4
+  // US-013: Check cache before calling AI
   if (suggestions.length < 4) {
-    const aiSuggestions = await generateAiSuggestions(q);
-    suggestions.push(...aiSuggestions);
+    const cachedAiSuggestions = getCachedSuggestions(q);
+    if (cachedAiSuggestions !== null) {
+      suggestions.push(...cachedAiSuggestions);
+    } else {
+      const aiSuggestions = await generateAiSuggestions(q);
+      if (aiSuggestions.length > 0) {
+        setCachedSuggestions(q, aiSuggestions);
+      }
+      suggestions.push(...aiSuggestions);
+    }
   }
 
   // Limit to 6 results total

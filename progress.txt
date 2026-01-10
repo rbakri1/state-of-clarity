@@ -168,3 +168,19 @@ Thread: https://ampcode.com/threads/T-019ba972-bac2-74fa-a63f-39d6322bbcf8
   - Use Set for efficient deduplication: `new Set(suggestions.map(s => s.text.toLowerCase()))`
   - Fetch more than needed (5 instead of 2) to account for duplicates being filtered out
 ---
+
+## 2026-01-10 21:15 - US-012
+Thread: https://ampcode.com/threads/T-019ba974-21c8-73be-a3e8-f965218d70f1
+- Added AI-generated suggestions to /app/api/questions/suggest/route.ts
+- Created generateAiSuggestions() function using Claude Haiku (claude-3-5-haiku-20241022)
+- AI is called only when template + history results < 4
+- Prompt asks for 2 well-formed UK policy questions related to user input
+- Response parsing with regex to extract JSON array, graceful failure on errors
+- AI suggestions appended last with source: 'ai'
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - Use same Anthropic pattern as research-agent.ts: new Anthropic({ apiKey }) + messages.create()
+  - Use claude-3-5-haiku-20241022 for fast/cheap suggestion generation
+  - Parse JSON with regex match(/\[[\s\S]*\]/) to handle Claude's sometimes-extra text
+  - Wrap in try/catch and return empty array on failure for graceful degradation
+---
