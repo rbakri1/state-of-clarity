@@ -48,3 +48,18 @@ Thread: https://ampcode.com/threads/T-019ba6fa-97ea-7793-be2e-356d1eb17279
   - Brief page already has inline reading level selector - US-003 will replace it with this reusable component
   - Component uses ReadingLevel type from lib/supabase/client.ts for type safety
 ---
+
+## 2026-01-10 - US-003
+Thread: https://ampcode.com/threads/T-019ba702-4e2c-705d-9782-5b9ef959f02b
+- Integrated ReadingLevelSelector component into brief page
+- Added URL query param persistence using useSearchParams and useRouter
+- Added localStorage persistence for return visits (key: soc_reading_level)
+- URL syncs on initial load from localStorage if no URL param present
+- Removed inline reading level selector code (replaced with component)
+- **Files changed:**
+  - app/brief/[id]/page.tsx
+- **Learnings for future iterations:**
+  - Use router.replace with { scroll: false } to update URL without page reload
+  - localStorage key uses 'soc_' prefix for State of Clarity namespace
+  - isValidReadingLevel type guard ensures type safety when reading from URL/localStorage
+---
