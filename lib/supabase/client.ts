@@ -22,6 +22,11 @@ export interface Database {
           avatar_url: string | null;
           bio: string | null;
           reputation_score: number;
+          preferred_reading_level: string;
+          topic_interests: string[] | null;
+          location: string | null;
+          notification_email_digest: boolean;
+          notification_new_features: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -32,12 +37,22 @@ export interface Database {
           avatar_url?: string | null;
           bio?: string | null;
           reputation_score?: number;
+          preferred_reading_level?: string;
+          topic_interests?: string[] | null;
+          location?: string | null;
+          notification_email_digest?: boolean;
+          notification_new_features?: boolean;
         };
         Update: {
           username?: string | null;
           full_name?: string | null;
           avatar_url?: string | null;
           bio?: string | null;
+          preferred_reading_level?: string;
+          topic_interests?: string[] | null;
+          location?: string | null;
+          notification_email_digest?: boolean;
+          notification_new_features?: boolean;
         };
       };
       briefs: {
