@@ -12,9 +12,12 @@ import {
   Shield,
   ChevronDown,
   ChevronUp,
+  Check,
 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+
+type ReadingLevel = "simple" | "standard" | "advanced";
 
 interface CollapsibleSectionProps {
   title: string;
@@ -63,6 +66,9 @@ export default function SettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [readingLevel, setReadingLevel] = useState<ReadingLevel>("standard");
+  const [isSavingReadingLevel, setIsSavingReadingLevel] = useState(false);
+  const [readingLevelSaved, setReadingLevelSaved] = useState(false);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -78,11 +84,46 @@ export default function SettingsPage() {
       }
 
       setUser(user);
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("preferred_reading_level")
+        .eq("id", user.id)
+        .single();
+
+      const profile = profileData as { preferred_reading_level: string | null } | null;
+      if (profile?.preferred_reading_level) {
+        setReadingLevel(profile.preferred_reading_level as ReadingLevel);
+      }
+
       setIsLoading(false);
     };
 
     checkAuth();
   }, [router]);
+
+  const handleReadingLevelChange = async (newLevel: ReadingLevel) => {
+    setReadingLevel(newLevel);
+    setIsSavingReadingLevel(true);
+    setReadingLevelSaved(false);
+
+    try {
+      const response = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferred_reading_level: newLevel }),
+      });
+
+      if (response.ok) {
+        setReadingLevelSaved(true);
+        setTimeout(() => setReadingLevelSaved(false), 2000);
+      }
+    } catch (error) {
+      console.error("Failed to save reading level:", error);
+    } finally {
+      setIsSavingReadingLevel(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -113,12 +154,47 @@ export default function SettingsPage() {
           icon={<Sliders className="w-5 h-5 text-primary" />}
           defaultOpen
         >
-          <div className="space-y-4">
+          <div className="space-y-6">
             <p className="text-muted-foreground text-sm">
               Customize your reading experience and topic interests.
             </p>
-            <div className="text-sm text-muted-foreground italic">
-              Preference settings coming soon...
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="reading-level"
+                  className="text-sm font-medium"
+                >
+                  Preferred Reading Level
+                </label>
+                {readingLevelSaved && (
+                  <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    Saved
+                  </span>
+                )}
+                {isSavingReadingLevel && (
+                  <span className="text-xs text-muted-foreground">
+                    Saving...
+                  </span>
+                )}
+              </div>
+              <select
+                id="reading-level"
+                value={readingLevel}
+                onChange={(e) =>
+                  handleReadingLevelChange(e.target.value as ReadingLevel)
+                }
+                disabled={isSavingReadingLevel}
+                className="w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+              >
+                <option value="simple">Simple</option>
+                <option value="standard">Standard</option>
+                <option value="advanced">Advanced</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                This will be your default reading level when viewing briefs.
+              </p>
             </div>
           </div>
         </CollapsibleSection>

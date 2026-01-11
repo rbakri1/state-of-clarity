@@ -287,3 +287,20 @@ Thread: https://ampcode.com/threads/T-019babff-7121-77ca-89a5-12d49b38fb57
   - FileReader.readAsDataURL creates preview without server round-trip
   - Supabase storage.upload needs Buffer from arrayBuffer for Node.js
 ---
+
+## 2026-01-11 - US-015
+Thread: https://ampcode.com/threads/T-019bac04-5c3a-727c-9176-e129158d6ddb
+- Created settings page shell at /app/settings/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Four collapsible sections: Preferences, Notifications, Connected Accounts, Data & Privacy
+  - CollapsibleSection component with open/close toggle
+  - Each section with icon, title, and placeholder content
+  - Preferences section open by default
+  - Consistent styling with other auth/profile pages
+- **Files changed:**
+  - app/settings/page.tsx (new)
+- **Learnings for future iterations:**
+  - Collapsible sections pattern: useState for isOpen, toggle on button click
+  - Protected route pattern is consistent: check auth in useEffect, redirect if not authenticated
+---
