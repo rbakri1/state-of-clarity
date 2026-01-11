@@ -111,3 +111,17 @@ Thread: https://ampcode.com/threads/T-019bad1d-dfec-74c3-b62c-7f070291f441
   - Use Math.pow(2, attempt) for exponential calculation
   - Jitter should be a percentage of delay, not a fixed value
 ---
+
+## 2026-01-11 - US-008
+Thread: https://ampcode.com/threads/T-019bad20-7f5a-753c-a373-a747bc77bff9
+- Created /lib/utils/fetcher.ts with fetchWithRetry function
+- Uses retryWithBackoff for exponential backoff with jitter
+- FetchError class captures HTTP status for retry decisions
+- Auto-retries on TypeError (network errors) and 5xx responses
+- 4xx errors throw immediately without retry
+- Logs retryable errors with status code
+- **Learnings for future iterations:**
+  - TypeError indicates network failure (fetch couldn't complete)
+  - FetchError custom class enables status-based retry logic
+  - shouldRetry callback passed to retryWithBackoff controls retry behavior
+---
