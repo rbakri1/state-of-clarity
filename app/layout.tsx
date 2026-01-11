@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { OfflineBanner } from "./components/OfflineBanner";
+import { Header } from "@/components/layout/header";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -24,8 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="antialiased bg-background text-foreground">
+      <body className="antialiased bg-ivory-100 text-ink-800">
         <OfflineBanner />
+        <Header />
         <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
