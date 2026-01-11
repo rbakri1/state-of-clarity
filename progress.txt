@@ -42,3 +42,15 @@ Thread: https://ampcode.com/threads/T-019bae55-50ee-7206-b48b-b8bb74a66687
   - Use `invalidateCache('brief:${id}')` to clear a specific brief cache
   - Use `invalidatePattern('brief:*')` to clear all brief caches
 ---
+
+## Sun 11 Jan 2026 - US-004
+Thread: https://ampcode.com/threads/T-019bae5c-8c0b-76ad-9396-b3fe5e68026d
+- Created /lib/services/brief-service.ts with getBriefById function
+- Uses withCache wrapper with key format `brief:{id}` and 300 second TTL
+- Fetches from Supabase using createServiceRoleClient
+- Returns null for not found (PGRST116 error), throws for other errors
+- **Learnings for future iterations:**
+  - lib/services directory did not exist; created it for this story
+  - Use `createServiceRoleClient()` for server-side data fetching that bypasses RLS
+  - PGRST116 is the Supabase error code for "no rows found"
+---
