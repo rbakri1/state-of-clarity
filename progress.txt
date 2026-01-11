@@ -1,3 +1,20 @@
 # Ralph Progress Log
 Started: Sun 11 Jan 2026 17:31:07 +04
+
+## Codebase Patterns
+- Use lucide-react for icons (AlertTriangle, ChevronDown, ChevronUp, RefreshCw)
+- Error components use red-50/red-950 bg with red-200/red-800 borders for dark mode support
+- Use "use client" directive for components with useState or interactivity
+---
+
+## 2026-01-11 17:35 - US-009
+Thread: https://ampcode.com/threads/T-019bad40-e1da-729c-9c27-b468fd383615
+- Implemented ErrorMessage component at /app/components/ErrorMessage.tsx
+- Props: title, message, details (optional), onRetry (optional)
+- Friendly AlertTriangle icon, collapsible technical details section
+- "Try again" button only shows when onRetry callback provided
+- Files changed: app/components/ErrorMessage.tsx
+- **Learnings for future iterations:**
+  - Follow existing ErrorBoundary styling patterns for consistency
+  - Use collapsible details pattern with useState for show/hide toggle
 ---
