@@ -1,4 +1,4 @@
-import { createServiceRoleClient, type Database } from "../supabase/client";
+import { createServiceRoleClient, withRetry, type Database } from "../supabase/client";
 import { withCache } from "../cache/with-cache";
 import { invalidateCache } from "../cache/invalidate";
 
@@ -13,23 +13,25 @@ export async function getBriefById(id: string): Promise<Brief | null> {
   return withCache<Brief | null>(
     `brief:${id}`,
     async () => {
-      const supabase = createServiceRoleClient();
-      const { data, error } = await supabase
-        .from("briefs")
-        .select("*")
-        .eq("id", id)
-        .single();
+      return withRetry(async () => {
+        const supabase = createServiceRoleClient();
+        const { data, error } = await supabase
+          .from("briefs")
+          .select("*")
+          .eq("id", id)
+          .single();
 
-      if (error) {
-        // PGRST116: No rows found
-        // 22P02: Invalid UUID format
-        if (error.code === "PGRST116" || error.code === "22P02") {
-          return null;
+        if (error) {
+          // PGRST116: No rows found
+          // 22P02: Invalid UUID format
+          if (error.code === "PGRST116" || error.code === "22P02") {
+            return null;
+          }
+          throw error;
         }
-        throw error;
-      }
 
-      return data;
+        return data;
+      });
     },
     BRIEF_CACHE_TTL
   );
@@ -39,69 +41,83 @@ export async function updateBriefFromState(
   id: string,
   state: BriefUpdate
 ): Promise<Brief | null> {
-  const supabase = createServiceRoleClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from("briefs") as any)
-    .update(state)
-    .eq("id", id)
-    .select()
-    .single();
+  const result = await withRetry(async () => {
+    const supabase = createServiceRoleClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from("briefs") as any)
+      .update(state)
+      .eq("id", id)
+      .select()
+      .single();
 
-  if (error) {
-    if (error.code === "PGRST116") {
-      return null;
+    if (error) {
+      if (error.code === "PGRST116") {
+        return null;
+      }
+      throw error;
     }
-    throw error;
+
+    return data as Brief;
+  });
+
+  if (result) {
+    await invalidateCache(`brief:${id}`);
+    await invalidateCache("briefs:popular");
   }
 
-  await invalidateCache(`brief:${id}`);
-  await invalidateCache("briefs:popular");
-
-  return data as Brief;
+  return result;
 }
 
 export async function updateBriefClassification(
   id: string,
   clarityScore: number | null
 ): Promise<Brief | null> {
-  const supabase = createServiceRoleClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from("briefs") as any)
-    .update({ clarity_score: clarityScore })
-    .eq("id", id)
-    .select()
-    .single();
+  const result = await withRetry(async () => {
+    const supabase = createServiceRoleClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from("briefs") as any)
+      .update({ clarity_score: clarityScore })
+      .eq("id", id)
+      .select()
+      .single();
 
-  if (error) {
-    if (error.code === "PGRST116") {
-      return null;
+    if (error) {
+      if (error.code === "PGRST116") {
+        return null;
+      }
+      throw error;
     }
-    throw error;
+
+    return data as Brief;
+  });
+
+  if (result) {
+    await invalidateCache(`brief:${id}`);
+    await invalidateCache("briefs:popular");
   }
 
-  await invalidateCache(`brief:${id}`);
-  await invalidateCache("briefs:popular");
-
-  return data as Brief;
+  return result;
 }
 
 export async function getPopularBriefs(limit: number = 10): Promise<Brief[]> {
   return withCache<Brief[]>(
     "briefs:popular",
     async () => {
-      const supabase = createServiceRoleClient();
-      const { data, error } = await supabase
-        .from("briefs")
-        .select("*")
-        .order("clarity_score", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(limit);
+      return withRetry(async () => {
+        const supabase = createServiceRoleClient();
+        const { data, error } = await supabase
+          .from("briefs")
+          .select("*")
+          .order("clarity_score", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false })
+          .limit(limit);
 
-      if (error) {
-        throw error;
-      }
+        if (error) {
+          throw error;
+        }
 
-      return data ?? [];
+        return data ?? [];
+      });
     },
     POPULAR_BRIEFS_CACHE_TTL
   );
@@ -128,18 +144,20 @@ export async function warmBriefCache(briefId: string): Promise<void> {
 export async function createBrief(
   briefData: BriefInsert
 ): Promise<Brief | null> {
-  const supabase = createServiceRoleClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.from("briefs") as any)
-    .insert(briefData)
-    .select()
-    .single();
+  const brief = await withRetry(async () => {
+    const supabase = createServiceRoleClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.from("briefs") as any)
+      .insert(briefData)
+      .select()
+      .single();
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw error;
+    }
 
-  const brief = data as Brief;
+    return data as Brief;
+  });
 
   // Warm the cache for the newly created brief
   await warmBriefCache(brief.id);
