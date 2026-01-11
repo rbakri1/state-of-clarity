@@ -1,0 +1,216 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/iterative-quality-gate",
+  "description": "Implement tiered quality gate: ≥8.0 publishes normally, 6.0-7.9 publishes with warning, <6.0 doesn't publish and refunds credits. Failed briefs auto-retry with different parameters.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Define quality gate types and interfaces",
+      "description": "As a developer, I need TypeScript types for the quality gate system.",
+      "acceptanceCriteria": [
+        "Create /lib/types/quality-gate.ts",
+        "Define QualityTier enum: 'high' (≥8.0), 'acceptable' (6.0-7.9), 'failed' (<6.0)",
+        "Define QualityGateResult interface: tier, finalScore, attempts, publishable, warningBadge, refundRequired",
+        "Define RetryQueueItem interface: briefId, originalQuestion, failureReason, retryParams, scheduledAt",
+        "Export all types",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create quality gate orchestrator",
+      "description": "As a developer, I need an orchestrator that runs the full quality assurance cycle.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/quality-gate.ts",
+        "Function: runQualityGate(brief, sources): Promise<QualityGateResult>",
+        "Orchestrates: consensus scoring -> check threshold -> refinement loop (if needed) -> final decision",
+        "Returns tier classification and publishing decision",
+        "Integrates with existing consensus-scorer and refinement-loop",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Implement tiered publishing logic",
+      "description": "As a developer, I need the quality gate to make publishing decisions based on score tiers.",
+      "acceptanceCriteria": [
+        "Score >=8.0: return {tier: 'high', publishable: true, warningBadge: false}",
+        "Score 6.0-7.9: return {tier: 'acceptable', publishable: true, warningBadge: true}",
+        "Score <6.0: return {tier: 'failed', publishable: false, refundRequired: true}",
+        "Log decision with reasoning",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add retry queue table to database",
+      "description": "As a developer, I need a table to store briefs queued for automated retry.",
+      "acceptanceCriteria": [
+        "Add retry_queue table with columns: id, brief_id, original_question, classification (JSONB), failure_reason, retry_params (JSONB), scheduled_at, attempts, status, created_at",
+        "Status values: 'pending', 'processing', 'completed', 'abandoned'",
+        "Create migration /lib/supabase/migrations/005_add_retry_queue_table.sql",
+        "Update Database interface in client.ts with retry_queue types",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Implement retry queue service",
+      "description": "As a developer, I need a service that manages the retry queue for failed briefs.",
+      "acceptanceCriteria": [
+        "Create /lib/services/retry-queue-service.ts",
+        "Function: addToRetryQueue(briefId, question, classification, failureReason, retryParams): Promise<void>",
+        "Function: getNextRetryItem(): Promise<RetryQueueItem | null>",
+        "Function: markRetryComplete(id, success): Promise<void>",
+        "Retry params include: different specialist persona, adjusted prompts, increased source diversity",
+        "Schedule retry for 1 hour after failure",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Implement automated retry with different parameters",
+      "description": "As a developer, I need failed briefs to be automatically retried with adjusted parameters.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/retry-executor.ts",
+        "Picks items from retry queue where scheduled_at <= now and status = 'pending'",
+        "Adjusts parameters based on failure reason: low evidence -> more sources, low objectivity -> force opposing views",
+        "Runs full brief generation with new parameters",
+        "Max 2 retry attempts before marking as 'abandoned'",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Add credit refund capability",
+      "description": "As a developer, I need to refund credits when briefs fail the quality gate.",
+      "acceptanceCriteria": [
+        "Create /lib/services/credit-service.ts as placeholder for Theme 6",
+        "Function: refundCredits(userId, amount, reason): Promise<void>",
+        "For now, log refund action to console (actual credits implemented in Theme 6)",
+        "Add credit_refunds table with: id, user_id, amount, reason, brief_id, created_at",
+        "Create migration /lib/supabase/migrations/006_add_credit_refunds_table.sql",
+        "Update Database interface in client.ts",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Update UI to show extended generation status",
+      "description": "As a user, I want to see 'Improving quality...' when refinement is taking longer than expected.",
+      "acceptanceCriteria": [
+        "Update SwarmVisualization.tsx to accept extendedMode prop",
+        "If generation exceeds 45 seconds, show 'Improving quality...' message",
+        "Show subtle progress indicator (not specific attempt counts)",
+        "Return to normal display once complete",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create quality warning badge component",
+      "description": "As a user, I want to see a quality warning badge on briefs that scored 6.0-7.9.",
+      "acceptanceCriteria": [
+        "Create /app/components/QualityBadge.tsx",
+        "Display 'Quality: X/10' badge for briefs with quality_warning=true",
+        "Badge color: amber/yellow for warning (6-7.9), green for high quality (8+)",
+        "Tooltip explains what the score means on hover",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Create failed generation user feedback",
+      "description": "As a user, I want to understand why my brief couldn't be generated and know my credits were refunded.",
+      "acceptanceCriteria": [
+        "Create /app/components/GenerationFailed.tsx",
+        "Display friendly error message: 'We couldn't generate a high-quality brief for this question'",
+        "Show that credits have been refunded",
+        "Suggest: rephrasing question, trying a related topic, or waiting for auto-retry",
+        "Include 'Try Again' button to resubmit",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Integrate quality gate into pipeline",
+      "description": "As a developer, I need the quality gate integrated as the final step in brief generation.",
+      "acceptanceCriteria": [
+        "Update langgraph-orchestrator.ts to call quality gate after refinement",
+        "Quality gate returns final publishing decision",
+        "If publishable: save brief with appropriate quality_warning flag",
+        "If not publishable: add to retry queue, trigger refund, do not save brief to public",
+        "Log complete quality gate flow to agent_execution_logs",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Add quality gate metrics logging",
+      "description": "As a developer, I need quality gate metrics for analysis and optimization.",
+      "acceptanceCriteria": [
+        "Log quality gate decisions to agent_execution_logs with metadata",
+        "Track: initial score, final score, attempts, tier, decision, refund",
+        "Add quality_gate_metadata JSONB column to briefs table via migration",
+        "Calculate and log: pass rate, average attempts, refund rate",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Test quality gate with various scenarios",
+      "description": "As a developer, I need to validate the quality gate handles all scenarios correctly.",
+      "acceptanceCriteria": [
+        "Create test-quality-gate.ts script",
+        "Test scenario 1: Mock brief scores 8.5 -> returns publishable with no warning",
+        "Test scenario 2: Mock brief scores 7.2 -> returns publishable with warning badge",
+        "Test scenario 3: Mock brief scores 5.5 -> returns not publishable, refund required",
+        "Test retry queue adds and retrieves items correctly",
+        "Print test results to console",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

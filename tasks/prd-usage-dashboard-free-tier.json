@@ -1,0 +1,216 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/usage-dashboard-free-tier",
+  "description": "User-facing usage dashboard with credit analytics, transaction history, and free tier with 3 onboarding credits (30-day expiry, 1 brief/day limit)",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create usage dashboard page",
+      "description": "As a user, I want a dashboard showing my credit usage overview.",
+      "acceptanceCriteria": [
+        "Create /app/dashboard/page.tsx as protected route",
+        "Display current credit balance prominently at top",
+        "Show credits expiring in next 30 days with warning styling",
+        "Display total briefs generated (all time count)",
+        "Show briefs generated this month",
+        "Quick link button to buy more credits",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create usage analytics section",
+      "description": "As a user, I want to see analytics about my brief generation patterns.",
+      "acceptanceCriteria": [
+        "Add analytics section to dashboard page",
+        "Show briefs by domain as list with counts",
+        "Show briefs over time for last 30 days using Recharts bar chart",
+        "Show average clarity score of user's generated briefs",
+        "List top 5 most common topics/questions asked",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Enhance transaction history with filters",
+      "description": "As a user, I want to filter and search my transaction history.",
+      "acceptanceCriteria": [
+        "Enhance /app/credits/history/page.tsx",
+        "Add dropdown filter by transaction type (all/purchase/usage/refund/expiry)",
+        "Add date range picker filter",
+        "Add search input for description text",
+        "Show running balance column after each transaction",
+        "Add Export to CSV button that downloads filtered transactions",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create credit expiry warning system",
+      "description": "As a user, I want to be notified when my credits are about to expire.",
+      "acceptanceCriteria": [
+        "Show warning banner on dashboard when any credits expire within 30 days",
+        "Display exact number of credits expiring and expiration date",
+        "Message: 'X credits expire on [date]. Use them before they're lost!'",
+        "Add small expiry indicator to CreditBalance component",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Implement onboarding credits for new users",
+      "description": "As a new user, I want free credits to try the platform.",
+      "acceptanceCriteria": [
+        "Create grantOnboardingCredits(userId) function in credit-service.ts",
+        "Grant 3 free credits on first successful login / email verification",
+        "Create credit_transactions record with type 'onboarding'",
+        "Create credit_batches record with expires_at = now + 30 days",
+        "Check for existing onboarding transaction to prevent duplicate grants",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create welcome modal for new users",
+      "description": "As a new user, I want to understand I have free credits and how to use them.",
+      "acceptanceCriteria": [
+        "Create /app/components/WelcomeModal.tsx",
+        "Show modal on first login after signup (check localStorage flag)",
+        "Heading: 'Welcome to State of Clarity!'",
+        "Content: 'You have 3 free credits to try the platform'",
+        "Explain: '1 credit = 1 policy brief generated'",
+        "Warning: 'Your free credits expire in 30 days'",
+        "CTA button: 'Ask your first question' linking to home",
+        "Set 'soc_welcome_shown' in localStorage on close",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Implement free tier rate limiting",
+      "description": "As a system, I need to rate limit free tier usage to prevent abuse.",
+      "acceptanceCriteria": [
+        "Create isFreeTierUser(userId) function - true if never purchased credits",
+        "Create checkFreeTierLimit(userId) function - returns {allowed: boolean, resetAt: Date}",
+        "Free tier limited to 1 brief per day",
+        "Track daily usage in database or Redis with UTC day key",
+        "Paid users (any purchase history) bypass limit entirely",
+        "Rate limit resets at midnight UTC",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create upgrade prompts for free users",
+      "description": "As a free tier user, I want clear prompts to upgrade when I hit limits.",
+      "acceptanceCriteria": [
+        "Create /app/components/UpgradePrompt.tsx",
+        "Show when daily limit reached with message and time until reset",
+        "Show when free credits exhausted",
+        "Display: 'Upgrade for unlimited briefs'",
+        "Show starting price: 'From £0.60 per brief'",
+        "CTA button linking to /credits page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add credit usage to brief generation flow",
+      "description": "As a user, I want to see credit cost before generating a brief.",
+      "acceptanceCriteria": [
+        "Show 'This will use 1 credit' text near generate button",
+        "Display current balance in generation UI header",
+        "If balance is 0, disable generate button and show 'Buy credits to continue'",
+        "After successful generation, show toast: '1 credit used. X credits remaining'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add referral system placeholder",
+      "description": "As a user, I want to see that referral rewards are coming.",
+      "acceptanceCriteria": [
+        "Add referral_code column to profiles table (unique, auto-generated UUID)",
+        "Add referred_by column to profiles table (nullable UUID)",
+        "Create migration for referral columns",
+        "Create /app/referral/page.tsx as protected route",
+        "Display user's referral link: [domain]/signup?ref=[code]",
+        "Show 'Referral rewards coming soon!' placeholder message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create usage stats service",
+      "description": "As an admin, I need aggregate usage statistics for monitoring.",
+      "acceptanceCriteria": [
+        "Create /lib/services/usage-stats-service.ts",
+        "Function: getTotalCreditsIssued(): Promise<number>",
+        "Function: getTotalCreditsUsed(): Promise<number>",
+        "Function: getActiveUsersCount(days: number): Promise<number>",
+        "Function: getFreeToPayConversionRate(): Promise<number>",
+        "Functions query database and return aggregated stats",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Test free tier and dashboard",
+      "description": "As a developer, I need to validate the free tier and dashboard work correctly.",
+      "acceptanceCriteria": [
+        "Create test-free-tier.ts script with manual test checklist",
+        "Document: Test new user receives 3 onboarding credits",
+        "Document: Test daily rate limit enforced for free tier",
+        "Document: Test paid users bypass rate limit",
+        "Document: Test credit expiry warning displays correctly",
+        "Document: Test transaction history filters work",
+        "Print checklist to console",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
