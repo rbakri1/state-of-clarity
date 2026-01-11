@@ -1,3 +1,31 @@
 # Ralph Progress Log
 Started: Sun 11 Jan 2026 10:47:05 +04
 ---
+
+## Codebase Patterns
+- Import Supabase browser client from `@/lib/supabase/client` (not `browser`)
+- Add explicit types to `.map()` callbacks when working with `any` typed data
+- Use `as Record<string, number>` when iterating Object.entries with unknown values
+
+---
+
+## 2026-01-11 - US-001
+Thread: https://ampcode.com/threads/T-019babce-f903-716d-ac7f-42555ed5c6ab
+- Extended profiles table with preference fields:
+  - preferred_reading_level TEXT DEFAULT 'standard'
+  - topic_interests TEXT[]
+  - location TEXT
+  - notification_email_digest BOOLEAN DEFAULT false
+  - notification_new_features BOOLEAN DEFAULT true
+- Added TypeScript types to Database interface in lib/supabase/client.ts
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx (implicit any types)
+- Fixed TopicCategoriesGrid import path
+- **Files changed:**
+  - lib/supabase/schema.sql
+  - lib/supabase/client.ts
+  - app/brief/[id]/page.tsx (type fixes)
+  - app/components/TopicCategoriesGrid.tsx (import fix)
+- **Learnings for future iterations:**
+  - The briefs object is typed as `any` - map callbacks need explicit type annotations
+  - TopicCategoriesGrid was importing from non-existent browser.ts
+---
