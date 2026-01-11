@@ -338,3 +338,20 @@ Thread: https://ampcode.com/threads/T-019bac0c-52d8-7388-8990-a45dc6b3f096
   - Use useCallback with functional setState to avoid stale closure issues with debounced saves
   - Clean up timeouts in useEffect cleanup function
 ---
+
+## 2026-01-11 - US-018
+Thread: https://ampcode.com/threads/T-019bac10-5c6b-766d-82ab-2824724b9635
+- Added notification preferences to settings page
+- Features:
+  - Toggle: "Weekly digest of new briefs" (notification_email_digest)
+  - Toggle: "New feature announcements" (notification_new_features)
+  - Both toggles with toggle switch UI (accessible role="switch")
+  - Auto-save on toggle with "Saving..." and "Saved" indicators
+  - Fetches current values from profile on page load
+  - Calls /api/profile PATCH to persist changes
+- **Files changed:**
+  - app/settings/page.tsx (modified - added notification toggles and state management)
+- **Learnings for future iterations:**
+  - Follow same pattern as reading level: immediate save on change, not debounced
+  - Protected routes redirect to signin - browser verification requires authenticated session
+---
