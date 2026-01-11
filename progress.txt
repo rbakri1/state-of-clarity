@@ -164,3 +164,23 @@ Thread: https://ampcode.com/threads/T-019babe8-2280-71eb-80e0-712377871cc9
   - Sign-out uses POST method for security (prevents CSRF via link clicks)
   - Reuse the same createServerClient cookie pattern from auth/callback
 ---
+
+## 2026-01-11 - US-009
+Thread: https://ampcode.com/threads/T-019babe9-6072-77e5-85bf-e9b9456d8b66
+- Created UserMenu component at /app/components/UserMenu.tsx
+- Features:
+  - Shows 'Sign in' button when not authenticated (links to /auth/signin)
+  - Shows avatar + name dropdown when authenticated
+  - Avatar from user metadata or initial letter fallback
+  - Dropdown options: Profile, Settings, Sign out
+  - Real-time auth state updates via onAuthStateChange
+  - Click-outside to close dropdown
+  - Loading skeleton state while checking auth
+- Uses form POST to /api/auth/signout for CSRF-safe sign out
+- **Files changed:**
+  - app/components/UserMenu.tsx (new)
+- **Learnings for future iterations:**
+  - Use User type from @supabase/supabase-js for typed user object
+  - Sign out should use form POST for CSRF protection
+  - Import createBrowserClient from lib/supabase/browser for client components
+---
