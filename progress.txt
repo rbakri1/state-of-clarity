@@ -177,3 +177,14 @@ Thread: https://ampcode.com/threads/T-019bae87-b416-7379-93cd-81fd78bd3565
   - Use `safeQuery(queryFn, { queryName: 'myQuery' })` to wrap Supabase queries with perf tracking
   - Use `trackedQuery(queryFn, 'queryName')` for simpler interface returning just data/error
 ---
+
+## Sun 11 Jan 2026 - US-014
+Thread: https://ampcode.com/threads/T-019bae89-ebc8-71f6-a137-f46bf1c3ad78
+- Updated next.config.mjs with async headers() configuration
+- Added Cache-Control: public, immutable, max-age=31536000 for /_next/static/:path*
+- Added Cache-Control: public, max-age=86400 for /images/:path*
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Next.js headers() is an async function that returns an array of header rules
+  - Use `:path*` pattern for wildcard matching in header source paths
+---
