@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SWRProvider } from "@/lib/swr/provider";
-import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { OfflineBanner } from "./components/OfflineBanner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -25,8 +25,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased bg-background text-foreground">
-        <SWRProvider>{children}</SWRProvider>
-        <CookieConsentBanner />
+        <OfflineBanner />
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   );

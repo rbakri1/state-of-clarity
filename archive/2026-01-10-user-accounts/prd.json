@@ -1,0 +1,266 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/credit-system-payments",
+  "description": "Credits-based monetization with Stripe + Apple Pay/Google Pay, bulk discounts, 12-month expiry, and auto-retry for failed payments",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create credits database schema",
+      "description": "As a developer, I need database tables to track credit balances and transactions.",
+      "acceptanceCriteria": [
+        "Create user_credits table: id, user_id (unique), balance, created_at, updated_at",
+        "Create credit_transactions table: id, user_id, amount (positive=purchase, negative=usage), transaction_type, description, brief_id (nullable), stripe_payment_id (nullable), created_at",
+        "Create credit_packages table: id, name, credits, price_gbp, stripe_price_id, active, created_at",
+        "Create credit_batches table: id, user_id, credits_remaining, purchased_at, expires_at",
+        "Create migration /lib/supabase/migrations/008_add_credits_tables.sql",
+        "Update Database interface in client.ts with all new types",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create credit service",
+      "description": "As a developer, I need a service to manage credit operations.",
+      "acceptanceCriteria": [
+        "Create /lib/services/credit-service.ts",
+        "Function: getBalance(userId): Promise<number>",
+        "Function: hasCredits(userId, amount): Promise<boolean>",
+        "Function: deductCredits(userId, amount, briefId, description): Promise<boolean>",
+        "Function: addCredits(userId, amount, transactionType, stripePaymentId, expiresAt): Promise<void>",
+        "Function: refundCredits(userId, amount, briefId, reason): Promise<void>",
+        "All operations create transaction records in credit_transactions table",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Implement credit expiry logic",
+      "description": "As a developer, I need credits to expire 12 months after purchase.",
+      "acceptanceCriteria": [
+        "Track purchase date in credit_batches table with expires_at = purchased_at + 12 months",
+        "Deduct from oldest non-expired batches first (FIFO)",
+        "Create function expireOldCredits() to mark expired batches and create expiry transactions",
+        "Log expiry transactions with type 'expiry'",
+        "Create placeholder for 30-day expiry warning notification",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Configure Stripe integration",
+      "description": "As a developer, I need Stripe configured for payment processing.",
+      "acceptanceCriteria": [
+        "Install Stripe SDK: stripe and @stripe/stripe-js packages",
+        "Create /lib/stripe/client.ts with server-side Stripe client",
+        "Add STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET to .env.example",
+        "Seed credit_packages table with 4 packages: Single (1), Starter (10), Standard (50), Pro (100)",
+        "Document Stripe dashboard setup steps in SETUP.md",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create Stripe checkout session endpoint",
+      "description": "As a developer, I need an API to create Stripe checkout sessions.",
+      "acceptanceCriteria": [
+        "Create /app/api/payments/create-checkout/route.ts",
+        "Accept package_id in request body, validate it exists and is active",
+        "Create Stripe checkout session with mode: 'payment'",
+        "Enable payment_method_types: ['card', 'apple_pay', 'google_pay']",
+        "Set success_url to /credits/success and cancel_url to /credits",
+        "Include user_id and package_id in session metadata",
+        "Return session url for client redirect",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create Stripe webhook handler",
+      "description": "As a developer, I need to handle Stripe webhooks for successful payments.",
+      "acceptanceCriteria": [
+        "Create /app/api/webhooks/stripe/route.ts",
+        "Verify webhook signature using STRIPE_WEBHOOK_SECRET",
+        "Handle checkout.session.completed event",
+        "Extract user_id and package_id from session metadata",
+        "Look up package credits and add to user via credit-service",
+        "Create credit_batches record with expires_at = now + 12 months",
+        "Return 200 OK to Stripe",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Implement payment retry logic",
+      "description": "As a developer, I need failed payments to auto-retry before notifying user.",
+      "acceptanceCriteria": [
+        "Create payment_retries table: id, user_id, stripe_payment_intent_id, attempts, last_attempt_at, next_retry_at, status, created_at",
+        "On payment_intent.payment_failed webhook, create retry record",
+        "Schedule retries at: 1 hour, 6 hours, 24 hours (attempts 1, 2, 3)",
+        "After 3 failures, set status to 'failed' and log notification placeholder",
+        "Create /lib/services/payment-retry-service.ts with retry logic",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create buy credits page",
+      "description": "As a user, I want to purchase credits through a simple interface.",
+      "acceptanceCriteria": [
+        "Create /app/credits/page.tsx as protected route",
+        "Fetch and display all active credit packages from database",
+        "Show current credit balance at top of page",
+        "Display package cards with: name, credits, price, per-credit price",
+        "Highlight 'Most Popular' on Standard package",
+        "Buy button calls create-checkout API and redirects to Stripe",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create credit balance display component",
+      "description": "As a user, I want to see my credit balance in the UI.",
+      "acceptanceCriteria": [
+        "Create /app/components/CreditBalance.tsx",
+        "Fetch current balance from credit-service",
+        "Display balance with credit icon",
+        "Show 'Buy credits' link when balance is 0",
+        "Show warning styling when balance <= 2",
+        "Integrate into UserMenu component",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Integrate credit check into brief generation",
+      "description": "As a system, I need to verify credits before generating a brief.",
+      "acceptanceCriteria": [
+        "Check hasCredits(userId, 1) before starting generation in orchestrator",
+        "If insufficient credits, throw error with message and link to /credits",
+        "Deduct 1 credit when generation starts via deductCredits",
+        "If generation fails with quality gate < 6.0, call refundCredits",
+        "Log all deductions and refunds with brief_id",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create purchase success page",
+      "description": "As a user, I want confirmation when my credit purchase succeeds.",
+      "acceptanceCriteria": [
+        "Create /app/credits/success/page.tsx",
+        "Parse session_id from URL query params",
+        "Display 'Thank you for your purchase!' heading",
+        "Show credits added and new total balance",
+        "Show expiry info: 'Credits expire on [date 12 months from now]'",
+        "Primary CTA button: 'Generate a brief' linking to home",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create transaction history page",
+      "description": "As a user, I want to see my credit transaction history.",
+      "acceptanceCriteria": [
+        "Create /app/credits/history/page.tsx as protected route",
+        "Fetch credit_transactions for current user ordered by created_at desc",
+        "Display table: date, type (purchase/usage/refund/expiry), amount (+/-), description",
+        "Link usage transactions to /brief/[id] if brief_id exists",
+        "Show pagination if more than 20 transactions",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Add low balance warning",
+      "description": "As a user, I want to be warned when my credits are running low.",
+      "acceptanceCriteria": [
+        "Create /app/components/LowBalanceWarning.tsx",
+        "Show warning banner when balance <= 2 credits",
+        "Display on brief generation page and dashboard",
+        "Include 'Top up now' button linking to /credits",
+        "Allow dismissing for current session via sessionStorage",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Seed credit packages in database",
+      "description": "As an admin, I need the initial credit packages configured.",
+      "acceptanceCriteria": [
+        "Create seed script or migration to insert 4 packages",
+        "Single: 1 credit, £0.65, active",
+        "Starter: 10 credits, £6.00, active",
+        "Standard: 50 credits, £28.00, active",
+        "Pro: 100 credits, £52.00, active",
+        "stripe_price_id left as placeholder (configured manually in Stripe)",
+        "Document Stripe product/price creation in SETUP.md",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Test payment flows",
+      "description": "As a developer, I need to validate all payment flows work correctly.",
+      "acceptanceCriteria": [
+        "Create test-payments.ts with manual testing checklist",
+        "Document test card numbers: 4242424242424242 (success), 4000000000009995 (decline)",
+        "Checklist: successful purchase adds credits",
+        "Checklist: credit deduction on brief generation",
+        "Checklist: credit refund on failed brief (score < 6.0)",
+        "Checklist: webhook processes correctly",
+        "Print checklist to console",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

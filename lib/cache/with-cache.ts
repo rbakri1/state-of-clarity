@@ -1,14 +1,15 @@
+/**
+ * Cache Wrapper Utility
+ *
+ * Generic wrapper to cache any async function result.
+ * Handles cache errors gracefully by falling back to direct fetch.
+ * Includes connection error detection for better diagnostics.
+ */
+
 import { kv } from "./kv-client";
 
 function logCacheError(operation: string, key: string, error: unknown): void {
   console.error(`[Cache] Error ${operation} key "${key}":`, error);
-  // Sentry integration for cache failures (epic 4.1)
-  // When Sentry is installed, uncomment:
-  // Sentry.captureException(error, {
-  //   tags: { component: 'cache', operation },
-  //   extra: { key }
-  // });
-  console.log(`[Sentry] Would report cache ${operation} error for key "${key}"`);
 }
 
 function isConnectionError(error: unknown): boolean {
@@ -48,6 +49,7 @@ export async function withCache<T>(
 
   try {
     await kv.set(key, result, { ex: ttlSeconds });
+    console.log(`[Cache] SET: ${key} (TTL: ${ttlSeconds}s)`);
   } catch (error) {
     logCacheError("writing", key, error);
   }

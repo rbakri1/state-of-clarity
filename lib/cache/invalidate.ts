@@ -1,3 +1,9 @@
+/**
+ * Cache Invalidation Utility
+ *
+ * Functions to invalidate cached data when briefs are updated.
+ */
+
 import { kv } from "./kv-client";
 
 export async function invalidateCache(key: string): Promise<void> {

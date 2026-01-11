@@ -1,3 +1,13 @@
+/**
+ * Vercel KV Client
+ *
+ * Provides a unified caching interface with:
+ * - Vercel KV for production
+ * - In-memory fallback for local development
+ * - Health check capabilities
+ * - Graceful degradation
+ */
+
 import { kv as vercelKv } from "@vercel/kv";
 
 interface KVClient {
@@ -94,6 +104,9 @@ function isVercelKVConfigured(): boolean {
 export const kv: KVClient = isVercelKVConfigured()
   ? new VercelKVClient()
   : inMemoryKv;
+
+// Also export as kvClient for backwards compatibility
+export const kvClient = kv;
 
 export function isUsingInMemoryCache(): boolean {
   return !isVercelKVConfigured();

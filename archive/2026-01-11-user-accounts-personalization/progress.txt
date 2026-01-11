@@ -1,0 +1,127 @@
+# Ralph Progress Log
+Started: Sun 11 Jan 2026
+
+## Codebase Patterns
+- Database types are defined in lib/supabase/client.ts (not a separate types.ts file)
+- SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
+- Browser-safe Supabase client: use lib/supabase/browser.ts (not client.ts) in client components
+- Use explicit type annotations in React map callbacks to avoid implicit any errors
+- Wrap useSearchParams() in Suspense boundary for Next.js static page generation
+- API routes go in app/api/ directory, use createServerSupabaseClient from lib/supabase/client.ts
+- Components go in app/components/ directory
+- Use lucide-react for icons
+- Clean .next cache with `rm -rf .next` if build fails with manifest errors
+- Protected routes should check auth and redirect to /auth/signin if not authenticated
+- Use withErrorHandling wrapper for API routes for consistent error responses
+- Sentry config files: sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+- instrumentation.ts imports server/edge configs; instrumentation-client.ts handles client init
+- Build type errors with Object.entries need explicit Record<string, T> type assertion
+
+---
+
+## 2026-01-11 - US-001
+Thread: https://ampcode.com/threads/T-019bad10-4e9b-77ab-825f-29c9e6e8ac02
+- Installed and configured Sentry for error tracking
+- Files created: sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+- Updated instrumentation.ts to import from config files
+- Added SENTRY_DSN to .env.example
+- next.config.mjs already had withSentryConfig wrapper
+- SETUP.md already documented Sentry setup
+- Fixed type error in brief page (Object.entries breakdown mapping)
+- **Learnings for future iterations:**
+  - The project uses instrumentation.ts + instrumentation-client.ts pattern (Sentry's newer approach)
+  - sentry.client.config.ts is deprecated in favor of instrumentation-client.ts but both work
+  - Add onRouterTransitionStart export to instrumentation-client.ts for navigation tracking
+---
+
+
+## 2026-01-11 - US-002
+Thread: https://ampcode.com/threads/T-019bad13-847d-7049-a93a-be4b7c249867
+- Created ErrorBoundary.tsx class component for catching React errors
+- Features: Sentry error reporting, "Try again" reset button, "Show details" toggle
+- Fallback UI with friendly error message and red styling
+- Uses lucide-react icons (AlertTriangle, ChevronDown, ChevronUp, RefreshCw)
+- **Learnings for future iterations:**
+  - React error boundaries must be class components (not function components)
+  - Use componentDidCatch to report to Sentry with component stack context
+  - getDerivedStateFromError is for setting error state, componentDidCatch for side effects
+---
+
+## 2026-01-11 - US-003
+Thread: https://ampcode.com/threads/T-019bad15-e42c-73b6-89ad-9cf9519d8c3b
+- Wrapped app/layout.tsx children with ErrorBoundary component
+- Created global-error.tsx for root-level error handling
+- global-error.tsx uses Sentry for error logging, has "Try again" and "Show details" buttons
+- Verified in browser that homepage loads correctly with error boundary in place
+- **Learnings for future iterations:**
+  - global-error.tsx must include full html/body tags since it replaces the entire document
+  - global-error.tsx receives error.digest for error ID tracking
+  - ErrorBoundary in layout.tsx catches component-level errors; global-error.tsx catches root-level crashes
+---
+
+## 2026-01-11 - US-004
+Thread: https://ampcode.com/threads/T-019bad18-63fb-756f-a499-11552b5f6ed6
+- Created standardized API error response format in lib/errors/api-error.ts
+- ApiError class with statusCode, message, code, details properties
+- Static factory methods: unauthorized, notFound, validationError, rateLimited, serviceUnavailable
+- formatErrorResponse helper to convert ApiError to JSON response
+- Defined ErrorCodes const and ErrorCode type for type safety
+- **Learnings for future iterations:**
+  - Error classes should extend Error and call Object.setPrototypeOf for proper inheritance
+  - Use static factory methods for common error types for cleaner API
+  - Export both const object and type union for error codes
+---
+
+## 2026-01-11 - US-005
+Thread: https://ampcode.com/threads/T-019bad19-b24a-740b-882d-10da3091ce71
+- Created withErrorHandling higher-order function in lib/errors/with-error-handling.ts
+- Wraps API route handlers to catch and format errors
+- ApiError instances: logs to Sentry with appropriate level (error for 5xx, warning for 4xx)
+- Unexpected errors: wraps in serviceUnavailable response
+- Includes request context (path, method) in Sentry logs
+- **Learnings for future iterations:**
+  - Use RouteHandler type for Next.js API route function signatures
+  - Sentry captureException accepts level and extra options for context
+  - Return JSON responses with correct status codes from wrapper
+---
+
+## 2026-01-11 - US-006
+Thread: https://ampcode.com/threads/T-019bad1b-1d5e-759c-87b5-9f5d8f40426c
+- Applied withErrorHandling wrapper to /app/api/profile/route.ts (GET and PATCH)
+- Applied withErrorHandling wrapper to /app/api/questions/suggest/route.ts (GET)
+- Converted manual error responses to throw ApiError.unauthorized(), ApiError.validationError(), ApiError.serviceUnavailable()
+- Added dynamic = "force-dynamic" to suggest route to prevent static prerender issues
+- Note: /app/api/briefs/[id]/vote/route.ts does not exist in codebase, skipped
+- **Learnings for future iterations:**
+  - API routes using createServerSupabaseClient need dynamic = "force-dynamic" to avoid prerender errors
+  - Convert return NextResponse.json({ error: ... }) to throw ApiError.xxx() for consistent error handling
+  - withErrorHandling wrapper handles Sentry logging automatically, no need to manually log
+---
+
+## 2026-01-11 - US-007
+Thread: https://ampcode.com/threads/T-019bad1d-dfec-74c3-b62c-7f070291f441
+- Created /lib/utils/retry.ts with retryWithBackoff function
+- Options: maxRetries (default 3), initialDelay (1000ms), maxDelay (30000ms), shouldRetry predicate
+- Exponential backoff: delay doubles each retry (delay * 2^attempt)
+- Jitter: adds random 0-20% to delay to prevent thundering herd
+- Throws last error after all retries exhausted
+- Optional shouldRetry callback to control which errors trigger retry
+- **Learnings for future iterations:**
+  - lib/utils/ directory was created for this feature (didn't exist before)
+  - Use Math.pow(2, attempt) for exponential calculation
+  - Jitter should be a percentage of delay, not a fixed value
+---
+
+## 2026-01-11 - US-008
+Thread: https://ampcode.com/threads/T-019bad20-7f5a-753c-a373-a747bc77bff9
+- Created /lib/utils/fetcher.ts with fetchWithRetry function
+- Uses retryWithBackoff for exponential backoff with jitter
+- FetchError class captures HTTP status for retry decisions
+- Auto-retries on TypeError (network errors) and 5xx responses
+- 4xx errors throw immediately without retry
+- Logs retryable errors with status code
+- **Learnings for future iterations:**
+  - TypeError indicates network failure (fetch couldn't complete)
+  - FetchError custom class enables status-based retry logic
+  - shouldRetry callback passed to retryWithBackoff controls retry behavior
+---

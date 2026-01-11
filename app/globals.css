@@ -112,3 +112,124 @@
 .clarity-score-badge.low {
   @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
 }
+
+/* Print-friendly styles */
+@media print {
+  /* Reset background for print */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Hide interactive/non-essential elements */
+  header,
+  .print\\:hidden,
+  [data-reading-progress],
+  button,
+  [role="button"],
+  .share-menu,
+  .bookmark-button,
+  nav {
+    display: none !important;
+  }
+
+  /* Show main content */
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Tables: fit within margins, avoid page breaks mid-row */
+  table {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 10pt !important;
+    border-collapse: collapse !important;
+  }
+
+  table th,
+  table td {
+    padding: 4pt 8pt !important;
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  /* Sources: show full URLs */
+  .source-card a[href]::after,
+  [id^="source-"] a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #666;
+    word-break: break-all;
+  }
+
+  /* Hide external link icons in print */
+  .source-card a svg,
+  [id^="source-"] a svg {
+    display: none !important;
+  }
+
+  /* Collapsible sections: always show content */
+  [data-collapsible-content] {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Remove dark mode styles */
+  .dark {
+    --background: 0 0% 100% !important;
+    --foreground: 0 0% 0% !important;
+  }
+
+  /* Avoid page breaks inside sections */
+  section {
+    page-break-inside: avoid !important;
+  }
+
+  /* Page break before sources section (keeps sources together) */
+  section:has(> [id^="source-"]),
+  section:has(> h2:contains("Sources")) {
+    page-break-before: always !important;
+  }
+
+  /* Remove box shadows and transitions */
+  * {
+    box-shadow: none !important;
+    transition: none !important;
+  }
+
+  /* Print badges in grayscale-friendly way */
+  .source-tag,
+  [class*="rounded-full"][class*="px-2"] {
+    border: 1px solid #999 !important;
+    background: #f5f5f5 !important;
+    color: #333 !important;
+  }
+
+  /* Ensure readability */
+  p, li, td, th {
+    orphans: 3 !important;
+    widows: 3 !important;
+  }
+
+  /* Remove gradient backgrounds */
+  .clarity-gradient,
+  [class*="gradient"] {
+    background: #666 !important;
+  }
+
+  /* Expand all excerpts in print */
+  .excerpt-truncated::after {
+    content: none !important;
+  }
+}

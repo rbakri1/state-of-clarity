@@ -3,19 +3,52 @@
 import { useState } from "react";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { CreditBalance } from "./components/CreditBalance";
+import { LowBalanceWarning } from "./components/LowBalanceWarning";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
 
     setIsLoading(true);
-    // TODO: Implement API call
-    // For now, redirect to sample brief
-    window.location.href = "/brief/uk-four-day-week";
+    setError(null);
+
+    try {
+      const response = await fetch("/api/briefs/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402 && data.creditsLink) {
+          setError(`${data.error} `);
+          setTimeout(() => {
+            window.location.href = data.creditsLink;
+          }, 2000);
+          return;
+        }
+        throw new Error(data.error || "Failed to generate brief");
+      }
+
+      if (data.success && data.briefId) {
+        window.location.href = `/brief/${data.briefId}`;
+      } else if (data.creditRefunded) {
+        setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate brief");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const showcaseBriefs = [
@@ -40,37 +73,11 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">State of Clarity</span>
-            </div>
-            <nav className="flex items-center gap-6 text-sm">
-              <Link
-                href="/about"
-                className="text-muted-foreground hover:text-foreground transition"
-              >
-                About
-              </Link>
-              <Link
-                href="/briefs"
-                className="text-muted-foreground hover:text-foreground transition"
-              >
-                Browse Briefs
-              </Link>
-              <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition">
-                Sign In
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen">
+      {/* Low Balance Warning */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <LowBalanceWarning />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -116,6 +123,18 @@ export default function Home() {
               </button>
             </div>
           </form>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 max-w-2xl mx-auto p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+              {error}
+              {error.includes("credits") && (
+                <a href="/credits" className="ml-1 underline hover:no-underline font-medium">
+                  Buy credits →
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Features */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">

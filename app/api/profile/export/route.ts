@@ -1,80 +1,113 @@
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient, requireAuth } from "@/lib/supabase/client";
+
+function createSupabaseClient() {
+  const cookieStore = cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: "", ...options });
+        },
+      },
+    }
+  );
+}
 
 export async function GET() {
-  try {
-    const user = await requireAuth();
-    const supabase = await createServerSupabaseClient();
+  const supabase = createSupabaseClient();
 
-    const { data: profile } = await supabase
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const [profileResult, savedBriefsResult, readingHistoryResult, feedbackResult] = await Promise.all([
+    supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
-
-    const { data: briefs } = await supabase
-      .from("briefs")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    const { data: savedBriefs } = await supabase
+      .single(),
+    supabase
       .from("saved_briefs")
-      .select("brief_id, saved_at, briefs(id, question, clarity_score)")
+      .select(`
+        saved_at,
+        briefs:brief_id (
+          id,
+          question,
+          clarity_score,
+          created_at
+        )
+      `)
       .eq("user_id", user.id)
-      .order("saved_at", { ascending: false });
-
-    const { data: readingHistory } = await supabase
+      .order("saved_at", { ascending: false }),
+    supabase
       .from("reading_history")
-      .select("brief_id, time_spent, scroll_depth, first_viewed_at, last_viewed_at, briefs(id, question)")
+      .select(`
+        first_viewed_at,
+        last_viewed_at,
+        time_spent,
+        scroll_depth,
+        briefs:brief_id (
+          id,
+          question,
+          clarity_score
+        )
+      `)
       .eq("user_id", user.id)
-      .order("last_viewed_at", { ascending: false });
-
-    const { data: feedback } = await supabase
+      .order("last_viewed_at", { ascending: false }),
+    supabase
       .from("feedback")
-      .select("*")
+      .select(`
+        id,
+        type,
+        content,
+        section,
+        status,
+        created_at,
+        briefs:brief_id (
+          id,
+          question
+        )
+      `)
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }),
+  ]);
 
-    const { data: briefJobs } = await supabase
-      .from("brief_jobs")
-      .select("id, question, status, created_at, completed_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+  const exportData = {
+    exported_at: new Date().toISOString(),
+    user: {
+      id: user.id,
+      email: user.email,
+      created_at: user.created_at,
+    },
+    profile: profileResult.data ?? null,
+    saved_briefs: savedBriefsResult.data ?? [],
+    reading_history: readingHistoryResult.data ?? [],
+    feedback: feedbackResult.data ?? [],
+  };
 
-    const exportData = {
-      exportedAt: new Date().toISOString(),
-      user: {
-        id: user.id,
-        email: user.email,
-        createdAt: user.created_at,
-        lastSignInAt: user.last_sign_in_at,
-      },
-      profile: profile || null,
-      briefsCreated: briefs || [],
-      savedBriefs: savedBriefs || [],
-      readingHistory: readingHistory || [],
-      feedback: feedback || [],
-      briefJobs: briefJobs || [],
-    };
+  const jsonString = JSON.stringify(exportData, null, 2);
 
-    const filename = `state-of-clarity-export-${new Date().toISOString().split("T")[0]}.json`;
-
-    return new NextResponse(JSON.stringify(exportData, null, 2), {
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Disposition": `attachment; filename="${filename}"`,
-        "Cache-Control": "no-store, private",
-      },
-    });
-  } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    console.error("Export error:", error);
-    return NextResponse.json(
-      { error: "Failed to export data" },
-      { status: 500 }
-    );
-  }
+  return new NextResponse(jsonString, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Disposition": `attachment; filename="state-of-clarity-data-export-${new Date().toISOString().split("T")[0]}.json"`,
+    },
+  });
 }
