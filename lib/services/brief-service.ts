@@ -1,7 +1,9 @@
 import { createServiceRoleClient, type Database } from "../supabase/client";
 import { withCache } from "../cache/with-cache";
+import { invalidateCache } from "../cache/invalidate";
 
 export type Brief = Database["public"]["Tables"]["briefs"]["Row"];
+export type BriefUpdate = Database["public"]["Tables"]["briefs"]["Update"];
 
 const BRIEF_CACHE_TTL = 300; // 5 minutes
 
@@ -27,4 +29,54 @@ export async function getBriefById(id: string): Promise<Brief | null> {
     },
     BRIEF_CACHE_TTL
   );
+}
+
+export async function updateBriefFromState(
+  id: string,
+  state: BriefUpdate
+): Promise<Brief | null> {
+  const supabase = createServiceRoleClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("briefs") as any)
+    .update(state)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    throw error;
+  }
+
+  await invalidateCache(`brief:${id}`);
+  await invalidateCache("briefs:popular");
+
+  return data as Brief;
+}
+
+export async function updateBriefClassification(
+  id: string,
+  clarityScore: number | null
+): Promise<Brief | null> {
+  const supabase = createServiceRoleClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("briefs") as any)
+    .update({ clarity_score: clarityScore })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    throw error;
+  }
+
+  await invalidateCache(`brief:${id}`);
+  await invalidateCache("briefs:popular");
+
+  return data as Brief;
 }
