@@ -6,6 +6,8 @@ Started: Sun 11 Jan 2026 22:25:49 +04
 - Vercel KV uses `kv` export from `/lib/cache/kv-client.ts` with automatic fallback to in-memory
 - Cache key format convention: `{resource}:{id}` e.g., `brief:abc123`
 - Use `(supabase.from("table") as any).update()` for Supabase updates due to type inference issues
+- SWR: Import `useSWR` from 'swr'; provider in layout.tsx provides default fetcher
+- SWR FetchError: Check `error.status === 404` for not found handling
 
 ---
 
@@ -91,4 +93,17 @@ Thread: https://ampcode.com/threads/T-019bae68-5aaa-7607-9ead-35b52d9b9b52
 - **Learnings for future iterations:**
   - briefs table has no view_count or upvotes column; clarity_score is used as popularity proxy
   - Use double .order() calls for primary and secondary sort ordering
+---
+
+## Sun 11 Jan 2026 - US-008
+Thread: https://ampcode.com/threads/T-019bae6a-7162-7599-9e34-d45a2679be73
+- Installed swr package
+- Created /lib/swr/fetcher.ts with FetchError class and generic fetcher<T> function
+- Created /lib/swr/config.ts with global SWR configuration (revalidateOnFocus, errorRetry, etc.)
+- Created /lib/swr/provider.tsx client component wrapper for SWRConfig
+- Updated app/layout.tsx to wrap children in SWRProvider
+- **Learnings for future iterations:**
+  - SWRConfig must be in a client component ("use client") since it uses React context
+  - FetchError class exposes status code for proper 404/error handling in useSWR consumers
+  - Use `useSWR<T>('/api/endpoint')` with the provider's default fetcher
 ---
