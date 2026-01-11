@@ -58,3 +58,21 @@ Thread: https://ampcode.com/threads/T-019babd4-cfd3-75ba-ae5d-522192a28ea9
   - Use lib/supabase/client.ts only in server components/API routes
   - Import Database type from lib/supabase/types.ts for type-only imports
 ---
+
+## 2026-01-11 - US-003
+Thread: https://ampcode.com/threads/T-019babd9-43bf-757e-b58d-b2efd880cf42
+- Created sign-up page at /app/auth/signup/page.tsx
+- Features:
+  - Email input (required) with validation
+  - Full name input (optional) - passed as user metadata
+  - Create account button calls Supabase auth.signInWithOtp() with data
+  - Success message: "Check your email to confirm"
+  - Error handling for rate limiting and invalid emails
+  - Link to sign-in page for existing users
+  - Back to home link
+- **Files changed:**
+  - app/auth/signup/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use signInWithOtp with `data` option to pass user metadata (e.g., full_name)
+  - Follow existing signin page pattern for consistent UX
+---

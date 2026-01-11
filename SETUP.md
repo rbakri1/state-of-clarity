@@ -69,7 +69,39 @@ Click on any showcase brief (e.g., "UK 4-Day Work Week") to see the full brief v
 
 ---
 
-## Step 5: Set Up Supabase (Optional - for full functionality)
+## Step 5: Configure OAuth Providers (Optional)
+
+### Google OAuth Setup
+
+To enable "Continue with Google" sign-in:
+
+1. **Create Google OAuth Credentials**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+   - Navigate to **APIs & Services > Credentials**
+   - Click **Create Credentials > OAuth client ID**
+   - Select **Web application** as the application type
+   - Add authorized redirect URIs:
+     - For development: `http://localhost:3000/auth/callback`
+     - For production: `https://your-domain.com/auth/callback`
+     - Supabase callback: `https://your-project.supabase.co/auth/v1/callback`
+
+2. **Configure Supabase**:
+   - Go to your [Supabase Dashboard](https://app.supabase.com/)
+   - Navigate to **Authentication > Providers**
+   - Enable **Google**
+   - Enter your **Client ID** and **Client Secret** from Google Cloud Console
+   - Save the configuration
+
+3. **Update Authorized Domains** (if needed):
+   - In Google Cloud Console, go to **OAuth consent screen**
+   - Add your production domain to **Authorized domains**
+
+**Note**: Google OAuth requires HTTPS in production. It works on `localhost` for development.
+
+---
+
+## Step 6: Set Up Supabase (Optional - for full functionality)
 
 ### Create Database Tables
 
@@ -155,7 +187,7 @@ CREATE POLICY "Authenticated users can create feedback"
 
 ---
 
-## Step 6: Test the Sample Brief
+## Step 7: Test the Sample Brief
 
 1. Navigate to [http://localhost:3000](http://localhost:3000)
 2. Click on "UK 4-Day Work Week" showcase brief
