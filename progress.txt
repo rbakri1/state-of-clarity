@@ -116,3 +116,20 @@ Thread: https://ampcode.com/threads/T-019babdf-9e81-73dd-a435-2381bbc6659e
   - The Services ID is what gets configured in Supabase, not the App ID
   - Apple OAuth button pattern is identical to Google - just change provider name
 ---
+
+## 2026-01-11 - US-006
+Thread: https://ampcode.com/threads/T-019babe3-2621-76b2-83ac-60fe9f65d864
+- Created auth callback handler at /app/auth/callback/route.ts
+- Features:
+  - Exchanges auth code for session via supabase.auth.exchangeCodeForSession()
+  - Checks if profile exists for the authenticated user
+  - Creates profile record if new user (using user.id and full_name from metadata)
+  - Redirects to homepage on success
+  - Redirects to /auth/error with reason query param on failure
+- **Files changed:**
+  - app/auth/callback/route.ts (new)
+- **Learnings for future iterations:**
+  - Don't use generic Database type param with createServerClient when doing inserts - causes type conflicts
+  - Use untyped createServerClient for route handlers that do simple inserts
+  - Profile creation can fail silently - user still gets authenticated
+---
