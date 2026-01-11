@@ -26,7 +26,7 @@ import {
   logRefinementSummary,
   logOrchestratorExecution,
   logReconciliationExecution,
-} from "@/lib/agents/execution-logger";
+} from "@/lib/agents/refinement-logger";
 
 const TARGET_SCORE = 8.0;
 const MAX_ATTEMPTS = 3;
