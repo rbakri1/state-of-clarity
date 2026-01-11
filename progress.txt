@@ -431,3 +431,21 @@ Thread: https://ampcode.com/threads/T-019baceb-b5fe-7777-bb4b-957d47c50249
   - Map profile reading levels to brief reading levels with a helper function
   - localStorage persists anonymous user preferences across sessions
 ---
+
+## 2026-01-11 - US-023
+Thread: https://ampcode.com/threads/T-019bacef-8afc-707d-90b0-0fc70e815d55
+- Implemented personalized topic interests on homepage
+- Features:
+  - Fetches user's topic_interests from profile if authenticated
+  - Updated TopicCategoriesGrid to accept highlightedTopics prop
+  - Highlighted topics show accent border, ring, and dot indicator
+  - Added "For You" section with questions from interested topics
+  - Falls back to "Browse by Topic" for anonymous users
+  - Falls back to "Select topics in Settings" message for authenticated users with no interests
+- **Files changed:**
+  - app/page.tsx (modified - added personalization state, For You section, TopicCategoriesGrid integration)
+  - app/components/TopicCategoriesGrid.tsx (modified - added highlightedTopics prop and styling)
+- **Learnings for future iterations:**
+  - Question templates category uses capitalized first letter (e.g., "Economy" not "economy")
+  - Use type assertions for Supabase profile queries: `(profile as { topic_interests: string[] | null } | null)`
+---
