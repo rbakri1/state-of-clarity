@@ -97,3 +97,17 @@ Thread: https://ampcode.com/threads/T-019bad1b-1d5e-759c-87b5-9f5d8f40426c
   - Convert return NextResponse.json({ error: ... }) to throw ApiError.xxx() for consistent error handling
   - withErrorHandling wrapper handles Sentry logging automatically, no need to manually log
 ---
+
+## 2026-01-11 - US-007
+Thread: https://ampcode.com/threads/T-019bad1d-dfec-74c3-b62c-7f070291f441
+- Created /lib/utils/retry.ts with retryWithBackoff function
+- Options: maxRetries (default 3), initialDelay (1000ms), maxDelay (30000ms), shouldRetry predicate
+- Exponential backoff: delay doubles each retry (delay * 2^attempt)
+- Jitter: adds random 0-20% to delay to prevent thundering herd
+- Throws last error after all retries exhausted
+- Optional shouldRetry callback to control which errors trigger retry
+- **Learnings for future iterations:**
+  - lib/utils/ directory was created for this feature (didn't exist before)
+  - Use Math.pow(2, attempt) for exponential calculation
+  - Jitter should be a percentage of delay, not a fixed value
+---

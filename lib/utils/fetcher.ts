@@ -1,90 +1,68 @@
 import { retryWithBackoff, RetryOptions } from './retry';
 
-export interface FetchWithRetryOptions extends Omit<RetryOptions, 'shouldRetry'> {
-  retryOn5xx?: boolean;
-  retryOnNetworkError?: boolean;
-}
-
-const DEFAULT_FETCH_OPTIONS: Required<Pick<FetchWithRetryOptions, 'retryOn5xx' | 'retryOnNetworkError'>> = {
-  retryOn5xx: true,
-  retryOnNetworkError: true,
-};
-
-function isNetworkError(error: unknown): boolean {
-  return error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('network'));
-}
-
-function is5xxResponse(response: Response): boolean {
-  return response.status >= 500 && response.status < 600;
-}
-
-function is4xxResponse(response: Response): boolean {
-  return response.status >= 400 && response.status < 500;
+export interface FetchWithRetryOptions extends RequestInit {
+  retry?: RetryOptions;
 }
 
 export class FetchError extends Error {
-  constructor(
-    message: string,
-    public readonly status: number,
-    public readonly response: Response
-  ) {
-    super(message);
+  status: number;
+  statusText: string;
+  
+  constructor(status: number, statusText: string, message?: string) {
+    super(message || `HTTP ${status}: ${statusText}`);
     this.name = 'FetchError';
+    this.status = status;
+    this.statusText = statusText;
     Object.setPrototypeOf(this, FetchError.prototype);
   }
 }
 
-export async function fetchWithRetry(
+function isRetryableStatus(status: number): boolean {
+  return status >= 500 && status <= 599;
+}
+
+function shouldRetryFetch(error: unknown): boolean {
+  if (error instanceof TypeError) {
+    return true;
+  }
+  
+  if (error instanceof FetchError) {
+    return isRetryableStatus(error.status);
+  }
+  
+  return false;
+}
+
+export async function fetchWithRetry<T = unknown>(
   url: string,
-  options: RequestInit & FetchWithRetryOptions = {}
-): Promise<Response> {
-  const {
-    maxRetries,
-    initialDelay,
-    maxDelay,
-    retryOn5xx = DEFAULT_FETCH_OPTIONS.retryOn5xx,
-    retryOnNetworkError = DEFAULT_FETCH_OPTIONS.retryOnNetworkError,
-    ...fetchOptions
-  } = options;
-
-  const retryOptions: RetryOptions = {
-    maxRetries,
-    initialDelay,
-    maxDelay,
-    shouldRetry: (error: unknown) => {
-      if (isNetworkError(error)) {
-        if (retryOnNetworkError) {
-          console.log(`Network error, will retry: ${(error as Error).message}`);
-          return true;
-        }
-        return false;
-      }
-      
-      if (error instanceof FetchError) {
-        if (is5xxResponse(error.response) && retryOn5xx) {
-          console.log(`Server error (${error.status}), will retry`);
-          return true;
-        }
-        if (is4xxResponse(error.response)) {
-          return false;
-        }
-      }
-      
-      return false;
-    },
-  };
-
-  return retryWithBackoff(async () => {
+  options: FetchWithRetryOptions = {}
+): Promise<{ response: Response; data: T }> {
+  const { retry: retryOptions, ...fetchOptions } = options;
+  
+  const executeRequest = async (): Promise<{ response: Response; data: T }> => {
     const response = await fetch(url, fetchOptions);
     
     if (!response.ok) {
-      throw new FetchError(
-        `HTTP ${response.status}: ${response.statusText}`,
+      const error = new FetchError(
         response.status,
-        response
+        response.statusText,
+        `Request failed: ${response.status} ${response.statusText}`
       );
+      
+      if (!isRetryableStatus(response.status)) {
+        throw error;
+      }
+      
+      console.log(`Retryable error: ${response.status} ${response.statusText}`);
+      throw error;
     }
     
-    return response;
-  }, retryOptions);
+    const data = await response.json() as T;
+    return { response, data };
+  };
+  
+  return retryWithBackoff(executeRequest, {
+    ...retryOptions,
+    shouldRetry: shouldRetryFetch,
+  });
 }
