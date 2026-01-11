@@ -137,3 +137,15 @@ Thread: https://ampcode.com/threads/T-019baec8-5a84-741b-80d5-f7cecc3ab0fa
   - Currently no POST/PUT brief API endpoints - briefs are created via internal service functions
   - Validation pattern: use safeParse, check success, return 400 with error.errors[0].message
 ---
+
+## Mon 12 Jan 2026 - US-010
+Thread: https://ampcode.com/threads/T-019baeca-951e-761a-978a-ff6b5ee2474e
+- Created /lib/validation/admin-schemas.ts with cacheFlushSchema
+- Schema validates optional pattern string (min 1, max 200 chars)
+- Updated /app/api/admin/cache-flush/route.ts to use safeParse validation
+- Returns 400 Bad Request with error details on validation failure
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Admin schemas follow same pattern as brief-schemas.ts
+  - Use `unknown` type for rawBody before validation for type safety
+---
