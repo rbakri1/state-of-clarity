@@ -5,6 +5,7 @@ Started: Sun 11 Jan 2026 22:25:49 +04
 - Use `npm run build` to typecheck the project
 - Vercel KV uses `kv` export from `/lib/cache/kv-client.ts` with automatic fallback to in-memory
 - Cache key format convention: `{resource}:{id}` e.g., `brief:abc123`
+- Use `(supabase.from("table") as any).update()` for Supabase updates due to type inference issues
 
 ---
 
@@ -53,4 +54,15 @@ Thread: https://ampcode.com/threads/T-019bae5c-8c0b-76ad-9396-b3fe5e68026d
   - lib/services directory did not exist; created it for this story
   - Use `createServiceRoleClient()` for server-side data fetching that bypasses RLS
   - PGRST116 is the Supabase error code for "no rows found"
+---
+
+## Sun 11 Jan 2026 - US-005
+Thread: https://ampcode.com/threads/T-019bae5e-e328-7158-a40c-4a786c7e1158
+- Added updateBriefFromState and updateBriefClassification functions to /lib/services/brief-service.ts
+- Both functions call invalidateCache for the specific brief and "briefs:popular" key after successful update
+- Used `as any` cast on supabase.from("briefs") to work around Database type inference issue
+- **Learnings for future iterations:**
+  - Supabase's typed client may infer `never` for .update() if Database types are incomplete
+  - Use `(supabase.from("table") as any).update()` pattern to work around strict types
+  - Always invalidate both specific cache key and related collection caches (e.g., `briefs:popular`)
 ---
