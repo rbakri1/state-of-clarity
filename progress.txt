@@ -293,3 +293,30 @@ Thread: https://ampcode.com/threads/T-019baf6d-3cf7-70e2-a98a-ce7c2d710db6
   - Character count uses tabular-nums for stable width
   - aria-describedby connects input to hint text for accessibility
 ---
+
+## 2026-01-12 23:45 - US-015 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019baf76-5ffd-7081-b851-c1bbfabf87d8
+- **What was implemented:** Complete polish of all 4 authentication pages
+- **Files changed:**
+  - app/auth/signin/page.tsx (complete redesign with design system)
+  - app/auth/signup/page.tsx (added age verification checkbox, design system)
+  - app/auth/error/page.tsx (design system colors and typography)
+  - app/auth/deleted-account/page.tsx (design system colors and typography)
+- **Features:**
+  - Design system colors: bg-ivory-100/50, text-ink-500/600/800, bg-sage-500/600/700
+  - Typography: font-heading for titles, font-ui for labels and buttons
+  - Age verification checkbox on sign-up (accessible role="checkbox" pattern)
+  - Loading states: Loader2 spinner icons from lucide-react
+  - Error/success messages: success-light/error-light with border-success/error/20
+  - Links to /privacy and /terms on both sign-in and sign-up
+  - Links between sign-in and sign-up pages
+  - Focus rings: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - Google and Apple OAuth buttons with proper disabled states
+  - Back to home links with ArrowLeft icon
+- **Learnings for future iterations:**
+  - OAuth handlers should check age verification before triggering (sign-up page)
+  - Use role="checkbox" aria-checked pattern for custom checkbox styling
+  - Use success-light/error-light from semantic colors for message backgrounds
+  - Border colors can use opacity: border-error/20
+  - Suspense boundary needed in error page for useSearchParams
+---

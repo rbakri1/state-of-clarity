@@ -276,8 +276,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "All 4 auth pages polished with design system: sign-in, sign-up, error, and deleted-account. Uses ivory/ink/sage palette, font-heading/font-ui typography, focus-visible:ring-2 rings, Loader2 spinners for loading states, success-light/error-light semantic colors for messages. Sign-up includes age verification checkbox (13+) with accessible checkbox role. All pages link to privacy/terms."
     },
     {
       "id": "US-016",
