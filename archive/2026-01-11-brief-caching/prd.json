@@ -1,0 +1,220 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/security-gdpr",
+  "description": "Security Hardening & GDPR Compliance - Cookie consent, privacy policy, security headers, input validation, and secrets audit for MVP launch readiness",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create privacy policy page",
+      "description": "As a user, I want to read the privacy policy so I understand how my data is handled.",
+      "acceptanceCriteria": [
+        "Create /app/privacy/page.tsx",
+        "Include sections: What data we collect, How we use it, Third parties (Supabase, Stripe, Vercel), User rights (export, delete), Contact info",
+        "Use simple, readable language (not legalese)",
+        "Link to privacy policy from footer",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create terms of service page",
+      "description": "As a user, I want to read the terms of service so I understand the rules of using the platform.",
+      "acceptanceCriteria": [
+        "Create /app/terms/page.tsx",
+        "Include sections: Acceptance of terms, User responsibilities, Intellectual property, Limitation of liability, Termination",
+        "Use simple, readable language",
+        "Link to terms from footer",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create cookie consent banner component",
+      "description": "As a user, I want to consent to cookies so the site complies with GDPR/ePrivacy.",
+      "acceptanceCriteria": [
+        "Create /components/cookie-consent-banner.tsx",
+        "Banner appears at bottom of screen for new visitors",
+        "Shows message explaining cookies used (analytics, functionality)",
+        "Accept and Decline buttons",
+        "Link to privacy policy from banner",
+        "Banner does not block page content",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Persist cookie consent preference",
+      "description": "As a user, I want my cookie preference saved so I don't see the banner repeatedly.",
+      "acceptanceCriteria": [
+        "Store consent in localStorage key 'cookie-consent' with value 'accepted' | 'declined'",
+        "If consent exists, do not show banner",
+        "If declined, do not load analytics scripts (if any)",
+        "Consent persists across sessions",
+        "Add consent timestamp for audit trail",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Audit user data export functionality",
+      "description": "As a developer, I need to verify user data export works completely and includes all user data.",
+      "acceptanceCriteria": [
+        "Review existing export endpoint/functionality from Epic 5.1",
+        "Verify export includes: profile data, briefs created, preferences, activity history",
+        "Test export with a real user account",
+        "Export format is JSON (machine-readable)",
+        "Document what data is included in /docs/GDPR.md",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Audit account deletion functionality",
+      "description": "As a developer, I need to verify account deletion completely removes user data.",
+      "acceptanceCriteria": [
+        "Review existing delete endpoint/functionality from Epic 5.1",
+        "Verify deletion removes: auth record, profile, preferences, activity",
+        "Briefs should be ANONYMIZED (not deleted) - set user_id to null, keep content",
+        "Verify deletion cascades properly in database",
+        "Test deletion with a test user account",
+        "Add confirmation step before deletion if not present",
+        "Document deletion process in /docs/GDPR.md",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Add security headers",
+      "description": "As a developer, I need security headers to prevent common web attacks.",
+      "acceptanceCriteria": [
+        "Update next.config.mjs to add security headers",
+        "Add X-Frame-Options: DENY (prevent clickjacking)",
+        "Add X-Content-Type-Options: nosniff (prevent MIME sniffing)",
+        "Add X-XSS-Protection: 1; mode=block",
+        "Add Referrer-Policy: strict-origin-when-cross-origin",
+        "Add Permissions-Policy to disable unused features (camera, microphone, geolocation)",
+        "Verify headers appear in browser DevTools Network tab",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create Zod schemas for brief API",
+      "description": "As a developer, I need input validation schemas to prevent bad data.",
+      "acceptanceCriteria": [
+        "Create /lib/validation/brief-schemas.ts",
+        "Schema for brief creation request body",
+        "Schema for brief update request body",
+        "Schema for brief query params (id validation)",
+        "Export typed inferred types from schemas",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Apply Zod validation to brief API endpoints",
+      "description": "As a developer, I need API endpoints to validate input and return clear errors.",
+      "acceptanceCriteria": [
+        "Update /app/api/briefs/[id]/route.ts to validate id param",
+        "Update any POST/PUT brief endpoints to validate request body",
+        "Return 400 Bad Request with clear error message on validation failure",
+        "Use Zod's safeParse for non-throwing validation",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Apply Zod validation to admin endpoints",
+      "description": "As a developer, I need admin endpoints to validate input strictly.",
+      "acceptanceCriteria": [
+        "Create /lib/validation/admin-schemas.ts",
+        "Add schema for cache-flush endpoint body",
+        "Update /app/api/admin/cache-flush/route.ts to validate body",
+        "Return 400 with error details on validation failure",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Audit secrets and environment variables",
+      "description": "As a developer, I need to ensure no secrets are exposed in code.",
+      "acceptanceCriteria": [
+        "Search codebase for hardcoded API keys, tokens, passwords",
+        "Verify all secrets are in .env and not committed",
+        "Verify .env is in .gitignore",
+        "Update .env.example with all required env vars (no actual values)",
+        "Document required environment variables in README or SETUP.md",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create GDPR documentation",
+      "description": "As a developer, I need documentation explaining our GDPR compliance approach.",
+      "acceptanceCriteria": [
+        "Create /docs/GDPR.md",
+        "Document what personal data we collect and why",
+        "Document data retention policy",
+        "Document how to handle data export requests",
+        "Document how to handle deletion requests",
+        "Document third-party data processors (Supabase, Stripe, Vercel)",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Add age verification to signup",
+      "description": "As a platform, I need to verify users are 13+ to comply with COPPA/GDPR-K.",
+      "acceptanceCriteria": [
+        "Add checkbox to signup form: 'I confirm I am 13 years of age or older'",
+        "Checkbox must be checked to proceed with signup",
+        "Store age_verified: true in user profile/metadata",
+        "Block signup if checkbox not checked with clear error message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
