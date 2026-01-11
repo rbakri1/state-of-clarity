@@ -13,6 +13,24 @@ Started: Sun 11 Jan 2026
 - Clean .next cache with `rm -rf .next` if build fails with manifest errors
 - Protected routes should check auth and redirect to /auth/signin if not authenticated
 - Use withErrorHandling wrapper for API routes for consistent error responses
+- Sentry config files: sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+- instrumentation.ts imports server/edge configs; instrumentation-client.ts handles client init
+- Build type errors with Object.entries need explicit Record<string, T> type assertion
 
+---
+
+## 2026-01-11 - US-001
+Thread: https://ampcode.com/threads/T-019bad10-4e9b-77ab-825f-29c9e6e8ac02
+- Installed and configured Sentry for error tracking
+- Files created: sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+- Updated instrumentation.ts to import from config files
+- Added SENTRY_DSN to .env.example
+- next.config.mjs already had withSentryConfig wrapper
+- SETUP.md already documented Sentry setup
+- Fixed type error in brief page (Object.entries breakdown mapping)
+- **Learnings for future iterations:**
+  - The project uses instrumentation.ts + instrumentation-client.ts pattern (Sentry's newer approach)
+  - sentry.client.config.ts is deprecated in favor of instrumentation-client.ts but both work
+  - Add onRouterTransitionStart export to instrumentation-client.ts for navigation tracking
 ---
 
