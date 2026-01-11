@@ -1,21 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { SwarmVisualization } from "@/app/components/SwarmVisualization";
+import { useGenerationStream } from "@/lib/hooks/useGenerationStream";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const {
+    isGenerating,
+    currentStage,
+    agentStatuses,
+    briefId,
+    error,
+    isComplete,
+    startGeneration,
+    reset,
+  } = useGenerationStream();
+
+  useEffect(() => {
+    if (isComplete && briefId) {
+      const timeout = setTimeout(() => {
+        router.push(`/brief/${briefId}`);
+      }, 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [isComplete, briefId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!question.trim()) return;
+    if (!question.trim() || isGenerating) return;
+    startGeneration(question.trim());
+  };
 
-    setIsLoading(true);
-    // TODO: Implement API call
-    // For now, redirect to sample brief
-    window.location.href = "/brief/uk-four-day-week";
+  const handleCancel = () => {
+    reset();
   };
 
   const showcaseBriefs = [
@@ -72,136 +94,186 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - Show SwarmVisualization when generating */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Sparkles className="w-4 h-4" />
-            <span>Applied AI Research Assistant</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight">
-            See politics clearly.
-            <br />
-            <span className="clarity-gradient bg-clip-text text-transparent">
-              Decide wisely.
-            </span>
-          </h1>
-
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Transform any political question into a beautifully crafted,
-            evidence-rich policy brief in seconds.
-          </p>
-
-          {/* Ask Anything Interface */}
-          <form onSubmit={handleSubmit} className="mt-8">
-            <div className="relative max-w-2xl mx-auto">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask anything... (e.g., 'What are the economic impacts of a 4-day work week?')"
-                className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition text-base"
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={isLoading || !question.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-              >
-                {isLoading ? "Generating..." : "Get Brief"}
-              </button>
-            </div>
-          </form>
-
-          {/* Features */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold mb-2">Progressive Summaries</h3>
-              <p className="text-sm text-muted-foreground">
-                4 reading levels from child to post-doc. Meets you where you
-                are.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="font-semibold mb-2">Transparent Sources</h3>
-              <p className="text-sm text-muted-foreground">
-                Every claim linked to primary sources. Bias tags included.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold mb-2">Clarity Score</h3>
-              <p className="text-sm text-muted-foreground">
-                AI critiques its own answers for bias, gaps, and coherence.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Showcase Briefs */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2">Explore Showcase Briefs</h2>
-          <p className="text-muted-foreground">
-            See State of Clarity in action with these pre-generated examples
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {showcaseBriefs.map((brief) => (
-            <Link
-              key={brief.id}
-              href={`/brief/${brief.id}`}
-              className="group p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary hover:shadow-lg transition"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className={`clarity-score-badge ${
-                    brief.clarity_score >= 8
-                      ? "high"
-                      : brief.clarity_score >= 6
-                      ? "medium"
-                      : "low"
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{brief.clarity_score}/10</span>
+        {isGenerating || isComplete ? (
+          <div className="text-center space-y-6">
+            {error ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400">
+                  <p className="font-medium">Generation failed</p>
+                  <p className="text-sm mt-1">{error}</p>
                 </div>
+                <button
+                  onClick={handleCancel}
+                  className="px-6 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                >
+                  Try Again
+                </button>
               </div>
-
-              <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition">
-                {brief.question}
-              </h3>
-
-              <div className="flex flex-wrap gap-2">
-                {brief.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs font-medium"
+            ) : (
+              <>
+                <SwarmVisualization
+                  agentStatuses={agentStatuses}
+                  currentStage={currentStage}
+                  isComplete={isComplete}
+                />
+                {isComplete && briefId && (
+                  <div className="animate-fade-in">
+                    <p className="text-muted-foreground">
+                      Redirecting to your brief...
+                    </p>
+                    <Link
+                      href={`/brief/${briefId}`}
+                      className="inline-block mt-4 px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition"
+                    >
+                      View Brief Now
+                    </Link>
+                  </div>
+                )}
+                {!isComplete && (
+                  <button
+                    onClick={handleCancel}
+                    className="text-sm text-muted-foreground hover:text-foreground transition underline"
                   >
-                    {tag}
-                  </span>
-                ))}
+                    Cancel
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <Sparkles className="w-4 h-4" />
+              <span>Applied AI Research Assistant</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight">
+              See politics clearly.
+              <br />
+              <span className="clarity-gradient bg-clip-text text-transparent">
+                Decide wisely.
+              </span>
+            </h1>
+
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Transform any political question into a beautifully crafted,
+              evidence-rich policy brief in seconds.
+            </p>
+
+            {/* Ask Anything Interface */}
+            <form onSubmit={handleSubmit} className="mt-8">
+              <div className="relative max-w-2xl mx-auto">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <input
+                  type="text"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Ask anything... (e.g., 'What are the economic impacts of a 4-day work week?')"
+                  className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition text-base"
+                  disabled={isGenerating}
+                />
+                <button
+                  type="submit"
+                  disabled={isGenerating || !question.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                >
+                  {isGenerating ? "Generating..." : "Get Brief"}
+                </button>
               </div>
-            </Link>
-          ))}
-        </div>
+            </form>
+
+            {/* Features */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">
+              <div className="p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                  <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="font-semibold mb-2">Progressive Summaries</h3>
+                <p className="text-sm text-muted-foreground">
+                  4 reading levels from child to post-doc. Meets you where you
+                  are.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
+                  <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="font-semibold mb-2">Transparent Sources</h3>
+                <p className="text-sm text-muted-foreground">
+                  Every claim linked to primary sources. Bias tags included.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                  <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="font-semibold mb-2">Clarity Score</h3>
+                <p className="text-sm text-muted-foreground">
+                  AI critiques its own answers for bias, gaps, and coherence.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
+
+      {/* Showcase Briefs - Hide when generating */}
+      {!isGenerating && !isComplete && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">Explore Showcase Briefs</h2>
+            <p className="text-muted-foreground">
+              See State of Clarity in action with these pre-generated examples
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {showcaseBriefs.map((brief) => (
+              <Link
+                key={brief.id}
+                href={`/brief/${brief.id}`}
+                className="group p-6 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary hover:shadow-lg transition"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div
+                    className={`clarity-score-badge ${
+                      brief.clarity_score >= 8
+                        ? "high"
+                        : brief.clarity_score >= 6
+                        ? "medium"
+                        : "low"
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>{brief.clarity_score}/10</span>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition">
+                  {brief.question}
+                </h3>
+
+                <div className="flex flex-wrap gap-2">
+                  {brief.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-800 mt-16">

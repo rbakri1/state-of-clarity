@@ -56,6 +56,7 @@ export interface Database {
           foundational_principles: any | null; // JSONB
           clarity_score: number | null;
           clarity_critique: any | null; // JSONB
+          classification: any | null; // JSONB - QuestionClassification
           metadata: any; // JSONB
           fork_of: string | null;
         };
@@ -66,6 +67,7 @@ export interface Database {
           narrative: string;
           user_id?: string | null;
           clarity_score?: number | null;
+          classification?: any | null;
           metadata?: any;
         };
         Update: {
@@ -73,6 +75,7 @@ export interface Database {
           structured_data?: any;
           narrative?: string;
           clarity_score?: number | null;
+          classification?: any | null;
         };
       };
       sources: {
@@ -170,6 +173,33 @@ export interface Database {
           progress?: number;
           brief_id?: string | null;
           error_message?: string | null;
+        };
+      };
+      agent_execution_logs: {
+        Row: {
+          id: string;
+          brief_id: string | null;
+          agent_name: string;
+          started_at: string;
+          completed_at: string | null;
+          duration_ms: number | null;
+          status: "running" | "completed" | "failed";
+          error_message: string | null;
+          metadata: any; // JSONB
+        };
+        Insert: {
+          brief_id?: string | null;
+          agent_name: string;
+          started_at?: string;
+          status?: "running" | "completed" | "failed";
+          metadata?: any;
+        };
+        Update: {
+          completed_at?: string;
+          duration_ms?: number;
+          status?: "running" | "completed" | "failed";
+          error_message?: string | null;
+          metadata?: any;
         };
       };
     };
