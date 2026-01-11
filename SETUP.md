@@ -253,6 +253,42 @@ State of Clarity _ Claude/
 
 ---
 
+## Step 7: Set Up Sentry Error Tracking (Optional)
+
+Sentry provides real-time error tracking and performance monitoring.
+
+### Create a Sentry Account
+
+1. Sign up at [sentry.io](https://sentry.io/) (free tier available)
+2. Create a new project and select **Next.js** as the platform
+3. Copy your DSN from the project settings
+
+### Configure Environment Variables
+
+Add to your `.env.local`:
+```env
+NEXT_PUBLIC_SENTRY_DSN=https://your-dsn@o123456.ingest.sentry.io/1234567
+SENTRY_DSN=https://your-dsn@o123456.ingest.sentry.io/1234567
+```
+
+Optionally, for source map uploads in production:
+```env
+SENTRY_ORG=your-org-name
+SENTRY_PROJECT=your-project-name
+SENTRY_AUTH_TOKEN=your-auth-token
+```
+
+### Configuration Files
+
+The following files configure Sentry for different runtimes:
+- `sentry.client.config.ts` - Client-side error tracking
+- `sentry.server.config.ts` - Server-side error tracking
+- `sentry.edge.config.ts` - Edge runtime error tracking
+
+Sentry is automatically disabled if the DSN environment variable is not set.
+
+---
+
 ## Getting Help
 
 - **Notion Page Issue**: The Notion page you shared requires authentication. Please export it as Markdown or make it publicly accessible to integrate your existing content.

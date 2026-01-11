@@ -1,0 +1,419 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/user-accounts-personalization",
+  "description": "User Accounts & Personalization - Magic link + OAuth auth, profile management, settings, GDPR compliance, and personalized experience",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Update profiles schema with preferences",
+      "description": "As a developer, I need to extend the profiles table with preference fields.",
+      "acceptanceCriteria": [
+        "Add columns to profiles table in schema.sql: preferred_reading_level TEXT DEFAULT 'standard'",
+        "Add topic_interests TEXT[] (array of category strings)",
+        "Add location TEXT",
+        "Add notification_email_digest BOOLEAN DEFAULT false",
+        "Add notification_new_features BOOLEAN DEFAULT true",
+        "Add TypeScript types to Database interface",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create sign-in page with magic link",
+      "description": "As a visitor, I want to sign in with my email via magic link.",
+      "acceptanceCriteria": [
+        "Create /app/auth/signin/page.tsx",
+        "Email input field with validation",
+        "Send magic link button calls Supabase auth.signInWithOtp({ email })",
+        "Show success message: 'Check your email for the login link'",
+        "Show error if email invalid or rate limited",
+        "Link to sign up page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create sign-up page",
+      "description": "As a visitor, I want to create an account.",
+      "acceptanceCriteria": [
+        "Create /app/auth/signup/page.tsx",
+        "Fields: Email (required), Full Name (optional)",
+        "Create account button sends magic link with user metadata",
+        "Show success message: 'Check your email to confirm'",
+        "Link to sign in if existing user",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add Google OAuth sign-in",
+      "description": "As a visitor, I want to sign in with my Google account.",
+      "acceptanceCriteria": [
+        "Add 'Continue with Google' button to sign-in page",
+        "Call Supabase auth.signInWithOAuth({ provider: 'google' })",
+        "Configure redirect URL to /auth/callback",
+        "Document Google OAuth setup steps in SETUP.md",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Add Apple OAuth sign-in",
+      "description": "As a visitor, I want to sign in with my Apple account.",
+      "acceptanceCriteria": [
+        "Add 'Continue with Apple' button to sign-in page",
+        "Call Supabase auth.signInWithOAuth({ provider: 'apple' })",
+        "Configure redirect URL to /auth/callback",
+        "Document Apple OAuth setup steps in SETUP.md",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create auth callback handler",
+      "description": "As a developer, I need to handle OAuth and magic link callbacks.",
+      "acceptanceCriteria": [
+        "Create /app/auth/callback/route.ts",
+        "Exchange auth code for session using Supabase",
+        "Create profile record if new user (check if profile exists)",
+        "Redirect to homepage on success",
+        "Redirect to /auth/error on failure",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create auth error page",
+      "description": "As a user, I want to see a clear error if authentication fails.",
+      "acceptanceCriteria": [
+        "Create /app/auth/error/page.tsx",
+        "Display friendly error message",
+        "Show 'Try again' button linking to sign-in",
+        "Show 'Contact support' link",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Add sign-out functionality",
+      "description": "As a user, I want to sign out of my account.",
+      "acceptanceCriteria": [
+        "Create /app/api/auth/signout/route.ts",
+        "Call Supabase auth.signOut()",
+        "Redirect to homepage after sign out",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create user menu component",
+      "description": "As a user, I want to access my account from the header.",
+      "acceptanceCriteria": [
+        "Create /app/components/UserMenu.tsx",
+        "Show 'Sign in' button if not authenticated",
+        "Show avatar + dropdown if authenticated",
+        "Dropdown options: Profile, Settings, Sign out",
+        "Use Supabase auth state for real-time updates",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Integrate UserMenu into layout",
+      "description": "As a user, I want to see the user menu on all pages.",
+      "acceptanceCriteria": [
+        "Add UserMenu to app/layout.tsx header section",
+        "Position in top-right corner",
+        "Responsive: works on mobile and desktop",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create profile page",
+      "description": "As a user, I want to view my profile.",
+      "acceptanceCriteria": [
+        "Create /app/profile/page.tsx (protected route)",
+        "Display: avatar, full name, username, bio, location, member since",
+        "Display stats: briefs generated, briefs saved, feedback count",
+        "Show 'Edit profile' button",
+        "Links to saved briefs and reading history",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create profile API endpoint",
+      "description": "As a developer, I need an API to get and update profiles.",
+      "acceptanceCriteria": [
+        "Create /app/api/profile/route.ts",
+        "GET: Return current user's profile with stats",
+        "PATCH: Update profile fields (full_name, username, bio, location)",
+        "Validate username format (3-20 chars, alphanumeric + underscore)",
+        "Check username uniqueness",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Create profile edit page",
+      "description": "As a user, I want to update my profile information.",
+      "acceptanceCriteria": [
+        "Create /app/profile/edit/page.tsx",
+        "Editable fields: Full name, Username, Bio (280 char limit), Location",
+        "Avatar display (upload in separate story)",
+        "Save button calls profile PATCH API",
+        "Show success toast on save",
+        "Show validation errors inline",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Create avatar upload functionality",
+      "description": "As a user, I want to upload a profile picture.",
+      "acceptanceCriteria": [
+        "Add avatar upload to profile edit page",
+        "Create /app/api/profile/avatar/route.ts",
+        "Accept image upload (jpg, png, gif, webp, max 2MB)",
+        "Upload to Supabase Storage bucket 'avatars'",
+        "Update profile.avatar_url with public URL",
+        "Show preview before upload",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Create settings page shell",
+      "description": "As a user, I want to access my account settings.",
+      "acceptanceCriteria": [
+        "Create /app/settings/page.tsx (protected route)",
+        "Sections: Preferences, Notifications, Connected Accounts, Data & Privacy",
+        "Each section as collapsible card",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Add reading preferences to settings",
+      "description": "As a user, I want to set my default reading level.",
+      "acceptanceCriteria": [
+        "Add Preferred Reading Level dropdown to settings",
+        "Options: Simple, Standard, Advanced",
+        "Auto-save on change",
+        "Call profile PATCH API to update preferred_reading_level",
+        "Show save confirmation",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Add topic interests to settings",
+      "description": "As a user, I want to select topics I'm interested in.",
+      "acceptanceCriteria": [
+        "Add Topic Interests section to settings",
+        "Show all 10 categories as toggleable chips",
+        "Auto-save on change (debounced 500ms)",
+        "Update profiles.topic_interests array",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Add notification preferences to settings",
+      "description": "As a user, I want to control email notifications.",
+      "acceptanceCriteria": [
+        "Add Notifications section to settings",
+        "Toggle: Weekly digest of new briefs",
+        "Toggle: New feature announcements",
+        "Auto-save on toggle",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Add connected accounts section to settings",
+      "description": "As a user, I want to see which accounts are connected.",
+      "acceptanceCriteria": [
+        "Add Connected Accounts section to settings",
+        "Show Google with 'Connected' badge if linked",
+        "Show Apple with 'Connected' badge if linked",
+        "Note: 'Contact support to disconnect' for MVP",
+        "Fetch linked providers from Supabase auth",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Create GDPR data export",
+      "description": "As a user, I want to download all my data.",
+      "acceptanceCriteria": [
+        "Add 'Export my data' button to settings Data & Privacy section",
+        "Create /app/api/profile/export/route.ts",
+        "Compile: profile, saved briefs, reading history, feedback",
+        "Return as downloadable JSON file",
+        "Show loading state during compilation",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Implement delete account flow",
+      "description": "As a user, I want to permanently delete my account.",
+      "acceptanceCriteria": [
+        "Update /app/settings/delete-account/page.tsx",
+        "Show warning about permanent deletion",
+        "Require typing 'DELETE' to confirm",
+        "Create /app/api/profile/delete/route.ts",
+        "Delete user via Supabase admin (cascades to profile)",
+        "Sign out and redirect to /auth/deleted-account",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Apply preferred reading level to brief pages",
+      "description": "As a user, I want my preferred reading level applied automatically.",
+      "acceptanceCriteria": [
+        "On brief page, fetch user's preferred_reading_level if authenticated",
+        "Use as default if no URL param specified",
+        "Fall back to localStorage for anonymous users",
+        "Fall back to 'standard' if nothing set",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Show personalized topics on homepage",
+      "description": "As a user, I want to see my interested topics highlighted.",
+      "acceptanceCriteria": [
+        "On homepage, fetch user's topic_interests if authenticated",
+        "Highlight interested topics in TopicCategoriesGrid (accent border)",
+        "Show 'For you' section with questions from interested topics",
+        "Fall back to featured questions for anonymous users",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Create saved briefs page",
+      "description": "As a user, I want to view all briefs I've saved.",
+      "acceptanceCriteria": [
+        "Create /app/profile/saved/page.tsx (protected route)",
+        "Fetch from saved_briefs joined with briefs",
+        "Display cards: question, clarity score, saved date",
+        "Link to /brief/[id]",
+        "Show empty state if none",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-025",
+      "title": "Create reading history page",
+      "description": "As a user, I want to see briefs I've read.",
+      "acceptanceCriteria": [
+        "Create /app/profile/history/page.tsx (protected route)",
+        "Fetch from reading_history joined with briefs",
+        "Display: question, clarity score, last viewed, scroll depth %",
+        "Order by last_viewed_at DESC",
+        "Link to /brief/[id]",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

@@ -1,20 +1,19 @@
 {
   "project": "State of Clarity",
-  "branchName": "ralph/question-classification-and-parallel-execution",
-  "description": "Add question classification system and parallel agent execution to reduce brief generation time from 60s to 40s while routing questions to specialist agent personas",
+  "branchName": "ralph/error-handling",
+  "description": "Error Handling - Sentry integration, error boundaries, retry logic, friendly messages, skeleton states, and graceful degradation",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Define classification taxonomy types",
-      "description": "As a developer, I need clear TypeScript types defining all possible classification values so the codebase is type-safe.",
+      "title": "Install and configure Sentry",
+      "description": "As a developer, I need Sentry configured to track errors.",
       "acceptanceCriteria": [
-        "Create /lib/types/classification.ts",
-        "Define Domain type: 'economics' | 'healthcare' | 'climate' | 'education' | 'defense' | 'immigration' | 'housing' | 'justice' | 'technology' | 'governance' | 'other'",
-        "Define ControversyLevel type: 'low' | 'medium' | 'high'",
-        "Define QuestionType type: 'factual' | 'analytical' | 'opinion' | 'comparative'",
-        "Define TemporalScope type: 'historical' | 'current' | 'future' | 'timeless'",
-        "Define QuestionClassification interface combining all above",
-        "Export all types",
+        "Install @sentry/nextjs package",
+        "Create sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts",
+        "Add SENTRY_DSN to .env.example",
+        "Configure source maps upload in next.config.mjs",
+        "Add withSentryConfig wrapper to next.config.mjs",
+        "Document Sentry setup in SETUP.md",
         "Typecheck passes"
       ],
       "priority": 1,
@@ -23,17 +22,16 @@
     },
     {
       "id": "US-002",
-      "title": "Create question classifier service",
-      "description": "As a developer, I need a service that takes a question string and returns structured classification data so that downstream agents can make informed decisions.",
+      "title": "Create error boundary wrapper component",
+      "description": "As a developer, I need a reusable error boundary for React components.",
       "acceptanceCriteria": [
-        "Create /lib/agents/question-classifier.ts",
-        "Function signature: classifyQuestion(question: string): Promise<QuestionClassification>",
-        "Returns object with: domain, controversyLevel, questionType, temporalScope",
-        "Uses Claude Haiku for cost efficiency",
-        "Prompt instructs Claude to return JSON matching QuestionClassification type",
-        "Prompt includes examples for each domain category",
-        "Handles edge cases: questions spanning multiple domains pick primary",
-        "Typecheck passes"
+        "Create /app/components/ErrorBoundary.tsx",
+        "Catch React errors and report to Sentry",
+        "Display fallback UI with friendly message",
+        "Include 'Try again' button that resets error state",
+        "Include 'Show details' toggle for technical info",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 2,
       "passes": false,
@@ -41,15 +39,14 @@
     },
     {
       "id": "US-003",
-      "title": "Test classifier with sample questions",
-      "description": "As a developer, I need to verify the classifier works correctly across different question types.",
+      "title": "Wrap main layout with error boundary",
+      "description": "As a user, I want the app to recover gracefully from crashes.",
       "acceptanceCriteria": [
-        "Test domain classification with 5 diverse questions",
-        "Test controversy: 'Should UK adopt 4-day week?' (medium) vs 'Should UK rejoin EU?' (high) vs 'What is GDP?' (low)",
-        "Test question type: 'What is inflation?' (factual) vs 'Why did inflation rise?' (analytical) vs 'Should we raise rates?' (opinion)",
-        "Test temporal: 'What caused 2008 crisis?' (historical) vs 'Current inflation rate?' (current) vs 'Will AI replace jobs?' (future)",
-        "All tests pass with expected classifications",
-        "Typecheck passes"
+        "Wrap app/layout.tsx children with ErrorBoundary",
+        "Ensure global-error.tsx handles root-level errors",
+        "Verify error shows friendly UI not white screen",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
       "passes": false,
@@ -57,11 +54,13 @@
     },
     {
       "id": "US-004",
-      "title": "Add classification column to briefs table",
-      "description": "As a developer, I need classification data persisted with the brief so we can analyze patterns and improve the system.",
+      "title": "Create standardized API error response format",
+      "description": "As a developer, I need consistent error responses from all APIs.",
       "acceptanceCriteria": [
-        "Add classification JSONB column to briefs table (nullable for existing briefs)",
-        "Generate and run migration successfully",
+        "Create /lib/errors/api-error.ts with ApiError class",
+        "ApiError has: statusCode, message, code, details",
+        "Create formatErrorResponse helper function",
+        "Define error codes: UNAUTHORIZED, NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, SERVICE_UNAVAILABLE",
         "Typecheck passes"
       ],
       "priority": 4,
@@ -70,13 +69,14 @@
     },
     {
       "id": "US-005",
-      "title": "Create specialist agent persona mapping",
-      "description": "As a developer, I need a mapping from domain classification to specialist agent personas so routing works.",
+      "title": "Create API error handling wrapper",
+      "description": "As a developer, I need centralized error handling for API routes.",
       "acceptanceCriteria": [
-        "Create /lib/agents/specialist-personas.ts",
-        "Define 10 specialist personas with domain-specific system prompts",
-        "Each persona includes: name, domain expertise, key considerations, authoritative sources to prefer",
-        "Export getSpecialistPersona(domain: Domain): SpecialistPersona function",
+        "Create /lib/errors/with-error-handling.ts",
+        "Higher-order function wrapping API route handlers",
+        "Catch errors and return formatted JSON response",
+        "Log errors to Sentry with context",
+        "Return appropriate HTTP status codes",
         "Typecheck passes"
       ],
       "priority": 5,
@@ -85,13 +85,13 @@
     },
     {
       "id": "US-006",
-      "title": "Add agent_execution_logs table to database",
-      "description": "As a developer, I need a database table to store agent execution logs for observability and optimization.",
+      "title": "Apply error handling to key API routes",
+      "description": "As a developer, I need API routes to use consistent error handling.",
       "acceptanceCriteria": [
-        "Add agent_execution_logs table with columns: id, brief_id, agent_name, started_at, completed_at, duration_ms, status, error_message, metadata (JSONB)",
-        "Foreign key to briefs table",
-        "Index on brief_id and started_at",
-        "Generate and run migration successfully",
+        "Update /app/api/briefs/[id]/vote/route.ts to use withErrorHandling",
+        "Update /app/api/profile/route.ts to use withErrorHandling",
+        "Update /app/api/questions/suggest/route.ts to use withErrorHandling",
+        "Verify errors return formatted JSON",
         "Typecheck passes"
       ],
       "priority": 6,
@@ -100,15 +100,14 @@
     },
     {
       "id": "US-007",
-      "title": "Define summary agent reading level prompts",
-      "description": "As a developer, I need distinct prompts for each reading level so summaries are appropriately targeted.",
+      "title": "Create retry utility with exponential backoff",
+      "description": "As a developer, I need a utility for retrying failed requests.",
       "acceptanceCriteria": [
-        "Create /lib/agents/summary-prompts.ts",
-        "Child prompt: 100-150 words, simple vocabulary, analogies, no jargon",
-        "Teen prompt: 200-250 words, accessible but more detail, define key terms",
-        "Undergrad prompt: 350-400 words, academic vocabulary OK, cite key sources",
-        "Postdoc prompt: 450-500 words, technical depth, assume domain knowledge, nuanced trade-offs",
-        "Each prompt includes example output for reference",
+        "Create /lib/utils/retry.ts",
+        "Function retryWithBackoff(fn, options) with maxRetries, initialDelay, maxDelay",
+        "Exponential backoff: delay doubles each retry",
+        "Add jitter to prevent thundering herd",
+        "Throw after all retries exhausted",
         "Typecheck passes"
       ],
       "priority": 7,
@@ -117,14 +116,14 @@
     },
     {
       "id": "US-008",
-      "title": "Add retry logic wrapper for agent execution",
-      "description": "As a developer, I need agents to retry on failure so transient API errors don't break generation.",
+      "title": "Create fetch wrapper with auto-retry",
+      "description": "As a developer, I need a fetch wrapper that handles retries.",
       "acceptanceCriteria": [
-        "Create /lib/agents/retry-wrapper.ts",
-        "Wrap each agent execution in retry logic",
-        "Retry up to 3 times with exponential backoff (1s, 2s, 4s)",
-        "Log each retry attempt with error details",
-        "After 3 failures, throw error and fail brief generation",
+        "Create /lib/utils/fetcher.ts",
+        "Function fetchWithRetry(url, options) using retryWithBackoff",
+        "Auto-retry on network errors and 5xx responses",
+        "Don't retry on 4xx responses",
+        "Log retry attempts",
         "Typecheck passes"
       ],
       "priority": 8,
@@ -133,15 +132,16 @@
     },
     {
       "id": "US-009",
-      "title": "Add agent execution logging utility",
-      "description": "As a developer, I need to log agent execution times and status so we can monitor performance.",
+      "title": "Create user-friendly error message component",
+      "description": "As a user, I want to see helpful error messages.",
       "acceptanceCriteria": [
-        "Create /lib/agents/execution-logger.ts",
-        "Log start time, end time, and duration for each agent",
-        "Log agent name, input size (token count estimate), output size",
-        "Log whether execution was parallel or sequential",
-        "Store logs in agent_execution_logs table (async, non-blocking)",
-        "Typecheck passes"
+        "Create /app/components/ErrorMessage.tsx",
+        "Props: title, message, details (optional), onRetry (optional)",
+        "Display friendly icon and message",
+        "Collapsible 'Show technical details' section",
+        "'Try again' button if onRetry provided",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
       "passes": false,
@@ -149,14 +149,13 @@
     },
     {
       "id": "US-010",
-      "title": "Create LangGraph orchestrator with parallel execution",
-      "description": "As a developer, I need the LangGraph orchestrator to support parallel node execution so multiple agents can run simultaneously.",
+      "title": "Create error message mapping",
+      "description": "As a developer, I need to map error codes to friendly messages.",
       "acceptanceCriteria": [
-        "Create /lib/agents/langgraph-orchestrator.ts",
-        "Use LangGraph's parallel branch feature for concurrent execution",
-        "Pipeline: Research → Classification → [Structure || Narrative] → Reconciliation → [4x Summary] → Clarity Scoring",
-        "Parallel branches merge before next sequential step",
-        "Integrate retry wrapper and execution logger",
+        "Create /lib/errors/error-messages.ts",
+        "Map error codes to { title, message } objects",
+        "Include: UNAUTHORIZED, NOT_FOUND, RATE_LIMITED, SERVICE_UNAVAILABLE, NETWORK_ERROR",
+        "Provide default fallback for unknown errors",
         "Typecheck passes"
       ],
       "priority": 10,
@@ -165,15 +164,15 @@
     },
     {
       "id": "US-011",
-      "title": "Implement parallel Structure and Narrative execution",
-      "description": "As a developer, I need Structure and Narrative agents to run concurrently so we save ~15 seconds of generation time.",
+      "title": "Create loading skeleton components",
+      "description": "As a user, I want to see placeholders while content loads.",
       "acceptanceCriteria": [
-        "Structure agent and Narrative agent start simultaneously after Research completes",
-        "Both agents receive same research sources as input",
-        "Both agents use specialist persona from classification",
-        "Execution time for both is ~25s (previously 15s + 25s = 40s sequential)",
-        "Measure and log parallel execution time",
-        "Typecheck passes"
+        "Create /app/components/Skeleton.tsx",
+        "Variants: text, paragraph, card, avatar, button",
+        "Animate with subtle pulse effect",
+        "Accept className for custom sizing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
       "passes": false,
@@ -181,16 +180,14 @@
     },
     {
       "id": "US-012",
-      "title": "Create reconciliation agent",
-      "description": "As a developer, I need a reconciliation agent that compares Structure and Narrative outputs to identify and fix inconsistencies.",
+      "title": "Add skeleton loading state to brief page",
+      "description": "As a user, I want to see loading placeholders on brief page.",
       "acceptanceCriteria": [
-        "Create /lib/agents/reconciliation-agent.ts",
-        "Agent receives Structure output + Narrative output",
-        "Checks: Do all factors in Narrative appear in Structure table? Do all policies mentioned align?",
-        "If inconsistencies found: Agent suggests minimal fixes to Narrative (Structure is source of truth)",
-        "Returns reconciled Narrative + list of changes made",
-        "Completes in <10 seconds",
-        "Typecheck passes"
+        "Create /app/brief/[id]/loading.tsx",
+        "Skeleton for: header, summary, structured data, narrative",
+        "Match actual page layout structure",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
       "passes": false,
@@ -198,16 +195,14 @@
     },
     {
       "id": "US-013",
-      "title": "Implement parallel Summary agent execution",
-      "description": "As a developer, I need 4 Summary agents (child/teen/undergrad/postdoc) to run concurrently so we save ~30 seconds.",
+      "title": "Add skeleton loading state to homepage",
+      "description": "As a user, I want to see loading placeholders on homepage.",
       "acceptanceCriteria": [
-        "Create 4 parallel Summary agent instances in orchestrator",
-        "All 4 start simultaneously after Structure is complete",
-        "Each agent receives Structure output + its reading level prompt",
-        "Each agent generates summary for its reading level",
-        "All 4 complete in ~15 seconds total (previously 4 × 10s = 40s sequential)",
-        "Results collected into single summaries object",
-        "Typecheck passes"
+        "Create /app/loading.tsx",
+        "Skeleton for: topic grid, featured briefs",
+        "Match actual page layout",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
       "passes": false,
@@ -215,14 +210,14 @@
     },
     {
       "id": "US-014",
-      "title": "Integrate classifier into brief generation pipeline",
-      "description": "As a developer, I need the classifier to run as the first step in brief generation so all downstream agents have access to classification data.",
+      "title": "Handle Supabase connection errors",
+      "description": "As a user, I want graceful handling when database is unavailable.",
       "acceptanceCriteria": [
-        "Classification runs after research agent in pipeline",
-        "Classification result stored in agent state and passed to all subsequent agents",
-        "Classification adds <2 seconds to total generation time",
-        "Classification result logged for observability",
-        "Classification data saved to brief record when brief is created",
+        "Wrap key Supabase queries in try-catch",
+        "On connection error show 'Database temporarily unavailable'",
+        "Log error to Sentry with query context",
+        "Return empty data with error flag instead of crashing",
+        "Apply to brief and profile fetching",
         "Typecheck passes"
       ],
       "priority": 14,
@@ -231,14 +226,14 @@
     },
     {
       "id": "US-015",
-      "title": "Create SSE endpoint for real-time agent status",
-      "description": "As a developer, I need to stream agent status updates to the UI so the swarm visualization reflects actual progress.",
+      "title": "Handle AI API errors",
+      "description": "As a user, I want graceful handling when AI service fails.",
       "acceptanceCriteria": [
-        "Create /app/api/briefs/generate/route.ts with Server-Sent Events",
-        "Stream events: agent_started, agent_completed, stage_changed, brief_ready",
-        "Each event includes: agent_name, timestamp, stage_name",
-        "Connection closes when brief is complete",
-        "Handle client disconnection gracefully",
+        "Wrap AI calls in retry logic (3 attempts)",
+        "On persistent failure show 'AI service temporarily unavailable'",
+        "Log error to Sentry with sanitized prompt context",
+        "For suggestions: fall back to template-only results",
+        "For brief generation: show error with retry button",
         "Typecheck passes"
       ],
       "priority": 15,
@@ -247,16 +242,15 @@
     },
     {
       "id": "US-016",
-      "title": "Create swarm visualization component",
-      "description": "As a user, I want to see an animated visualization of agents working simultaneously so I understand what's happening during generation.",
+      "title": "Handle Stripe API errors",
+      "description": "As a user, I want graceful handling when payment service fails.",
       "acceptanceCriteria": [
-        "Create /app/components/SwarmVisualization.tsx",
-        "Show 6 agent avatars/icons in a swarm arrangement",
-        "Agents pulse/animate when active, dim when waiting, checkmark when complete",
-        "Show which agents are running in parallel",
-        "Display current step name: Researching..., Generating structure and narrative..., Writing summaries...",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Wrap Stripe calls in try-catch",
+        "On Stripe down show 'Payment service temporarily unavailable'",
+        "Disable buy buttons when Stripe unreachable",
+        "Log error to Sentry",
+        "Don't expose raw Stripe errors to users",
+        "Typecheck passes"
       ],
       "priority": 16,
       "passes": false,
@@ -264,16 +258,14 @@
     },
     {
       "id": "US-017",
-      "title": "Integrate swarm visualization into generation UI",
-      "description": "As a user, I want to see the swarm visualization while my brief is being generated.",
+      "title": "Create service health check endpoint",
+      "description": "As a developer, I need to check if services are healthy.",
       "acceptanceCriteria": [
-        "Swarm visualization appears after user submits question",
-        "Component subscribes to SSE endpoint and receives real-time status updates",
-        "Updates which agents are active based on SSE events",
-        "Transitions smoothly between pipeline stages",
-        "Disappears when brief is ready, replaced by brief content",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /app/api/health/route.ts",
+        "Check Supabase connection",
+        "Return { status: 'healthy' | 'degraded' | 'unhealthy', services: {} }",
+        "Cache result for 30 seconds",
+        "Typecheck passes"
       ],
       "priority": 17,
       "passes": false,
@@ -281,16 +273,48 @@
     },
     {
       "id": "US-018",
-      "title": "Validate parallel execution performance improvement",
-      "description": "As a developer, I need to validate that parallel execution actually reduces generation time.",
+      "title": "Add user context to Sentry errors",
+      "description": "As a developer, I need user context in Sentry errors.",
       "acceptanceCriteria": [
-        "Run 5 test briefs with parallel execution enabled",
-        "Measure p50 and p95 generation times from agent_execution_logs",
-        "Target: total generation time <45 seconds (p95)",
-        "Document results in console output",
+        "On user login call Sentry.setUser({ id, email })",
+        "On logout call Sentry.setUser(null)",
+        "Add custom tags: environment, version",
         "Typecheck passes"
       ],
       "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Create 404 not found page",
+      "description": "As a user, I want a friendly 404 page.",
+      "acceptanceCriteria": [
+        "Create /app/not-found.tsx",
+        "Display: 'Page not found' message",
+        "Include 'Go home' button",
+        "Match site styling",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Create offline detection banner",
+      "description": "As a user, I want to know when I'm offline.",
+      "acceptanceCriteria": [
+        "Create /app/components/OfflineBanner.tsx",
+        "Use navigator.onLine and online/offline events",
+        "Show banner at top when offline",
+        "Message: 'You're offline. Some features may be unavailable.'",
+        "Auto-hide when back online",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
       "passes": false,
       "notes": ""
     }

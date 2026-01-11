@@ -1,0 +1,18 @@
+# Ralph Progress Log
+Started: Sun 11 Jan 2026
+
+## Codebase Patterns
+- Database types are defined in lib/supabase/client.ts (not a separate types.ts file)
+- SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
+- Browser-safe Supabase client: use lib/supabase/browser.ts (not client.ts) in client components
+- Use explicit type annotations in React map callbacks to avoid implicit any errors
+- Wrap useSearchParams() in Suspense boundary for Next.js static page generation
+- API routes go in app/api/ directory, use createServerSupabaseClient from lib/supabase/client.ts
+- Components go in app/components/ directory
+- Use lucide-react for icons
+- Clean .next cache with `rm -rf .next` if build fails with manifest errors
+- Protected routes should check auth and redirect to /auth/signin if not authenticated
+- Use withErrorHandling wrapper for API routes for consistent error responses
+
+---
+

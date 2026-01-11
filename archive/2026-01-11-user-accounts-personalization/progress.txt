@@ -1,0 +1,490 @@
+# Ralph Progress Log
+Started: Sun 11 Jan 2026 10:47:05 +04
+---
+
+## Codebase Patterns
+- Import Supabase browser client from `@/lib/supabase/browser` for client components
+- Import Supabase server client from `@/lib/supabase/client` for server components/API routes
+- Import Database types from `@/lib/supabase/types` for type-only imports
+- Add explicit types to `.map()` callbacks when working with `any` typed data
+- Use `as Record<string, number>` when iterating Object.entries with unknown values
+
+---
+
+## 2026-01-11 - US-001
+Thread: https://ampcode.com/threads/T-019babce-f903-716d-ac7f-42555ed5c6ab
+- Extended profiles table with preference fields:
+  - preferred_reading_level TEXT DEFAULT 'standard'
+  - topic_interests TEXT[]
+  - location TEXT
+  - notification_email_digest BOOLEAN DEFAULT false
+  - notification_new_features BOOLEAN DEFAULT true
+- Added TypeScript types to Database interface in lib/supabase/client.ts
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx (implicit any types)
+- Fixed TopicCategoriesGrid import path
+- **Files changed:**
+  - lib/supabase/schema.sql
+  - lib/supabase/client.ts
+  - app/brief/[id]/page.tsx (type fixes)
+  - app/components/TopicCategoriesGrid.tsx (import fix)
+- **Learnings for future iterations:**
+  - The briefs object is typed as `any` - map callbacks need explicit type annotations
+  - TopicCategoriesGrid was importing from non-existent browser.ts
+---
+
+## 2026-01-11 - US-002
+Thread: https://ampcode.com/threads/T-019babd4-cfd3-75ba-ae5d-522192a28ea9
+- Created sign-in page with magic link functionality at /app/auth/signin/page.tsx
+- Features:
+  - Email input with client-side validation (empty, format)
+  - Send magic link button calls Supabase auth.signInWithOtp()
+  - Success message: "Check your email for the login link"
+  - Error handling for rate limiting and invalid emails
+  - Link to sign-up page
+  - Back to home link
+- Refactored Supabase client structure:
+  - Created lib/supabase/browser.ts for client components (no next/headers import)
+  - Created lib/supabase/types.ts for shared Database types
+  - Updated lib/supabase/client.ts for server-only usage
+  - Updated TopicCategoriesGrid.tsx to use browser.ts
+- **Files changed:**
+  - app/auth/signin/page.tsx (new)
+  - lib/supabase/browser.ts (new)
+  - lib/supabase/types.ts (new)
+  - lib/supabase/client.ts (refactored)
+  - app/components/TopicCategoriesGrid.tsx (import fix)
+- **Learnings for future iterations:**
+  - Use lib/supabase/browser.ts for client components (no next/headers)
+  - Use lib/supabase/client.ts only in server components/API routes
+  - Import Database type from lib/supabase/types.ts for type-only imports
+---
+
+## 2026-01-11 - US-003
+Thread: https://ampcode.com/threads/T-019babd9-43bf-757e-b58d-b2efd880cf42
+- Created sign-up page at /app/auth/signup/page.tsx
+- Features:
+  - Email input (required) with validation
+  - Full name input (optional) - passed as user metadata
+  - Create account button calls Supabase auth.signInWithOtp() with data
+  - Success message: "Check your email to confirm"
+  - Error handling for rate limiting and invalid emails
+  - Link to sign-in page for existing users
+  - Back to home link
+- **Files changed:**
+  - app/auth/signup/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use signInWithOtp with `data` option to pass user metadata (e.g., full_name)
+  - Follow existing signin page pattern for consistent UX
+---
+
+## 2026-01-11 - US-004
+Thread: https://ampcode.com/threads/T-019babdb-b3a5-760b-b0d3-37f9e2bc5da8
+- Added Google OAuth sign-in to sign-in page
+- Features:
+  - "Continue with Google" button with official Google logo (SVG)
+  - Calls Supabase auth.signInWithOAuth({ provider: 'google' })
+  - Redirect URL configured to /auth/callback
+  - "Or continue with" divider between magic link and OAuth
+  - Loading state with spinner when OAuth is in progress
+  - Disabled state for all buttons during any auth operation
+- Added Google OAuth setup documentation to SETUP.md (Step 5)
+- **Files changed:**
+  - app/auth/signin/page.tsx (modified - added Google OAuth button)
+  - SETUP.md (modified - added Google OAuth setup instructions)
+- **Learnings for future iterations:**
+  - Use signInWithOAuth with redirectTo option pointing to /auth/callback
+  - Track OAuth loading state separately (isOAuthLoading) to show which provider is loading
+  - Google logo SVG can be inlined for consistent rendering
+---
+
+## 2026-01-11 - US-005
+Thread: https://ampcode.com/threads/T-019babdf-9e81-73dd-a435-2381bbc6659e
+- Added Apple OAuth sign-in to sign-in page
+- Features:
+  - "Continue with Apple" button with Apple logo (SVG)
+  - Calls Supabase auth.signInWithOAuth({ provider: 'apple' })
+  - Redirect URL configured to /auth/callback
+  - Loading state with spinner when OAuth is in progress
+  - Disabled state for all buttons during any auth operation
+- Added Apple OAuth setup documentation to SETUP.md (detailed 5-step guide)
+- **Files changed:**
+  - app/auth/signin/page.tsx (modified - added Apple OAuth button + handler)
+  - SETUP.md (modified - added Apple OAuth setup instructions)
+- **Learnings for future iterations:**
+  - Apple OAuth requires an Apple Developer Program membership ($99/year)
+  - Apple Sign In requires creating both an App ID and a Services ID
+  - The Services ID is what gets configured in Supabase, not the App ID
+  - Apple OAuth button pattern is identical to Google - just change provider name
+---
+
+## 2026-01-11 - US-006
+Thread: https://ampcode.com/threads/T-019babe3-2621-76b2-83ac-60fe9f65d864
+- Created auth callback handler at /app/auth/callback/route.ts
+- Features:
+  - Exchanges auth code for session via supabase.auth.exchangeCodeForSession()
+  - Checks if profile exists for the authenticated user
+  - Creates profile record if new user (using user.id and full_name from metadata)
+  - Redirects to homepage on success
+  - Redirects to /auth/error with reason query param on failure
+- **Files changed:**
+  - app/auth/callback/route.ts (new)
+- **Learnings for future iterations:**
+  - Don't use generic Database type param with createServerClient when doing inserts - causes type conflicts
+  - Use untyped createServerClient for route handlers that do simple inserts
+  - Profile creation can fail silently - user still gets authenticated
+---
+
+## 2026-01-11 - US-007
+Thread: https://ampcode.com/threads/T-019babe5-6f58-70ac-9d93-e423ce354b02
+- Created auth error page at /app/auth/error/page.tsx
+- Features:
+  - Friendly error message based on `reason` query param (no_code, exchange_failed, invalid_token, access_denied)
+  - "Try again" button linking to sign-in page
+  - "Contact support" mailto link
+  - Back to home link
+  - Consistent styling with other auth pages
+- Used Suspense boundary for useSearchParams (required by Next.js for static generation)
+- **Files changed:**
+  - app/auth/error/page.tsx (new)
+- **Learnings for future iterations:**
+  - useSearchParams requires Suspense boundary in Next.js 14 for pages to be statically pre-rendered
+  - Extract the component using useSearchParams into a separate client component wrapped in Suspense
+---
+
+## 2026-01-11 - US-008
+Thread: https://ampcode.com/threads/T-019babe8-2280-71eb-80e0-712377871cc9
+- Created sign-out API endpoint at /app/api/auth/signout/route.ts
+- Features:
+  - POST endpoint using createServerClient pattern from auth/callback
+  - Calls supabase.auth.signOut()
+  - Redirects to homepage with 302 status
+- **Files changed:**
+  - app/api/auth/signout/route.ts (new)
+- **Learnings for future iterations:**
+  - Sign-out uses POST method for security (prevents CSRF via link clicks)
+  - Reuse the same createServerClient cookie pattern from auth/callback
+---
+
+## 2026-01-11 - US-009
+Thread: https://ampcode.com/threads/T-019babe9-6072-77e5-85bf-e9b9456d8b66
+- Created UserMenu component at /app/components/UserMenu.tsx
+- Features:
+  - Shows 'Sign in' button when not authenticated (links to /auth/signin)
+  - Shows avatar + name dropdown when authenticated
+  - Avatar from user metadata or initial letter fallback
+  - Dropdown options: Profile, Settings, Sign out
+  - Real-time auth state updates via onAuthStateChange
+  - Click-outside to close dropdown
+  - Loading skeleton state while checking auth
+- Uses form POST to /api/auth/signout for CSRF-safe sign out
+- **Files changed:**
+  - app/components/UserMenu.tsx (new)
+- **Learnings for future iterations:**
+  - Use User type from @supabase/supabase-js for typed user object
+  - Sign out should use form POST for CSRF protection
+  - Import createBrowserClient from lib/supabase/browser for client components
+---
+
+## 2026-01-11 - US-010
+Thread: https://ampcode.com/threads/T-019babec-2c55-761b-b5b4-181ccdbcb402
+- Integrated UserMenu into app/layout.tsx via a new Header component
+- Features:
+  - Created reusable Header component at /app/components/Header.tsx
+  - Header includes logo (links to home), About, Browse Briefs links, and UserMenu
+  - Removed duplicate inline header from homepage (app/page.tsx)
+  - Responsive: About/Browse Briefs links hidden on mobile (hidden sm:block)
+  - UserMenu shows "Sign in" button in top-right when not authenticated
+- Browser verified: Desktop and mobile views both working correctly
+- **Files changed:**
+  - app/components/Header.tsx (new)
+  - app/layout.tsx (modified - imports and renders Header)
+  - app/page.tsx (modified - removed duplicate inline header)
+- **Learnings for future iterations:**
+  - The layout.tsx should contain the shared Header component, not individual pages
+  - When pages have inline headers, remove them after adding the shared Header to layout
+---
+
+## 2026-01-11 - US-011
+Thread: https://ampcode.com/threads/T-019babf6-8561-731c-9473-efbcd2b04b7b
+- Created profile page at /app/profile/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Displays avatar (from profile or user metadata, with User icon fallback)
+  - Shows full name, username (@username), bio, location, member since date
+  - Stats grid: Briefs generated, Briefs saved, Feedback given (counts from database)
+  - "Edit profile" button linking to /profile/edit
+  - Links to Saved Briefs (/profile/saved) and Reading History (/profile/history)
+  - Gradient header banner with profile card overlay
+  - Loading spinner while auth state is being checked
+- **Files changed:**
+  - app/profile/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use parallel Promise.all for fetching multiple counts from database
+  - Fetch user's profile with supabase.from("profiles").select("*").eq("id", user.id).single()
+  - Fall back to user.user_metadata for display name/avatar if profile is not set
+---
+
+## 2026-01-11 - US-012
+Thread: https://ampcode.com/threads/T-019babfa-48bc-759a-922c-fba7d2f234f2
+- Created profile API endpoint at /app/api/profile/route.ts
+- Features:
+  - GET: Returns current user's profile with stats (briefs_generated, briefs_saved, feedback_count)
+  - PATCH: Updates profile fields (full_name, username, bio, location, preferences)
+  - Username validation: 3-20 chars, alphanumeric + underscore only
+  - Username uniqueness check before update
+  - Bio length validation (280 chars max)
+  - Creates profile record if it doesn't exist on PATCH
+- **Files changed:**
+  - app/api/profile/route.ts (new)
+- **Learnings for future iterations:**
+  - Use createServerClient pattern with cookie handling for API routes
+  - PGRST116 is the "no rows returned" error code - useful for checking if record exists
+  - Can upsert by catching PGRST116 on update and then inserting
+---
+
+## 2026-01-11 - US-013
+Thread: https://ampcode.com/threads/T-019babfc-23d7-77ef-b2a3-d1f964aa53be
+- Created profile edit page at /app/profile/edit/page.tsx
+- Features:
+  - Protected route (redirects to signin if not authenticated)
+  - Editable fields: Full name, Username (with @ prefix), Bio (280 char limit with counter), Location
+  - Avatar display with placeholder text "Avatar upload coming soon"
+  - Save button calls /api/profile PATCH API
+  - Success toast shows "Profile saved successfully" for 3 seconds
+  - Client-side validation for username format and bio length
+  - API error handling displays inline error message
+  - Cancel button and Back to profile link
+- **Files changed:**
+  - app/profile/edit/page.tsx (new)
+- **Learnings for future iterations:**
+  - When Supabase data returns `never` type from chained queries, use explicit type assertion: `const fetchedProfile = profileData as Profile | null`
+  - Follow existing patterns from /profile page for auth checks and data fetching
+---
+
+## 2026-01-11 - US-014
+Thread: https://ampcode.com/threads/T-019babff-7121-77ca-89a5-12d49b38fb57
+- Created avatar upload functionality for profile edit page
+- Features:
+  - Created /app/api/profile/avatar/route.ts for handling file uploads
+  - Accepts image upload (jpg, png, gif, webp, max 2MB)
+  - Uploads to Supabase Storage bucket 'avatars'
+  - Updates profile.avatar_url with public URL
+  - Client-side preview before upload using FileReader.readAsDataURL
+  - Cancel button to remove preview without uploading
+  - Loading spinner during upload
+  - Error handling for invalid file types and sizes
+- Updated profile edit page with new avatar upload section:
+  - "Profile Photo" label with larger avatar display (24x24 with ring)
+  - "Choose Photo" button to select file
+  - "Upload Photo" button appears after file selected
+  - Cancel (X) button on avatar preview
+  - File format/size instructions text
+- **Files changed:**
+  - app/api/profile/avatar/route.ts (new)
+  - app/profile/edit/page.tsx (modified - added avatar upload UI)
+- **Learnings for future iterations:**
+  - Use FormData for file uploads, not JSON body
+  - FileReader.readAsDataURL creates preview without server round-trip
+  - Supabase storage.upload needs Buffer from arrayBuffer for Node.js
+---
+
+## 2026-01-11 - US-015
+Thread: https://ampcode.com/threads/T-019bac04-5c3a-727c-9176-e129158d6ddb
+- Created settings page shell at /app/settings/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Four collapsible sections: Preferences, Notifications, Connected Accounts, Data & Privacy
+  - CollapsibleSection component with open/close toggle
+  - Each section with icon, title, and placeholder content
+  - Preferences section open by default
+  - Consistent styling with other auth/profile pages
+- **Files changed:**
+  - app/settings/page.tsx (new)
+- **Learnings for future iterations:**
+  - Collapsible sections pattern: useState for isOpen, toggle on button click
+  - Protected route pattern is consistent: check auth in useEffect, redirect if not authenticated
+---
+
+## 2026-01-11 - US-016
+Thread: https://ampcode.com/threads/T-019bac09-68eb-74ff-b928-2f75c92b39cf
+- Added reading preferences dropdown to settings page
+- Features:
+  - Preferred Reading Level dropdown (Simple/Standard/Advanced)
+  - Auto-save on change with "Saving..." indicator
+  - Green checkmark "Saved" confirmation for 2 seconds
+  - Fetches current preference on page load
+  - Calls profile PATCH API to persist changes
+- Fixed Supabase type issue using explicit type assertion pattern from progress.txt
+- **Files changed:**
+  - app/settings/page.tsx (modified - added reading level dropdown)
+- **Learnings for future iterations:**
+  - Use explicit type assertion for Supabase query results: `const profile = profileData as { field: type | null } | null`
+---
+
+## 2026-01-11 - US-017
+Thread: https://ampcode.com/threads/T-019bac0c-52d8-7388-8990-a45dc6b3f096
+- Added Topic Interests section to settings page
+- Features:
+  - 10 category chips matching TopicCategoriesGrid categories
+  - Toggleable chips with visual feedback (filled/outlined)
+  - Debounced auto-save (500ms) using useRef timeout
+  - "Saving..." and "Saved" indicators
+  - Fetches existing topic_interests on page load
+  - Persists to profiles.topic_interests array via PATCH API
+- Icons imported from lucide-react for each category
+- **Files changed:**
+  - app/settings/page.tsx (modified - added topic interests UI and logic)
+- **Learnings for future iterations:**
+  - Use useCallback with functional setState to avoid stale closure issues with debounced saves
+  - Clean up timeouts in useEffect cleanup function
+---
+
+## 2026-01-11 - US-018
+Thread: https://ampcode.com/threads/T-019bac10-5c6b-766d-82ab-2824724b9635
+- Added notification preferences to settings page
+- Features:
+  - Toggle: "Weekly digest of new briefs" (notification_email_digest)
+  - Toggle: "New feature announcements" (notification_new_features)
+  - Both toggles with toggle switch UI (accessible role="switch")
+  - Auto-save on toggle with "Saving..." and "Saved" indicators
+  - Fetches current values from profile on page load
+  - Calls /api/profile PATCH to persist changes
+- **Files changed:**
+  - app/settings/page.tsx (modified - added notification toggles and state management)
+- **Learnings for future iterations:**
+  - Follow same pattern as reading level: immediate save on change, not debounced
+  - Protected routes redirect to signin - browser verification requires authenticated session
+---
+
+## 2026-01-11 - US-019
+Thread: https://ampcode.com/threads/T-019bac19-ad4b-738f-96e2-faee38880c1d
+- Added Connected Accounts section to settings page
+- Features:
+  - Shows Google with official logo and "Connected" badge if linked
+  - Shows Apple with official logo and "Connected" badge if linked
+  - Shows "Not connected" text if provider not linked
+  - Uses user.identities array from Supabase auth to detect connected providers
+  - "Contact support" mailto link for disconnecting accounts (MVP requirement)
+- **Files changed:**
+  - app/settings/page.tsx (modified - added connected accounts UI)
+- **Learnings for future iterations:**
+  - user.identities contains provider info (e.g., { provider: "google" | "apple" })
+  - Use identities.some() to check if a specific provider is connected
+  - Protected routes require authenticated session - browser verification needs dev server
+---
+
+## 2026-01-11 - US-020
+Thread: https://ampcode.com/threads/T-019bac21-3d7c-7412-9319-f0f543d7850e
+- Created GDPR data export functionality
+- Features:
+  - Created /app/api/profile/export/route.ts API endpoint
+  - Compiles: user info, profile, saved briefs (with brief details), reading history (with brief details), feedback (with brief details)
+  - Returns as downloadable JSON file with Content-Disposition header
+  - Added "Export my data" button to settings Data & Privacy section
+  - Loading state with spinner during export
+  - Also added delete account link (placeholder for US-021)
+- **Files changed:**
+  - app/api/profile/export/route.ts (new)
+  - app/settings/page.tsx (modified - added export button and delete account link)
+- **Learnings for future iterations:**
+  - Use blob download pattern: fetch → response.blob() → createObjectURL → programmatic click → cleanup
+  - Content-Disposition header triggers browser download behavior
+  - Join related tables in Supabase with `briefs:brief_id (id, question, ...)` syntax
+---
+
+## 2026-01-11 - US-021
+Thread: https://ampcode.com/threads/T-019bace2-ce72-754f-9de8-ee6addb87527
+- Implemented delete account flow for GDPR compliance
+- Features:
+  - Created /app/settings/delete-account/page.tsx with DELETE confirmation
+  - Warning message explaining permanent deletion consequences
+  - Requires typing "DELETE" to confirm
+  - Created /app/api/profile/delete/route.ts API endpoint
+  - Uses Supabase Admin API with service role key to delete user
+  - Signs out user after deletion
+  - Created /app/auth/deleted-account/page.tsx confirmation page
+  - Shows success message with options to go home or create new account
+- **Files changed:**
+  - app/settings/delete-account/page.tsx (new)
+  - app/api/profile/delete/route.ts (new)
+  - app/auth/deleted-account/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use createClient with SUPABASE_SERVICE_ROLE_KEY for admin operations (deleteUser)
+  - Admin client needs auth.admin.deleteUser() not regular auth methods
+  - Protected routes redirect to signin when not authenticated
+---
+
+## 2026-01-11 - US-022
+Thread: https://ampcode.com/threads/T-019baceb-b5fe-7777-bb4b-957d47c50249
+- Implemented preferred reading level auto-application on brief pages
+- Features:
+  - Fetches user's preferred_reading_level from profile if authenticated
+  - Maps profile levels (simple/standard/advanced) to brief levels (child/undergrad/postdoc)
+  - URL parameter (?level=child) takes priority over all other sources
+  - localStorage fallback for anonymous users
+  - Saves level to localStorage when user clicks a level button
+  - Falls back to 'undergrad' (standard) if nothing set
+- **Files changed:**
+  - app/brief/[id]/page.tsx (modified - added reading level preference logic)
+- **Learnings for future iterations:**
+  - Use useSearchParams() from next/navigation to read URL query params in client components
+  - Map profile reading levels to brief reading levels with a helper function
+  - localStorage persists anonymous user preferences across sessions
+---
+
+## 2026-01-11 - US-023
+Thread: https://ampcode.com/threads/T-019bacef-8afc-707d-90b0-0fc70e815d55
+- Implemented personalized topic interests on homepage
+- Features:
+  - Fetches user's topic_interests from profile if authenticated
+  - Updated TopicCategoriesGrid to accept highlightedTopics prop
+  - Highlighted topics show accent border, ring, and dot indicator
+  - Added "For You" section with questions from interested topics
+  - Falls back to "Browse by Topic" for anonymous users
+  - Falls back to "Select topics in Settings" message for authenticated users with no interests
+- **Files changed:**
+  - app/page.tsx (modified - added personalization state, For You section, TopicCategoriesGrid integration)
+  - app/components/TopicCategoriesGrid.tsx (modified - added highlightedTopics prop and styling)
+- **Learnings for future iterations:**
+  - Question templates category uses capitalized first letter (e.g., "Economy" not "economy")
+  - Use type assertions for Supabase profile queries: `(profile as { topic_interests: string[] | null } | null)`
+---
+
+## 2026-01-11 - US-024
+Thread: https://ampcode.com/threads/T-019bacf4-678a-727d-a529-d5c4c76d641b
+- Created saved briefs page at /app/profile/saved/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Fetches from saved_briefs joined with briefs table
+  - Displays cards with: question, clarity score (with color indicator), saved date
+  - Links to /brief/[id] for each saved brief
+  - Empty state with bookmark icon and "Browse briefs" CTA
+  - "Back to profile" link at top
+  - Shows total saved count in header
+- Used Supabase join syntax: `brief:briefs (id, question, clarity_score)`
+- **Files changed:**
+  - app/profile/saved/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use Supabase join syntax with colon: `table:foreign_table (columns)` for nested relations
+  - Type assertion needed for Supabase joined queries: `data as SavedBrief[]`
+---
+
+## 2026-01-11 - US-025
+Thread: https://ampcode.com/threads/T-019bacf8-6a47-725f-9915-45d1add5987b
+- Created reading history page at /app/profile/history/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Fetches from reading_history joined with briefs table
+  - Displays: question, clarity score (with color indicator), last viewed (relative time), scroll depth %
+  - Order by last_viewed_at DESC
+  - Links to /brief/[id] for each history item
+  - Empty state with history icon and "Browse briefs" CTA
+  - "Back to profile" link at top
+  - Shows total viewed count in header
+- Used same Supabase join pattern as saved briefs: `brief:briefs (columns)`
+- **Files changed:**
+  - app/profile/history/page.tsx (new)
+- **Learnings for future iterations:**
+  - Relative time formatting helper is useful for "X ago" displays
+  - formatScrollDepth converts 0.00-1.00 to percentage string
+---
