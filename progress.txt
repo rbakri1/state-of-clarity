@@ -269,3 +269,27 @@ Thread: https://ampcode.com/threads/T-019baf68-57b5-73a3-bd3c-80d419a01056
   - Web Share API works on mobile; fallback to clipboard for desktop
   - Brief data uses different key names: summaries[level] for progressive summaries, not summaries.simple/standard/advanced
 ---
+
+## 2026-01-12 23:15 - US-014 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019baf6d-3cf7-70e2-a98a-ce7c2d710db6
+- **What was implemented:** Polished Ask Anything interface on homepage
+- **Files changed:**
+  - app/page.tsx (added character count, validation, generation progress overlay)
+- **Features:**
+  - Character count display (0/500) with min/max validation (10-500 chars)
+  - Hint text for optimal question length (20-200 chars) with "Good length" feedback
+  - Color-coded validation: warning for too-short, error for too-long, success for optimal
+  - Full-screen BriefGenerationProgress overlay during generation
+  - 5-stage progress simulation: research (12s), structure (8s), summary (15s), narrative (10s), scoring (5s)
+  - Progress bar fills to 95% during simulation, jumps to 100% on completion
+  - Estimated time remaining countdown
+  - Disabled submit button for invalid inputs
+  - Design system colors: ivory/ink/sage palette throughout
+- **Learnings for future iterations:**
+  - BriefGenerationProgress component accepts: currentStage (GenerationStage), progress (0-100), estimatedSecondsRemaining
+  - Use setInterval with 200ms for smooth progress simulation
+  - Clear interval on both success and error to prevent memory leaks
+  - API doesn't support streaming progress - simulate on client side
+  - Character count uses tabular-nums for stable width
+  - aria-describedby connects input to hint text for accessibility
+---
