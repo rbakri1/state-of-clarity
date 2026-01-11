@@ -137,3 +137,16 @@ Thread: https://ampcode.com/threads/T-019bae78-4588-767b-ad95-862c57b750dc
   - Use `createBrief(briefData)` from generation code to automatically warm cache
   - warmBriefCache can also be called standalone after any brief update if cache invalidation was skipped
 ---
+
+## Sun 11 Jan 2026 - US-011
+Thread: https://ampcode.com/threads/T-019bae83-59a9-7625-b949-d297eb5b6272
+- Verified /app/api/admin/cache-flush/route.ts POST endpoint already exists and is complete
+- Uses withAdmin middleware for admin authentication
+- Accepts optional { pattern } body for selective flush; flushes all if empty
+- Returns JSON with success, message, keysCleared, flushedBy, and timestamp
+- Logs flush event with admin user email and ID
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Previous iterations already implemented this feature - always verify before building
+  - withAdmin middleware checks user.role === "admin" OR user.email in ADMIN_EMAILS env var
+---
