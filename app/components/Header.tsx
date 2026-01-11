@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import UserMenu from "./UserMenu";
+import { UserMenu } from "./UserMenu";
 
 export default function Header() {
   return (

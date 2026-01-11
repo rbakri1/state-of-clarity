@@ -6,7 +6,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // Reading level types for profile preferences
-export type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
+export type ReadingLevel = "simple" | "standard" | "advanced";
 
 // Notification preferences structure
 export interface NotificationPreferences {

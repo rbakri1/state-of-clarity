@@ -12,6 +12,11 @@ export interface Database {
           full_name: string | null;
           avatar_url: string | null;
           bio: string | null;
+          location: string | null;
+          preferred_reading_level: "simple" | "standard" | "advanced" | null;
+          topic_interests: string[] | null;
+          notification_email_digest: boolean;
+          notification_new_features: boolean;
           reputation_score: number;
           created_at: string;
           updated_at: string;
@@ -22,6 +27,11 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           bio?: string | null;
+          location?: string | null;
+          preferred_reading_level?: "simple" | "standard" | "advanced" | null;
+          topic_interests?: string[] | null;
+          notification_email_digest?: boolean;
+          notification_new_features?: boolean;
           reputation_score?: number;
         };
         Update: {
@@ -29,6 +39,11 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           bio?: string | null;
+          location?: string | null;
+          preferred_reading_level?: "simple" | "standard" | "advanced" | null;
+          topic_interests?: string[] | null;
+          notification_email_digest?: boolean;
+          notification_new_features?: boolean;
         };
       };
       briefs: {

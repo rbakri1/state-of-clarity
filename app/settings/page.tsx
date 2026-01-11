@@ -20,10 +20,9 @@ import {
 } from "@/lib/supabase/browser";
 
 const READING_LEVELS: { value: ReadingLevel; label: string }[] = [
-  { value: "child", label: "Child (Simple explanations)" },
-  { value: "teen", label: "Teen (Clear with some detail)" },
-  { value: "undergrad", label: "Undergrad (Academic depth)" },
-  { value: "postdoc", label: "Postdoc (Full technical detail)" },
+  { value: "simple", label: "Simple (Easy to understand)" },
+  { value: "standard", label: "Standard (Balanced detail)" },
+  { value: "advanced", label: "Advanced (Full technical depth)" },
 ];
 
 const TOPIC_OPTIONS = [
