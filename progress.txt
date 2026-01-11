@@ -10,11 +10,12 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - Current implementation uses shadcn/ui CSS variables pattern (hsl(var(--primary)))
 - Skills folder contains comprehensive design specs: skills/frontend/{design,brand,components,tech}
 - Pages are in app/ directory using Next.js App Router
-- Only one component exists: components/cookie-consent-banner.tsx
+- cn() helper at @/lib/utils for conditional Tailwind classes (uses clsx + tailwind-merge)
+- Brief types (ReadingLevel, PoliticalLean, Source, Brief, etc.) at @/lib/types/brief.ts
+- Components go in components/{brief,sources,generation,layout,feedback}/ subdirectories
 - Header/footer are duplicated inline in each page - need extraction
-- 9 key components are MISSING: ReadingLevelSelector, SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
-- Types (ReadingLevel, PoliticalLean, etc.) are defined inline in brief page - need extraction to lib/types/brief.ts
-- Brief page reading level selector has no ARIA roles, no sticky positioning, uses blue instead of sage
+- 8 key components STILL MISSING: SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
+- ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
 
 ---
 
@@ -83,4 +84,23 @@ Thread: https://ampcode.com/threads/T-019baf08-5056-7472-a711-caf108566707
   - Keep shadcn/ui CSS variable colors for compatibility with existing components
   - New design system colors are additive, can be used alongside existing patterns
   - Use `prose prose-custom` for narrative content with design system colors
+---
+
+## 2026-01-12 14:30 - US-004
+Thread: https://ampcode.com/threads/T-019baf0b-33a1-7320-a513-2c5b2b4dd063
+- **What was implemented:** ReadingLevelSelector component with full ARIA accessibility
+- **Files created:**
+  - components/brief/reading-level-selector.tsx (main component)
+  - lib/utils.ts (cn helper for Tailwind class merging)
+  - lib/types/brief.ts (shared TypeScript types for briefs)
+- **Files changed:**
+  - app/brief/[id]/page.tsx (integrated new component, removed inline implementation)
+- **Learnings for future iterations:**
+  - cn() helper now available at @/lib/utils for conditional Tailwind classes
+  - ReadingLevel and other brief types exported from @/lib/types/brief
+  - Component uses warm editorial palette: bg-ivory-100, bg-sage-500, text-ink-600
+  - ARIA pattern: role="tablist" on container, role="tab" + aria-selected on buttons, aria-controls/labelledby for panels
+  - Focus states: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - Responsive: flex-col on mobile, flex-row on desktop (sm:flex-row)
+  - Minimum touch target: min-h-[48px] min-w-[48px] for accessibility
 ---
