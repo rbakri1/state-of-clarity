@@ -220,3 +220,26 @@ Thread: https://ampcode.com/threads/T-019baf25-6c56-71cf-bfb9-8c2b5a2eb149
   - Not yet integrated into any page - will need to be added to "Ask Anything" flow in US-014
   - Uses same warm editorial palette as other components (sage-500, ivory-100, ink-800)
 ---
+
+## 2026-01-12 21:00 - US-011 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019baf59-a731-718a-bdfb-172cb30b77a4
+- **What was implemented:** Footer component with legal links and navigation
+- **Files created:**
+  - components/layout/footer.tsx (main component with legal/nav links, copyright)
+- **Files changed:**
+  - app/layout.tsx (added Footer import, flex layout for sticky footer)
+- **Features:**
+  - Links: Privacy Policy (/privacy), Terms of Service (/terms)
+  - Navigation: About (/about), Ask Anything (/ask)
+  - Brand section with logo and tagline
+  - Copyright © 2026 State of Clarity
+  - Uses design system: bg-ivory-300, border-ivory-600, text-ink-500/600/800
+  - Focus rings: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - Responsive grid layout (1 col mobile, 3 cols desktop)
+  - Footer sticks to bottom via min-h-screen flex flex-col on body
+- **Learnings for future iterations:**
+  - Footer component now available at @/components/layout/footer
+  - Use ivory-300 for secondary backgrounds (footer, cards) instead of slate
+  - Global layout uses flex layout (min-h-screen flex flex-col) with flex-1 on main content for sticky footer
+  - Header and Footer both in layout.tsx now, no more inline on each page
+---
