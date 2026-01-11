@@ -124,6 +124,22 @@ export async function updateBriefFromState(
     updateData.clarity_critique = state.clarityScore;
   }
 
+  if (state.consensusResult) {
+    updateData.clarity_score = state.consensusResult.clarityScore.overallScore;
+  }
+
+  if (state.scoringMetadata) {
+    updateData.scoring_metadata = state.scoringMetadata;
+  }
+
+  if (state.needsHumanReview !== undefined) {
+    updateData.needs_human_review = state.needsHumanReview;
+  }
+
+  if (state.reviewReason) {
+    updateData.review_reason = state.reviewReason;
+  }
+
   if (Object.keys(updateData).length === 0) {
     return { error: null };
   }

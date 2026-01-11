@@ -59,6 +59,9 @@ export interface Database {
           classification: any | null; // JSONB - QuestionClassification
           metadata: any; // JSONB
           fork_of: string | null;
+          needs_human_review: boolean;
+          review_reason: string | null;
+          scoring_metadata: any | null; // JSONB
         };
         Insert: {
           question: string;
@@ -69,6 +72,9 @@ export interface Database {
           clarity_score?: number | null;
           classification?: any | null;
           metadata?: any;
+          needs_human_review?: boolean;
+          review_reason?: string | null;
+          scoring_metadata?: any | null;
         };
         Update: {
           summaries?: any;
@@ -76,6 +82,9 @@ export interface Database {
           narrative?: string;
           clarity_score?: number | null;
           classification?: any | null;
+          needs_human_review?: boolean;
+          review_reason?: string | null;
+          scoring_metadata?: any | null;
         };
       };
       sources: {

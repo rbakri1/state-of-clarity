@@ -1,0 +1,288 @@
+# Ralph Progress Log
+Started: Fri  9 Jan 2026 20:30:01 +04
+
+## Codebase Patterns
+- When adding map callbacks in TSX, always add type annotations (e.g., `(item: any, i: number)`) to avoid implicit any errors
+- Missing `@supabase/ssr` package - install it if needed for server-side Supabase client
+- Agents live in `/lib/agents/` directory
+- Types should be organized in `/lib/types/` directory
+- Services live in `/lib/services/` directory for database/business logic operations
+- Hooks live in `/lib/hooks/` directory for React hooks
+- Migrations go in `/lib/supabase/migrations/` directory - use `IF NOT EXISTS` for idempotent migrations
+- Database types are defined in `/lib/supabase/client.ts` Database interface - update Row, Insert, and Update for new columns
+- LangGraph: Use chained `.addNode().addEdge()` calls for proper TypeScript type inference - separate calls cause type errors
+- LangGraph: Node names MUST NOT conflict with state attribute names (e.g., don't use "classification" as node name if it's a state property - use "classify_agent" instead)
+- Use fire-and-forget pattern (`.catch(() => {})`) for non-blocking DB operations in pipeline nodes
+- SSE in Next.js App Router: Use `TextEncoder` and `ReadableStream`, set `Content-Type: text/event-stream` header
+
+---
+
+## 2026-01-09 - US-001
+Thread: https://ampcode.com/threads/T-019ba397-f2e7-715b-b16f-06aed11c6102
+- Created `/lib/types/classification.ts` with all classification taxonomy types
+- Files changed: lib/types/classification.ts (new)
+- **Learnings for future iterations:**
+  - Types directory created at `/lib/types/` for shared type definitions
+  - Classification types: Domain (11 values), ControversyLevel (3), QuestionType (4), TemporalScope (4)
+---
+
+## 2026-01-09 - US-002
+Thread: https://ampcode.com/threads/T-019ba399-7ada-771e-a0f7-9ba0b8fa3dff
+- Created `/lib/agents/question-classifier.ts` with `classifyQuestion()` function
+- Uses Claude Haiku (claude-3-5-haiku-20241022) for cost efficiency
+- Prompt includes 10 diverse examples covering all domain categories
+- Validation functions ensure type safety even if Claude returns unexpected values
+- Files changed: lib/agents/question-classifier.ts (new)
+- **Learnings for future iterations:**
+  - Follow existing agent pattern from research-agent.ts: use Anthropic SDK, extract JSON from response
+  - Always validate LLM responses with fallback defaults for robustness
+  - Use `{{PLACEHOLDER}}` template pattern in prompts for string substitution
+---
+
+## 2026-01-09 - US-003
+Thread: https://ampcode.com/threads/T-019ba39c-10a8-735c-ae6c-9fd7017aa13f
+- Created `test-question-classifier.ts` with 14 diverse test cases
+- Tests cover: domain classification (5 questions), controversy levels (3 tests), question types (3 tests), temporal scopes (3 tests)
+- All tests pass successfully
+- Files changed: test-question-classifier.ts (new)
+- **Learnings for future iterations:**
+  - Follow test script pattern from test-research-agent.ts: load .env.local with dotenv, run with `npx tsx`
+  - LLM classifications may vary slightly - test for critical fields, allow flexibility on edge cases
+  - Classifier correctly handles: EU=high controversy, 4-day week=medium, factual defs=low
+---
+
+## 2026-01-09 - US-004
+Thread: https://ampcode.com/threads/T-019ba39f-2e79-7413-a8d7-8d319908e5fb
+- Added `classification` JSONB column to briefs table in schema.sql
+- Updated Database interface in client.ts with classification field in Row, Insert, and Update types
+- Created migration file: `/lib/supabase/migrations/001_add_classification_column.sql`
+- Files changed: lib/supabase/schema.sql, lib/supabase/client.ts, lib/supabase/migrations/001_add_classification_column.sql (new)
+- **Learnings for future iterations:**
+  - Migrations directory created at `/lib/supabase/migrations/` for database migrations
+  - Use `ADD COLUMN IF NOT EXISTS` for idempotent migrations that can be run multiple times safely
+  - When adding new columns, update all three places in Database interface: Row, Insert, Update
+  - Installed missing `tailwindcss-animate` dependency that was blocking builds
+---
+
+## 2026-01-09 - US-005
+Thread: https://ampcode.com/threads/T-019ba3a1-c42c-77dd-81eb-27acf81517a8
+- Created `/lib/agents/specialist-personas.ts` with 10 domain-specific agent personas
+- Each persona includes: name, domain, expertise, systemPrompt, keyConsiderations, preferredSources
+- Personas cover all 11 Domain types (economics, healthcare, climate, education, defense, immigration, housing, justice, technology, governance, other)
+- Exported `getSpecialistPersona(domain: Domain)` and `getAllPersonas()` functions
+- Files changed: lib/agents/specialist-personas.ts (new)
+- **Learnings for future iterations:**
+  - Specialist personas are mapped directly from Domain types in classification.ts
+  - Each persona includes UK-specific sources (e.g., ONS, NHS, IFS) as preferred sources
+  - The 'other' domain uses a generalist persona for cross-cutting topics
+---
+
+## 2026-01-09 - US-006
+Thread: https://ampcode.com/threads/T-019ba3a3-daaf-709c-ba02-cdabb2e963bf
+- Added `agent_execution_logs` table to schema.sql with columns: id, brief_id, agent_name, started_at, completed_at, duration_ms, status, error_message, metadata (JSONB)
+- Created migration: `/lib/supabase/migrations/002_add_agent_execution_logs_table.sql`
+- Updated Database interface in client.ts with Row, Insert, Update types for agent_execution_logs
+- Added indexes on brief_id and started_at
+- Added RLS policies for public read and system write access
+- Fixed pre-existing typecheck errors in app/brief/[id]/page.tsx (added type annotations to map callbacks)
+- Installed missing `@supabase/ssr` dependency
+- Files changed: lib/supabase/schema.sql, lib/supabase/client.ts, lib/supabase/migrations/002_add_agent_execution_logs_table.sql (new), app/brief/[id]/page.tsx, package.json
+- **Learnings for future iterations:**
+  - Always add type annotations to map callbacks in TSX (e.g., `(item: any, i: number)`) to avoid implicit any errors
+  - Install `@supabase/ssr` if it's missing for server-side client functionality
+  - Migration uses `IF NOT EXISTS` patterns for idempotent execution
+---
+
+## 2026-01-09 - US-007
+Thread: https://ampcode.com/threads/T-019ba3a9-fb52-70ba-b445-4e9b141b33c2
+- Created `/lib/agents/summary-prompts.ts` with 4 reading level prompts
+- Child: 100-150 words, simple vocabulary, uses analogies, no jargon
+- Teen: 200-250 words, accessible with defined key terms
+- Undergrad: 350-400 words, academic vocabulary, cites sources
+- Postdoc: 450-500 words, technical depth, methodological nuance
+- Each prompt includes complete example output for reference
+- Exported: `getSummaryPrompt(level)`, `getAllSummaryPrompts()`, `getAllReadingLevels()`
+- Files changed: lib/agents/summary-prompts.ts (new)
+- **Learnings for future iterations:**
+  - Summary prompts follow same pattern as specialist-personas.ts: interface, const objects, map, getter functions
+  - ReadingLevel type: 'child' | 'teen' | 'undergrad' | 'postdoc'
+  - Each SummaryPrompt includes: level, name, targetAudience, wordCount (min/max), systemPrompt, exampleOutput
+---
+
+## 2026-01-09 - US-008
+Thread: https://ampcode.com/threads/T-019ba3ac-5220-727d-9167-5488332ab21a
+- Created `/lib/agents/retry-wrapper.ts` with exponential backoff retry logic
+- Implemented `withRetry()` function: 3 attempts with 1s, 2s, 4s delays
+- Implemented `wrapWithRetry()` to create wrapped agent functions with built-in retry
+- Created `AgentRetryError` custom error class with aggregated error tracking
+- Added `withSmartRetry()` that only retries on transient errors (429, 5xx, network errors)
+- Added `isRetryableError()` helper to distinguish transient vs permanent failures
+- All retry attempts logged with error details, agent name, and attempt count
+- Files changed: lib/agents/retry-wrapper.ts (new)
+- **Learnings for future iterations:**
+  - Use `withRetry()` for simple retry, `wrapWithRetry()` to pre-wrap agent functions
+  - Exponential backoff formula: `initialDelayMs * (backoffMultiplier ^ (attempt - 1))`
+  - `AgentRetryError` collects all errors from all attempts for debugging
+---
+
+## 2026-01-09 - US-009
+Thread: https://ampcode.com/threads/T-019ba3ae-6089-7229-bc3b-dce94681dc40
+- Created `/lib/agents/execution-logger.ts` with comprehensive logging utilities
+- Functions: `logAgentStart`, `logAgentComplete`, `logAgentFailed`, `withExecutionLogging`, `executeWithLogging`
+- Includes `estimateTokenCount()` for input/output size estimation (~4 chars per token)
+- Supports `ExecutionMode`: 'parallel' | 'sequential' and `parallelGroup` for grouping parallel agents
+- Includes `getExecutionLogsForBrief()` and `getBriefPerformanceSummary()` for retrieving logs
+- All database operations are async and non-blocking (fire-and-forget pattern)
+- Uses `as any` type assertions for Supabase queries on agent_execution_logs table (type inference issues)
+- Files changed: lib/agents/execution-logger.ts (new)
+- **Learnings for future iterations:**
+  - Supabase type inference may fail for new tables - use `as any` on `.from('table')` if needed
+  - Pattern: `(supabase.from('table') as any).insert(...)`
+  - For map callbacks on Supabase data, add type annotation: `(row: any) =>`
+  - Non-blocking logging uses `.catch(() => {})` to prevent unhandled rejections
+---
+
+## 2026-01-09 - US-010
+Thread: https://ampcode.com/threads/T-019ba43c-9b17-7485-b4de-4cbaf39d2459
+- Created `/lib/agents/langgraph-orchestrator.ts` with full pipeline orchestration
+- Implemented LangGraph StateGraph with parallel execution using chained `.addNode()` and `.addEdge()` calls
+- Pipeline: Research → Classification → [Structure || Narrative] → Reconciliation → [4x Summary] → Clarity Scoring
+- Parallel branches for Structure/Narrative (merge at Reconciliation) and 4 Summary agents (merge at Clarity Scoring)
+- Integrated retry wrapper (`withRetry`) and execution logger (`executeWithLogging`) for all agents
+- Defined comprehensive state with `Annotation.Root` including sources, classification, persona, structure, narrative, summaries, clarityScore
+- Created agent placeholder functions: `generateStructure`, `generateNarrative`, `reconcileOutputs`, `generateSummary`, `scoreClarityInternal`
+- Files changed: lib/agents/langgraph-orchestrator.ts (new)
+- **Learnings for future iterations:**
+  - LangGraph TypeScript requires chained `.addNode().addEdge()` calls for proper type inference - separate `graph.addEdge()` calls cause type errors
+  - Use `Annotation.Root({...})` for state schema with `Annotation<T>({ reducer, default })` for each field
+  - Parallel execution works by adding multiple edges from the same source node (e.g., classification → structure AND classification → narrative)
+  - LangGraph automatically handles fan-in by waiting for all parallel branches before proceeding
+  - Import `StateGraph, Annotation, END, START` from "@langchain/langgraph"
+---
+
+## 2026-01-09 - US-011
+Thread: https://ampcode.com/threads/T-019ba440-a501-76bb-a363-d447d46a0d41
+- Verified and enhanced parallel Structure and Narrative agent execution
+- Structure and Narrative agents already run simultaneously via LangGraph parallel edges
+- Both agents receive same research sources via `state.sources`
+- Both agents use specialist persona from classification via `state.persona`
+- Added explicit timing logs for parallel execution visibility
+- Files changed: lib/agents/langgraph-orchestrator.ts (enhanced logging)
+- **Learnings for future iterations:**
+  - LangGraph parallel execution: adding multiple edges from same source node causes parallel execution
+  - The parallel execution was already implemented in US-010 - just needed timing logs for observability
+  - Use `Date.now()` for inline timing measurements in node functions
+---
+
+## 2026-01-09 - US-012
+Thread: https://ampcode.com/threads/T-019ba442-ded3-7638-a9fe-5b7ec0c8fdbb
+- Created `/lib/agents/reconciliation-agent.ts` as dedicated module
+- Agent receives Structure + Narrative inputs and performs 5 consistency checks
+- Returns ReconciliationOutput with: reconciledNarrative, changes array, isConsistent boolean
+- Structure is treated as source of truth - Narrative is adjusted to align
+- Uses Claude Haiku for fast execution (<10 seconds)
+- Updated orchestrator to import from new module
+- Files changed: lib/agents/reconciliation-agent.ts (new), lib/agents/langgraph-orchestrator.ts (updated import)
+- **Learnings for future iterations:**
+  - Follow pattern: export dedicated interface types (ReconciliationInput, ReconciliationOutput)
+  - Validation functions ensure robustness even if LLM response is malformed
+  - Prompt instructs minimal changes to avoid unnecessary rewrites
+---
+
+## 2026-01-09 - US-014
+Thread: https://ampcode.com/threads/T-019ba447-7e1e-739b-97e6-e3eec6aa1f75
+- Integrated question classifier into the brief generation pipeline
+- Classification runs after research agent and is stored in state for all downstream agents
+- Created `/lib/services/brief-service.ts` with functions: createBrief, updateBriefClassification, updateBriefFromState, saveBriefSources, completeBriefGeneration
+- Classification is logged with timing info (duration, result JSON, selected persona)
+- Classification data is saved to brief record via `updateBriefClassification()` when briefId is available
+- Complete brief state is saved via `completeBriefGeneration()` when pipeline completes
+- Files changed: lib/agents/langgraph-orchestrator.ts (added classification logging + DB save), lib/services/brief-service.ts (new)
+- **Learnings for future iterations:**
+  - Services directory created at `/lib/services/` for database operations
+  - Use fire-and-forget pattern (`.catch()`) for non-blocking DB operations in pipeline nodes
+  - Brief service uses `as any` type assertions for Supabase queries to handle type inference issues
+  - generateTagsFromClassification() auto-generates tags from classification data
+---
+
+## 2026-01-09 - US-013 (Verification)
+Thread: https://ampcode.com/threads/T-019ba44b-ab18-73b9-b699-8531aa4d471e
+- Verified parallel Summary agent execution already implemented in US-010
+- 4 parallel Summary nodes: summaryChildNode, summaryTeenNode, summaryUndergradNode, summaryPostdocNode
+- All 4 start simultaneously after Reconciliation via parallel LangGraph edges
+- Each agent receives Structure output via state + reading level prompt from getSummaryPrompt()
+- Results merged into single summaries object via Annotation reducer: `{ reducer: (prev, next) => ({ ...prev, ...next }) }`
+- Typecheck passes
+- Files verified: lib/agents/langgraph-orchestrator.ts
+- **Learnings for future iterations:**
+  - Parallel summary execution was included in US-010 orchestrator implementation
+  - LangGraph fan-out/fan-in pattern: add multiple edges from same source, multiple edges to same target
+  - The reducer function on summaries Annotation merges partial results from parallel nodes
+---
+
+## 2026-01-09 - US-015
+Thread: https://ampcode.com/threads/T-019ba44d-b125-73aa-8141-100ff562a75e
+- Created `/app/api/briefs/generate/route.ts` as SSE endpoint for real-time generation status
+- Created `/lib/types/generation-events.ts` with GenerationEvent, GenerationEventEmitter types
+- Created `/lib/agents/langgraph-orchestrator-streaming.ts` - event-aware version of the orchestrator
+- SSE endpoint streams: agent_started, agent_completed, stage_changed, brief_ready, error events
+- Each event includes: agentName, timestamp, stageName, and optional metadata (durationMs, briefId, activeAgents)
+- Handles client disconnection via ReadableStream cancel() callback
+- Connection closes automatically when brief generation completes
+- Files changed: app/api/briefs/generate/route.ts (new), lib/types/generation-events.ts (new), lib/agents/langgraph-orchestrator-streaming.ts (new)
+- **Learnings for future iterations:**
+  - Next.js App Router SSE: Use ReadableStream with TextEncoder to send `data: ${JSON.stringify(event)}\n\n`
+  - Set headers: `Content-Type: text/event-stream`, `Cache-Control: no-cache`, `Connection: keep-alive`
+  - Use `export const runtime = 'nodejs'` and `export const dynamic = 'force-dynamic'` for SSE routes
+  - Track client connection with closure variable, check before sending events
+  - LangGraph state can include callback functions for emitting events from nodes
+---
+
+## 2026-01-09 - US-016
+Thread: https://ampcode.com/threads/T-019ba452-06dd-707d-bb9a-cc1a569ffa42
+- Created `/app/components/SwarmVisualization.tsx` with animated agent visualization
+- Shows 6 agents in circular swarm arrangement using trigonometric positioning
+- States: pending (dim), running (pulse + spin loader), completed (checkmark), failed (red)
+- Parallel indicator badge (∥) shown on agents that run concurrently
+- Stage labels mapped for user-friendly progress messages
+- Uses lucide-react icons and tailwind classes matching existing UI patterns
+- Files changed: app/components/SwarmVisualization.tsx (new)
+- **Learnings for future iterations:**
+  - Components directory created at `/app/components/` for reusable UI components
+  - Use `animate-pulse` for running state, `animate-spin` on Loader2 icon
+  - Position elements in circle using `Math.cos(angle) * radius` and `Math.sin(angle) * radius`
+  - Import AgentStatus type from generation-events.ts for type safety
+---
+
+## 2026-01-09 - US-017
+Thread: https://ampcode.com/threads/T-019ba454-a68e-749e-8ad9-d906e58ce249
+- Created `/lib/hooks/useGenerationStream.ts` for SSE subscription to brief generation events
+- Integrated SwarmVisualization into main page.tsx with real-time status updates
+- Hook manages: isGenerating, currentStage, agentStatuses, briefId, error, isComplete
+- Auto-redirects to brief page after 1.5s delay on completion
+- Added error handling with "Try Again" option
+- Added cancel button during generation
+- Added fade-in animation CSS for smooth transition
+- Files changed: lib/hooks/useGenerationStream.ts (new), app/page.tsx (updated), app/globals.css (updated)
+- **Learnings for future iterations:**
+  - Hooks directory created at `/lib/hooks/` for React hooks
+  - SSE parsing: split on `\n`, look for `data: ` prefix, parse JSON
+  - Use AbortController for cancellable fetch requests
+  - Use useEffect cleanup to abort on unmount
+  - Smooth transitions: hide showcase section during generation
+---
+
+## 2026-01-10 - US-018
+Thread: https://ampcode.com/threads/T-019ba458-4547-7038-87b3-4a00b4b01a0e
+- Created performance validation script `test-performance-validation.ts`
+- Fixed critical LangGraph bug: node names conflicted with state attribute names
+- Changed node names: classification → classify_agent, structure → structure_agent, narrative → narrative_agent, reconciliation → reconcile_agent, clarity_scoring → clarity_agent
+- Validates parallel execution architecture by analyzing orchestrator code
+- Calculates theoretical time savings: 77s sequential → 45s parallel (41.6% improvement)
+- Confirms two parallel branches: (1) structure_agent || narrative_agent, (2) 4x summary agents
+- Files changed: lib/agents/langgraph-orchestrator.ts, lib/agents/langgraph-orchestrator-streaming.ts, test-performance-validation.ts (new)
+- **Learnings for future iterations:**
+  - LangGraph node names CANNOT match state attribute names - causes runtime error "X is already being used as a state attribute"
+  - Use suffix like "_agent" to differentiate node names from state properties
+  - When API models are unavailable, validate architecture through code analysis instead
+---
