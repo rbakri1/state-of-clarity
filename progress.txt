@@ -58,3 +58,16 @@ Thread: https://ampcode.com/threads/T-019bad15-e42c-73b6-89ad-9cf9519d8c3b
   - global-error.tsx receives error.digest for error ID tracking
   - ErrorBoundary in layout.tsx catches component-level errors; global-error.tsx catches root-level crashes
 ---
+
+## 2026-01-11 - US-004
+Thread: https://ampcode.com/threads/T-019bad18-63fb-756f-a499-11552b5f6ed6
+- Created standardized API error response format in lib/errors/api-error.ts
+- ApiError class with statusCode, message, code, details properties
+- Static factory methods: unauthorized, notFound, validationError, rateLimited, serviceUnavailable
+- formatErrorResponse helper to convert ApiError to JSON response
+- Defined ErrorCodes const and ErrorCode type for type safety
+- **Learnings for future iterations:**
+  - Error classes should extend Error and call Object.setPrototypeOf for proper inheritance
+  - Use static factory methods for common error types for cleaner API
+  - Export both const object and type union for error codes
+---
