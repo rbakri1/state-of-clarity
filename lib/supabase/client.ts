@@ -13,6 +13,12 @@ import { cookies } from "next/headers";
 // Reading level types
 export type ReadingLevel = "simple" | "standard" | "advanced";
 
+// Credit transaction types
+export type CreditTransactionType = "purchase" | "usage" | "refund" | "expiry" | "bonus";
+
+// Payment retry status
+export type PaymentRetryStatus = "pending" | "retrying" | "succeeded" | "failed";
+
 // Type definitions for database schema
 export interface Database {
   public: {
@@ -24,6 +30,11 @@ export interface Database {
           full_name: string | null;
           avatar_url: string | null;
           bio: string | null;
+          location: string | null;
+          preferred_reading_level: ReadingLevel | null;
+          topic_interests: string[] | null;
+          notification_email_digest: boolean;
+          notification_new_features: boolean;
           reputation_score: number;
           created_at: string;
           updated_at: string;
@@ -34,6 +45,11 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           bio?: string | null;
+          location?: string | null;
+          preferred_reading_level?: ReadingLevel | null;
+          topic_interests?: string[] | null;
+          notification_email_digest?: boolean;
+          notification_new_features?: boolean;
           reputation_score?: number;
         };
         Update: {
@@ -41,6 +57,11 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           bio?: string | null;
+          location?: string | null;
+          preferred_reading_level?: ReadingLevel | null;
+          topic_interests?: string[] | null;
+          notification_email_digest?: boolean;
+          notification_new_features?: boolean;
         };
       };
       briefs: {
@@ -295,6 +316,152 @@ export interface Database {
           publishable?: boolean;
           refund_triggered?: boolean;
           retry_scheduled?: boolean;
+        };
+      };
+      credit_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          transaction_type: "purchase" | "usage" | "refund" | "expiry" | "bonus";
+          description: string | null;
+          brief_id: string | null;
+          stripe_payment_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          amount: number;
+          transaction_type: "purchase" | "usage" | "refund" | "expiry" | "bonus";
+          description?: string | null;
+          brief_id?: string | null;
+          stripe_payment_id?: string | null;
+        };
+        Update: {
+          description?: string | null;
+        };
+      };
+      payment_retries: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_payment_intent_id: string;
+          attempts: number;
+          last_attempt_at: string | null;
+          next_retry_at: string | null;
+          status: "pending" | "retrying" | "succeeded" | "failed";
+          package_id: string | null;
+          error_message: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          stripe_payment_intent_id: string;
+          attempts?: number;
+          last_attempt_at?: string | null;
+          next_retry_at?: string | null;
+          status?: "pending" | "retrying" | "succeeded" | "failed";
+          package_id?: string | null;
+          error_message?: string | null;
+        };
+        Update: {
+          attempts?: number;
+          last_attempt_at?: string | null;
+          next_retry_at?: string | null;
+          status?: "pending" | "retrying" | "succeeded" | "failed";
+          error_message?: string | null;
+        };
+      };
+      credit_packages: {
+        Row: {
+          id: string;
+          name: string;
+          credits: number;
+          price_gbp: number;
+          stripe_price_id: string | null;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          name: string;
+          credits: number;
+          price_gbp: number;
+          stripe_price_id?: string | null;
+          active?: boolean;
+        };
+        Update: {
+          name?: string;
+          credits?: number;
+          price_gbp?: number;
+          stripe_price_id?: string | null;
+          active?: boolean;
+        };
+      };
+      user_credits: {
+        Row: {
+          id: string;
+          user_id: string;
+          balance: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          balance?: number;
+        };
+        Update: {
+          balance?: number;
+        };
+      };
+      credit_batches: {
+        Row: {
+          id: string;
+          user_id: string;
+          credits_remaining: number;
+          purchased_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          user_id: string;
+          credits_remaining: number;
+          expires_at: string;
+        };
+        Update: {
+          credits_remaining?: number;
+          expires_at?: string;
+        };
+      };
+      saved_briefs: {
+        Row: {
+          user_id: string;
+          brief_id: string;
+          saved_at: string;
+        };
+        Insert: {
+          user_id: string;
+          brief_id: string;
+        };
+        Update: {};
+      };
+      reading_history: {
+        Row: {
+          user_id: string;
+          brief_id: string;
+          time_spent: number | null;
+          scroll_depth: number | null;
+          first_viewed_at: string;
+          last_viewed_at: string;
+        };
+        Insert: {
+          user_id: string;
+          brief_id: string;
+          time_spent?: number | null;
+          scroll_depth?: number | null;
+        };
+        Update: {
+          time_spent?: number | null;
+          scroll_depth?: number | null;
+          last_viewed_at?: string;
         };
       };
     };
