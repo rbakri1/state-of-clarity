@@ -13,11 +13,10 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import {
-  createBrowserClient,
-  type ReadingLevel,
-  type NotificationPreferences,
-} from "@/lib/supabase/browser";
+import { createBrowserClient } from "@/lib/supabase/browser";
+
+type ReadingLevel = "simple" | "standard" | "advanced";
+type NotificationPreferences = { email: boolean; push: boolean };
 
 const READING_LEVELS: { value: ReadingLevel; label: string }[] = [
   { value: "simple", label: "Simple (Easy to understand)" },

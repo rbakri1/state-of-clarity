@@ -53,7 +53,12 @@ export default function SavedBriefsPage() {
         .order("saved_at", { ascending: false });
 
       if (!error && data) {
-        setSavedBriefs(data as SavedBrief[]);
+        // Transform the data to match our interface (Supabase returns brief as array)
+        const transformedData = data.map((item: any) => ({
+          ...item,
+          brief: Array.isArray(item.brief) ? item.brief[0] || null : item.brief,
+        }));
+        setSavedBriefs(transformedData as SavedBrief[]);
       }
 
       setIsLoading(false);

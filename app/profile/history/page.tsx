@@ -55,7 +55,12 @@ export default function ReadingHistoryPage() {
         .order("last_viewed_at", { ascending: false });
 
       if (!error && data) {
-        setHistory(data as ReadingHistoryItem[]);
+        // Transform the data to match our interface (Supabase returns brief as array)
+        const transformedData = data.map((item: any) => ({
+          ...item,
+          brief: Array.isArray(item.brief) ? item.brief[0] || null : item.brief,
+        }));
+        setHistory(transformedData as ReadingHistoryItem[]);
       }
 
       setIsLoading(false);
