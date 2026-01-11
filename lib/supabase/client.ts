@@ -62,6 +62,9 @@ export interface Database {
           needs_human_review: boolean;
           review_reason: string | null;
           scoring_metadata: any | null; // JSONB
+          quality_warning: boolean;
+          quality_warning_reason: string | null;
+          refinement_metadata: any | null; // JSONB
         };
         Insert: {
           question: string;
@@ -75,6 +78,9 @@ export interface Database {
           needs_human_review?: boolean;
           review_reason?: string | null;
           scoring_metadata?: any | null;
+          quality_warning?: boolean;
+          quality_warning_reason?: string | null;
+          refinement_metadata?: any | null;
         };
         Update: {
           summaries?: any;
@@ -85,6 +91,9 @@ export interface Database {
           needs_human_review?: boolean;
           review_reason?: string | null;
           scoring_metadata?: any | null;
+          quality_warning?: boolean;
+          quality_warning_reason?: string | null;
+          refinement_metadata?: any | null;
         };
       };
       sources: {
@@ -189,26 +198,32 @@ export interface Database {
           id: string;
           brief_id: string | null;
           agent_name: string;
+          agent_type: "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
           started_at: string;
           completed_at: string | null;
           duration_ms: number | null;
-          status: "running" | "completed" | "failed";
+          status: "running" | "success" | "failed" | "skipped";
           error_message: string | null;
-          metadata: any; // JSONB
+          metadata: Record<string, unknown>;
+          created_at: string;
         };
         Insert: {
           brief_id?: string | null;
           agent_name: string;
+          agent_type: "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
           started_at?: string;
-          status?: "running" | "completed" | "failed";
-          metadata?: any;
+          completed_at?: string | null;
+          duration_ms?: number | null;
+          status?: "running" | "success" | "failed" | "skipped";
+          error_message?: string | null;
+          metadata?: Record<string, unknown>;
         };
         Update: {
-          completed_at?: string;
-          duration_ms?: number;
-          status?: "running" | "completed" | "failed";
+          completed_at?: string | null;
+          duration_ms?: number | null;
+          status?: "running" | "success" | "failed" | "skipped";
           error_message?: string | null;
-          metadata?: any;
+          metadata?: Record<string, unknown>;
         };
       };
     };

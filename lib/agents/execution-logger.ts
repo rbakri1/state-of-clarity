@@ -1,327 +1,355 @@
 /**
- * Agent Execution Logger
+ * Execution Logger
  *
- * Logs agent execution times and status for observability and optimization.
- * Stores logs in the agent_execution_logs table asynchronously.
+ * Logs agent execution metrics to agent_execution_logs table for observability.
+ * Tracks refinement attempts, fixer deployments, edits, scores, timing, and costs.
  */
 
-import { createServiceRoleClient } from '../supabase/client';
+import { createServiceRoleClient } from "@/lib/supabase/client";
+import { FixerType, RefinementAttempt, SuggestedEdit } from "@/lib/types/refinement";
 
-export type ExecutionStatus = 'running' | 'completed' | 'failed';
-export type ExecutionMode = 'parallel' | 'sequential';
+export type AgentType = "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
+export type LogStatus = "running" | "success" | "failed" | "skipped";
 
-export interface ExecutionMetadata {
-  inputTokenEstimate?: number;
-  outputTokenEstimate?: number;
-  executionMode?: ExecutionMode;
-  parallelGroup?: string;
-  retryAttempt?: number;
-  customData?: Record<string, unknown>;
+export interface RefinementLogMetadata {
+  attemptNumber: number;
+  fixersDeployed: FixerType[];
+  editsCount: {
+    suggested: number;
+    applied: number;
+    skipped: number;
+  };
+  scores: {
+    before: number;
+    after: number;
+    change: number;
+  };
+  dimensionScores?: Record<string, { before: number; after: number }>;
+  processingTimeMs: number;
 }
 
-export interface ExecutionLogEntry {
-  id?: string;
-  briefId: string | null;
+export interface RefinementSummaryMetadata {
+  totalAttempts: number;
+  initialScore: number;
+  finalScore: number;
+  success: boolean;
+  totalProcessingTimeMs: number;
+  totalEditsSuggested: number;
+  totalEditsApplied: number;
+  totalEditsSkipped: number;
+  estimatedCostUsd: number;
+  warningReason?: string;
+  scoreProgression: Array<{ attempt: number; score: number }>;
+}
+
+export interface FixerLogMetadata {
+  fixerType: FixerType;
+  dimensionScore: number;
+  editsGenerated: number;
+  confidence: number;
+  processingTimeMs: number;
+}
+
+export interface OrchestratorLogMetadata {
+  fixersDeployed: FixerType[];
+  fixersSkipped: FixerType[];
+  totalEditsCollected: number;
+  processingTimeMs: number;
+  dimensionScores: Record<string, number>;
+}
+
+export interface ReconciliationLogMetadata {
+  editsReceived: number;
+  editsApplied: number;
+  editsSkipped: number;
+  conflictsResolved: number;
+  processingTimeMs: number;
+}
+
+const HAIKU_COST_PER_1K_INPUT = 0.00025;
+const HAIKU_COST_PER_1K_OUTPUT = 0.00125;
+const SONNET_COST_PER_1K_INPUT = 0.003;
+const SONNET_COST_PER_1K_OUTPUT = 0.015;
+
+const AVG_FIXER_INPUT_TOKENS = 2000;
+const AVG_FIXER_OUTPUT_TOKENS = 500;
+const AVG_RECONCILIATION_INPUT_TOKENS = 4000;
+const AVG_RECONCILIATION_OUTPUT_TOKENS = 2000;
+const AVG_SCORING_INPUT_TOKENS = 3000;
+const AVG_SCORING_OUTPUT_TOKENS = 1000;
+
+export function estimateRefinementCost(
+  fixerCount: number,
+  attempts: number
+): number {
+  const fixerCostPerRun =
+    (AVG_FIXER_INPUT_TOKENS / 1000) * HAIKU_COST_PER_1K_INPUT +
+    (AVG_FIXER_OUTPUT_TOKENS / 1000) * HAIKU_COST_PER_1K_OUTPUT;
+  
+  const reconciliationCostPerRun =
+    (AVG_RECONCILIATION_INPUT_TOKENS / 1000) * SONNET_COST_PER_1K_INPUT +
+    (AVG_RECONCILIATION_OUTPUT_TOKENS / 1000) * SONNET_COST_PER_1K_OUTPUT;
+  
+  const scoringCostPerRun =
+    (AVG_SCORING_INPUT_TOKENS / 1000) * SONNET_COST_PER_1K_INPUT +
+    (AVG_SCORING_OUTPUT_TOKENS / 1000) * SONNET_COST_PER_1K_OUTPUT;
+  
+  const costPerAttempt =
+    fixerCostPerRun * fixerCount + reconciliationCostPerRun + scoringCostPerRun;
+  
+  return Math.round(costPerAttempt * attempts * 10000) / 10000;
+}
+
+export async function logAgentExecution(params: {
+  briefId?: string;
   agentName: string;
-  startedAt: Date;
-  completedAt?: Date;
+  agentType: AgentType;
+  status: LogStatus;
   durationMs?: number;
-  status: ExecutionStatus;
   errorMessage?: string;
-  metadata?: ExecutionMetadata;
-}
-
-export interface ExecutionContext {
-  briefId: string | null;
-  executionMode: ExecutionMode;
-  parallelGroup?: string;
-}
-
-/**
- * Estimate token count from text (rough approximation: ~4 chars per token)
- */
-export function estimateTokenCount(text: string): number {
-  if (!text) return 0;
-  return Math.ceil(text.length / 4);
-}
-
-/**
- * Log the start of an agent execution
- * Returns an ID that can be used to complete the log entry
- */
-export async function logAgentStart(
-  agentName: string,
-  context: ExecutionContext,
-  inputSize?: number
-): Promise<string | null> {
-  const startedAt = new Date();
-
-  console.log(`[ExecutionLogger] Agent started: ${agentName}`, {
-    briefId: context.briefId,
-    executionMode: context.executionMode,
-    parallelGroup: context.parallelGroup,
-    inputTokenEstimate: inputSize,
-    startedAt: startedAt.toISOString(),
-  });
-
+  metadata?: Record<string, unknown>;
+}): Promise<string | null> {
   try {
     const supabase = createServiceRoleClient();
-    const insertData = {
-      brief_id: context.briefId,
-      agent_name: agentName,
-      started_at: startedAt.toISOString(),
-      status: 'running' as const,
-      metadata: {
-        inputTokenEstimate: inputSize,
-        executionMode: context.executionMode,
-        parallelGroup: context.parallelGroup,
-      },
-    };
-    
-    // Use explicit type assertion - Supabase types may not infer correctly for new tables
-    const { data, error } = await (supabase
-      .from('agent_execution_logs') as any)
-      .insert(insertData)
-      .select('id')
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from("agent_execution_logs")
+      .insert({
+        brief_id: params.briefId,
+        agent_name: params.agentName,
+        agent_type: params.agentType,
+        started_at: now,
+        completed_at: params.durationMs ? now : null,
+        duration_ms: params.durationMs,
+        status: params.status,
+        error_message: params.errorMessage,
+        metadata: params.metadata || {},
+      } as never)
+      .select("id")
       .single();
 
     if (error) {
-      console.error(`[ExecutionLogger] Failed to create log entry:`, error);
+      console.error("[ExecutionLogger] Failed to log execution:", error);
       return null;
     }
 
-    return data?.id || null;
+    return (data as { id: string })?.id || null;
   } catch (err) {
-    console.error(`[ExecutionLogger] Error creating log entry:`, err);
+    console.error("[ExecutionLogger] Error:", err);
     return null;
   }
 }
 
-/**
- * Log the completion of an agent execution
- */
-export async function logAgentComplete(
-  logId: string | null,
-  agentName: string,
-  startedAt: Date,
-  outputSize?: number
-): Promise<void> {
-  const completedAt = new Date();
-  const durationMs = completedAt.getTime() - startedAt.getTime();
-
-  console.log(`[ExecutionLogger] Agent completed: ${agentName}`, {
-    logId,
-    durationMs,
-    outputTokenEstimate: outputSize,
-    completedAt: completedAt.toISOString(),
-  });
-
-  if (!logId) return;
-
-  try {
-    const supabase = createServiceRoleClient();
-    await (supabase
-      .from('agent_execution_logs') as any)
-      .update({
-        completed_at: completedAt.toISOString(),
-        duration_ms: durationMs,
-        status: 'completed',
-        metadata: {
-          outputTokenEstimate: outputSize,
-        },
-      })
-      .eq('id', logId);
-  } catch (err) {
-    console.error(`[ExecutionLogger] Error updating log entry:`, err);
-  }
-}
-
-/**
- * Log a failed agent execution
- */
-export async function logAgentFailed(
-  logId: string | null,
-  agentName: string,
-  startedAt: Date,
-  error: Error | string
-): Promise<void> {
-  const completedAt = new Date();
-  const durationMs = completedAt.getTime() - startedAt.getTime();
-  const errorMessage = error instanceof Error ? error.message : error;
-
-  console.error(`[ExecutionLogger] Agent failed: ${agentName}`, {
-    logId,
-    durationMs,
-    errorMessage,
-    completedAt: completedAt.toISOString(),
-  });
-
-  if (!logId) return;
-
-  try {
-    const supabase = createServiceRoleClient();
-    await (supabase
-      .from('agent_execution_logs') as any)
-      .update({
-        completed_at: completedAt.toISOString(),
-        duration_ms: durationMs,
-        status: 'failed',
-        error_message: errorMessage,
-      })
-      .eq('id', logId);
-  } catch (err) {
-    console.error(`[ExecutionLogger] Error updating log entry:`, err);
-  }
-}
-
-/**
- * Wrap an agent function with automatic execution logging
- *
- * @example
- * const loggedResearchAgent = withExecutionLogging(
- *   'Research Agent',
- *   researchAgent,
- *   { briefId: 'abc123', executionMode: 'sequential' }
- * );
- */
-export function withExecutionLogging<TArgs extends unknown[], TResult>(
-  agentName: string,
-  fn: (...args: TArgs) => Promise<TResult>,
-  context: ExecutionContext,
-  options?: {
-    getInputSize?: (...args: TArgs) => number;
-    getOutputSize?: (result: TResult) => number;
-  }
-): (...args: TArgs) => Promise<TResult> {
-  return async (...args: TArgs): Promise<TResult> => {
-    const startedAt = new Date();
-    const inputSize = options?.getInputSize?.(...args);
-
-    const logId = await logAgentStart(agentName, context, inputSize);
-
-    try {
-      const result = await fn(...args);
-      const outputSize = options?.getOutputSize?.(result);
-      
-      // Non-blocking: fire and forget
-      logAgentComplete(logId, agentName, startedAt, outputSize).catch(() => {});
-      
-      return result;
-    } catch (error) {
-      // Non-blocking: fire and forget
-      logAgentFailed(logId, agentName, startedAt, error instanceof Error ? error : String(error)).catch(() => {});
-      
-      throw error;
-    }
+export async function logRefinementAttempt(
+  briefId: string | undefined,
+  attempt: RefinementAttempt
+): Promise<string | null> {
+  const metadata: RefinementLogMetadata = {
+    attemptNumber: attempt.attemptNumber,
+    fixersDeployed: attempt.fixersDeployed,
+    editsCount: {
+      suggested: attempt.editsMade.length + (attempt.editsSkipped?.length || 0),
+      applied: attempt.editsMade.length,
+      skipped: attempt.editsSkipped?.length || 0,
+    },
+    scores: {
+      before: attempt.scoreBeforeAfter.before,
+      after: attempt.scoreBeforeAfter.after,
+      change: attempt.scoreBeforeAfter.after - attempt.scoreBeforeAfter.before,
+    },
+    dimensionScores: attempt.scoreBeforeAfter.dimensionScores,
+    processingTimeMs: attempt.processingTime || 0,
   };
+
+  const status: LogStatus =
+    attempt.scoreBeforeAfter.after >= 8.0 ? "success" : "success";
+
+  return logAgentExecution({
+    briefId,
+    agentName: `refinement_attempt_${attempt.attemptNumber}`,
+    agentType: "refinement_loop",
+    status,
+    durationMs: attempt.processingTime,
+    metadata: metadata as unknown as Record<string, unknown>,
+  });
 }
 
-/**
- * Execute an agent with logging (simpler API for one-off executions)
- *
- * @example
- * const result = await executeWithLogging(
- *   'Research Agent',
- *   () => researchAgent(question),
- *   { briefId: 'abc123', executionMode: 'sequential' },
- *   { inputText: question }
- * );
- */
-export async function executeWithLogging<T>(
-  agentName: string,
-  fn: () => Promise<T>,
-  context: ExecutionContext,
-  options?: {
-    inputText?: string;
-    getOutputSize?: (result: T) => number;
+export async function logRefinementSummary(
+  briefId: string | undefined,
+  params: {
+    attempts: RefinementAttempt[];
+    initialScore: number;
+    finalScore: number;
+    success: boolean;
+    totalProcessingTimeMs: number;
+    warningReason?: string;
   }
-): Promise<T> {
-  const startedAt = new Date();
-  const inputSize = options?.inputText ? estimateTokenCount(options.inputText) : undefined;
+): Promise<string | null> {
+  const totalEditsSuggested = params.attempts.reduce(
+    (sum, a) => sum + a.editsMade.length + (a.editsSkipped?.length || 0),
+    0
+  );
+  const totalEditsApplied = params.attempts.reduce(
+    (sum, a) => sum + a.editsMade.length,
+    0
+  );
+  const totalEditsSkipped = params.attempts.reduce(
+    (sum, a) => sum + (a.editsSkipped?.length || 0),
+    0
+  );
 
-  const logId = await logAgentStart(agentName, context, inputSize);
+  const avgFixersPerAttempt =
+    params.attempts.length > 0
+      ? params.attempts.reduce((sum, a) => sum + a.fixersDeployed.length, 0) /
+        params.attempts.length
+      : 0;
 
-  try {
-    const result = await fn();
-    const outputSize = options?.getOutputSize?.(result);
-    
-    // Non-blocking: fire and forget
-    logAgentComplete(logId, agentName, startedAt, outputSize).catch(() => {});
-    
-    return result;
-  } catch (error) {
-    // Non-blocking: fire and forget
-    logAgentFailed(logId, agentName, startedAt, error instanceof Error ? error : String(error)).catch(() => {});
-    
-    throw error;
-  }
-}
+  const estimatedCostUsd = estimateRefinementCost(
+    Math.round(avgFixersPerAttempt),
+    params.attempts.length
+  );
 
-/**
- * Retrieve execution logs for a brief
- */
-export async function getExecutionLogsForBrief(briefId: string): Promise<ExecutionLogEntry[]> {
-  try {
-    const supabase = createServiceRoleClient();
-    const { data, error } = await (supabase
-      .from('agent_execution_logs') as any)
-      .select('*')
-      .eq('brief_id', briefId)
-      .order('started_at', { ascending: true });
+  const scoreProgression = params.attempts.map((a) => ({
+    attempt: a.attemptNumber,
+    score: a.scoreBeforeAfter.after,
+  }));
 
-    if (error) {
-      console.error(`[ExecutionLogger] Failed to retrieve logs:`, error);
-      return [];
-    }
-
-    return (data || []).map((row: any) => ({
-      id: row.id,
-      briefId: row.brief_id,
-      agentName: row.agent_name,
-      startedAt: new Date(row.started_at),
-      completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
-      durationMs: row.duration_ms ?? undefined,
-      status: row.status,
-      errorMessage: row.error_message ?? undefined,
-      metadata: row.metadata as ExecutionMetadata,
-    }));
-  } catch (err) {
-    console.error(`[ExecutionLogger] Error retrieving logs:`, err);
-    return [];
-  }
-}
-
-/**
- * Get performance summary for a brief
- */
-export async function getBriefPerformanceSummary(briefId: string): Promise<{
-  totalDurationMs: number;
-  agentCount: number;
-  parallelExecutions: number;
-  sequentialExecutions: number;
-  failedAgents: string[];
-} | null> {
-  const logs = await getExecutionLogsForBrief(briefId);
-  
-  if (logs.length === 0) return null;
-
-  const parallelLogs = logs.filter(l => l.metadata?.executionMode === 'parallel');
-  const sequentialLogs = logs.filter(l => l.metadata?.executionMode === 'sequential');
-  const failedLogs = logs.filter(l => l.status === 'failed');
-
-  // Calculate total duration (earliest start to latest completion)
-  const startTimes = logs.map(l => l.startedAt.getTime());
-  const endTimes = logs.filter(l => l.completedAt).map(l => l.completedAt!.getTime());
-  
-  const totalDurationMs = endTimes.length > 0 
-    ? Math.max(...endTimes) - Math.min(...startTimes)
-    : 0;
-
-  return {
-    totalDurationMs,
-    agentCount: logs.length,
-    parallelExecutions: parallelLogs.length,
-    sequentialExecutions: sequentialLogs.length,
-    failedAgents: failedLogs.map(l => l.agentName),
+  const metadata: RefinementSummaryMetadata = {
+    totalAttempts: params.attempts.length,
+    initialScore: params.initialScore,
+    finalScore: params.finalScore,
+    success: params.success,
+    totalProcessingTimeMs: params.totalProcessingTimeMs,
+    totalEditsSuggested,
+    totalEditsApplied,
+    totalEditsSkipped,
+    estimatedCostUsd,
+    warningReason: params.warningReason,
+    scoreProgression,
   };
+
+  const status: LogStatus = params.success ? "success" : "failed";
+
+  console.log(
+    `[ExecutionLogger] Refinement summary: ${params.success ? "SUCCESS" : "FAILED"} | ` +
+      `Score: ${params.initialScore.toFixed(1)} → ${params.finalScore.toFixed(1)} | ` +
+      `Attempts: ${params.attempts.length} | ` +
+      `Edits: ${totalEditsApplied}/${totalEditsSuggested} applied | ` +
+      `Time: ${(params.totalProcessingTimeMs / 1000).toFixed(1)}s | ` +
+      `Est. cost: $${estimatedCostUsd.toFixed(4)}`
+  );
+
+  return logAgentExecution({
+    briefId,
+    agentName: "refinement_loop_summary",
+    agentType: "refinement_loop",
+    status,
+    durationMs: params.totalProcessingTimeMs,
+    errorMessage: params.success ? undefined : params.warningReason,
+    metadata: metadata as unknown as Record<string, unknown>,
+  });
+}
+
+export async function logFixerExecution(
+  briefId: string | undefined,
+  params: {
+    fixerType: FixerType;
+    dimensionScore: number;
+    editsGenerated: number;
+    confidence: number;
+    processingTimeMs: number;
+    status: LogStatus;
+    errorMessage?: string;
+  }
+): Promise<string | null> {
+  const metadata: FixerLogMetadata = {
+    fixerType: params.fixerType,
+    dimensionScore: params.dimensionScore,
+    editsGenerated: params.editsGenerated,
+    confidence: params.confidence,
+    processingTimeMs: params.processingTimeMs,
+  };
+
+  return logAgentExecution({
+    briefId,
+    agentName: `fixer_${params.fixerType}`,
+    agentType: "fixer",
+    status: params.status,
+    durationMs: params.processingTimeMs,
+    errorMessage: params.errorMessage,
+    metadata: metadata as unknown as Record<string, unknown>,
+  });
+}
+
+export async function logOrchestratorExecution(
+  briefId: string | undefined,
+  params: {
+    fixersDeployed: FixerType[];
+    fixersSkipped: FixerType[];
+    totalEditsCollected: number;
+    processingTimeMs: number;
+    dimensionScores: Record<string, number>;
+    status: LogStatus;
+    errorMessage?: string;
+  }
+): Promise<string | null> {
+  const metadata: OrchestratorLogMetadata = {
+    fixersDeployed: params.fixersDeployed,
+    fixersSkipped: params.fixersSkipped,
+    totalEditsCollected: params.totalEditsCollected,
+    processingTimeMs: params.processingTimeMs,
+    dimensionScores: params.dimensionScores,
+  };
+
+  console.log(
+    `[ExecutionLogger] Orchestrator: Deployed ${params.fixersDeployed.length} fixers, ` +
+      `skipped ${params.fixersSkipped.length}, collected ${params.totalEditsCollected} edits`
+  );
+
+  return logAgentExecution({
+    briefId,
+    agentName: "fixer_orchestrator",
+    agentType: "orchestrator",
+    status: params.status,
+    durationMs: params.processingTimeMs,
+    errorMessage: params.errorMessage,
+    metadata: metadata as unknown as Record<string, unknown>,
+  });
+}
+
+export async function logReconciliationExecution(
+  briefId: string | undefined,
+  params: {
+    editsReceived: number;
+    editsApplied: number;
+    editsSkipped: number;
+    conflictsResolved: number;
+    processingTimeMs: number;
+    status: LogStatus;
+    errorMessage?: string;
+  }
+): Promise<string | null> {
+  const metadata: ReconciliationLogMetadata = {
+    editsReceived: params.editsReceived,
+    editsApplied: params.editsApplied,
+    editsSkipped: params.editsSkipped,
+    conflictsResolved: params.conflictsResolved,
+    processingTimeMs: params.processingTimeMs,
+  };
+
+  console.log(
+    `[ExecutionLogger] Reconciliation: Applied ${params.editsApplied}/${params.editsReceived} edits, ` +
+      `resolved ${params.conflictsResolved} conflicts`
+  );
+
+  return logAgentExecution({
+    briefId,
+    agentName: "edit_reconciliation",
+    agentType: "reconciliation",
+    status: params.status,
+    durationMs: params.processingTimeMs,
+    errorMessage: params.errorMessage,
+    metadata: metadata as unknown as Record<string, unknown>,
+  });
 }

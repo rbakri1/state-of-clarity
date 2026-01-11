@@ -1,0 +1,271 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/adaptive-refinement-swarms",
+  "description": "Deploy 7 targeted fixer agents (one per scoring dimension) that suggest edits, reconcile changes, and attempt up to 3 refinement cycles before publishing with warning badge if needed",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Define fixer agent types and interfaces",
+      "description": "As a developer, I need TypeScript types for fixer agents so the refinement system is type-safe.",
+      "acceptanceCriteria": [
+        "Create /lib/types/refinement.ts",
+        "Define FixerType enum matching 7 dimensions: firstPrinciplesCoherence, internalConsistency, evidenceQuality, accessibility, objectivity, factualAccuracy, biasDetection",
+        "Define SuggestedEdit interface: section, originalText, suggestedText, rationale, priority",
+        "Define FixerResult interface: fixerType, suggestedEdits[], confidence, processingTime",
+        "Define RefinementAttempt interface: attemptNumber, fixersDeployed, editsMade, scoreBeforeAfter",
+        "Export all types",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create fixer agent base class",
+      "description": "As a developer, I need a base fixer agent that all 7 specialized fixers extend.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/base-fixer.ts",
+        "Abstract class with method: suggestEdits(brief, dimensionScore, critique): Promise<SuggestedEdit[]>",
+        "Includes common logic: prompt building, LLM call with Claude Haiku, response parsing",
+        "Includes retry wrapper integration from existing retry-wrapper.ts",
+        "Each fixer completes in <5 seconds",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create First-Principles Coherence fixer",
+      "description": "As a developer, I need a fixer that improves reasoning from foundations.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/first-principles-fixer.ts extending base-fixer",
+        "Identifies gaps in logical chain from assumptions to conclusions",
+        "Suggests additions to make reasoning explicit",
+        "Flags unstated assumptions that should be made explicit",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create Internal Consistency fixer",
+      "description": "As a developer, I need a fixer that resolves contradictions between sections.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/consistency-fixer.ts extending base-fixer",
+        "Identifies contradictions between narrative, structure, and summaries",
+        "Suggests which version to keep based on source support",
+        "Ensures terminology is consistent throughout",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create Evidence Quality fixer",
+      "description": "As a developer, I need a fixer that improves source usage and citations.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/evidence-fixer.ts extending base-fixer",
+        "Identifies claims lacking citation",
+        "Suggests stronger sources for weak citations",
+        "Flags over-reliance on single source",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create Accessibility fixer",
+      "description": "As a developer, I need a fixer that improves clarity and readability.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/accessibility-fixer.ts extending base-fixer",
+        "Identifies jargon and suggests plain-language alternatives",
+        "Flags overly complex sentences for simplification",
+        "Ensures reading level matches target audience",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create Objectivity fixer",
+      "description": "As a developer, I need a fixer that improves balance and perspective representation.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/objectivity-fixer.ts extending base-fixer",
+        "Identifies underrepresented perspectives",
+        "Suggests where to add counterarguments",
+        "Flags one-sided framing for revision",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create Factual Accuracy fixer",
+      "description": "As a developer, I need a fixer that verifies and corrects factual claims.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/factual-accuracy-fixer.ts extending base-fixer",
+        "Identifies specific factual claims in the brief",
+        "Cross-references claims against provided sources",
+        "Flags claims not supported by sources",
+        "Suggests corrections or hedging language for uncertain claims",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create Bias Detection fixer",
+      "description": "As a developer, I need a fixer that neutralizes subtle framing bias.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/bias-fixer.ts extending base-fixer",
+        "Identifies loaded language and suggests neutral alternatives",
+        "Flags selective emphasis or burying of counterarguments",
+        "Detects framing that favors one position",
+        "Returns targeted SuggestedEdit[] with rationale",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Create fixer orchestrator",
+      "description": "As a developer, I need an orchestrator that deploys the right fixers based on dimension scores.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/fixer-orchestrator.ts",
+        "Receives consensus scoring result with dimension breakdown",
+        "Deploys fixers only for dimensions scoring <7.0",
+        "Runs deployed fixers in parallel using Promise.all",
+        "Collects all SuggestedEdit arrays from fixers",
+        "Logs which fixers were deployed and their results using execution-logger",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create edit reconciliation agent",
+      "description": "As a developer, I need an agent that merges suggested edits into a coherent revised brief.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/fixers/edit-reconciliation-agent.ts",
+        "Receives original brief + all suggested edits from fixers",
+        "Resolves conflicts when multiple fixers suggest edits to same section",
+        "Prioritizes edits by: fixer agreement, severity, clarity score impact",
+        "Applies edits while maintaining narrative coherence",
+        "Uses Claude Sonnet for quality",
+        "Returns revised brief + list of edits applied + list of edits skipped with reasons",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Implement refinement loop",
+      "description": "As a developer, I need a loop that attempts refinement up to 3 times.",
+      "acceptanceCriteria": [
+        "Create /lib/agents/refinement-loop.ts",
+        "Function: refineUntilPassing(brief, initialScore, maxAttempts=3): Promise<RefinementResult>",
+        "Each iteration: deploy fixers -> reconcile edits -> re-score with consensus panel",
+        "Stop early if score >=8.0",
+        "Track all attempts with before/after scores",
+        "Return final brief, final score, all attempts, and success boolean",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Add warning badge columns to briefs table",
+      "description": "As a developer, I need briefs that fail refinement to be marked with a warning badge.",
+      "acceptanceCriteria": [
+        "Add quality_warning boolean column to briefs table (default false)",
+        "Add quality_warning_reason text column (nullable)",
+        "Add refinement_metadata JSONB column for storing attempt details",
+        "Create migration /lib/supabase/migrations/004_add_quality_warning_columns.sql",
+        "Update Database interface in client.ts with new columns",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Integrate refinement loop into pipeline",
+      "description": "As a developer, I need the refinement loop integrated into the brief generation pipeline.",
+      "acceptanceCriteria": [
+        "Update langgraph-orchestrator.ts to call refinement loop after consensus scoring",
+        "Only trigger refinement if initial score <8.0",
+        "Pass consensus critique to fixer orchestrator",
+        "Set quality_warning=true and quality_warning_reason if final score <8.0 after 3 attempts",
+        "Store refinement_metadata with all attempt details",
+        "Final brief and score saved to database",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Log refinement metrics",
+      "description": "As a developer, I need detailed refinement metrics for optimization.",
+      "acceptanceCriteria": [
+        "Log each refinement attempt to agent_execution_logs: fixers deployed, edits suggested, edits applied",
+        "Log score progression across attempts",
+        "Log total refinement time and cost estimate",
+        "Log success/failure reason",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Test refinement system",
+      "description": "As a developer, I need to validate the refinement system works correctly.",
+      "acceptanceCriteria": [
+        "Create test-refinement.ts script",
+        "Test with mock brief that has known low-scoring dimensions",
+        "Verify correct fixers are deployed based on dimension scores <7.0",
+        "Verify edits are suggested and applied by reconciliation agent",
+        "Verify re-scoring happens after refinement",
+        "Verify loop stops at 3 attempts max",
+        "Print test results to console",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
