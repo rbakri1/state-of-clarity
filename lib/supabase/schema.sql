@@ -395,3 +395,124 @@ COMMENT ON TABLE public.brief_jobs IS 'Tracks async brief generation jobs for st
 COMMENT ON TABLE public.agent_execution_logs IS 'Logs agent execution times and status for observability and optimization';
 COMMENT ON COLUMN public.briefs.clarity_score IS 'Overall quality score 0-10 from automated scoring algorithm';
 COMMENT ON COLUMN public.sources.political_lean IS 'Political bias classification for source diversity tracking';
+
+---
+--- COMMUNITY FEEDBACK SYSTEM TABLES
+---
+
+-- Brief votes table (upvotes/downvotes)
+CREATE TABLE IF NOT EXISTS public.brief_votes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  brief_id UUID NOT NULL REFERENCES public.briefs(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  vote_type TEXT NOT NULL CHECK (vote_type IN ('up', 'down')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  CONSTRAINT unique_vote_per_user_brief UNIQUE (brief_id, user_id)
+);
+
+-- Source suggestions table
+CREATE TABLE IF NOT EXISTS public.source_suggestions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  brief_id UUID NOT NULL REFERENCES public.briefs(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  url TEXT NOT NULL,
+  title TEXT,
+  publisher TEXT,
+  political_lean TEXT CHECK (political_lean IN ('left', 'center-left', 'center', 'center-right', 'right', 'unknown')),
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'flagged')),
+  ai_screening_result JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Error reports table
+CREATE TABLE IF NOT EXISTS public.error_reports (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  brief_id UUID NOT NULL REFERENCES public.briefs(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  error_type TEXT NOT NULL CHECK (error_type IN ('factual', 'outdated', 'misleading', 'other')),
+  description TEXT NOT NULL,
+  location_hint TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'flagged')),
+  ai_screening_result JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Edit proposals table
+CREATE TABLE IF NOT EXISTS public.edit_proposals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  brief_id UUID NOT NULL REFERENCES public.briefs(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  section TEXT NOT NULL CHECK (section IN ('summary', 'narrative', 'structured_data')),
+  original_text TEXT NOT NULL,
+  proposed_text TEXT NOT NULL,
+  rationale TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'flagged')),
+  ai_screening_result JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for new tables
+CREATE INDEX IF NOT EXISTS idx_brief_votes_brief_id ON public.brief_votes(brief_id);
+CREATE INDEX IF NOT EXISTS idx_brief_votes_user_id ON public.brief_votes(user_id);
+CREATE INDEX IF NOT EXISTS idx_source_suggestions_brief_id ON public.source_suggestions(brief_id);
+CREATE INDEX IF NOT EXISTS idx_source_suggestions_status ON public.source_suggestions(status);
+CREATE INDEX IF NOT EXISTS idx_error_reports_brief_id ON public.error_reports(brief_id);
+CREATE INDEX IF NOT EXISTS idx_error_reports_status ON public.error_reports(status);
+CREATE INDEX IF NOT EXISTS idx_edit_proposals_brief_id ON public.edit_proposals(brief_id);
+CREATE INDEX IF NOT EXISTS idx_edit_proposals_status ON public.edit_proposals(status);
+
+-- Enable RLS on new tables
+ALTER TABLE public.brief_votes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.source_suggestions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.error_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.edit_proposals ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for brief_votes
+CREATE POLICY "Users can view all votes" ON public.brief_votes
+  FOR SELECT USING (true);
+
+CREATE POLICY "Authenticated users can insert votes" ON public.brief_votes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own votes" ON public.brief_votes
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own votes" ON public.brief_votes
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- RLS Policies for source_suggestions
+CREATE POLICY "Users can view own suggestions or approved ones" ON public.source_suggestions
+  FOR SELECT USING (auth.uid() = user_id OR status = 'approved');
+
+CREATE POLICY "Authenticated users can insert suggestions" ON public.source_suggestions
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "System can update suggestions" ON public.source_suggestions
+  FOR UPDATE USING (true);
+
+-- RLS Policies for error_reports
+CREATE POLICY "Users can view own reports or approved ones" ON public.error_reports
+  FOR SELECT USING (auth.uid() = user_id OR status = 'approved');
+
+CREATE POLICY "Authenticated users can insert reports" ON public.error_reports
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "System can update reports" ON public.error_reports
+  FOR UPDATE USING (true);
+
+-- RLS Policies for edit_proposals
+CREATE POLICY "Users can view own proposals or approved ones" ON public.edit_proposals
+  FOR SELECT USING (auth.uid() = user_id OR status = 'approved');
+
+CREATE POLICY "Authenticated users can insert proposals" ON public.edit_proposals
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "System can update proposals" ON public.edit_proposals
+  FOR UPDATE USING (true);
+
+COMMENT ON TABLE public.brief_votes IS 'User votes (upvotes/downvotes) on briefs';
+COMMENT ON TABLE public.source_suggestions IS 'User-suggested sources for briefs';
+COMMENT ON TABLE public.error_reports IS 'User-reported errors in briefs';
+COMMENT ON TABLE public.edit_proposals IS 'User-proposed edits to briefs';

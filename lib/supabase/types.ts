@@ -1,7 +1,5 @@
 /**
- * Database Type Definitions
- *
- * Shared types for Supabase database schema
+ * Supabase Database Type Definitions
  */
 
 export interface Database {
@@ -15,11 +13,6 @@ export interface Database {
           avatar_url: string | null;
           bio: string | null;
           reputation_score: number;
-          preferred_reading_level: string;
-          topic_interests: string[] | null;
-          location: string | null;
-          notification_email_digest: boolean;
-          notification_new_features: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -30,22 +23,12 @@ export interface Database {
           avatar_url?: string | null;
           bio?: string | null;
           reputation_score?: number;
-          preferred_reading_level?: string;
-          topic_interests?: string[] | null;
-          location?: string | null;
-          notification_email_digest?: boolean;
-          notification_new_features?: boolean;
         };
         Update: {
           username?: string | null;
           full_name?: string | null;
           avatar_url?: string | null;
           bio?: string | null;
-          preferred_reading_level?: string;
-          topic_interests?: string[] | null;
-          location?: string | null;
-          notification_email_digest?: boolean;
-          notification_new_features?: boolean;
         };
       };
       briefs: {
@@ -180,35 +163,113 @@ export interface Database {
           error_message?: string | null;
         };
       };
-      saved_briefs: {
+      brief_votes: {
         Row: {
           id: string;
-          user_id: string;
           brief_id: string;
+          user_id: string;
+          vote_type: "up" | "down";
           created_at: string;
         };
         Insert: {
-          user_id: string;
           brief_id: string;
-        };
-      };
-      reading_history: {
-        Row: {
-          id: string;
           user_id: string;
-          brief_id: string;
-          last_viewed_at: string;
-          scroll_depth: number | null;
-          created_at: string;
-        };
-        Insert: {
-          user_id: string;
-          brief_id: string;
-          scroll_depth?: number | null;
+          vote_type: "up" | "down";
         };
         Update: {
-          last_viewed_at?: string;
-          scroll_depth?: number | null;
+          vote_type?: "up" | "down";
+        };
+      };
+      source_suggestions: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          url: string;
+          title: string | null;
+          publisher: string | null;
+          political_lean:
+            | "left"
+            | "center-left"
+            | "center"
+            | "center-right"
+            | "right"
+            | "unknown"
+            | null;
+          notes: string | null;
+          status: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result: any | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          url: string;
+          title?: string | null;
+          publisher?: string | null;
+          political_lean?:
+            | "left"
+            | "center-left"
+            | "center"
+            | "center-right"
+            | "right"
+            | "unknown"
+            | null;
+          notes?: string | null;
+        };
+        Update: {
+          status?: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result?: any;
+        };
+      };
+      error_reports: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          error_type: "factual" | "outdated" | "misleading" | "other";
+          description: string;
+          location_hint: string | null;
+          status: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result: any | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          error_type: "factual" | "outdated" | "misleading" | "other";
+          description: string;
+          location_hint?: string | null;
+        };
+        Update: {
+          status?: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result?: any;
+        };
+      };
+      edit_proposals: {
+        Row: {
+          id: string;
+          brief_id: string;
+          user_id: string;
+          section: "summary" | "narrative" | "structured_data";
+          original_text: string;
+          proposed_text: string;
+          rationale: string;
+          status: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result: any | null;
+          created_at: string;
+        };
+        Insert: {
+          brief_id: string;
+          user_id: string;
+          section: "summary" | "narrative" | "structured_data";
+          original_text: string;
+          proposed_text: string;
+          rationale: string;
+        };
+        Update: {
+          status?: "pending" | "approved" | "rejected" | "flagged";
+          ai_screening_result?: any;
         };
       };
     };

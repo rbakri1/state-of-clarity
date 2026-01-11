@@ -1,0 +1,311 @@
+# Ralph Progress Log
+Started: Sat 10 Jan 2026 18:00:00 +04
+
+## Codebase Patterns
+- TypeScript types for Supabase tables go in lib/supabase/client.ts in the Database interface
+- SQL schema changes go in lib/supabase/schema.sql (single file, not migrations)
+- When adding tables, also add RLS policies and enable RLS
+- Use explicit type annotations in React map callbacks to avoid implicit any errors
+- Use createBrowserClient from lib/supabase/browser.ts in client components (NOT client.ts which imports next/headers)
+
+---
+
+## 2026-01-10 18:05 - US-001
+Thread: https://ampcode.com/threads/T-019ba81d-1b96-7199-9db6-2811118dbf28
+- Created question_templates table in schema.sql
+- Added RLS policy: public read, service_role write
+- Added TypeScript types to Database interface in lib/supabase/client.ts
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx
+- Files changed: lib/supabase/schema.sql, lib/supabase/client.ts, app/brief/[id]/page.tsx
+- **Learnings for future iterations:**
+  - The brief page had many implicit any errors from map callbacks - always add explicit types
+  - Schema.sql is a single file containing all tables, not individual migration files
+  - question_templates table: id (UUID), category (TEXT), question_text (TEXT), is_featured (BOOLEAN), display_order (INTEGER), created_at (TIMESTAMPTZ)
+---
+
+## 2026-01-10 18:15 - US-002
+Thread: https://ampcode.com/threads/T-019ba823-5349-7756-8054-dbb3b62768f6
+- Created seed-question-templates.sql with 57 curated policy questions
+- 10 categories: Economy, Healthcare, Climate, Education, Defense, Immigration, Housing, Justice, Technology, Governance
+- 5-6 questions per category, with 1-2 featured per category (15 featured total)
+- display_order set for consistent ordering within each category
+- Files changed: lib/supabase/seed-question-templates.sql
+- **Learnings for future iterations:**
+  - Seed files should use DELETE before INSERT to allow re-seeding
+  - Use single quotes for SQL strings, double-escape apostrophes with ''
+---
+
+## 2026-01-10 18:25 - US-003
+Thread: https://ampcode.com/threads/T-019ba825-9a2a-7338-a3bd-3452a3d32dfa
+- Created TopicCategoriesGrid.tsx component with 10 policy topic cards
+- Used lucide-react icons: DollarSign, Heart, Leaf, GraduationCap, Shield, Users, Home, Scale, Cpu, Landmark
+- Responsive grid: grid-cols-2 (mobile), sm:grid-cols-3 (tablet), lg:grid-cols-5 (desktop)
+- Cards have hover effect with scale and border color change
+- Integrated into homepage below the search form
+- Files changed: app/components/TopicCategoriesGrid.tsx, app/page.tsx
+- **Learnings for future iterations:**
+  - Component should be created in app/components/ directory (created new directory)
+  - Use props for onCategoryClick and selectedCategory to enable category selection in future stories
+  - Next.js dev server can conflict with build - stop dev server before running npm run build
+---
+
+## 2026-01-10 18:35 - US-004
+Thread: https://ampcode.com/threads/T-019ba82c-20c3-7330-b709-fcd298f98bba
+- Added category click functionality to TopicCategoriesGrid.tsx
+- Clicking a category expands a section showing example questions from database
+- Fetches from question_templates table filtered by category (case-insensitive)
+- Toggle behavior: clicking same category collapses section
+- Created lib/supabase/browser.ts for client-side Supabase access (separates from server-side client)
+- Connected onQuestionClick prop in homepage to prefill input
+- Files changed: app/components/TopicCategoriesGrid.tsx, app/page.tsx, lib/supabase/browser.ts
+- **Learnings for future iterations:**
+  - Cannot import lib/supabase/client.ts in client components due to next/headers import
+  - Created browser.ts with browser-only Supabase client to avoid SSR conflicts
+  - Use createBrowserClient from lib/supabase/browser.ts in client components
+---
+
+## 2026-01-10 18:45 - US-005
+Thread: https://ampcode.com/threads/T-019ba832-c434-76be-93d7-13663e0aeeb4
+- Created API endpoint at /app/api/questions/templates/route.ts
+- Accepts optional `category` query param with case-insensitive filter (using ilike)
+- Returns featured questions (is_featured=true) if no category provided
+- Orders by display_order, returns { id, category, question_text }
+- Files changed: app/api/questions/templates/route.ts
+- **Learnings for future iterations:**
+  - API routes go in app/api/ directory structure
+  - Use createServerSupabaseClient from lib/supabase/client.ts in API routes
+  - Use ilike for case-insensitive matching in Supabase queries
+  - May need to clean .next cache (rm -rf .next) if build fails with manifest errors
+---
+
+## 2026-01-10 19:00 - US-006
+Thread: https://ampcode.com/threads/T-019ba834-b578-728b-889e-7e65cad77673
+- Created QuestionInput.tsx component shell in app/components/
+- Input field with placeholder "Ask any policy question..."
+- Submit button with "Get Brief" text, shows loading spinner when submitting
+- Props: onSubmit callback, initialValue (optional)
+- Controlled input with useState, syncs with initialValue via useEffect
+- Uses Search and Loader2 icons from lucide-react
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - QuestionInput is a standalone component not yet integrated into homepage (US-019 does integration)
+  - Component follows same styling patterns as existing form in page.tsx
+  - Use ref for input to enable focus control in future stories
+---
+
+## 2026-01-10 19:30 - US-007
+Thread: https://ampcode.com/threads/T-019ba840-57fe-7498-a421-6f5479184656
+- Added autocomplete dropdown to QuestionInput.tsx component
+- Dropdown appears after typing 2+ characters
+- Positioned directly below input, full width, with shadow-lg and rounded corners
+- Max 6 suggestions displayed (filtering from PLACEHOLDER_SUGGESTIONS)
+- Dismisses on blur (click outside) or Escape key
+- Clicking a suggestion fills input and refocuses
+- Added Suggestion interface and placeholder data for testing
+- Also added error.tsx and global-error.tsx for Next.js error handling
+- Files changed: app/components/QuestionInput.tsx, app/error.tsx, app/global-error.tsx
+- **Learnings for future iterations:**
+  - Use useRef<HTMLFormElement> for form refs (not HTMLDivElement)
+  - Need both error.tsx and global-error.tsx for proper Next.js error boundaries
+  - Clean .next cache (rm -rf .next) before running dev server if errors occur
+  - Placeholder suggestions use Suggestion interface: { text, source, category }
+---
+
+## 2026-01-10 20:05 - US-008
+Thread: https://ampcode.com/threads/T-019ba84a-d121-7580-a588-06f009714d95
+- Added keyboard navigation to QuestionInput autocomplete dropdown
+- Added highlightedIndex state to track which suggestion is highlighted
+- Arrow Down/Up moves highlight between suggestions (with bounds checking)
+- Enter selects highlighted suggestion and closes dropdown
+- Escape closes dropdown without selecting
+- Tab closes dropdown (focus moves naturally to submit button)
+- First item highlighted by default when dropdown opens (highlightedIndex reset to 0)
+- Visual highlight uses bg-primary/10 (distinct from hover:bg-gray-100)
+- Mouse hover also updates highlighted index for seamless keyboard/mouse interaction
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Use useCallback with dependencies for keyboard handlers that reference state
+  - Prevent default on Arrow keys to avoid cursor movement in input
+  - Mouse onMouseEnter should sync with highlightedIndex for consistent UX
+  - Production mode (npm start) works better than dev mode when .next cache issues occur
+---
+
+## 2026-01-10 20:15 - US-009
+Thread: https://ampcode.com/threads/T-019ba857-9cd5-7253-ac33-a4768a9ef8a7
+- Created /app/api/questions/suggest/route.ts endpoint
+- Accepts query param `q`, returns empty array if < 2 chars
+- Returns array of { text, source, category } with source types 'template' | 'history' | 'ai'
+- Limits to 6 results total
+- Exported Suggestion interface for reuse
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - This is a shell endpoint - actual data fetching implemented in US-010, US-011, US-012
+  - Suggestion interface exported from this file can be imported by other components
+---
+
+## 2026-01-10 20:45 - US-010
+Thread: https://ampcode.com/threads/T-019ba859-4384-7288-afcc-3c1a5de2064a
+- Added template-based suggestions to /app/api/questions/suggest/route.ts
+- Query question_templates with ILIKE '%query%' pattern
+- Returns matches with source: 'template', templates appear first (highest priority)
+- Limited template results to 3
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - Need explicit type casting for Supabase query results when using select with partial fields: `templates as { question_text: string; category: string }[]`
+  - Clear .next cache with `rm -rf .next` if build manifest errors occur
+---
+
+## 2026-01-10 21:00 - US-011
+Thread: https://ampcode.com/threads/T-019ba972-bac2-74fa-a63f-39d6322bbcf8
+- Added history-based suggestions to /app/api/questions/suggest/route.ts
+- Query briefs table with ILIKE '%query%' pattern, ordered by created_at DESC
+- Deduplicate against template results using Set of lowercase text
+- Limit history results to 2, with source: 'history'
+- History appears after templates in combined list
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - Briefs table doesn't have explicit status field - all existing briefs are treated as published
+  - Use Set for efficient deduplication: `new Set(suggestions.map(s => s.text.toLowerCase()))`
+  - Fetch more than needed (5 instead of 2) to account for duplicates being filtered out
+---
+
+## 2026-01-10 21:15 - US-012
+Thread: https://ampcode.com/threads/T-019ba974-21c8-73be-a3e8-f965218d70f1
+- Added AI-generated suggestions to /app/api/questions/suggest/route.ts
+- Created generateAiSuggestions() function using Claude Haiku (claude-3-5-haiku-20241022)
+- AI is called only when template + history results < 4
+- Prompt asks for 2 well-formed UK policy questions related to user input
+- Response parsing with regex to extract JSON array, graceful failure on errors
+- AI suggestions appended last with source: 'ai'
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - Use same Anthropic pattern as research-agent.ts: new Anthropic({ apiKey }) + messages.create()
+  - Use claude-3-5-haiku-20241022 for fast/cheap suggestion generation
+  - Parse JSON with regex match(/\[[\s\S]*\]/) to handle Claude's sometimes-extra text
+  - Wrap in try/catch and return empty array on failure for graceful degradation
+---
+
+## 2026-01-10 21:30 - US-013
+Thread: https://ampcode.com/threads/T-019ba975-f47b-75c8-bd69-8968ae98c3f2
+- Added caching for AI suggestions in /app/api/questions/suggest/route.ts
+- Created CacheEntry interface with suggestions and expiresAt
+- Implemented aiSuggestionsCache Map with 5 minute TTL (CACHE_TTL_MS)
+- normalizeQuery() function for consistent cache keys (lowercase, trimmed)
+- getCachedSuggestions() checks cache and handles TTL expiration
+- setCachedSuggestions() stores results with expiration timestamp
+- Cache checked before calling AI, results stored after successful AI call
+- Files changed: app/api/questions/suggest/route.ts
+- **Learnings for future iterations:**
+  - In-memory Map cache works for single-instance serverless, but won't persist across cold starts
+  - For multi-instance or persistent caching, would need Redis or similar
+  - Module-level variables (like the Map) persist across requests in warm serverless instances
+---
+
+## 2026-01-10 23:59 - US-014
+Thread: https://ampcode.com/threads/T-019ba978-1cd2-72ee-bb87-3f1562ed7452
+- Connected QuestionInput component to /api/questions/suggest API
+- Added 150ms debounce using setTimeout in useEffect
+- Added AbortController to cancel pending requests when input changes
+- Added isLoadingSuggestions state for loading indicator
+- Shows "Loading suggestions..." spinner in dropdown while fetching
+- Hides dropdown when API returns empty results or errors
+- Gracefully handles API errors (no error shown to user)
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Use AbortController with fetch to cancel stale requests on rapid typing
+  - Debounce pattern: setTimeout + clearTimeout in useEffect cleanup
+  - Show loading state in dropdown container, not in suggestions list
+  - QuestionInput is not yet integrated into homepage (that's US-019)
+---
+
+## 2026-01-11 - US-015
+Thread: https://ampcode.com/threads/T-019ba97e-0108-7088-839c-5d5f1b00f520
+- Added source badges to QuestionInput autocomplete suggestions
+- Each suggestion row now shows a badge on the right side
+- Template suggestions show "Curated" badge
+- History suggestions show "Popular" badge
+- AI suggestions show "AI ✨" badge
+- Badges styled with text-xs, text-muted-foreground, and shrink-0
+- Updated button className to use flex layout with justify-between
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Browser server needs to be restarted if it crashes (pkill chromium, then run server.sh)
+  - Clean .next cache with `rm -rf .next` when build fails with manifest errors
+  - Production build with `npm run build && npm run start` is more reliable than dev mode
+---
+
+## 2026-01-11 - US-016
+Thread: https://ampcode.com/threads/T-019ba98b-31ce-7729-a387-dd8c5b2b68b1
+- Added forwardRef and useImperativeHandle to QuestionInput for programmatic control
+- Exposed `focus()` and `setValue()` methods via QuestionInputHandle interface
+- Updated homepage to use nativeInputRef and handleQuestionClick function
+- Input receives focus after prefill via setTimeout pattern
+- Autocomplete triggers automatically when value changes (via useEffect on value)
+- Files changed: app/components/QuestionInput.tsx, app/page.tsx
+- **Learnings for future iterations:**
+  - Use forwardRef + useImperativeHandle to expose imperative methods from components
+  - setTimeout with 0ms delay ensures DOM has updated before focusing
+  - QuestionInput exports both default component and QuestionInputHandle interface
+  - Database not seeded in local dev environment - example questions show "No questions available"
+---
+
+## 2026-01-11 - US-017
+Thread: https://ampcode.com/threads/T-019ba990-93ec-738d-bba3-ec6b5b164777
+- Added useSearchParams hook to homepage for reading ?q= URL parameter
+- Wrapped HomeContent component in Suspense boundary (required for useSearchParams)
+- URL param value prefills the input field on page load
+- Input receives focus after prefill with 100ms delay
+- Updated QuestionInput onFocus handler to show dropdown when value >= 2 chars
+- Files changed: app/page.tsx, app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - useSearchParams requires Suspense boundary in Next.js client components
+  - Don't initialize useState with useSearchParams value directly - use useEffect to set it after hydration
+  - URL prefill logic: `urlQuestion && question === ""` to avoid overwriting user edits
+---
+
+## 2026-01-11 - US-018
+Thread: https://ampcode.com/threads/T-019ba994-c040-71f3-8386-4329e02dd5bf
+- Added mobile optimizations to QuestionInput component
+- Added `min-h-11` (44px) to dropdown items for adequate touch targets
+- Added `inputMode="text"` attribute to input element for proper mobile keyboard
+- Tapping suggestions already works via existing onClick handler
+- Dropdown positioned below input, not obscured by virtual keyboard
+- Files changed: app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - QuestionInput component is not yet integrated into homepage (that's US-019)
+  - The homepage still uses a native form input, but has QuestionInput imported via ref
+  - min-h-11 in Tailwind equals 44px (the recommended minimum touch target size)
+---
+
+## 2026-01-11 - US-019
+Thread: https://ampcode.com/threads/T-019ba998-b743-7428-a266-eafd56001e14
+- Replaced native form/input on homepage with QuestionInput component
+- Connected QuestionInput to homepage via ref for onQuestionClick handler
+- Removed unused state (question, isLoading, nativeInputRef) from page.tsx
+- TopicCategoriesGrid appears below QuestionInput with proper spacing (mt-8)
+- QuestionInput receives initialValue from URL param (?q=) for prefilling
+- Submit flow redirects to /brief/uk-four-day-week (existing behavior maintained)
+- Files changed: app/page.tsx
+- **Learnings for future iterations:**
+  - QuestionInput exposes setValue and focus methods via forwardRef + useImperativeHandle
+  - The onSubmit prop receives the question text directly (not a form event)
+  - TopicCategoriesGrid's onQuestionClick calls questionInputRef.current?.setValue()
+  - Database question_templates table may not be seeded in local dev - shows "No questions available"
+---
+
+## 2026-01-11 - US-020
+Thread: https://ampcode.com/threads/T-019ba99e-aed4-7025-ae3c-fb2694cf134e
+- Added question refinement suggestions for vague queries
+- Detects vague patterns: single word, <5 words, starts with 'What about'
+- Added generateRefinementSuggestions() function using Claude Haiku
+- Added separate refinement cache with 5 minute TTL
+- UI shows amber header "💡 Try being more specific:" when refinements displayed
+- Refinements show with "Suggestion ✨" badge and special amber text styling
+- Files changed: app/api/questions/suggest/route.ts, app/components/QuestionInput.tsx
+- **Learnings for future iterations:**
+  - Suggestion interface extended with 'refinement' source and isRefinement flag
+  - Vague queries return refinements INSTEAD of normal suggestions (early return)
+  - Use separate cache maps for different types of AI-generated content
+  - Restart Next.js server (kill port + npm run start) to clear in-memory cache
+  - AI refinement generation takes 2-5 seconds; test with longer waitForTimeout
+---
