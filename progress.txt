@@ -10,6 +10,7 @@ Started: Sun 11 Jan 2026 22:25:49 +04
 - SWR FetchError: Check `error.status === 404` for not found handling
 - Supabase error 22P02: Invalid UUID format - treat as "not found" alongside PGRST116
 - Brief page: Database briefs may have empty/null fields for structured_data, narrative, etc. - use defensive access
+- Use `createBrief(briefData)` from brief-service.ts to create briefs with automatic cache warming
 
 ---
 
@@ -123,4 +124,16 @@ Thread: https://ampcode.com/threads/T-019bae6c-a7d8-707a-93d0-7906ca887302
   - Database briefs may not have sources array - check structured_data.sources or metadata.sources
   - Optional chaining and ?? [] pattern for defensive array access
   - SWR skeleton must render same page structure without the actual data for smooth transitions
+---
+
+## Sun 11 Jan 2026 - US-010
+Thread: https://ampcode.com/threads/T-019bae78-4588-767b-ad95-862c57b750dc
+- Added warmBriefCache(briefId) function to /lib/services/brief-service.ts
+- warmBriefCache calls getBriefById to populate cache and logs warming events
+- Added createBrief function that inserts brief, warms cache, and invalidates popular briefs
+- Both functions provide clear console logging with [Cache Warming] prefix
+- **Learnings for future iterations:**
+  - Brief generation pipeline is not yet fully implemented - createBrief is the integration point
+  - Use `createBrief(briefData)` from generation code to automatically warm cache
+  - warmBriefCache can also be called standalone after any brief update if cache invalidation was skipped
 ---
