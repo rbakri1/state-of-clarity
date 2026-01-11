@@ -10,6 +10,7 @@ Started: Sun 11 Jan 2026 17:31:07 +04
 - Use `safeQuery` from lib/supabase/safe-query.ts for Supabase queries with error handling
 - Supabase query functions use PromiseLike (not Promise) for type compatibility with PostgrestBuilder
 - Use `safeAICall` from lib/ai/safe-ai-call.ts for AI API calls with retry logic (3 attempts) and Sentry logging
+- Use `safeStripeCall` from lib/stripe/safe-stripe-call.ts for Stripe API calls with Sentry logging and user-friendly errors
 ---
 
 ## 2026-01-11 17:35 - US-009
@@ -107,4 +108,27 @@ Thread: https://ampcode.com/threads/T-019bad55-192a-71cd-a80c-996da067e0e7
   - Sanitize prompts before logging: truncate, redact emails/phones
   - For suggestions: silent fallback to template-only results (return empty array)
   - For brief generation: propagate error with user-friendly message
+---
+
+## 2026-01-11 22:00 - US-016
+Thread: https://ampcode.com/threads/T-019bad5a-5ebc-70cb-aea2-b82357fbb81a
+- Created safeStripeCall utility at /lib/stripe/safe-stripe-call.ts
+- Wraps Stripe API calls with try-catch, logs to Sentry, returns user-friendly errors
+- Detects Stripe service errors (connection, rate limit, API errors)
+- Never exposes raw Stripe errors to users - sanitizes all error messages
+- Added checkStripeHealth() function for health checks
+- Created /app/api/payments/health/route.ts with 30-second cache
+- Updated create-checkout route to use safeStripeCall
+- Updated credits page to check payment service health on load
+- Disabled buy buttons when payment service unavailable (shows "Unavailable")
+- Added yellow warning banner when payment service is down
+- Added PAYMENT_SERVICE_ERROR to error-messages.ts
+- Updated payment-retry-service.ts to use safeStripeCall
+- Updated webhook route with Sentry logging
+- Files changed: lib/stripe/safe-stripe-call.ts, app/api/payments/health/route.ts, app/api/payments/create-checkout/route.ts, app/credits/page.tsx, lib/errors/error-messages.ts, lib/services/payment-retry-service.ts, app/api/webhooks/stripe/route.ts
+- **Learnings for future iterations:**
+  - Follow safeQuery/safeAICall pattern for safeStripeCall - consistent error handling structure
+  - Use checkStripeHealth() with stripe.balance.retrieve() as lightweight health check
+  - Never expose raw Stripe errors - always sanitize with user-friendly messages
+  - Add health check endpoint for UI to disable features when service is unavailable
 ---
