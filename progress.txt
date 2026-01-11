@@ -449,3 +449,22 @@ Thread: https://ampcode.com/threads/T-019bacef-8afc-707d-90b0-0fc70e815d55
   - Question templates category uses capitalized first letter (e.g., "Economy" not "economy")
   - Use type assertions for Supabase profile queries: `(profile as { topic_interests: string[] | null } | null)`
 ---
+
+## 2026-01-11 - US-024
+Thread: https://ampcode.com/threads/T-019bacf4-678a-727d-a529-d5c4c76d641b
+- Created saved briefs page at /app/profile/saved/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Fetches from saved_briefs joined with briefs table
+  - Displays cards with: question, clarity score (with color indicator), saved date
+  - Links to /brief/[id] for each saved brief
+  - Empty state with bookmark icon and "Browse briefs" CTA
+  - "Back to profile" link at top
+  - Shows total saved count in header
+- Used Supabase join syntax: `brief:briefs (id, question, clarity_score)`
+- **Files changed:**
+  - app/profile/saved/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use Supabase join syntax with colon: `table:foreign_table (columns)` for nested relations
+  - Type assertion needed for Supabase joined queries: `data as SavedBrief[]`
+---
