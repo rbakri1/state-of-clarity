@@ -1,0 +1,251 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/brief-caching",
+  "description": "Brief Caching & Performance - Vercel KV caching, HTTP cache headers, SWR client-side caching, and query optimization for fast brief loading",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Install and configure Vercel KV",
+      "description": "As a developer, I need Vercel KV configured so we have a caching backend.",
+      "acceptanceCriteria": [
+        "Install @vercel/kv package",
+        "Add KV_REST_API_URL and KV_REST_API_TOKEN to .env.example",
+        "Create /lib/cache/kv-client.ts that exports kv client",
+        "Add fallback for local development (in-memory Map)",
+        "Document KV setup in SETUP.md",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create cache wrapper utility",
+      "description": "As a developer, I need a reusable wrapper to cache any async function result.",
+      "acceptanceCriteria": [
+        "Create /lib/cache/with-cache.ts",
+        "Function signature: withCache<T>(key: string, fn: () => Promise<T>, ttlSeconds: number)",
+        "Check cache first, return cached value if exists",
+        "If miss, execute fn, store result, return it",
+        "Log cache hits/misses with key name",
+        "Handle cache errors gracefully (fall back to direct fetch)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create cache invalidation utility",
+      "description": "As a developer, I need to invalidate cached data when briefs are updated.",
+      "acceptanceCriteria": [
+        "Create /lib/cache/invalidate.ts",
+        "Function invalidateCache(key: string) deletes single key",
+        "Function invalidatePattern(pattern: string) deletes matching keys",
+        "Log invalidation events",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Cache brief fetches in brief-service",
+      "description": "As a user, I want brief pages to load instantly from cache.",
+      "acceptanceCriteria": [
+        "Update getBriefById in /lib/services/brief-service.ts to use withCache",
+        "Cache key format: brief:{id}",
+        "TTL: 300 seconds (5 minutes)",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Invalidate brief cache on updates",
+      "description": "As a user, I want to see fresh content after a brief is updated.",
+      "acceptanceCriteria": [
+        "Call invalidateCache in updateBriefFromState after successful update",
+        "Call invalidateCache in updateBriefClassification",
+        "Call invalidateCache for briefs:popular when any brief is updated",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create brief API endpoint with HTTP caching",
+      "description": "As a user, I want my browser and CDN to cache brief data.",
+      "acceptanceCriteria": [
+        "Create /app/api/briefs/[id]/route.ts GET endpoint",
+        "Fetch brief using getBriefById (uses server cache)",
+        "Return 404 if brief not found",
+        "Set Cache-Control: public, s-maxage=60, stale-while-revalidate=300",
+        "Set ETag header based on brief.updated_at timestamp",
+        "Return 304 Not Modified if request ETag matches",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create popular briefs endpoint with aggressive caching",
+      "description": "As a user, I want the homepage to load quickly with popular briefs.",
+      "acceptanceCriteria": [
+        "Create getPopularBriefs function in brief-service.ts",
+        "Query briefs ordered by view_count or upvotes, limit 10",
+        "Cache key: briefs:popular, TTL: 600 seconds (10 minutes)",
+        "Create /app/api/briefs/popular/route.ts",
+        "Set Cache-Control: public, s-maxage=300, stale-while-revalidate=600",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Install and configure SWR",
+      "description": "As a developer, I need SWR for client-side data fetching with caching.",
+      "acceptanceCriteria": [
+        "Install swr package",
+        "Create /lib/swr/fetcher.ts with default fetcher function",
+        "Create /lib/swr/config.ts with global SWR config",
+        "Wrap app in SWRConfig provider in layout.tsx",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Update brief page to use SWR",
+      "description": "As a user, I want brief pages to use client-side caching for instant navigation.",
+      "acceptanceCriteria": [
+        "Update /app/brief/[id]/page.tsx to fetch from /api/briefs/[id] using useSWR",
+        "Show skeleton loading state while fetching",
+        "Handle 404 with appropriate error UI",
+        "Handle errors with ErrorMessage component",
+        "Stale data shown immediately while revalidating in background",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add cache warming after brief generation",
+      "description": "As a user, I want my newly generated brief to load instantly.",
+      "acceptanceCriteria": [
+        "After brief generation completes, call getBriefById to warm cache",
+        "Log cache warming event",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create cache flush admin endpoint",
+      "description": "As an admin, I need to manually clear cache if stale data is stuck.",
+      "acceptanceCriteria": [
+        "Create /app/api/admin/cache-flush/route.ts POST endpoint",
+        "Accept body with optional pattern for selective flush",
+        "Require admin authentication",
+        "Return confirmation of flush action",
+        "Log flush event with admin user info",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Optimize Supabase client instantiation",
+      "description": "As a developer, I need efficient database connections without creating new clients per request.",
+      "acceptanceCriteria": [
+        "Review getSupabaseClient() in brief-service.ts",
+        "Ensure client is cached/reused across requests (singleton pattern)",
+        "Add connection error handling with retry",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Add slow query logging",
+      "description": "As a developer, I need visibility into slow database queries.",
+      "acceptanceCriteria": [
+        "Update safeQuery in /lib/supabase/safe-query.ts to track query duration",
+        "Log queries taking >1000ms to console with query name",
+        "Report queries taking >2000ms to Sentry as performance issue",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Configure static asset caching",
+      "description": "As a user, I want static assets to load instantly from CDN cache.",
+      "acceptanceCriteria": [
+        "Update next.config.mjs with headers() config",
+        "Set immutable, max-age=31536000 for /_next/static/*",
+        "Set public, max-age=86400 for /images/*",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Implement graceful cache degradation",
+      "description": "As a user, I want the app to work even if the cache service is down.",
+      "acceptanceCriteria": [
+        "Update withCache to catch KV connection errors",
+        "On cache error, log to Sentry and proceed with direct fetch",
+        "Never crash the app due to cache failure",
+        "Add isHealthy() check to /lib/cache/kv-client.ts",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Document caching architecture",
+      "description": "As a developer, I need documentation to understand and extend the caching system.",
+      "acceptanceCriteria": [
+        "Create /docs/CACHING.md",
+        "Document cache layers: Browser, CDN, Vercel KV, Supabase",
+        "Document TTL values for each cached resource",
+        "Document cache key naming convention",
+        "Document how to add caching to a new endpoint",
+        "Document cache invalidation strategy",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

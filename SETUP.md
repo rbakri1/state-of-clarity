@@ -342,7 +342,40 @@ State of Clarity _ Claude/
 
 ---
 
-## Step 7: Set Up Stripe Payments
+## Step 7: Set Up Vercel KV (Caching)
+
+Vercel KV provides Redis-based caching for fast brief loading. It's optional for local development (an in-memory fallback is used).
+
+### 1. Create Vercel KV Store
+
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
+2. Select your project (or create one)
+3. Navigate to **Storage** tab
+4. Click **Create Database** and select **KV**
+5. Follow the setup wizard to create your KV store
+
+### 2. Get Connection Details
+
+1. After creation, go to your KV store settings
+2. Copy the connection details:
+   - **KV_REST_API_URL**: Your KV store endpoint
+   - **KV_REST_API_TOKEN**: Authentication token
+
+### 3. Add to Environment Variables
+
+Add to `.env.local`:
+```env
+KV_REST_API_URL=https://your-kv.kv.vercel-storage.com
+KV_REST_API_TOKEN=your-kv-token-here
+```
+
+### 4. Local Development
+
+For local development, you can skip this step. The app will automatically use an in-memory cache when KV environment variables are not set.
+
+---
+
+## Step 8: Set Up Stripe Payments
 
 State of Clarity uses Stripe for credit purchases. Follow these steps to configure Stripe:
 

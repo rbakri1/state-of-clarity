@@ -10,6 +10,7 @@ import type { QuestionClassification } from "../types/classification";
 import type { BriefState, StructureOutput, NarrativeOutput, SummaryOutputs, ClarityScore } from "../agents/langgraph-orchestrator";
 import type { Source } from "../agents/research-agent";
 import { safeQuery, type SafeQueryResult } from "../supabase/safe-query";
+import { withCache } from "../cache/with-cache";
 
 export interface BriefRecord {
   id: string;
@@ -183,21 +184,31 @@ export async function saveBriefSources(
 }
 
 /**
- * Get a brief by ID with safe error handling
+ * Get a brief by ID with caching and safe error handling
+ * Cache key format: brief:{id}
+ * TTL: 300 seconds (5 minutes)
  */
 export async function getBriefById(briefId: string): Promise<SafeQueryResult<BriefRecord>> {
-  const supabase = getSupabaseClient();
+  const cacheKey = `brief:${briefId}`;
+  const TTL_SECONDS = 300;
 
-  return safeQuery<BriefRecord>(
-    () => (supabase.from("briefs") as any)
-      .select("*")
-      .eq("id", briefId)
-      .single(),
-    {
-      queryName: "getBriefById",
-      table: "briefs",
-      briefId,
-    }
+  return withCache<SafeQueryResult<BriefRecord>>(
+    cacheKey,
+    async () => {
+      const supabase = getSupabaseClient();
+      return safeQuery<BriefRecord>(
+        () => (supabase.from("briefs") as any)
+          .select("*")
+          .eq("id", briefId)
+          .single(),
+        {
+          queryName: "getBriefById",
+          table: "briefs",
+          briefId,
+        }
+      );
+    },
+    TTL_SECONDS
   );
 }
 
