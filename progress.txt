@@ -76,3 +76,23 @@ Thread: https://ampcode.com/threads/T-019babd9-43bf-757e-b58d-b2efd880cf42
   - Use signInWithOtp with `data` option to pass user metadata (e.g., full_name)
   - Follow existing signin page pattern for consistent UX
 ---
+
+## 2026-01-11 - US-004
+Thread: https://ampcode.com/threads/T-019babdb-b3a5-760b-b0d3-37f9e2bc5da8
+- Added Google OAuth sign-in to sign-in page
+- Features:
+  - "Continue with Google" button with official Google logo (SVG)
+  - Calls Supabase auth.signInWithOAuth({ provider: 'google' })
+  - Redirect URL configured to /auth/callback
+  - "Or continue with" divider between magic link and OAuth
+  - Loading state with spinner when OAuth is in progress
+  - Disabled state for all buttons during any auth operation
+- Added Google OAuth setup documentation to SETUP.md (Step 5)
+- **Files changed:**
+  - app/auth/signin/page.tsx (modified - added Google OAuth button)
+  - SETUP.md (modified - added Google OAuth setup instructions)
+- **Learnings for future iterations:**
+  - Use signInWithOAuth with redirectTo option pointing to /auth/callback
+  - Track OAuth loading state separately (isOAuthLoading) to show which provider is loading
+  - Google logo SVG can be inlined for consistent rendering
+---
