@@ -20,3 +20,14 @@ Thread: https://ampcode.com/threads/T-019bae4e-ae00-73d7-bded-6c3376816c72
   - Main branch has some pre-existing type errors that need fixing
   - Use explicit type annotations in .map() callbacks when dealing with `any` typed objects
 ---
+
+## Sun 11 Jan 2026 - US-002
+Thread: https://ampcode.com/threads/T-019bae54-24f7-76e8-b9cc-fcd76b72026c
+- Created /lib/cache/with-cache.ts with generic withCache<T> function
+- Function checks cache first, executes fn on miss, stores result with TTL
+- Logs cache hits/misses with [Cache] HIT/MISS prefix
+- Handles cache read/write errors gracefully (logs and proceeds with direct fetch)
+- **Learnings for future iterations:**
+  - Use `withCache(key, fn, ttlSeconds)` pattern to wrap any async operation
+  - Cache errors are logged but never block the main operation
+---

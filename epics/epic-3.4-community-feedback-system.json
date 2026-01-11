@@ -1,0 +1,358 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/community-feedback-system",
+  "description": "Community Feedback System - Voting, source suggestions, error reports, edit proposals with AI screening and admin review",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create feedback database schema",
+      "description": "As a developer, I need database tables to store all feedback types.",
+      "acceptanceCriteria": [
+        "Create migration for brief_votes table: id (UUID), brief_id, user_id, vote_type ('up' | 'down'), created_at",
+        "Create source_suggestions table: id, brief_id, user_id, url, title, publisher, political_lean, notes, status ('pending'|'approved'|'rejected'|'flagged'), ai_screening_result (JSONB), created_at",
+        "Create error_reports table: id, brief_id, user_id, error_type, description, location_hint, status, ai_screening_result, created_at",
+        "Create edit_proposals table: id, brief_id, user_id, section, original_text, proposed_text, rationale, status, ai_screening_result, created_at",
+        "Add unique constraint on brief_votes (brief_id, user_id)",
+        "Add RLS policies for user access",
+        "Add TypeScript types to Database interface",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create vote API endpoints",
+      "description": "As a developer, I need APIs to handle voting on briefs.",
+      "acceptanceCriteria": [
+        "Create /app/api/briefs/[id]/vote/route.ts",
+        "POST: Create or update vote (body: { vote_type: 'up' | 'down' })",
+        "DELETE: Remove user's vote",
+        "GET: Return user's current vote and aggregate counts { upvotes, downvotes, userVote }",
+        "Require authentication for all methods",
+        "Handle unique constraint violation gracefully (upsert)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create vote button component",
+      "description": "As a reader, I want to upvote or downvote a brief.",
+      "acceptanceCriteria": [
+        "Create /app/components/VoteButtons.tsx",
+        "Display upvote and downvote buttons with counts",
+        "Filled icon when user has voted that direction",
+        "Toggle behavior: clicking same vote removes it",
+        "Switching behavior: clicking opposite vote switches",
+        "Optimistic UI updates",
+        "Show sign-in prompt if not authenticated",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Integrate vote buttons into brief page",
+      "description": "As a reader, I want to see and use vote buttons on the brief page.",
+      "acceptanceCriteria": [
+        "Add VoteButtons to brief header near clarity score",
+        "Fetch initial vote state and counts on page load",
+        "Pass briefId to VoteButtons component",
+        "Layout stable when counts update",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create suggest source API endpoint",
+      "description": "As a developer, I need an API to handle source suggestions.",
+      "acceptanceCriteria": [
+        "Create /app/api/briefs/[id]/suggest-source/route.ts",
+        "POST: Create source suggestion with status 'pending'",
+        "Require authentication",
+        "Validate URL format (must be valid URL)",
+        "Accept fields: url, title, publisher, political_lean, notes",
+        "Store user_id and brief_id",
+        "Return success with suggestion id",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create suggest source modal",
+      "description": "As a reader, I want to suggest a missing source for a brief.",
+      "acceptanceCriteria": [
+        "Create /app/components/SuggestSourceModal.tsx",
+        "Form fields: URL (required), Title, Publisher, Political Lean dropdown, Notes textarea",
+        "Political Lean options: Left, Center-Left, Center, Center-Right, Right, Unknown",
+        "URL validation on blur",
+        "Submit disabled until URL valid",
+        "Call suggest-source API on submit",
+        "Close modal and show success toast on success",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create report error API endpoint",
+      "description": "As a developer, I need an API to handle error reports.",
+      "acceptanceCriteria": [
+        "Create /app/api/briefs/[id]/report-error/route.ts",
+        "POST: Create error report with status 'pending'",
+        "Require authentication",
+        "Accept fields: error_type, description, location_hint",
+        "Validate description length >= 20 chars",
+        "error_type enum: 'factual', 'outdated', 'misleading', 'other'",
+        "Return success with report id",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create spot error modal",
+      "description": "As a reader, I want to report an error in a brief.",
+      "acceptanceCriteria": [
+        "Create /app/components/SpotErrorModal.tsx",
+        "Form fields: Error Type dropdown, Description textarea (required, min 20 chars), Location Hint",
+        "Error types: Factual Error, Outdated Info, Misleading Statement, Other",
+        "Show character count for description",
+        "Submit disabled until valid",
+        "Call report-error API on submit",
+        "Close and show thank you toast on success",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create propose edit API endpoint",
+      "description": "As a developer, I need an API to handle edit proposals.",
+      "acceptanceCriteria": [
+        "Create /app/api/briefs/[id]/propose-edit/route.ts",
+        "POST: Create edit proposal with status 'pending'",
+        "Require authentication",
+        "Accept fields: section, original_text, proposed_text, rationale",
+        "Validate all fields present and min 20 chars each",
+        "section enum: 'summary', 'narrative', 'structured_data'",
+        "Return success with proposal id",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Create propose edit modal",
+      "description": "As a reader, I want to propose an edit to improve a brief.",
+      "acceptanceCriteria": [
+        "Create /app/components/ProposeEditModal.tsx",
+        "Form fields: Section dropdown, Original Text textarea, Proposed Text textarea, Rationale textarea",
+        "All fields required, min 20 chars each",
+        "Show character counts",
+        "Submit disabled until all valid",
+        "Call propose-edit API on submit",
+        "Close and show thank you toast on success",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create feedback action buttons component",
+      "description": "As a reader, I want easy access to all feedback options.",
+      "acceptanceCriteria": [
+        "Create /app/components/FeedbackActions.tsx",
+        "Display 3 buttons: Suggest Source, Spot Error, Propose Edit",
+        "Each button opens corresponding modal",
+        "Accept briefId prop to pass to modals",
+        "Buttons use outline/secondary variant",
+        "Icon + text on desktop, icon-only on mobile",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Integrate feedback actions into brief page",
+      "description": "As a reader, I want feedback options visible on the brief page.",
+      "acceptanceCriteria": [
+        "Add FeedbackActions to brief page after sources section",
+        "Section header: 'Help improve this brief'",
+        "Subtitle: 'Suggest sources, report errors, or propose edits'",
+        "All modals functional when opened",
+        "Consistent spacing with other sections",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Create AI feedback screening service",
+      "description": "As a developer, I need AI to pre-screen feedback for spam/abuse.",
+      "acceptanceCriteria": [
+        "Create /lib/services/feedback-screening.ts",
+        "Function: screenFeedback(type, content): Promise<ScreeningResult>",
+        "ScreeningResult type: { approved: boolean, flagged: boolean, reason?: string, confidence: number }",
+        "Use Claude Haiku for cost efficiency",
+        "Prompt checks for: spam, abuse, off-topic, low-effort",
+        "Parse JSON response from AI",
+        "Handle AI errors gracefully (default to pending)",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Apply AI screening to source suggestions",
+      "description": "As a system, I need source suggestions screened by AI.",
+      "acceptanceCriteria": [
+        "After source suggestion created, call screenFeedback async",
+        "Pass url and notes to screening",
+        "Update ai_screening_result column with result",
+        "If approved and confidence > 0.9, set status 'approved'",
+        "If flagged, set status 'flagged'",
+        "Otherwise keep status 'pending'",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Apply AI screening to error reports",
+      "description": "As a system, I need error reports screened by AI.",
+      "acceptanceCriteria": [
+        "After error report created, call screenFeedback async",
+        "Pass error_type and description to screening",
+        "Update ai_screening_result column",
+        "Apply same status logic as source suggestions",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Apply AI screening to edit proposals",
+      "description": "As a system, I need edit proposals screened by AI.",
+      "acceptanceCriteria": [
+        "After edit proposal created, call screenFeedback async",
+        "Pass original_text, proposed_text, rationale to screening",
+        "Update ai_screening_result column",
+        "Apply same status logic as other feedback types",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Create admin feedback review page",
+      "description": "As an admin, I want to review pending and flagged feedback.",
+      "acceptanceCriteria": [
+        "Create /app/admin/feedback/page.tsx",
+        "Protect route (require admin role or specific user check)",
+        "Tabs: All, Pending, Flagged, Approved, Rejected",
+        "List items showing: type icon, brief title, user email, status, created_at",
+        "Expandable rows to see full feedback content",
+        "Show AI screening result when expanded",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Add admin approval/rejection actions",
+      "description": "As an admin, I want to approve or reject feedback.",
+      "acceptanceCriteria": [
+        "Add Approve and Reject buttons to each feedback row",
+        "Create /app/api/admin/feedback/route.ts",
+        "PATCH: Update status (body: { type, id, status })",
+        "Require admin authentication",
+        "Show success toast on action",
+        "Refresh list after action",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Add vote counts to brief cards on homepage",
+      "description": "As a visitor, I want to see brief popularity on homepage cards.",
+      "acceptanceCriteria": [
+        "Modify brief card component to show upvote count",
+        "Display as thumbs up icon + count (e.g., '👍 42')",
+        "Fetch counts in homepage brief query",
+        "Only show if count > 0",
+        "Compact styling that doesn't clutter card",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Create user feedback history page",
+      "description": "As a user, I want to see feedback I've submitted.",
+      "acceptanceCriteria": [
+        "Create /app/profile/feedback/page.tsx (protected route)",
+        "Fetch all user's feedback: votes, source suggestions, error reports, edit proposals",
+        "Display in chronological list with type icon, brief title, status badge",
+        "Link each item to relevant brief",
+        "Show status: pending (yellow), approved (green), rejected (red), flagged (orange)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
