@@ -100,3 +100,16 @@ Thread: https://ampcode.com/threads/T-019baebc-3b4a-76a9-9a24-af0adcd27d10
   - Supabase admin.deleteUser() triggers all database cascades/SET NULL automatically
   - Confirmation pattern: require exact string match before destructive operations
 ---
+
+## Mon 12 Jan 2026 - US-007
+Thread: https://ampcode.com/threads/T-019baebf-4dc3-760b-bc5c-04db16911d83
+- Added security headers to next.config.mjs
+- Headers added: X-Frame-Options (DENY), X-Content-Type-Options (nosniff), X-XSS-Protection (1; mode=block), Referrer-Policy (strict-origin-when-cross-origin), Permissions-Policy (camera=(), microphone=(), geolocation=())
+- Applied to all routes using `/:path*` source pattern
+- Verified headers via curl response
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Next.js security headers are configured in next.config.mjs async headers() function
+  - Use `/:path*` source pattern to apply headers to all routes
+  - Use curl -I to quickly verify response headers without needing browser automation
+---
