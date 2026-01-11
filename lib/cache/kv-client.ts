@@ -5,11 +5,16 @@ interface KVClient {
   set<T>(key: string, value: T, options?: { ex?: number }): Promise<void>;
   del(key: string): Promise<void>;
   keys(pattern: string): Promise<string[]>;
+  isHealthy(): Promise<boolean>;
 }
 
 class InMemoryKV implements KVClient {
   private store: Map<string, { value: unknown; expiresAt?: number }> =
     new Map();
+
+  async isHealthy(): Promise<boolean> {
+    return true;
+  }
 
   async get<T>(key: string): Promise<T | null> {
     const entry = this.store.get(key);
@@ -43,6 +48,16 @@ class InMemoryKV implements KVClient {
 }
 
 class VercelKVClient implements KVClient {
+  async isHealthy(): Promise<boolean> {
+    try {
+      await vercelKv.ping();
+      return true;
+    } catch (error) {
+      console.error("[Cache Health] Vercel KV unhealthy:", error);
+      return false;
+    }
+  }
+
   async get<T>(key: string): Promise<T | null> {
     return vercelKv.get<T>(key);
   }
@@ -82,4 +97,8 @@ export const kv: KVClient = isVercelKVConfigured()
 
 export function isUsingInMemoryCache(): boolean {
   return !isVercelKVConfigured();
+}
+
+export async function isHealthy(): Promise<boolean> {
+  return kv.isHealthy();
 }
