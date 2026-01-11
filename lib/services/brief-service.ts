@@ -3,6 +3,7 @@ import { withCache } from "../cache/with-cache";
 import { invalidateCache } from "../cache/invalidate";
 
 export type Brief = Database["public"]["Tables"]["briefs"]["Row"];
+export type BriefInsert = Database["public"]["Tables"]["briefs"]["Insert"];
 export type BriefUpdate = Database["public"]["Tables"]["briefs"]["Update"];
 
 const BRIEF_CACHE_TTL = 300; // 5 minutes
@@ -104,4 +105,47 @@ export async function getPopularBriefs(limit: number = 10): Promise<Brief[]> {
     },
     POPULAR_BRIEFS_CACHE_TTL
   );
+}
+
+/**
+ * Warm the cache for a specific brief after creation or update.
+ * This ensures the brief is immediately available from cache.
+ */
+export async function warmBriefCache(briefId: string): Promise<void> {
+  console.log(`[Cache Warming] Warming cache for brief:${briefId}`);
+  try {
+    await getBriefById(briefId);
+    console.log(`[Cache Warming] Successfully warmed cache for brief:${briefId}`);
+  } catch (error) {
+    console.error(`[Cache Warming] Failed to warm cache for brief:${briefId}:`, error);
+  }
+}
+
+/**
+ * Create a new brief and warm the cache.
+ * Call this after brief generation completes.
+ */
+export async function createBrief(
+  briefData: BriefInsert
+): Promise<Brief | null> {
+  const supabase = createServiceRoleClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.from("briefs") as any)
+    .insert(briefData)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  const brief = data as Brief;
+
+  // Warm the cache for the newly created brief
+  await warmBriefCache(brief.id);
+
+  // Also invalidate popular briefs cache since ranking may have changed
+  await invalidateCache("briefs:popular");
+
+  return brief;
 }
