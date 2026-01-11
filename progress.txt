@@ -162,3 +162,13 @@ Thread: https://ampcode.com/threads/T-019baee3-f3d0-71e0-a781-8b1baa974f3e
   - .env.example is comprehensive with comments for each variable
   - SETUP.md now has tables documenting all required and optional env vars
 ---
+
+## Mon 12 Jan 2026 - US-012
+Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
+- Verified /docs/GDPR.md already exists and is comprehensive (created in US-005)
+- Documentation covers all required sections: personal data collected, data retention, export/deletion handling, third-party processors
+- Build passes successfully
+- **Learnings for future iterations:**
+  - GDPR.md was created during US-005 implementation - this story was already complete
+  - When auditing, check if docs already exist from previous work
+---
