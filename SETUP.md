@@ -69,7 +69,29 @@ Click on any showcase brief (e.g., "UK 4-Day Work Week") to see the full brief v
 
 ---
 
-## Step 5: Set Up Supabase (Optional - for full functionality)
+## Step 5: Set Up Vercel KV (Optional - for production caching)
+
+Vercel KV provides server-side caching for faster brief loading. **In local development, an in-memory cache is used automatically** so you don't need to configure this for development.
+
+### For Production:
+
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
+2. Navigate to **Storage > KV**
+3. Click **Create Database**
+4. Give it a name (e.g., `state-of-clarity-cache`)
+5. Copy the connection details to your `.env.local`:
+   ```env
+   KV_REST_API_URL=https://your-kv-store.kv.vercel-storage.com
+   KV_REST_API_TOKEN=your-token-here
+   ```
+
+The cache client in `/lib/cache/kv-client.ts` will automatically use:
+- **Vercel KV** when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set
+- **In-memory cache** as a fallback for local development
+
+---
+
+## Step 6: Set Up Supabase (Optional - for full functionality)
 
 ### Create Database Tables
 
@@ -155,7 +177,7 @@ CREATE POLICY "Authenticated users can create feedback"
 
 ---
 
-## Step 6: Test the Sample Brief
+## Step 7: Test the Sample Brief
 
 1. Navigate to [http://localhost:3000](http://localhost:3000)
 2. Click on "UK 4-Day Work Week" showcase brief
