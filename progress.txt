@@ -1,203 +1,224 @@
 # Ralph Progress Log
-Started: Sun 11 Jan 2026 23:57:46 +04
+Started: Mon 12 Jan 2026 01:41:23 +04
 
 ## Codebase Patterns
-- Use `requireAuth()` from lib/supabase/client.ts to protect authenticated endpoints
-- Use `createServiceRoleClient()` for admin operations that bypass RLS (e.g., deleting users)
-- Database schema uses ON DELETE CASCADE for user data (profiles, saved_briefs, reading_history)
-- Database schema uses ON DELETE SET NULL for content anonymization (briefs, feedback, brief_jobs)
-- Export endpoint was not yet implemented despite Epic 5.1 being marked complete
-- Supabase joins work with .select("column, table(columns)") syntax
-- Cookie consent uses JSON format in localStorage for audit trail: `{value, timestamp}`
-- Use `hasAcceptedCookies()` from cookie-consent-banner.tsx to check before loading analytics
-- Client components in Next.js need "use client" directive at top
-- Duplicate files with " 2" suffix can cause build failures - clean them up before running builds
-- Use `createBrowserClient()` from lib/supabase/browser.ts for client components (NOT from client.ts which has server imports)
+- Design system uses warm editorial palette (Sage/Ivory/Ink), NOT blue/slate
+- Tailwind config now has full design tokens: use `bg-ivory-100`, `text-ink-800`, `bg-sage-500` etc.
+- Font families: `font-heading` (Canela/serif), `font-body` (Source Serif 4), `font-ui` (Inter)
+- Use `max-w-prose` for 65ch optimal reading width
+- Political lean colors: `political-left`, `political-center`, `political-right` etc.
+- Current implementation uses shadcn/ui CSS variables pattern (hsl(var(--primary)))
+- Skills folder contains comprehensive design specs: skills/frontend/{design,brand,components,tech}
+- Pages are in app/ directory using Next.js App Router
+- cn() helper at @/lib/utils for conditional Tailwind classes (uses clsx + tailwind-merge)
+- Brief types (ReadingLevel, PoliticalLean, Source, Brief, etc.) at @/lib/types/brief.ts
+- Components go in components/{brief,sources,generation,layout,feedback}/ subdirectories
+- Header/footer are duplicated inline in each page - need extraction
+- 5 key components STILL MISSING: SourceCitation, SourceCard, BriefGenerationProgress, Header, Footer
+- PoliticalLeanBadge now complete at @/components/sources/political-lean-badge.tsx with muted non-partisan colors
+- CredibilityBadge now complete at @/components/sources/credibility-badge.tsx with tiered icons (ShieldCheck/Shield/ShieldAlert)
+- ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
+- SummaryCard now complete at @/components/brief/summary-card.tsx with typography per level and reading time
+- BriefGenerationProgress now complete at @/components/generation/generation-progress.tsx with 5 stages, progress bar, spinner/checkmarks
+
 ---
 
-## Sun 12 Jan 2026 - US-001
-Thread: https://ampcode.com/threads/T-019baea4-e766-7534-a4e4-67322408fcac
-- Created privacy policy page at /app/privacy/page.tsx
-- Page includes all required sections: What data we collect, How we use it, Third parties (Supabase, Stripe, Vercel), User rights (export, delete), Contact info
-- Footer already contained link to /privacy
-- Build passes successfully
+## 2026-01-12 10:45 - US-001
+Thread: https://ampcode.com/threads/T-019baf01-d163-7193-90c2-b3fd229f84b9
+- **What was implemented:** Comprehensive UI audit against design system skills
+- **Files created:** docs/UI-AUDIT.md
+- **Files reviewed:** 
+  - All 4 skill files (design, brand, components, tech)
+  - tailwind.config.ts
+  - app/globals.css
+  - app/page.tsx (homepage)
+  - app/layout.tsx
+  - app/brief/[id]/page.tsx (brief viewer)
+  - app/auth/signup/page.tsx
+  - app/privacy/page.tsx
+  - app/terms/page.tsx
+  - components/cookie-consent-banner.tsx
 - **Learnings for future iterations:**
-  - Privacy page already existed in untracked files from previous work
-  - Footer in app/page.tsx already has Legal section with privacy link
+  - The design system specifies Deep Sage (#5E6F64) as primary, NOT blue
+  - No pure white (#FFFFFF) or pure black (#000000) allowed - use Ivory/Ink
+  - Typography should use serif for headings (Canela) and body (Source Serif 4)
+  - Reading levels need specific typography: child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug
+  - Political lean colors are for data viz only, NOT UI chrome
+  - All focus states should use focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - 8 key components are completely missing (see audit doc)
 ---
 
-## Mon 12 Jan 2026 - US-002
-Thread: https://ampcode.com/threads/T-019baea6-cb9b-72dd-8360-3bfcad0551c2
-- Created terms of service page at /app/terms/page.tsx
-- Page includes sections: Acceptance of Terms, User Responsibilities, Intellectual Property, Limitation of Liability, Termination, Dispute Resolution, Contact Us
-- Uses simple, readable language (not legalese)
-- Added Terms of Service link to footer in app/page.tsx
-- Cleaned up duplicate files (brief-service 2.ts, safe-query 2.ts) that were causing build failures
-- Build passes successfully
-- Browser verification passed: title, sections, and footer link confirmed
+## 2026-01-12 11:30 - US-002
+Thread: https://ampcode.com/threads/T-019baf05-900a-749b-bcb9-2cc922a4d6b8
+- **What was implemented:** Comprehensive component audit against skills/frontend/components/SKILL.md
+- **Files changed:** docs/UI-AUDIT.md (expanded Section 6 with detailed component analysis)
+- **Findings:**
+  - 9 components are MISSING: ReadingLevelSelector, SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
+  - 1 component exists but needs fixes: CookieConsentBanner (wrong colors, no focus rings)
+  - Directory structure completely missing (no ui/, brief/, sources/, generation/, layout/, feedback/ folders)
+  - Types defined inline in brief page rather than exported from lib/types/brief.ts
 - **Learnings for future iterations:**
-  - Duplicate files with " 2" suffix can cause build failures - clean them up before running builds
-  - Follow privacy page structure/styling for consistency on legal pages
+  - Reading level selector is inline in app/brief/[id]/page.tsx around lines 296-341
+  - Labels use "Post-doc" instead of "Postdoc" and "Graduate" instead of "Graduate+"
+  - Political lean colors use partisan red/blue instead of muted rose/blue spectrum
+  - No ARIA roles, no sticky positioning on reading level selector
+  - No credibility scores displayed for sources
+  - No generation progress UI exists (users wait 30-60s with no feedback)
 ---
 
-## Mon 12 Jan 2026 - US-003
-Thread: https://ampcode.com/threads/T-019baeab-276a-764f-945b-d063e853a5c5
-- Created cookie consent banner component at /components/cookie-consent-banner.tsx
-- Banner appears at bottom of screen with fixed positioning (z-50)
-- Includes message about cookies (analytics, functionality)
-- Accept and Decline buttons with proper styling
-- Links to privacy policy from banner
-- Added CookieConsentBanner to root layout.tsx
-- Typecheck passes
+## 2026-01-12 12:15 - US-003
+Thread: https://ampcode.com/threads/T-019baf08-5056-7472-a711-caf108566707
+- **What was implemented:** Tailwind configuration updated with full design system tokens
+- **Files changed:** 
+  - tailwind.config.ts (complete rewrite with design tokens)
+  - package.json (added @tailwindcss/typography, @tailwindcss/forms)
+- **Changes:**
+  - Added ivory color palette (50-900) for backgrounds
+  - Added ink color palette (50-900) for text
+  - Added sage color palette (50-900) for primary accent
+  - Added rust color palette (50-900) for secondary accent
+  - Added smoke color palette (50-900) for cool counterbalance
+  - Added semantic colors (success, warning, error, info)
+  - Added political lean colors for data visualization
+  - Added font families: font-heading (Canela serif), font-body (Source Serif 4), font-ui (Inter)
+  - Added max-w-prose: 65ch for optimal reading width
+  - Added typography plugin with custom prose styles
+  - Installed @tailwindcss/typography and @tailwindcss/forms plugins
 - **Learnings for future iterations:**
-  - Client components in Next.js need "use client" directive at top
-  - This codebase does not have a /components folder - had to create it
-  - Use localStorage for client-side persistence
+  - Keep shadcn/ui CSS variable colors for compatibility with existing components
+  - New design system colors are additive, can be used alongside existing patterns
+  - Use `prose prose-custom` for narrative content with design system colors
 ---
 
-## Mon 12 Jan 2026 - US-004
-Thread: https://ampcode.com/threads/T-019baeb6-da35-7169-884c-96e7236d7460
-- Fixed cookie consent persistence to properly store and retrieve JSON format
-- Consent stored as JSON object: {value: "accepted"|"declined", timestamp: ISO string}
-- Added `getStoredConsent()` that parses JSON and falls back to legacy string format
-- Added exported utilities: `getConsentStatus()` and `hasAcceptedCookies()` for other components
-- Banner correctly hidden when consent already exists in localStorage
-- Build passes successfully
+## 2026-01-12 14:30 - US-004
+Thread: https://ampcode.com/threads/T-019baf0b-33a1-7320-a513-2c5b2b4dd063
+- **What was implemented:** ReadingLevelSelector component with full ARIA accessibility
+- **Files created:**
+  - components/brief/reading-level-selector.tsx (main component)
+  - lib/utils.ts (cn helper for Tailwind class merging)
+  - lib/types/brief.ts (shared TypeScript types for briefs)
+- **Files changed:**
+  - app/brief/[id]/page.tsx (integrated new component, removed inline implementation)
 - **Learnings for future iterations:**
-  - Cookie consent uses JSON format in localStorage for audit trail: `{value, timestamp}`
-  - Use `hasAcceptedCookies()` from cookie-consent-banner.tsx to check before loading analytics
+  - cn() helper now available at @/lib/utils for conditional Tailwind classes
+  - ReadingLevel and other brief types exported from @/lib/types/brief
+  - Component uses warm editorial palette: bg-ivory-100, bg-sage-500, text-ink-600
+  - ARIA pattern: role="tablist" on container, role="tab" + aria-selected on buttons, aria-controls/labelledby for panels
+  - Focus states: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - Responsive: flex-col on mobile, flex-row on desktop (sm:flex-row)
+  - Minimum touch target: min-h-[48px] min-w-[48px] for accessibility
 ---
 
-## Mon 12 Jan 2026 - US-005
-Thread: https://ampcode.com/threads/T-019baeb8-6e29-7708-a9b6-578af2482ca9
-- Created /app/api/profile/export/route.ts endpoint for GDPR data export
-- Export includes: user auth info, profile, briefs created, saved briefs, reading history, feedback, brief jobs
-- Export returns downloadable JSON file with timestamped filename
-- Created comprehensive /docs/GDPR.md documentation covering:
-  - What personal data we collect and why
-  - Data retention policy
-  - Third-party data processors (Supabase, Vercel, Stripe)
-  - User rights (export, rectification, deletion)
-  - How to handle data requests
-- Build passes successfully
+## 2026-01-12 15:30 - US-005
+Thread: https://ampcode.com/threads/T-019baf11-8e64-7236-aa6f-f1326e2dd6c8
+- **What was implemented:** SummaryCard component with progressive typography per reading level
+- **Files created:**
+  - components/brief/summary-card.tsx (main component)
+- **Files changed:**
+  - app/brief/[id]/page.tsx (integrated SummaryCard component, removed inline implementation)
 - **Learnings for future iterations:**
-  - Export endpoint was not yet implemented despite Epic 5.1 being marked complete
-  - Use requireAuth() from lib/supabase/client.ts to protect authenticated endpoints
-  - Supabase joins work with .select("column, table(columns)") syntax
+  - SummaryCard now available at @/components/brief/summary-card for displaying summaries with proper typography
+  - Typography per level: child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug
+  - Reading time calculated automatically from content word count (200 wpm)
+  - ARIA pattern: role="tabpanel" + hidden attribute for inactive panels, aria-labelledby for tab association
+  - Brief data uses Record<ReadingLevel, string> format, not array of ReadingLevelSummary objects
+  - Each level renders as separate tabpanel div with only the active one visible
 ---
 
-## Mon 12 Jan 2026 - US-006
-Thread: https://ampcode.com/threads/T-019baebc-3b4a-76a9-9a24-af0adcd27d10
-- Created /app/api/profile/delete/route.ts endpoint for GDPR account deletion
-- Endpoint requires confirmation: POST with {"confirmation": "DELETE"}
-- Uses createServiceRoleClient() to call Supabase Admin API deleteUser
-- Audited database schema - cascades properly configured:
-  - ON DELETE CASCADE: profiles, saved_briefs, reading_history
-  - ON DELETE SET NULL: briefs, feedback, brief_jobs (anonymization)
-- Updated /docs/GDPR.md with detailed deletion process and API endpoint
-- Build passes successfully
+## 2026-01-12 16:30 - US-006
+Thread: https://ampcode.com/threads/T-019baf15-44fe-74e8-9e66-9d652d3e34a9
+- **What was implemented:** PoliticalLeanBadge component for displaying source political lean
+- **Files created:**
+  - components/sources/political-lean-badge.tsx (main component)
+- **Features:**
+  - Uses muted non-partisan rose→grey→blue spectrum per design spec
+  - Left: muted rose #8B4840 on #F5EBE9
+  - Center-Left: #9A6F6F on #F5ECEC
+  - Center: ink-600 on ivory-200
+  - Center-Right: #4D6672 on #EBF1F4
+  - Right: muted blue #3D5C72 on #E8F0F4
+  - Unknown: ink-500 on ivory-300
+  - Size variants: sm (text-xs) and md (text-sm, default)
+  - Accessible: title attribute with "Political lean: {label}"
+  - Typed with PoliticalLean from lib/types/brief.ts
 - **Learnings for future iterations:**
-  - Delete endpoint did not exist - had to create from scratch
-  - Supabase admin.deleteUser() triggers all database cascades/SET NULL automatically
-  - Confirmation pattern: require exact string match before destructive operations
+  - Components in sources/ directory should import from @/components/sources/{component-name}
+  - Political lean colors are non-partisan - avoid UK flag red/blue associations
+  - Use subtle background colors for readability on badges
 ---
 
-## Mon 12 Jan 2026 - US-007
-Thread: https://ampcode.com/threads/T-019baebf-4dc3-760b-bc5c-04db16911d83
-- Added security headers to next.config.mjs
-- Headers added: X-Frame-Options (DENY), X-Content-Type-Options (nosniff), X-XSS-Protection (1; mode=block), Referrer-Policy (strict-origin-when-cross-origin), Permissions-Policy (camera=(), microphone=(), geolocation=())
-- Applied to all routes using `/:path*` source pattern
-- Verified headers via curl response
-- Build passes successfully
+## 2026-01-12 17:15 - US-007
+Thread: https://ampcode.com/threads/T-019baf1f-a8a8-77c9-a66b-6e416d680256
+- **What was implemented:** CredibilityBadge component for displaying source credibility scores
+- **Files created:**
+  - components/sources/credibility-badge.tsx (main component)
+- **Features:**
+  - Three score tiers with appropriate icons from lucide-react:
+    - Score 8+: ShieldCheck icon, success-light bg, success-dark text, "Highly Credible"
+    - Score 5-7: Shield icon, warning-light bg, warning-dark text, "Moderately Credible"
+    - Score <5: ShieldAlert icon, error-light bg, error-dark text, "Lower Credibility"
+  - Score displayed as X/10
+  - Size variants: sm (text-xs) and md (text-sm, default)
+  - Accessible: title attribute with "{label}: {score}/10"
+  - Uses design system semantic colors (success, warning, error)
 - **Learnings for future iterations:**
-  - Next.js security headers are configured in next.config.mjs async headers() function
-  - Use `/:path*` source pattern to apply headers to all routes
-  - Use curl -I to quickly verify response headers without needing browser automation
-- Zod validation schemas live in /lib/validation/ directory
+  - CredibilityBadge now available at @/components/sources/credibility-badge
+  - Uses semantic colors from Tailwind config: success-{DEFAULT,light,dark}, warning-{}, error-{}
+  - Component matches PoliticalLeanBadge pattern for consistency
+  - Not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
 ---
 
-## Mon 12 Jan 2026 - US-008
-Thread: https://ampcode.com/threads/T-019baec6-4055-75cc-9127-0210de3ca780
-- Created /lib/validation/brief-schemas.ts with Zod validation schemas
-- Schemas: briefIdSchema (UUID validation), createBriefSchema, updateBriefSchema, popularBriefsQuerySchema
-- Exported inferred TypeScript types from all schemas
-- Build passes successfully
+## 2026-01-12 18:00 - US-008
+Thread: https://ampcode.com/threads/T-019baf23-ab08-75b5-9776-8fd2d5d070a5
+- **What was implemented:** SourceCitation component for inline citations
+- **Files created:**
+  - components/sources/source-citation.tsx (main component)
+- **Features:**
+  - Superscript link format [n] per design spec
+  - Political lean color coding (muted rose→grey→blue spectrum):
+    - Left: #C85C6B (muted rose)
+    - Center-Left: #D9A0A0 (soft pink)
+    - Center: ink-400 (ash grey)
+    - Center-Right: #7FA5B8 (soft blue)
+    - Right: #6B8FB3 (muted blue)
+    - Unknown: ivory-600 (soft taupe)
+  - Hover shows underline (no-underline hover:underline)
+  - Links to #source-{source.id} anchor
+  - Accessible: aria-label with "Source {n}: {title}", title attribute
+  - Uses font-ui, transition-colors duration-200
 - **Learnings for future iterations:**
-  - Zod validation schemas live in /lib/validation/ directory
-  - Use z.coerce for query params that come as strings but should be numbers
+  - SourceCitation colors are different from PoliticalLeanBadge colors - badges use background colors, citations use text colors only
+  - Citation links should use font-ui not font-body for UI element styling
+  - Component is not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
 ---
 
-## Mon 12 Jan 2026 - US-009
-Thread: https://ampcode.com/threads/T-019baec8-5a84-741b-80d5-f7cecc3ab0fa
-- Applied Zod validation to /app/api/briefs/[id]/route.ts - validates UUID format for id param
-- Applied Zod validation to /app/api/briefs/popular/route.ts - validates limit query param
-- Both endpoints return 400 Bad Request with clear error message on validation failure
-- Uses safeParse for non-throwing validation
-- Build passes successfully
+## 2026-01-12 19:00 - US-009
+Thread: https://ampcode.com/threads/T-019baf25-6c56-71cf-bfb9-8c2b5a2eb149
+- **What was implemented:** BriefGenerationProgress component for showing real-time generation progress
+- **Files created:**
+  - components/generation/generation-progress.tsx (main component)
+- **Files changed:**
+  - lib/types/brief.ts (added GenerationStage type and GenerationProgress interface)
+- **Features:**
+  - 5 generation stages with icons from lucide-react:
+    - research: Search icon, "Researching sources"
+    - structure: ListTree icon, "Extracting key factors"
+    - summary: BookOpen icon, "Generating summaries"
+    - narrative: PenLine icon, "Writing narrative"
+    - scoring: Target icon, "Calculating clarity score"
+  - Progress bar with smooth transition-all duration-500 animation
+  - Active stage: bg-sage-500 with Loader2 spinner
+  - Completed stages: bg-success with CheckCircle2 icon, "Complete" label
+  - Pending stages: bg-ivory-300 with stage icon
+  - Estimated time remaining in ~Xs format
+  - Accessible: role="status", aria-live="polite", aria-label with current stage and time
+  - Progress bar: role="progressbar" with aria-valuenow/min/max
 - **Learnings for future iterations:**
-  - Currently no POST/PUT brief API endpoints - briefs are created via internal service functions
-  - Validation pattern: use safeParse, check success, return 400 with error.errors[0].message
----
-
-## Mon 12 Jan 2026 - US-010
-Thread: https://ampcode.com/threads/T-019baeca-951e-761a-978a-ff6b5ee2474e
-- Created /lib/validation/admin-schemas.ts with cacheFlushSchema
-- Schema validates optional pattern string (min 1, max 200 chars)
-- Updated /app/api/admin/cache-flush/route.ts to use safeParse validation
-- Returns 400 Bad Request with error details on validation failure
-- Build passes successfully
-- **Learnings for future iterations:**
-  - Admin schemas follow same pattern as brief-schemas.ts
-  - Use `unknown` type for rawBody before validation for type safety
----
-
-## Mon 12 Jan 2026 - US-011
-Thread: https://ampcode.com/threads/T-019baee3-f3d0-71e0-a781-8b1baa974f3e
-- Audited codebase for hardcoded secrets - found none (all use process.env.*)
-- Verified .env is in .gitignore
-- Verified .env.example contains all 8 env vars used in codebase
-- Updated SETUP.md with comprehensive environment variable documentation (required vs optional, with source links)
-- Build passes successfully
-- **Learnings for future iterations:**
-  - All secrets use process.env.* - no hardcoded values in codebase
-  - .env.example is comprehensive with comments for each variable
-  - SETUP.md now has tables documenting all required and optional env vars
----
-
-## Mon 12 Jan 2026 - US-012
-Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
-- Verified /docs/GDPR.md already exists and is comprehensive (created in US-005)
-- Documentation covers all required sections: personal data collected, data retention, export/deletion handling, third-party processors
-- Build passes successfully
-- **Learnings for future iterations:**
-  - GDPR.md was created during US-005 implementation - this story was already complete
-  - When auditing, check if docs already exist from previous work
----
-
-## Mon 12 Jan 2026 - US-012
-Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
-- Verified /docs/GDPR.md already exists and is comprehensive (created in US-005)
-- Documentation covers all required sections: personal data collected, data retention, export/deletion handling, third-party processors
-- Build passes successfully
-- **Learnings for future iterations:**
-  - GDPR.md was created during US-005 implementation - this story was already complete
-  - When auditing, check if docs already exist from previous work
----
-
-## Mon 12 Jan 2026 - US-013
-Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
-- Created /app/auth/signup/page.tsx with complete signup form
-- Added age verification checkbox: "I confirm I am 13 years of age or older"
-- Checkbox validation blocks signup with error message if unchecked
-- Age verification stored in user metadata: age_verified: true, age_verified_at: timestamp
-- Created /lib/supabase/browser.ts for client-side Supabase usage (separate from server file to avoid importing server-only modules)
-- Browser verification passed: all form elements visible and styled correctly
-- Build passes successfully
-- **Learnings for future iterations:**
-  - Client components cannot import from files that have server-only imports (like `next/headers`)
-  - Created separate /lib/supabase/browser.ts for client-side Supabase client
-  - Signup page follows same structure as privacy/terms pages for consistency
-  - Age verification data stored in Supabase Auth user_metadata via signUp options.data
+  - BriefGenerationProgress now available at @/components/generation/generation-progress
+  - Use GenerationStage type ('research' | 'structure' | 'summary' | 'narrative' | 'scoring') from lib/types/brief.ts
+  - Component accepts: currentStage, progress (0-100), estimatedSecondsRemaining
+  - Not yet integrated into any page - will need to be added to "Ask Anything" flow in US-014
+  - Uses same warm editorial palette as other components (sage-500, ivory-100, ink-800)
 ---
 
 ## 2026-01-12 20:15 - US-010 (Brand/UI Sweep Epic)
