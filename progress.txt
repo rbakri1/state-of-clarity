@@ -34,3 +34,15 @@ Thread: https://ampcode.com/threads/T-019bad10-4e9b-77ab-825f-29c9e6e8ac02
   - Add onRouterTransitionStart export to instrumentation-client.ts for navigation tracking
 ---
 
+
+## 2026-01-11 - US-002
+Thread: https://ampcode.com/threads/T-019bad13-847d-7049-a93a-be4b7c249867
+- Created ErrorBoundary.tsx class component for catching React errors
+- Features: Sentry error reporting, "Try again" reset button, "Show details" toggle
+- Fallback UI with friendly error message and red styling
+- Uses lucide-react icons (AlertTriangle, ChevronDown, ChevronUp, RefreshCw)
+- **Learnings for future iterations:**
+  - React error boundaries must be class components (not function components)
+  - Use componentDidCatch to report to Sentry with component stack context
+  - getDerivedStateFromError is for setting error state, componentDidCatch for side effects
+---
