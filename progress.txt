@@ -132,3 +132,18 @@ Thread: https://ampcode.com/threads/T-019bad5a-5ebc-70cb-aea2-b82357fbb81a
   - Never expose raw Stripe errors - always sanitize with user-friendly messages
   - Add health check endpoint for UI to disable features when service is unavailable
 ---
+
+## 2026-01-11 22:45 - US-017
+Thread: https://ampcode.com/threads/T-019bad5f-4251-7640-83c4-23f43752a381
+- Created service health check endpoint at /app/api/health/route.ts
+- Checks Supabase connection using lightweight query (briefs table)
+- Returns { status: 'healthy' | 'degraded' | 'unhealthy', services: { supabase } }
+- Includes latency measurement and error details
+- 30-second cache to prevent excessive checks
+- Detects connection errors vs other failures for degraded state
+- Files changed: app/api/health/route.ts
+- **Learnings for future iterations:**
+  - Follow payments/health endpoint pattern for caching
+  - Use lightweight queries (select id limit 1) for connection checks
+  - Consider latency > 5s as "degraded" not "unhealthy"
+---

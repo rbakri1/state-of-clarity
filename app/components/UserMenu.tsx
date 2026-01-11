@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Coins,
 } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import { useAuthModal } from "@/app/components/auth/AuthModal";
 import { useSavedBriefs } from "@/lib/saved-briefs/useSavedBriefs";
@@ -42,6 +43,7 @@ export function UserMenu() {
 
       if (!authUser) {
         setUser(null);
+        Sentry.setUser(null);
         setIsLoading(false);
         return;
       }
@@ -65,6 +67,12 @@ export function UserMenu() {
         displayName,
         avatarUrl: profile?.avatar_url ?? null,
       });
+      
+      Sentry.setUser({
+        id: authUser.id,
+        email: authUser.email,
+      });
+      
       setIsLoading(false);
     }
 
@@ -92,6 +100,7 @@ export function UserMenu() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    Sentry.setUser(null);
     setIsOpen(false);
     router.push("/");
   };
