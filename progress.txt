@@ -133,3 +133,20 @@ Thread: https://ampcode.com/threads/T-019babe3-2621-76b2-83ac-60fe9f65d864
   - Use untyped createServerClient for route handlers that do simple inserts
   - Profile creation can fail silently - user still gets authenticated
 ---
+
+## 2026-01-11 - US-007
+Thread: https://ampcode.com/threads/T-019babe5-6f58-70ac-9d93-e423ce354b02
+- Created auth error page at /app/auth/error/page.tsx
+- Features:
+  - Friendly error message based on `reason` query param (no_code, exchange_failed, invalid_token, access_denied)
+  - "Try again" button linking to sign-in page
+  - "Contact support" mailto link
+  - Back to home link
+  - Consistent styling with other auth pages
+- Used Suspense boundary for useSearchParams (required by Next.js for static generation)
+- **Files changed:**
+  - app/auth/error/page.tsx (new)
+- **Learnings for future iterations:**
+  - useSearchParams requires Suspense boundary in Next.js 14 for pages to be statically pre-rendered
+  - Extract the component using useSearchParams into a separate client component wrapped in Suspense
+---
