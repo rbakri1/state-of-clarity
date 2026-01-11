@@ -84,3 +84,16 @@ Thread: https://ampcode.com/threads/T-019bad19-b24a-740b-882d-10da3091ce71
   - Sentry captureException accepts level and extra options for context
   - Return JSON responses with correct status codes from wrapper
 ---
+
+## 2026-01-11 - US-006
+Thread: https://ampcode.com/threads/T-019bad1b-1d5e-759c-87b5-9f5d8f40426c
+- Applied withErrorHandling wrapper to /app/api/profile/route.ts (GET and PATCH)
+- Applied withErrorHandling wrapper to /app/api/questions/suggest/route.ts (GET)
+- Converted manual error responses to throw ApiError.unauthorized(), ApiError.validationError(), ApiError.serviceUnavailable()
+- Added dynamic = "force-dynamic" to suggest route to prevent static prerender issues
+- Note: /app/api/briefs/[id]/vote/route.ts does not exist in codebase, skipped
+- **Learnings for future iterations:**
+  - API routes using createServerSupabaseClient need dynamic = "force-dynamic" to avoid prerender errors
+  - Convert return NextResponse.json({ error: ... }) to throw ApiError.xxx() for consistent error handling
+  - withErrorHandling wrapper handles Sentry logging automatically, no need to manually log
+---
