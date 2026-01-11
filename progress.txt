@@ -26,3 +26,18 @@ Thread: https://ampcode.com/threads/T-019baea6-cb9b-72dd-8360-3bfcad0551c2
   - Duplicate files with " 2" suffix can cause build failures - clean them up before running builds
   - Follow privacy page structure/styling for consistency on legal pages
 ---
+
+## Mon 12 Jan 2026 - US-003
+Thread: https://ampcode.com/threads/T-019baeab-276a-764f-945b-d063e853a5c5
+- Created cookie consent banner component at /components/cookie-consent-banner.tsx
+- Banner appears at bottom of screen with fixed positioning (z-50)
+- Includes message about cookies (analytics, functionality)
+- Accept and Decline buttons with proper styling
+- Links to privacy policy from banner
+- Added CookieConsentBanner to root layout.tsx
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Client components in Next.js need "use client" directive at top
+  - This codebase does not have a /components folder - had to create it
+  - Use localStorage for client-side persistence
+---
