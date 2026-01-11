@@ -71,3 +71,16 @@ Thread: https://ampcode.com/threads/T-019bad18-63fb-756f-a499-11552b5f6ed6
   - Use static factory methods for common error types for cleaner API
   - Export both const object and type union for error codes
 ---
+
+## 2026-01-11 - US-005
+Thread: https://ampcode.com/threads/T-019bad19-b24a-740b-882d-10da3091ce71
+- Created withErrorHandling higher-order function in lib/errors/with-error-handling.ts
+- Wraps API route handlers to catch and format errors
+- ApiError instances: logs to Sentry with appropriate level (error for 5xx, warning for 4xx)
+- Unexpected errors: wraps in serviceUnavailable response
+- Includes request context (path, method) in Sentry logs
+- **Learnings for future iterations:**
+  - Use RouteHandler type for Next.js API route function signatures
+  - Sentry captureException accepts level and extra options for context
+  - Return JSON responses with correct status codes from wrapper
+---
