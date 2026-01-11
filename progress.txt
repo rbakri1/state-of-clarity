@@ -12,3 +12,17 @@ Thread: https://ampcode.com/threads/T-019baea4-e766-7534-a4e4-67322408fcac
   - Privacy page already existed in untracked files from previous work
   - Footer in app/page.tsx already has Legal section with privacy link
 ---
+
+## Mon 12 Jan 2026 - US-002
+Thread: https://ampcode.com/threads/T-019baea6-cb9b-72dd-8360-3bfcad0551c2
+- Created terms of service page at /app/terms/page.tsx
+- Page includes sections: Acceptance of Terms, User Responsibilities, Intellectual Property, Limitation of Liability, Termination, Dispute Resolution, Contact Us
+- Uses simple, readable language (not legalese)
+- Added Terms of Service link to footer in app/page.tsx
+- Cleaned up duplicate files (brief-service 2.ts, safe-query 2.ts) that were causing build failures
+- Build passes successfully
+- Browser verification passed: title, sections, and footer link confirmed
+- **Learnings for future iterations:**
+  - Duplicate files with " 2" suffix can cause build failures - clean them up before running builds
+  - Follow privacy page structure/styling for consistency on legal pages
+---
