@@ -9,6 +9,7 @@ Started: Sun 11 Jan 2026 17:31:07 +04
 - Use Tailwind animate-pulse for skeleton/loading states
 - Use `safeQuery` from lib/supabase/safe-query.ts for Supabase queries with error handling
 - Supabase query functions use PromiseLike (not Promise) for type compatibility with PostgrestBuilder
+- Use `safeAICall` from lib/ai/safe-ai-call.ts for AI API calls with retry logic (3 attempts) and Sentry logging
 ---
 
 ## 2026-01-11 17:35 - US-009
@@ -88,4 +89,22 @@ Thread: https://ampcode.com/threads/T-019bad51-20fb-7411-8faf-b0708ffd286a
   - Use PromiseLike instead of Promise for Supabase query function types (PostgrestBuilder compatibility)
   - SafeQueryResult.isConnectionError distinguishes database-down from other errors
   - Sentry.captureException with tags and extra context for better error tracking
+---
+
+## 2026-01-11 21:15 - US-015
+Thread: https://ampcode.com/threads/T-019bad55-192a-71cd-a80c-996da067e0e7
+- Created safeAICall utility at /lib/ai/safe-ai-call.ts
+- Wraps AI API calls with retry logic (3 attempts, exponential backoff with jitter)
+- Logs to Sentry with sanitized prompt context (truncated, email/phone redacted)
+- Returns SafeAICallResult with data, error, and isAIServiceError flag
+- Updated questions/suggest route to use safeAICall - falls back to template-only on AI failure
+- Updated research-agent.ts: wrapped Tavily search and political lean classification
+- Updated brief generation route to show friendly AI error messages
+- Added AI_SERVICE_ERROR to error-messages.ts
+- Files changed: lib/ai/safe-ai-call.ts, app/api/questions/suggest/route.ts, lib/agents/research-agent.ts, app/api/briefs/generate/route.ts, lib/errors/error-messages.ts
+- **Learnings for future iterations:**
+  - Follow safeQuery pattern for AI calls - same structure, different error detection
+  - Sanitize prompts before logging: truncate, redact emails/phones
+  - For suggestions: silent fallback to template-only results (return empty array)
+  - For brief generation: propagate error with user-friendly message
 ---
