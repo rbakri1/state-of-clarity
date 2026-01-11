@@ -243,3 +243,29 @@ Thread: https://ampcode.com/threads/T-019baf59-a731-718a-bdfb-172cb30b77a4
   - Global layout uses flex layout (min-h-screen flex flex-col) with flex-1 on main content for sticky footer
   - Header and Footer both in layout.tsx now, no more inline on each page
 ---
+
+## 2026-01-12 22:30 - US-013 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019baf68-57b5-73a3-bd3c-80d419a01056
+- **What was implemented:** Complete polish of brief viewer page with design system
+- **Files changed:**
+  - app/brief/[id]/page.tsx (complete refactor with design system)
+- **Features:**
+  - Uses max-w-prose (65ch) for optimal reading width on summaries and narrative
+  - Design system colors throughout: bg-ivory-100/200, text-ink-600/800, sage-500 accents
+  - Expandable Clarity Score badge: click to show/hide breakdown panel
+  - Sources section with PoliticalLeanBadge and CredibilityBadge for each source
+  - Source citation numbers [1], [2], etc. with anchor links to sources section
+  - Share button with Web Share API fallback to clipboard copy
+  - Save/Bookmark button with proper styling
+  - All interactive elements have focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - Semantic HTML with header/main/article/aside structure
+  - Collapsible sections for structured analysis (definitions, factors, policies, consequences)
+  - Feedback section with Helpful/Not Helpful/Suggest Source/Spot Error buttons
+  - Clarity score explanation tooltip with Info icon
+- **Learnings for future iterations:**
+  - Use normalizePolicalLean() helper to convert source JSON political_lean strings to PoliticalLean type
+  - Sources section is sticky with max-h-[60vh] overflow-y-auto for long source lists
+  - Clarity breakdown panel animates in with animate-in fade-in slide-in-from-top-2 classes
+  - Web Share API works on mobile; fallback to clipboard for desktop
+  - Brief data uses different key names: summaries[level] for progressive summaries, not summaries.simple/standard/advanced
+---

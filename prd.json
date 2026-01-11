@@ -218,8 +218,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Homepage already polished with warm editorial palette (sage/ivory/ink), proper headline 'See politics clearly. Decide wisely.', subheadline explaining evidence-based policy analysis, Get Brief CTA with bg-sage-500, showcase briefs section with 3 cards showing question/clarity score/tags/read time, responsive mobile-first layout, feature cards for Progressive Summaries, Transparent Sources, and Clarity Score."
     },
     {
       "id": "US-013",
@@ -238,8 +238,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Complete polish of brief viewer page: design system colors (ivory/ink/sage), max-w-prose for reading width, expandable Clarity Score badge with breakdown, Sources section with PoliticalLeanBadge and CredibilityBadge, Share/Save buttons with proper styling, accessible focus rings throughout."
     },
     {
       "id": "US-014",
