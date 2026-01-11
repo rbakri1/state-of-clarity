@@ -5,6 +5,8 @@ Started: Sun 11 Jan 2026 17:31:07 +04
 - Use lucide-react for icons (AlertTriangle, ChevronDown, ChevronUp, RefreshCw)
 - Error components use red-50/red-950 bg with red-200/red-800 borders for dark mode support
 - Use "use client" directive for components with useState or interactivity
+- No cn utility - use template literals for className concatenation: `${base} ${custom}`
+- Use Tailwind animate-pulse for skeleton/loading states
 ---
 
 ## 2026-01-11 17:35 - US-009
@@ -29,4 +31,18 @@ Thread: https://ampcode.com/threads/T-019bad42-e43c-7506-81e2-a86d988af9fb
 - **Learnings for future iterations:**
   - Reuse ErrorCodes from api-error.ts for type safety
   - Include UNKNOWN as default fallback for any unmapped error codes
+---
+
+## 2026-01-11 18:45 - US-011
+Thread: https://ampcode.com/threads/T-019bad44-b2ad-7018-889b-a26a076e8ec9
+- Created Skeleton component at /app/components/Skeleton.tsx
+- Variants: text, paragraph, card, avatar, button
+- Uses Tailwind animate-pulse for subtle loading animation
+- Accepts className prop for custom sizing
+- Uses aria-hidden="true" for accessibility
+- Files changed: app/components/Skeleton.tsx
+- **Learnings for future iterations:**
+  - Codebase doesn't have a cn utility - use template literals for class concatenation
+  - Tailwind's animate-pulse works well for skeleton loading states
+  - Use gray-200/gray-700 for light/dark mode skeleton backgrounds
 ---
