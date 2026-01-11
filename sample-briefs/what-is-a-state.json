@@ -12,13 +12,11 @@
   },
 
   "summaries": {
-    "child": "A state is like a big grown-up group that makes rules for people living in the same place.",
+    "simple": "A state is like a big grown-up group that makes rules for people living in the same place. They have police and courts to make sure everyone follows the rules, and they decide things like where roads go and what happens in schools.",
 
-    "teen": "A state is a group of people and systems that make and enforce rules for a country or area. People usually follow the rules because they think it keeps things safe and fair.",
+    "standard": "A state is a political organisation that claims authority over a defined territory and population. It typically maintains a monopoly on the legitimate use of force (through police, military, courts) and provides public services. Philosophers and historians debate whether its power comes from mutual agreement, force, class interests, or historical chance.",
 
-    "undergrad": "A state is a political organisation that claims authority over a defined territory and population. Philosophers and historians debate whether its power comes from mutual agreement, force, class interests, or historical chance.",
-
-    "postdoc": "The state is a historically contingent construct that institutionalises authority, typically via a claimed monopoly on legitimate violence within a territory. Competing frameworks — from Hobbesian social contract theory to Marxist critiques — reveal that the state is not a natural or neutral entity, but a contested form shaped by coercion, consent, and contingency."
+    "advanced": "The state is a historically contingent construct that institutionalises authority, typically via a claimed monopoly on legitimate violence within a territory. Competing frameworks — from Hobbesian social contract theory to Marxist critiques — reveal that the state is not a natural or neutral entity, but a contested form shaped by coercion, consent, and contingency. Max Weber's definition remains foundational: 'A state is a human community that successfully claims the monopoly of the legitimate use of physical force within a given territory.'"
   },
 
   "structured_data": {

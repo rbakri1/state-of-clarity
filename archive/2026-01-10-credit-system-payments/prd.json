@@ -1,0 +1,309 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/multi-layer-brief-reading",
+  "description": "Multi-Layer Brief Reading Interface - 3-tier reading levels, smart structured data, inline citations, clarity score modal, and comprehensive sharing",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Update brief summaries schema for 3 levels",
+      "description": "As a developer, I need the brief data structure to support 3 reading levels instead of 4.",
+      "acceptanceCriteria": [
+        "Update Brief type in lib/supabase/client.ts: summaries object has 'simple', 'standard', 'advanced' keys",
+        "Remove any references to 'child', 'teen', 'undergrad', 'postdoc' level keys",
+        "Update any sample brief data to use new 3-level structure",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create reading level selector component",
+      "description": "As a reader, I want to choose between Simple, Standard, and Advanced reading levels.",
+      "acceptanceCriteria": [
+        "Create /app/components/ReadingLevelSelector.tsx",
+        "Display 3 pill buttons: Simple, Standard, Advanced",
+        "Accept 'level' prop and 'onLevelChange' callback",
+        "Selected level has distinct styling (filled vs outline)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Integrate reading level into brief page with URL persistence",
+      "description": "As a reader, I want my reading level choice to persist in the URL.",
+      "acceptanceCriteria": [
+        "Add ReadingLevelSelector to /app/brief/[id]/page.tsx",
+        "Default level is 'standard'",
+        "Level persists in URL query param (?level=simple|standard|advanced)",
+        "Changing level updates URL without page reload (useSearchParams)",
+        "Store level preference in localStorage for return visits",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Display summary based on selected reading level",
+      "description": "As a reader, I want to see the appropriate summary for my selected level.",
+      "acceptanceCriteria": [
+        "Summary section reads from brief.summaries[selectedLevel]",
+        "Switching levels updates summary with fade transition (200ms)",
+        "Summary displays with proper typography (readable line height, max-width 65ch)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create collapsible section component",
+      "description": "As a developer, I need a reusable collapsible section for structured data.",
+      "acceptanceCriteria": [
+        "Create /app/components/CollapsibleSection.tsx",
+        "Props: title, itemCount, defaultExpanded, children",
+        "Header shows title and item count (e.g., 'Factors (12)')",
+        "Chevron icon rotates on expand/collapse",
+        "Smooth 200ms height animation on expand/collapse",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Display structured data sections with smart defaults",
+      "description": "As a reader, I want structured data sections with the most relevant ones expanded by default.",
+      "acceptanceCriteria": [
+        "Display 5 CollapsibleSections on brief page: Definitions, Historical Summary, Factors, Policy Suggestions, Consequences",
+        "Default expansion: Definitions=expanded, Factors=expanded, others=collapsed",
+        "Each section renders appropriate table/content from brief.structured_data",
+        "Tables are responsive (horizontal scroll on mobile)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create citation tooltip component",
+      "description": "As a developer, I need a tooltip component for displaying source details on citation hover.",
+      "acceptanceCriteria": [
+        "Create /app/components/CitationTooltip.tsx",
+        "Props: source (with title, publisher, date, political_lean, credibility_score)",
+        "Displays: title, publisher, date, political lean badge, credibility score",
+        "Political lean uses color coding: Left=blue, Center=gray, Right=red",
+        "Tooltip appears on hover with 100ms delay",
+        "Tooltip has smart positioning (doesn't overflow viewport)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Render narrative with inline citations",
+      "description": "As a reader, I want inline citations that show source details on hover.",
+      "acceptanceCriteria": [
+        "Create /app/components/NarrativeSection.tsx",
+        "Parse narrative text for [n] citation markers",
+        "Render citations as superscript numbers with CitationTooltip",
+        "Clicking citation scrolls to corresponding source in sources section",
+        "Narrative has comfortable reading width (max-w-prose or 65ch)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create sources section display",
+      "description": "As a reader, I want a comprehensive sources section at the bottom of the brief.",
+      "acceptanceCriteria": [
+        "Create /app/components/SourcesSection.tsx",
+        "Display all sources numbered to match inline citations",
+        "Each source shows: title (link), publisher, date, type badge, political lean badge, credibility score bar, excerpt",
+        "Excerpt truncated to 200 chars with 'Show more' expansion",
+        "Section header shows source count (e.g., 'Sources (24)')",
+        "Add id attribute to each source for scroll-to-citation linking",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Create clarity score modal component",
+      "description": "As a reader, I want to see how the clarity score was calculated.",
+      "acceptanceCriteria": [
+        "Create /app/components/ClarityScoreModal.tsx",
+        "Display table with 7 dimensions: First-Principles, Source Diversity, Primary Source Ratio, Logical Completeness, Readability, Recency, User Feedback",
+        "Each row shows: dimension name, weight %, score, contribution",
+        "Include horizontal bar chart visualization for each dimension",
+        "Show 'Strengths' callout (top 2 dimensions) and 'Opportunities' callout (bottom 2)",
+        "Modal closes on backdrop click, X button, or Escape key",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Add clickable clarity score badge to brief header",
+      "description": "As a reader, I want to click the clarity score to see the breakdown.",
+      "acceptanceCriteria": [
+        "Display clarity score badge in brief header (e.g., '8.4/10')",
+        "Badge color: green >= 8, yellow 6-7.9, red < 6",
+        "Clicking badge opens ClarityScoreModal",
+        "Pass brief.clarity_breakdown data to modal",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create share menu component",
+      "description": "As a reader, I want a share menu with multiple sharing options.",
+      "acceptanceCriteria": [
+        "Create /app/components/ShareMenu.tsx",
+        "Share button in brief header opens popover menu",
+        "Options: Copy Link, X/Twitter, LinkedIn, Facebook, Reddit, Email",
+        "Copy Link copies current URL (with reading level param) to clipboard",
+        "Show 'Link copied!' toast on successful copy",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Implement social platform share links",
+      "description": "As a reader, I want to share briefs directly to social platforms.",
+      "acceptanceCriteria": [
+        "X/Twitter: opens tweet composer with title, excerpt (first 100 chars), URL",
+        "LinkedIn: opens share dialog with URL",
+        "Facebook: opens share dialog with URL",
+        "Reddit: opens submit link with title as suggested title",
+        "Email: opens mailto with subject and body containing summary and link",
+        "All links include UTM params (utm_source, utm_medium=social)",
+        "All links open in new tab",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Add Open Graph and Twitter Card meta tags",
+      "description": "As a reader sharing a link, I want social platforms to show rich previews.",
+      "acceptanceCriteria": [
+        "Add generateMetadata function to /app/brief/[id]/page.tsx",
+        "Set og:title (question), og:description (standard summary, 155 chars), og:type (article)",
+        "Set og:url (canonical URL), og:site_name (State of Clarity)",
+        "Set twitter:card (summary_large_image), twitter:title, twitter:description",
+        "Placeholder og:image and twitter:image (static default for now)",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Add save/bookmark brief functionality",
+      "description": "As a logged-in user, I want to save briefs to my collection.",
+      "acceptanceCriteria": [
+        "Add bookmark icon button to brief header",
+        "Button shows filled state if already saved (check saved_briefs table)",
+        "Clicking toggles save state with optimistic UI update",
+        "Create /app/api/briefs/[id]/save/route.ts for POST (save) and DELETE (unsave)",
+        "Unauthenticated users see sign-in prompt on click",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Add reading progress indicator",
+      "description": "As a reader, I want to see my reading progress through the brief.",
+      "acceptanceCriteria": [
+        "Create /app/components/ReadingProgressBar.tsx",
+        "Thin bar (3px) at top of viewport, sticky position",
+        "Width fills based on scroll position through content",
+        "Use brand accent color",
+        "Progress excludes header and footer from calculation",
+        "Integrate into brief page layout",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Assemble complete brief page layout",
+      "description": "As a reader, I want all brief components organized in a cohesive layout.",
+      "acceptanceCriteria": [
+        "Brief page layout order: Header (title, score, share, save), ReadingLevelSelector, Summary, StructuredData sections, NarrativeSection, SourcesSection",
+        "Maximum content width 768px, centered",
+        "Generous whitespace between sections",
+        "ReadingProgressBar visible at top",
+        "All components receive correct props from brief data",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Add print-friendly styling",
+      "description": "As a reader, I want to print briefs for offline reading.",
+      "acceptanceCriteria": [
+        "Add @media print styles to globals.css or brief page",
+        "Print includes: question, summary, all tables, narrative, sources",
+        "Print excludes: navigation, share buttons, interactive elements, progress bar",
+        "Tables fit within page margins",
+        "Sources print with full URLs visible",
+        "Page breaks avoid splitting tables mid-row",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

@@ -1,16 +1,8 @@
 /**
- * Supabase Browser Client
+ * Browser Supabase Client
  *
- * Use in client components (use client directive)
- * Does NOT import next/headers
+ * Re-exports the browser client from the main client module.
+ * This provides a cleaner import path for client components.
  */
 
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "./types";
-
-export function createBrowserClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+export { createBrowserClient } from "./client";
