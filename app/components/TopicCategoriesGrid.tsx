@@ -14,7 +14,7 @@ import {
   Landmark,
   Loader2,
 } from "lucide-react";
-import { createBrowserClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/browser";
 
 interface TopicCategory {
   id: string;
