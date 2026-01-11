@@ -5,19 +5,41 @@ import Link from "next/link";
 
 const COOKIE_CONSENT_KEY = "cookie-consent";
 
+interface ConsentData {
+  value: "accepted" | "declined";
+  timestamp: string;
+}
+
 type ConsentValue = "accepted" | "declined" | null;
 
 function getStoredConsent(): ConsentValue {
   if (typeof window === "undefined") return null;
   const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
-  if (stored === "accepted" || stored === "declined") {
-    return stored;
+  if (!stored) return null;
+  
+  try {
+    const data: ConsentData = JSON.parse(stored);
+    if (data.value === "accepted" || data.value === "declined") {
+      return data.value;
+    }
+  } catch {
+    if (stored === "accepted" || stored === "declined") {
+      return stored;
+    }
   }
   return null;
 }
 
+export function getConsentStatus(): ConsentValue {
+  return getStoredConsent();
+}
+
+export function hasAcceptedCookies(): boolean {
+  return getStoredConsent() === "accepted";
+}
+
 function storeConsent(value: "accepted" | "declined") {
-  const data = {
+  const data: ConsentData = {
     value,
     timestamp: new Date().toISOString(),
   };
