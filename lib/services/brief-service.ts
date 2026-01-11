@@ -6,6 +6,7 @@ export type Brief = Database["public"]["Tables"]["briefs"]["Row"];
 export type BriefUpdate = Database["public"]["Tables"]["briefs"]["Update"];
 
 const BRIEF_CACHE_TTL = 300; // 5 minutes
+const POPULAR_BRIEFS_CACHE_TTL = 600; // 10 minutes
 
 export async function getBriefById(id: string): Promise<Brief | null> {
   return withCache<Brief | null>(
@@ -79,4 +80,26 @@ export async function updateBriefClassification(
   await invalidateCache("briefs:popular");
 
   return data as Brief;
+}
+
+export async function getPopularBriefs(limit: number = 10): Promise<Brief[]> {
+  return withCache<Brief[]>(
+    "briefs:popular",
+    async () => {
+      const supabase = createServiceRoleClient();
+      const { data, error } = await supabase
+        .from("briefs")
+        .select("*")
+        .order("clarity_score", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        throw error;
+      }
+
+      return data ?? [];
+    },
+    POPULAR_BRIEFS_CACHE_TTL
+  );
 }
