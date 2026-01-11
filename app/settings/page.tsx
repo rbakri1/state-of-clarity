@@ -101,6 +101,10 @@ export default function SettingsPage() {
   const [isSavingTopics, setIsSavingTopics] = useState(false);
   const [topicsSaved, setTopicsSaved] = useState(false);
   const topicsSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [emailDigest, setEmailDigest] = useState(false);
+  const [newFeatures, setNewFeatures] = useState(true);
+  const [isSavingNotifications, setIsSavingNotifications] = useState(false);
+  const [notificationsSaved, setNotificationsSaved] = useState(false);
 
   const saveTopicInterests = useCallback(async (interests: string[]) => {
     setIsSavingTopics(true);
@@ -141,6 +145,37 @@ export default function SettingsPage() {
     });
   }, [saveTopicInterests]);
 
+  const handleNotificationToggle = async (
+    field: "notification_email_digest" | "notification_new_features",
+    value: boolean
+  ) => {
+    if (field === "notification_email_digest") {
+      setEmailDigest(value);
+    } else {
+      setNewFeatures(value);
+    }
+
+    setIsSavingNotifications(true);
+    setNotificationsSaved(false);
+
+    try {
+      const response = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      });
+
+      if (response.ok) {
+        setNotificationsSaved(true);
+        setTimeout(() => setNotificationsSaved(false), 2000);
+      }
+    } catch (error) {
+      console.error("Failed to save notification setting:", error);
+    } finally {
+      setIsSavingNotifications(false);
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (topicsSaveTimeoutRef.current) {
@@ -166,13 +201,15 @@ export default function SettingsPage() {
 
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("preferred_reading_level, topic_interests")
+        .select("preferred_reading_level, topic_interests, notification_email_digest, notification_new_features")
         .eq("id", user.id)
         .single();
 
       const profile = profileData as { 
         preferred_reading_level: string | null;
         topic_interests: string[] | null;
+        notification_email_digest: boolean | null;
+        notification_new_features: boolean | null;
       } | null;
       
       if (profile?.preferred_reading_level) {
@@ -180,6 +217,12 @@ export default function SettingsPage() {
       }
       if (profile?.topic_interests) {
         setTopicInterests(profile.topic_interests);
+      }
+      if (profile?.notification_email_digest !== null && profile?.notification_email_digest !== undefined) {
+        setEmailDigest(profile.notification_email_digest);
+      }
+      if (profile?.notification_new_features !== null && profile?.notification_new_features !== undefined) {
+        setNewFeatures(profile.notification_new_features);
       }
 
       setIsLoading(false);
@@ -334,11 +377,81 @@ export default function SettingsPage() {
           icon={<Bell className="w-5 h-5 text-primary" />}
         >
           <div className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-              Control how and when we contact you.
-            </p>
-            <div className="text-sm text-muted-foreground italic">
-              Notification settings coming soon...
+            <div className="flex items-center justify-between">
+              <p className="text-muted-foreground text-sm">
+                Control how and when we contact you.
+              </p>
+              {notificationsSaved && (
+                <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  Saved
+                </span>
+              )}
+              {isSavingNotifications && (
+                <span className="text-xs text-muted-foreground">
+                  Saving...
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                <div>
+                  <span className="text-sm font-medium">Weekly digest of new briefs</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Receive a weekly email with highlights of new briefs on your interested topics
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={emailDigest}
+                  onClick={() => handleNotificationToggle("notification_email_digest", !emailDigest)}
+                  disabled={isSavingNotifications}
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    ${emailDigest ? "bg-primary" : "bg-gray-300 dark:bg-gray-600"}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                      ${emailDigest ? "translate-x-6" : "translate-x-1"}
+                    `}
+                  />
+                </button>
+              </label>
+
+              <label className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                <div>
+                  <span className="text-sm font-medium">New feature announcements</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Be the first to know about new features and improvements
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={newFeatures}
+                  onClick={() => handleNotificationToggle("notification_new_features", !newFeatures)}
+                  disabled={isSavingNotifications}
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                    focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    ${newFeatures ? "bg-primary" : "bg-gray-300 dark:bg-gray-600"}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                      ${newFeatures ? "translate-x-6" : "translate-x-1"}
+                    `}
+                  />
+                </button>
+              </label>
             </div>
           </div>
         </CollapsibleSection>
