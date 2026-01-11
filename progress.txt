@@ -80,3 +80,15 @@ Thread: https://ampcode.com/threads/T-019bae66-6ec8-723d-9df1-39662742c0a5
   - Next.js 14+ uses `params: Promise<{ id: string }>` for dynamic route params (must await)
   - ETag comparison uses exact string match of `"${updated_at}"`
 ---
+
+## Sun 11 Jan 2026 - US-007
+Thread: https://ampcode.com/threads/T-019bae68-5aaa-7607-9ead-35b52d9b9b52
+- Added getPopularBriefs function to /lib/services/brief-service.ts
+- Orders by clarity_score DESC (nulls last), then created_at DESC as secondary sort
+- Uses withCache with key "briefs:popular" and 600 second TTL
+- Created /app/api/briefs/popular/route.ts endpoint
+- Sets Cache-Control: public, s-maxage=300, stale-while-revalidate=600
+- **Learnings for future iterations:**
+  - briefs table has no view_count or upvotes column; clarity_score is used as popularity proxy
+  - Use double .order() calls for primary and secondary sort ordering
+---
