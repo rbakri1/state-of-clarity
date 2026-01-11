@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/client";
 import Anthropic from "@anthropic-ai/sdk";
+import { withErrorHandling } from "@/lib/errors/with-error-handling";
+import { ApiError } from "@/lib/errors/api-error";
+
+export const dynamic = "force-dynamic";
 
 export interface Suggestion {
   text: string;
@@ -8,7 +12,6 @@ export interface Suggestion {
   category?: string;
 }
 
-// US-013: Cache for AI suggestions with TTL
 interface CacheEntry {
   suggestions: Suggestion[];
   expiresAt: number;
@@ -90,7 +93,7 @@ Return ONLY a JSON array of 2 strings, nothing else:
   }
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandling(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim() || "";
 
@@ -100,14 +103,17 @@ export async function GET(request: NextRequest) {
 
   const suggestions: Suggestion[] = [];
 
-  // US-010: Add template-based suggestions (query question_templates with ILIKE)
   const supabase = await createServerSupabaseClient();
-  const { data: templates } = await supabase
+  const { data: templates, error: templatesError } = await supabase
     .from("question_templates")
     .select("question_text, category")
     .ilike("question_text", `%${q}%`)
     .order("display_order")
     .limit(3);
+
+  if (templatesError) {
+    throw ApiError.serviceUnavailable("Failed to fetch question templates");
+  }
 
   if (templates && templates.length > 0) {
     for (const template of templates as {
@@ -122,22 +128,22 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // US-011: Add history-based suggestions (query briefs table)
-  // Only include briefs that exist (treated as published)
-  const { data: historyBriefs } = await supabase
+  const { data: historyBriefs, error: historyError } = await supabase
     .from("briefs")
     .select("question")
     .ilike("question", `%${q}%`)
     .order("created_at", { ascending: false })
-    .limit(5); // Fetch more than needed for deduplication
+    .limit(5);
+
+  if (historyError) {
+    throw ApiError.serviceUnavailable("Failed to fetch brief history");
+  }
 
   if (historyBriefs && historyBriefs.length > 0) {
-    // Get template texts for deduplication
     const templateTexts = new Set(suggestions.map((s) => s.text.toLowerCase()));
 
     let historyCount = 0;
     for (const brief of historyBriefs as { question: string }[]) {
-      // Deduplicate against template results
       if (!templateTexts.has(brief.question.toLowerCase()) && historyCount < 2) {
         suggestions.push({
           text: brief.question,
@@ -148,8 +154,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // US-012: Add AI-generated suggestions if template + history < 4
-  // US-013: Check cache before calling AI
   if (suggestions.length < 4) {
     const cachedAiSuggestions = getCachedSuggestions(q);
     if (cachedAiSuggestions !== null) {
@@ -163,8 +167,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Limit to 6 results total
   const limitedSuggestions = suggestions.slice(0, 6);
 
   return NextResponse.json(limitedSuggestions);
-}
+});

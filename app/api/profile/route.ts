@@ -2,6 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { withErrorHandling } from "@/lib/errors/with-error-handling";
+import { ApiError } from "@/lib/errors/api-error";
 
 function createSupabaseClient() {
   const cookieStore = cookies();
@@ -27,7 +29,7 @@ function createSupabaseClient() {
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const supabase = createSupabaseClient();
 
   const {
@@ -36,7 +38,7 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    throw ApiError.unauthorized();
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -46,10 +48,7 @@ export async function GET() {
     .single();
 
   if (profileError && profileError.code !== "PGRST116") {
-    return NextResponse.json(
-      { error: "Failed to fetch profile" },
-      { status: 500 }
-    );
+    throw ApiError.serviceUnavailable("Failed to fetch profile");
   }
 
   const [briefsResult, savedResult, feedbackResult] = await Promise.all([
@@ -83,9 +82,9 @@ export async function GET() {
       user_metadata: user.user_metadata,
     },
   });
-}
+});
 
-export async function PATCH(request: NextRequest) {
+export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const supabase = createSupabaseClient();
 
   const {
@@ -94,14 +93,14 @@ export async function PATCH(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    throw ApiError.unauthorized();
   }
 
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    throw ApiError.validationError("Invalid JSON body");
   }
 
   const allowedFields = [
@@ -123,10 +122,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (Object.keys(updateData).length === 0) {
-    return NextResponse.json(
-      { error: "No valid fields to update" },
-      { status: 400 }
-    );
+    throw ApiError.validationError("No valid fields to update");
   }
 
   if ("username" in updateData) {
@@ -134,12 +130,9 @@ export async function PATCH(request: NextRequest) {
 
     if (username !== null && typeof username === "string") {
       if (!USERNAME_REGEX.test(username)) {
-        return NextResponse.json(
-          {
-            error:
-              "Username must be 3-20 characters and contain only letters, numbers, and underscores",
-          },
-          { status: 400 }
+        throw ApiError.validationError(
+          "Username must be 3-20 characters and contain only letters, numbers, and underscores",
+          { field: "username" }
         );
       }
 
@@ -151,27 +144,18 @@ export async function PATCH(request: NextRequest) {
         .single();
 
       if (checkError && checkError.code !== "PGRST116") {
-        return NextResponse.json(
-          { error: "Failed to check username availability" },
-          { status: 500 }
-        );
+        throw ApiError.serviceUnavailable("Failed to check username availability");
       }
 
       if (existingUser) {
-        return NextResponse.json(
-          { error: "Username is already taken" },
-          { status: 409 }
-        );
+        throw ApiError.validationError("Username is already taken", { field: "username" });
       }
     }
   }
 
   if ("bio" in updateData && typeof updateData.bio === "string") {
     if (updateData.bio.length > 280) {
-      return NextResponse.json(
-        { error: "Bio must be 280 characters or less" },
-        { status: 400 }
-      );
+      throw ApiError.validationError("Bio must be 280 characters or less", { field: "bio" });
     }
   }
 
@@ -191,20 +175,14 @@ export async function PATCH(request: NextRequest) {
         .single();
 
       if (insertError) {
-        return NextResponse.json(
-          { error: "Failed to create profile" },
-          { status: 500 }
-        );
+        throw ApiError.serviceUnavailable("Failed to create profile");
       }
 
       return NextResponse.json({ profile: newProfile });
     }
 
-    return NextResponse.json(
-      { error: "Failed to update profile" },
-      { status: 500 }
-    );
+    throw ApiError.serviceUnavailable("Failed to update profile");
   }
 
   return NextResponse.json({ profile: updatedProfile });
-}
+});
