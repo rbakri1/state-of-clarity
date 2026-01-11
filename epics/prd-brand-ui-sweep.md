@@ -380,6 +380,7 @@ Comprehensive UI/UX sweep to ensure all user-facing pages match the design syste
 - Reference skills/frontend/design/SKILL.md for design tokens
 - Reference skills/frontend/components/SKILL.md for component patterns
 - Reference skills/frontend/brand/SKILL.md for voice and copy guidelines
+- Reference skills/frontend/tech/SKILL.md for tech stack (Next.js 14, Tailwind, shadcn/ui, Zustand, TanStack Query)
 - Use shadcn/ui components as base, customize with design tokens
 - Use Lucide icons consistently
 

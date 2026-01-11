@@ -1,13 +1,14 @@
 {
   "project": "State of Clarity",
   "branchName": "ralph/brand-ui-sweep",
-  "description": "Brand & UI/UX Sweep - Full design system audit, component implementation, copy review, and polish for all user-facing pages before beta launch",
+  "description": "Brand & UI/UX Sweep - Full design system audit, component implementation, copy review, and polish for all user-facing pages before beta launch. References skills: skills/frontend/brand, skills/frontend/design, skills/frontend/components, skills/frontend/tech",
   "userStories": [
     {
       "id": "US-001",
       "title": "Audit existing UI against design system",
       "description": "As a developer, I need to identify all UI inconsistencies with the design system defined in skills/frontend/design.",
       "acceptanceCriteria": [
+        "READ skills/frontend/design/SKILL.md, skills/frontend/brand/SKILL.md, skills/frontend/components/SKILL.md, skills/frontend/tech/SKILL.md first",
         "Review all pages and components against design/SKILL.md",
         "Check color usage matches Clarity Blue (#0F52BA), Slate palette",
         "Check typography matches Inter font, correct sizes per reading level",
