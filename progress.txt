@@ -1,0 +1,22 @@
+# Ralph Progress Log
+Started: Sun 11 Jan 2026 22:25:49 +04
+
+## Codebase Patterns
+- Use `npm run build` to typecheck the project
+- Vercel KV uses `kv` export from `/lib/cache/kv-client.ts` with automatic fallback to in-memory
+- Cache key format convention: `{resource}:{id}` e.g., `brief:abc123`
+
+---
+
+## Sun 11 Jan 2026 - US-001
+Thread: https://ampcode.com/threads/T-019bae4e-ae00-73d7-bded-6c3376816c72
+- Installed @vercel/kv, tailwindcss-animate, @supabase/ssr packages
+- Created /lib/cache/kv-client.ts with KVClient interface, VercelKVClient, and InMemoryKV fallback
+- Added KV_REST_API_URL and KV_REST_API_TOKEN to .env.example
+- Documented Vercel KV setup in SETUP.md (Step 5)
+- Fixed pre-existing type errors in app/brief/[id]/page.tsx (implicit any types)
+- **Learnings for future iterations:**
+  - The npm install may remove existing packages; always run `npm install` after adding new packages
+  - Main branch has some pre-existing type errors that need fixing
+  - Use explicit type annotations in .map() callbacks when dealing with `any` typed objects
+---
