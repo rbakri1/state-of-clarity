@@ -184,3 +184,42 @@ Thread: https://ampcode.com/threads/T-019babe9-6072-77e5-85bf-e9b9456d8b66
   - Sign out should use form POST for CSRF protection
   - Import createBrowserClient from lib/supabase/browser for client components
 ---
+
+## 2026-01-11 - US-010
+Thread: https://ampcode.com/threads/T-019babec-2c55-761b-b5b4-181ccdbcb402
+- Integrated UserMenu into app/layout.tsx via a new Header component
+- Features:
+  - Created reusable Header component at /app/components/Header.tsx
+  - Header includes logo (links to home), About, Browse Briefs links, and UserMenu
+  - Removed duplicate inline header from homepage (app/page.tsx)
+  - Responsive: About/Browse Briefs links hidden on mobile (hidden sm:block)
+  - UserMenu shows "Sign in" button in top-right when not authenticated
+- Browser verified: Desktop and mobile views both working correctly
+- **Files changed:**
+  - app/components/Header.tsx (new)
+  - app/layout.tsx (modified - imports and renders Header)
+  - app/page.tsx (modified - removed duplicate inline header)
+- **Learnings for future iterations:**
+  - The layout.tsx should contain the shared Header component, not individual pages
+  - When pages have inline headers, remove them after adding the shared Header to layout
+---
+
+## 2026-01-11 - US-011
+Thread: https://ampcode.com/threads/T-019babf6-8561-731c-9473-efbcd2b04b7b
+- Created profile page at /app/profile/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Displays avatar (from profile or user metadata, with User icon fallback)
+  - Shows full name, username (@username), bio, location, member since date
+  - Stats grid: Briefs generated, Briefs saved, Feedback given (counts from database)
+  - "Edit profile" button linking to /profile/edit
+  - Links to Saved Briefs (/profile/saved) and Reading History (/profile/history)
+  - Gradient header banner with profile card overlay
+  - Loading spinner while auth state is being checked
+- **Files changed:**
+  - app/profile/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use parallel Promise.all for fetching multiple counts from database
+  - Fetch user's profile with supabase.from("profiles").select("*").eq("id", user.id).single()
+  - Fall back to user.user_metadata for display name/avatar if profile is not set
+---
