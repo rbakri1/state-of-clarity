@@ -1,321 +1,250 @@
 {
   "project": "State of Clarity",
-  "branchName": "ralph/error-handling",
-  "description": "Error Handling - Sentry integration, error boundaries, retry logic, friendly messages, skeleton states, and graceful degradation",
+  "branchName": "ralph/brief-caching",
+  "description": "Brief Caching & Performance - Vercel KV caching, HTTP cache headers, SWR client-side caching, and query optimization for fast brief loading",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Install and configure Sentry",
-      "description": "As a developer, I need Sentry configured to track errors.",
+      "title": "Install and configure Vercel KV",
+      "description": "As a developer, I need Vercel KV configured so we have a caching backend.",
       "acceptanceCriteria": [
-        "Install @sentry/nextjs package",
-        "Create sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts",
-        "Add SENTRY_DSN to .env.example",
-        "Configure source maps upload in next.config.mjs",
-        "Add withSentryConfig wrapper to next.config.mjs",
-        "Document Sentry setup in SETUP.md",
+        "Install @vercel/kv package",
+        "Add KV_REST_API_URL and KV_REST_API_TOKEN to .env.example",
+        "Create /lib/cache/kv-client.ts that exports kv client",
+        "Add fallback for local development (in-memory Map)",
+        "Document KV setup in SETUP.md",
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Create error boundary wrapper component",
-      "description": "As a developer, I need a reusable error boundary for React components.",
+      "title": "Create cache wrapper utility",
+      "description": "As a developer, I need a reusable wrapper to cache any async function result.",
       "acceptanceCriteria": [
-        "Create /app/components/ErrorBoundary.tsx",
-        "Catch React errors and report to Sentry",
-        "Display fallback UI with friendly message",
-        "Include 'Try again' button that resets error state",
-        "Include 'Show details' toggle for technical info",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /lib/cache/with-cache.ts",
+        "Function signature: withCache<T>(key: string, fn: () => Promise<T>, ttlSeconds: number)",
+        "Check cache first, return cached value if exists",
+        "If miss, execute fn, store result, return it",
+        "Log cache hits/misses with key name",
+        "Handle cache errors gracefully (fall back to direct fetch)",
+        "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Wrap main layout with error boundary",
-      "description": "As a user, I want the app to recover gracefully from crashes.",
+      "title": "Create cache invalidation utility",
+      "description": "As a developer, I need to invalidate cached data when briefs are updated.",
       "acceptanceCriteria": [
-        "Wrap app/layout.tsx children with ErrorBoundary",
-        "Ensure global-error.tsx handles root-level errors",
-        "Verify error shows friendly UI not white screen",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /lib/cache/invalidate.ts",
+        "Function invalidateCache(key: string) deletes single key",
+        "Function invalidatePattern(pattern: string) deletes matching keys",
+        "Log invalidation events",
+        "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Create standardized API error response format",
-      "description": "As a developer, I need consistent error responses from all APIs.",
+      "title": "Cache brief fetches in brief-service",
+      "description": "As a user, I want brief pages to load instantly from cache.",
       "acceptanceCriteria": [
-        "Create /lib/errors/api-error.ts with ApiError class",
-        "ApiError has: statusCode, message, code, details",
-        "Create formatErrorResponse helper function",
-        "Define error codes: UNAUTHORIZED, NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, SERVICE_UNAVAILABLE",
+        "Update getBriefById in /lib/services/brief-service.ts to use withCache",
+        "Cache key format: brief:{id}",
+        "TTL: 300 seconds (5 minutes)",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Create API error handling wrapper",
-      "description": "As a developer, I need centralized error handling for API routes.",
+      "title": "Invalidate brief cache on updates",
+      "description": "As a user, I want to see fresh content after a brief is updated.",
       "acceptanceCriteria": [
-        "Create /lib/errors/with-error-handling.ts",
-        "Higher-order function wrapping API route handlers",
-        "Catch errors and return formatted JSON response",
-        "Log errors to Sentry with context",
-        "Return appropriate HTTP status codes",
+        "Call invalidateCache in updateBriefFromState after successful update",
+        "Call invalidateCache in updateBriefClassification",
+        "Call invalidateCache for briefs:popular when any brief is updated",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Apply error handling to key API routes",
-      "description": "As a developer, I need API routes to use consistent error handling.",
+      "title": "Create brief API endpoint with HTTP caching",
+      "description": "As a user, I want my browser and CDN to cache brief data.",
       "acceptanceCriteria": [
-        "Update /app/api/briefs/[id]/vote/route.ts to use withErrorHandling",
-        "Update /app/api/profile/route.ts to use withErrorHandling",
-        "Update /app/api/questions/suggest/route.ts to use withErrorHandling",
-        "Verify errors return formatted JSON",
+        "Create /app/api/briefs/[id]/route.ts GET endpoint",
+        "Fetch brief using getBriefById (uses server cache)",
+        "Return 404 if brief not found",
+        "Set Cache-Control: public, s-maxage=60, stale-while-revalidate=300",
+        "Set ETag header based on brief.updated_at timestamp",
+        "Return 304 Not Modified if request ETag matches",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Create retry utility with exponential backoff",
-      "description": "As a developer, I need a utility for retrying failed requests.",
+      "title": "Create popular briefs endpoint with aggressive caching",
+      "description": "As a user, I want the homepage to load quickly with popular briefs.",
       "acceptanceCriteria": [
-        "Create /lib/utils/retry.ts",
-        "Function retryWithBackoff(fn, options) with maxRetries, initialDelay, maxDelay",
-        "Exponential backoff: delay doubles each retry",
-        "Add jitter to prevent thundering herd",
-        "Throw after all retries exhausted",
+        "Create getPopularBriefs function in brief-service.ts",
+        "Query briefs ordered by view_count or upvotes, limit 10",
+        "Cache key: briefs:popular, TTL: 600 seconds (10 minutes)",
+        "Create /app/api/briefs/popular/route.ts",
+        "Set Cache-Control: public, s-maxage=300, stale-while-revalidate=600",
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-008",
-      "title": "Create fetch wrapper with auto-retry",
-      "description": "As a developer, I need a fetch wrapper that handles retries.",
+      "title": "Install and configure SWR",
+      "description": "As a developer, I need SWR for client-side data fetching with caching.",
       "acceptanceCriteria": [
-        "Create /lib/utils/fetcher.ts",
-        "Function fetchWithRetry(url, options) using retryWithBackoff",
-        "Auto-retry on network errors and 5xx responses",
-        "Don't retry on 4xx responses",
-        "Log retry attempts",
+        "Install swr package",
+        "Create /lib/swr/fetcher.ts with default fetcher function",
+        "Create /lib/swr/config.ts with global SWR config",
+        "Wrap app in SWRConfig provider in layout.tsx",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-009",
-      "title": "Create user-friendly error message component",
-      "description": "As a user, I want to see helpful error messages.",
+      "title": "Update brief page to use SWR",
+      "description": "As a user, I want brief pages to use client-side caching for instant navigation.",
       "acceptanceCriteria": [
-        "Create /app/components/ErrorMessage.tsx",
-        "Props: title, message, details (optional), onRetry (optional)",
-        "Display friendly icon and message",
-        "Collapsible 'Show technical details' section",
-        "'Try again' button if onRetry provided",
+        "Update /app/brief/[id]/page.tsx to fetch from /api/briefs/[id] using useSWR",
+        "Show skeleton loading state while fetching",
+        "Handle 404 with appropriate error UI",
+        "Handle errors with ErrorMessage component",
+        "Stale data shown immediately while revalidating in background",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-010",
-      "title": "Create error message mapping",
-      "description": "As a developer, I need to map error codes to friendly messages.",
+      "title": "Add cache warming after brief generation",
+      "description": "As a user, I want my newly generated brief to load instantly.",
       "acceptanceCriteria": [
-        "Create /lib/errors/error-messages.ts",
-        "Map error codes to { title, message } objects",
-        "Include: UNAUTHORIZED, NOT_FOUND, RATE_LIMITED, SERVICE_UNAVAILABLE, NETWORK_ERROR",
-        "Provide default fallback for unknown errors",
+        "After brief generation completes, call getBriefById to warm cache",
+        "Log cache warming event",
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-011",
-      "title": "Create loading skeleton components",
-      "description": "As a user, I want to see placeholders while content loads.",
+      "title": "Create cache flush admin endpoint",
+      "description": "As an admin, I need to manually clear cache if stale data is stuck.",
       "acceptanceCriteria": [
-        "Create /app/components/Skeleton.tsx",
-        "Variants: text, paragraph, card, avatar, button",
-        "Animate with subtle pulse effect",
-        "Accept className for custom sizing",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /app/api/admin/cache-flush/route.ts POST endpoint",
+        "Accept body with optional pattern for selective flush",
+        "Require admin authentication",
+        "Return confirmation of flush action",
+        "Log flush event with admin user info",
+        "Typecheck passes"
       ],
       "priority": 11,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-012",
-      "title": "Add skeleton loading state to brief page",
-      "description": "As a user, I want to see loading placeholders on brief page.",
+      "title": "Optimize Supabase client instantiation",
+      "description": "As a developer, I need efficient database connections without creating new clients per request.",
       "acceptanceCriteria": [
-        "Create /app/brief/[id]/loading.tsx",
-        "Skeleton for: header, summary, structured data, narrative",
-        "Match actual page layout structure",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Review getSupabaseClient() in brief-service.ts",
+        "Ensure client is cached/reused across requests (singleton pattern)",
+        "Add connection error handling with retry",
+        "Typecheck passes"
       ],
       "priority": 12,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-013",
-      "title": "Add skeleton loading state to homepage",
-      "description": "As a user, I want to see loading placeholders on homepage.",
+      "title": "Add slow query logging",
+      "description": "As a developer, I need visibility into slow database queries.",
       "acceptanceCriteria": [
-        "Create /app/loading.tsx",
-        "Skeleton for: topic grid, featured briefs",
-        "Match actual page layout",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Update safeQuery in /lib/supabase/safe-query.ts to track query duration",
+        "Log queries taking >1000ms to console with query name",
+        "Report queries taking >2000ms to Sentry as performance issue",
+        "Typecheck passes"
       ],
       "priority": 13,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-014",
-      "title": "Handle Supabase connection errors",
-      "description": "As a user, I want graceful handling when database is unavailable.",
+      "title": "Configure static asset caching",
+      "description": "As a user, I want static assets to load instantly from CDN cache.",
       "acceptanceCriteria": [
-        "Wrap key Supabase queries in try-catch",
-        "On connection error show 'Database temporarily unavailable'",
-        "Log error to Sentry with query context",
-        "Return empty data with error flag instead of crashing",
-        "Apply to brief and profile fetching",
+        "Update next.config.mjs with headers() config",
+        "Set immutable, max-age=31536000 for /_next/static/*",
+        "Set public, max-age=86400 for /images/*",
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-015",
-      "title": "Handle AI API errors",
-      "description": "As a user, I want graceful handling when AI service fails.",
+      "title": "Implement graceful cache degradation",
+      "description": "As a user, I want the app to work even if the cache service is down.",
       "acceptanceCriteria": [
-        "Wrap AI calls in retry logic (3 attempts)",
-        "On persistent failure show 'AI service temporarily unavailable'",
-        "Log error to Sentry with sanitized prompt context",
-        "For suggestions: fall back to template-only results",
-        "For brief generation: show error with retry button",
+        "Update withCache to catch KV connection errors",
+        "On cache error, log to Sentry and proceed with direct fetch",
+        "Never crash the app due to cache failure",
+        "Add isHealthy() check to /lib/cache/kv-client.ts",
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-016",
-      "title": "Handle Stripe API errors",
-      "description": "As a user, I want graceful handling when payment service fails.",
+      "title": "Document caching architecture",
+      "description": "As a developer, I need documentation to understand and extend the caching system.",
       "acceptanceCriteria": [
-        "Wrap Stripe calls in try-catch",
-        "On Stripe down show 'Payment service temporarily unavailable'",
-        "Disable buy buttons when Stripe unreachable",
-        "Log error to Sentry",
-        "Don't expose raw Stripe errors to users",
+        "Create /docs/CACHING.md",
+        "Document cache layers: Browser, CDN, Vercel KV, Supabase",
+        "Document TTL values for each cached resource",
+        "Document cache key naming convention",
+        "Document how to add caching to a new endpoint",
+        "Document cache invalidation strategy",
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-017",
-      "title": "Create service health check endpoint",
-      "description": "As a developer, I need to check if services are healthy.",
-      "acceptanceCriteria": [
-        "Create /app/api/health/route.ts",
-        "Check Supabase connection",
-        "Return { status: 'healthy' | 'degraded' | 'unhealthy', services: {} }",
-        "Cache result for 30 seconds",
-        "Typecheck passes"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-018",
-      "title": "Add user context to Sentry errors",
-      "description": "As a developer, I need user context in Sentry errors.",
-      "acceptanceCriteria": [
-        "On user login call Sentry.setUser({ id, email })",
-        "On logout call Sentry.setUser(null)",
-        "Add custom tags: environment, version",
-        "Typecheck passes"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-019",
-      "title": "Create 404 not found page",
-      "description": "As a user, I want a friendly 404 page.",
-      "acceptanceCriteria": [
-        "Create /app/not-found.tsx",
-        "Display: 'Page not found' message",
-        "Include 'Go home' button",
-        "Match site styling",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 19,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-020",
-      "title": "Create offline detection banner",
-      "description": "As a user, I want to know when I'm offline.",
-      "acceptanceCriteria": [
-        "Create /app/components/OfflineBanner.tsx",
-        "Use navigator.onLine and online/offline events",
-        "Show banner at top when offline",
-        "Message: 'You're offline. Some features may be unavailable.'",
-        "Auto-hide when back online",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 20,
-      "passes": true,
+      "passes": false,
       "notes": ""
     }
   ]
