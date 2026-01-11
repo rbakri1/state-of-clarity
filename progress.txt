@@ -31,3 +31,14 @@ Thread: https://ampcode.com/threads/T-019bae54-24f7-76e8-b9cc-fcd76b72026c
   - Use `withCache(key, fn, ttlSeconds)` pattern to wrap any async operation
   - Cache errors are logged but never block the main operation
 ---
+
+## Sun 11 Jan 2026 - US-003
+Thread: https://ampcode.com/threads/T-019bae55-50ee-7206-b48b-b8bb74a66687
+- Created /lib/cache/invalidate.ts with invalidateCache and invalidatePattern functions
+- invalidateCache(key) deletes a single key and logs the event
+- invalidatePattern(pattern) finds keys matching pattern and deletes them all
+- All errors are caught and logged, never thrown (consistent with with-cache.ts)
+- **Learnings for future iterations:**
+  - Use `invalidateCache('brief:${id}')` to clear a specific brief cache
+  - Use `invalidatePattern('brief:*')` to clear all brief caches
+---
