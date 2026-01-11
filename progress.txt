@@ -112,4 +112,16 @@ Thread: https://ampcode.com/threads/T-019baebf-4dc3-760b-bc5c-04db16911d83
   - Next.js security headers are configured in next.config.mjs async headers() function
   - Use `/:path*` source pattern to apply headers to all routes
   - Use curl -I to quickly verify response headers without needing browser automation
+- Zod validation schemas live in /lib/validation/ directory
+---
+
+## Mon 12 Jan 2026 - US-008
+Thread: https://ampcode.com/threads/T-019baec6-4055-75cc-9127-0210de3ca780
+- Created /lib/validation/brief-schemas.ts with Zod validation schemas
+- Schemas: briefIdSchema (UUID validation), createBriefSchema, updateBriefSchema, popularBriefsQuerySchema
+- Exported inferred TypeScript types from all schemas
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Zod validation schemas live in /lib/validation/ directory
+  - Use z.coerce for query params that come as strings but should be numbers
 ---

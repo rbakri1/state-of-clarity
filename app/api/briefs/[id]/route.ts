@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBriefById } from "@/lib/services/brief-service";
+import { briefIdSchema } from "@/lib/validation/brief-schemas";
 
 export async function GET(
   request: NextRequest,
@@ -7,7 +8,15 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const brief = await getBriefById(id);
+  const validationResult = briefIdSchema.safeParse(id);
+  if (!validationResult.success) {
+    return NextResponse.json(
+      { error: validationResult.error.errors[0].message },
+      { status: 400 }
+    );
+  }
+
+  const brief = await getBriefById(validationResult.data);
 
   if (!brief) {
     return NextResponse.json({ error: "Brief not found" }, { status: 404 });
