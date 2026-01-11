@@ -125,3 +125,15 @@ Thread: https://ampcode.com/threads/T-019baec6-4055-75cc-9127-0210de3ca780
   - Zod validation schemas live in /lib/validation/ directory
   - Use z.coerce for query params that come as strings but should be numbers
 ---
+
+## Mon 12 Jan 2026 - US-009
+Thread: https://ampcode.com/threads/T-019baec8-5a84-741b-80d5-f7cecc3ab0fa
+- Applied Zod validation to /app/api/briefs/[id]/route.ts - validates UUID format for id param
+- Applied Zod validation to /app/api/briefs/popular/route.ts - validates limit query param
+- Both endpoints return 400 Bad Request with clear error message on validation failure
+- Uses safeParse for non-throwing validation
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Currently no POST/PUT brief API endpoints - briefs are created via internal service functions
+  - Validation pattern: use safeParse, check success, return 400 with error.errors[0].message
+---

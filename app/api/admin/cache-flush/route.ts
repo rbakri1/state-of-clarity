@@ -2,17 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/auth/middleware";
 import { invalidateCache, invalidatePattern } from "@/lib/cache/invalidate";
 import { kv } from "@/lib/cache/kv-client";
+import { cacheFlushSchema } from "@/lib/validation/admin-schemas";
 
 export const POST = withAdmin(async (req: NextRequest, { user }) => {
-  let body: { pattern?: string } = {};
+  let rawBody: unknown = {};
   
   try {
-    body = await req.json();
+    rawBody = await req.json();
   } catch {
-    // Empty body is allowed
+    // Empty body is allowed - will use defaults
   }
 
-  const { pattern } = body;
+  const parsed = cacheFlushSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: "Invalid request body",
+        details: parsed.error.errors[0].message,
+      },
+      { status: 400 }
+    );
+  }
+
+  const { pattern } = parsed.data;
   let keysCleared = 0;
   let message: string;
 
