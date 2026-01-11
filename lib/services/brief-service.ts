@@ -9,6 +9,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { QuestionClassification } from "../types/classification";
 import type { BriefState, StructureOutput, NarrativeOutput, SummaryOutputs, ClarityScore } from "../agents/langgraph-orchestrator";
 import type { Source } from "../agents/research-agent";
+import { safeQuery, type SafeQueryResult } from "../supabase/safe-query";
 
 export interface BriefRecord {
   id: string;
@@ -182,22 +183,22 @@ export async function saveBriefSources(
 }
 
 /**
- * Get a brief by ID
+ * Get a brief by ID with safe error handling
  */
-export async function getBriefById(briefId: string): Promise<{ data: BriefRecord | null; error: Error | null }> {
+export async function getBriefById(briefId: string): Promise<SafeQueryResult<BriefRecord>> {
   const supabase = getSupabaseClient();
 
-  const { data, error } = await (supabase.from("briefs") as any)
-    .select("*")
-    .eq("id", briefId)
-    .single();
-
-  if (error) {
-    console.error("[BriefService] Error fetching brief:", error);
-    return { data: null, error: new Error(error.message) };
-  }
-
-  return { data: data as BriefRecord, error: null };
+  return safeQuery<BriefRecord>(
+    () => (supabase.from("briefs") as any)
+      .select("*")
+      .eq("id", briefId)
+      .single(),
+    {
+      queryName: "getBriefById",
+      table: "briefs",
+      briefId,
+    }
+  );
 }
 
 /**

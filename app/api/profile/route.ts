@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { withErrorHandling } from "@/lib/errors/with-error-handling";
 import { ApiError } from "@/lib/errors/api-error";
+import { safeQuery } from "@/lib/supabase/safe-query";
 
 function createSupabaseClient() {
   const cookieStore = cookies();
@@ -41,36 +42,36 @@ export const GET = withErrorHandling(async () => {
     throw ApiError.unauthorized();
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const profileResult = await safeQuery(
+    () => supabase.from("profiles").select("*").eq("id", user.id).single(),
+    { queryName: "getProfile", table: "profiles", userId: user.id }
+  );
 
-  if (profileError && profileError.code !== "PGRST116") {
-    throw ApiError.serviceUnavailable("Failed to fetch profile");
+  if (profileResult.isConnectionError) {
+    throw ApiError.serviceUnavailable("Database temporarily unavailable");
   }
 
   const [briefsResult, savedResult, feedbackResult] = await Promise.all([
-    supabase
-      .from("briefs")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id),
-    supabase
-      .from("saved_briefs")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id),
-    supabase
-      .from("feedback")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id),
+    safeQuery(
+      () => supabase.from("briefs").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      { queryName: "countBriefs", table: "briefs", userId: user.id }
+    ),
+    safeQuery(
+      () => supabase.from("saved_briefs").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      { queryName: "countSavedBriefs", table: "saved_briefs", userId: user.id }
+    ),
+    safeQuery(
+      () => supabase.from("feedback").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      { queryName: "countFeedback", table: "feedback", userId: user.id }
+    ),
   ]);
 
   const stats = {
-    briefs_generated: briefsResult.count ?? 0,
-    briefs_saved: savedResult.count ?? 0,
-    feedback_count: feedbackResult.count ?? 0,
+    briefs_generated: (briefsResult.data as { count: number } | null)?.count ?? 0,
+    briefs_saved: (savedResult.data as { count: number } | null)?.count ?? 0,
+    feedback_count: (feedbackResult.data as { count: number } | null)?.count ?? 0,
   };
+  const profile = profileResult.data;
 
   return NextResponse.json({
     profile: profile ?? null,
@@ -136,18 +137,16 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
         );
       }
 
-      const { data: existingUser, error: checkError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", username)
-        .neq("id", user.id)
-        .single();
+      const usernameCheck = await safeQuery(
+        () => supabase.from("profiles").select("id").eq("username", username).neq("id", user.id).single(),
+        { queryName: "checkUsername", table: "profiles", userId: user.id }
+      );
 
-      if (checkError && checkError.code !== "PGRST116") {
-        throw ApiError.serviceUnavailable("Failed to check username availability");
+      if (usernameCheck.isConnectionError) {
+        throw ApiError.serviceUnavailable("Database temporarily unavailable");
       }
 
-      if (existingUser) {
+      if (usernameCheck.data) {
         throw ApiError.validationError("Username is already taken", { field: "username" });
       }
     }
@@ -159,30 +158,27 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
     }
   }
 
-  const { data: updatedProfile, error: updateError } = await supabase
-    .from("profiles")
-    .update(updateData)
-    .eq("id", user.id)
-    .select()
-    .single();
+  const updateResult = await safeQuery(
+    () => supabase.from("profiles").update(updateData).eq("id", user.id).select().single(),
+    { queryName: "updateProfile", table: "profiles", userId: user.id }
+  );
 
-  if (updateError) {
-    if (updateError.code === "PGRST116") {
-      const { data: newProfile, error: insertError } = await supabase
-        .from("profiles")
-        .insert({ id: user.id, ...updateData })
-        .select()
-        .single();
-
-      if (insertError) {
-        throw ApiError.serviceUnavailable("Failed to create profile");
-      }
-
-      return NextResponse.json({ profile: newProfile });
-    }
-
-    throw ApiError.serviceUnavailable("Failed to update profile");
+  if (updateResult.isConnectionError) {
+    throw ApiError.serviceUnavailable("Database temporarily unavailable");
   }
 
-  return NextResponse.json({ profile: updatedProfile });
+  if (updateResult.error && !updateResult.data) {
+    const insertResult = await safeQuery(
+      () => supabase.from("profiles").insert({ id: user.id, ...updateData }).select().single(),
+      { queryName: "insertProfile", table: "profiles", userId: user.id }
+    );
+
+    if (insertResult.isConnectionError || insertResult.error) {
+      throw ApiError.serviceUnavailable("Database temporarily unavailable");
+    }
+
+    return NextResponse.json({ profile: insertResult.data });
+  }
+
+  return NextResponse.json({ profile: updateResult.data });
 });

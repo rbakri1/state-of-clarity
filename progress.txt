@@ -7,6 +7,8 @@ Started: Sun 11 Jan 2026 17:31:07 +04
 - Use "use client" directive for components with useState or interactivity
 - No cn utility - use template literals for className concatenation: `${base} ${custom}`
 - Use Tailwind animate-pulse for skeleton/loading states
+- Use `safeQuery` from lib/supabase/safe-query.ts for Supabase queries with error handling
+- Supabase query functions use PromiseLike (not Promise) for type compatibility with PostgrestBuilder
 ---
 
 ## 2026-01-11 17:35 - US-009
@@ -58,4 +60,32 @@ Thread: https://ampcode.com/threads/T-019bad48-5423-748c-98b5-e20682f37d5c
   - Next.js app router loading.tsx files are automatically used during Suspense boundaries
   - Match skeleton layout closely to actual page to minimize layout shift
   - Use Skeleton variant="card" for grid items like sources
+---
+
+## 2026-01-11 19:55 - US-013
+Thread: https://ampcode.com/threads/T-019bad4d-f67c-7471-bc50-ba184c54dea2
+- Created homepage loading skeleton at /app/loading.tsx
+- Skeletons for: header, hero section, search input, 3 feature cards, 3 showcase brief cards, footer
+- Matches page.tsx layout structure exactly
+- Uses existing Skeleton component with appropriate variants and sizing
+- Files changed: app/loading.tsx
+- **Learnings for future iterations:**
+  - Homepage has 5 main sections: header, hero, features grid, showcase briefs grid, footer
+  - Use Array.from({ length: N }) for generating repeated skeleton elements in grids
+  - Match skeleton dimensions to actual content (e.g., h-12 for titles, h-6 for subtitles)
+---
+
+## 2026-01-11 20:30 - US-014
+Thread: https://ampcode.com/threads/T-019bad51-20fb-7411-8faf-b0708ffd286a
+- Created safeQuery utility at /lib/supabase/safe-query.ts
+- Wraps Supabase queries with try-catch, logs to Sentry with query context
+- Returns SafeQueryResult with data, error, and isConnectionError flag
+- Detects connection errors by error codes and message keywords
+- Updated getBriefById in brief-service.ts to use safeQuery
+- Updated profile API route to use safeQuery for all database queries
+- Files changed: lib/supabase/safe-query.ts, lib/services/brief-service.ts, app/api/profile/route.ts
+- **Learnings for future iterations:**
+  - Use PromiseLike instead of Promise for Supabase query function types (PostgrestBuilder compatibility)
+  - SafeQueryResult.isConnectionError distinguishes database-down from other errors
+  - Sentry.captureException with tags and extra context for better error tracking
 ---
