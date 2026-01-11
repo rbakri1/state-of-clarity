@@ -62,6 +62,59 @@ export function withAuth(handler: AuthenticatedHandler) {
 }
 
 /**
+ * Wrap API routes to require admin authentication
+ */
+export function withAdmin(handler: AuthenticatedHandler) {
+  return async (req: NextRequest, context?: any) => {
+    const supabase = await createServerSupabaseClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "You must be logged in to access this resource",
+        },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is admin via role or email list
+    const adminEmails = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    const isAdmin =
+      user.role === "admin" ||
+      (user.email && adminEmails.includes(user.email.toLowerCase()));
+
+    if (!isAdmin) {
+      return NextResponse.json(
+        {
+          error: "Forbidden",
+          message: "Admin access required",
+        },
+        { status: 403 }
+      );
+    }
+
+    return handler(req, {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      params: context?.params,
+    });
+  };
+}
+
+/**
  * Optional authentication (user may or may not be logged in)
  */
 export type OptionalAuthHandler = (

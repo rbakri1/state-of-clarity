@@ -32,14 +32,27 @@ This will install all required packages including Next.js, React, Tailwind CSS, 
    cp .env.example .env.local
    ```
 
-2. Open `.env.local` and add your API keys:
-   ```env
-   ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
+2. Open `.env.local` and configure the required environment variables:
 
-**Note**: For the MVP, you only need the Anthropic API key. Supabase and other services can be added later.
+### Required Variables
+
+| Variable | Description | Where to Get It |
+|----------|-------------|-----------------|
+| `ANTHROPIC_API_KEY` | API key for Claude (brief generation, analysis) | [console.anthropic.com](https://console.anthropic.com/) |
+| `TAVILY_API_KEY` | API key for research agent (source discovery) | [tavily.com](https://tavily.com/) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | [supabase.com](https://supabase.com/) dashboard |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key | Supabase dashboard > Settings > API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (for admin ops) | Supabase dashboard > Settings > API |
+
+### Optional Variables
+
+| Variable | Description | When Needed |
+|----------|-------------|-------------|
+| `KV_REST_API_URL` | Vercel KV cache URL | Production caching |
+| `KV_REST_API_TOKEN` | Vercel KV auth token | Production caching |
+| `ADMIN_EMAILS` | Comma-separated admin emails | Admin access control |
+
+**Note**: For initial development, an in-memory cache is used automatically if Vercel KV is not configured.
 
 ---
 
@@ -69,92 +82,25 @@ Click on any showcase brief (e.g., "UK 4-Day Work Week") to see the full brief v
 
 ---
 
-## Step 5: Configure OAuth Providers (Optional)
+## Step 5: Set Up Vercel KV (Optional - for production caching)
 
-### Google OAuth Setup
+Vercel KV provides server-side caching for faster brief loading. **In local development, an in-memory cache is used automatically** so you don't need to configure this for development.
 
-To enable "Continue with Google" sign-in:
+### For Production:
 
-1. **Create Google OAuth Credentials**:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select an existing one
-   - Navigate to **APIs & Services > Credentials**
-   - Click **Create Credentials > OAuth client ID**
-   - Select **Web application** as the application type
-   - Add authorized redirect URIs:
-     - For development: `http://localhost:3000/auth/callback`
-     - For production: `https://your-domain.com/auth/callback`
-     - Supabase callback: `https://your-project.supabase.co/auth/v1/callback`
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
+2. Navigate to **Storage > KV**
+3. Click **Create Database**
+4. Give it a name (e.g., `state-of-clarity-cache`)
+5. Copy the connection details to your `.env.local`:
+   ```env
+   KV_REST_API_URL=https://your-kv-store.kv.vercel-storage.com
+   KV_REST_API_TOKEN=your-token-here
+   ```
 
-2. **Configure Supabase**:
-   - Go to your [Supabase Dashboard](https://app.supabase.com/)
-   - Navigate to **Authentication > Providers**
-   - Enable **Google**
-   - Enter your **Client ID** and **Client Secret** from Google Cloud Console
-   - Save the configuration
-
-3. **Update Authorized Domains** (if needed):
-   - In Google Cloud Console, go to **OAuth consent screen**
-   - Add your production domain to **Authorized domains**
-
-**Note**: Google OAuth requires HTTPS in production. It works on `localhost` for development.
-
-### Apple OAuth Setup
-
-To enable "Continue with Apple" sign-in:
-
-1. **Apple Developer Account Requirements**:
-   - You need an [Apple Developer Program](https://developer.apple.com/programs/) membership ($99/year)
-   - Apple Sign In is not available on free developer accounts
-
-2. **Create an App ID**:
-   - Go to [Apple Developer Portal](https://developer.apple.com/account/)
-   - Navigate to **Certificates, Identifiers & Profiles > Identifiers**
-   - Click **+** to create a new identifier
-   - Select **App IDs** and click **Continue**
-   - Select **App** as the type
-   - Enter a description and Bundle ID (e.g., `com.stateofclarity.app`)
-   - Under **Capabilities**, enable **Sign in with Apple**
-   - Click **Register**
-
-3. **Create a Services ID**:
-   - Go to **Identifiers** and click **+**
-   - Select **Services IDs** and click **Continue**
-   - Enter a description (e.g., "State of Clarity Web")
-   - Enter an identifier (e.g., `com.stateofclarity.web`)
-   - Click **Register**
-   - Click on the newly created Services ID to edit it
-   - Enable **Sign in with Apple** and click **Configure**
-   - Set the Primary App ID to the App ID created above
-   - Add domains:
-     - Domain: `your-project.supabase.co` (your Supabase project domain)
-     - Return URL: `https://your-project.supabase.co/auth/v1/callback`
-   - For development, also add:
-     - Domain: `localhost`
-     - Return URL: `http://localhost:3000/auth/callback`
-   - Click **Save**
-
-4. **Create a Private Key**:
-   - Go to **Keys** and click **+**
-   - Enter a name (e.g., "State of Clarity Auth Key")
-   - Enable **Sign in with Apple** and click **Configure**
-   - Select the Primary App ID created above
-   - Click **Register** and then **Download** the key file
-   - **Important**: Save this key securely – you can only download it once
-   - Note the **Key ID** displayed on the page
-
-5. **Configure Supabase**:
-   - Go to your [Supabase Dashboard](https://app.supabase.com/)
-   - Navigate to **Authentication > Providers**
-   - Enable **Apple**
-   - Enter the following:
-     - **Services ID**: The Services ID identifier (e.g., `com.stateofclarity.web`)
-     - **Secret Key**: The contents of the downloaded `.p8` key file
-     - **Key ID**: The Key ID from the Apple Developer Portal
-     - **Team ID**: Found in the top-right of Apple Developer Portal (10-character code)
-   - Save the configuration
-
-**Note**: Apple Sign In requires HTTPS for redirect URLs in production. It may work with `localhost` during development, but some features may be limited.
+The cache client in `/lib/cache/kv-client.ts` will automatically use:
+- **Vercel KV** when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set
+- **In-memory cache** as a fallback for local development
 
 ---
 
@@ -339,121 +285,6 @@ State of Clarity _ Claude/
 ├── package.json                     # Dependencies
 └── tsconfig.json                    # TypeScript config
 ```
-
----
-
-## Step 7: Set Up Vercel KV (Caching)
-
-Vercel KV provides Redis-based caching for fast brief loading. It's optional for local development (an in-memory fallback is used).
-
-### 1. Create Vercel KV Store
-
-1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
-2. Select your project (or create one)
-3. Navigate to **Storage** tab
-4. Click **Create Database** and select **KV**
-5. Follow the setup wizard to create your KV store
-
-### 2. Get Connection Details
-
-1. After creation, go to your KV store settings
-2. Copy the connection details:
-   - **KV_REST_API_URL**: Your KV store endpoint
-   - **KV_REST_API_TOKEN**: Authentication token
-
-### 3. Add to Environment Variables
-
-Add to `.env.local`:
-```env
-KV_REST_API_URL=https://your-kv.kv.vercel-storage.com
-KV_REST_API_TOKEN=your-kv-token-here
-```
-
-### 4. Local Development
-
-For local development, you can skip this step. The app will automatically use an in-memory cache when KV environment variables are not set.
-
----
-
-## Step 8: Set Up Stripe Payments
-
-State of Clarity uses Stripe for credit purchases. Follow these steps to configure Stripe:
-
-### 1. Create Stripe Account
-
-1. Sign up at [Stripe Dashboard](https://dashboard.stripe.com/)
-2. Complete account verification (can use test mode initially)
-
-### 2. Get API Keys
-
-1. Go to **Developers > API Keys** in Stripe Dashboard
-2. Copy the **Publishable key** (starts with `pk_test_` or `pk_live_`)
-3. Copy the **Secret key** (starts with `sk_test_` or `sk_live_`)
-4. Add to `.env.local`:
-   ```env
-   STRIPE_SECRET_KEY=sk_test_your-key-here
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-key-here
-   ```
-
-### 3. Create Products and Prices
-
-Create 4 products in Stripe Dashboard (**Products > Add Product**):
-
-| Product Name | Price (GBP) | Type       |
-|--------------|-------------|------------|
-| Single       | £0.65       | One-time   |
-| Starter      | £6.00       | One-time   |
-| Standard     | £28.00      | One-time   |
-| Pro          | £52.00      | One-time   |
-
-For each product:
-1. Create the product with the name above
-2. Add a one-time price in GBP
-3. Copy the **Price ID** (starts with `price_`)
-4. Update the `stripe_price_id` in your `credit_packages` database table
-
-### 4. Set Up Webhooks
-
-1. Go to **Developers > Webhooks** in Stripe Dashboard
-2. Click **Add endpoint**
-3. Enter your endpoint URL: `https://your-domain.com/api/webhooks/stripe`
-4. Select events to listen for:
-   - `checkout.session.completed`
-   - `payment_intent.payment_failed`
-5. Copy the **Signing secret** (starts with `whsec_`)
-6. Add to `.env.local`:
-   ```env
-   STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret-here
-   ```
-
-### 5. Local Webhook Testing
-
-For local development, use the Stripe CLI:
-
-```bash
-# Install Stripe CLI
-brew install stripe/stripe-cli/stripe
-
-# Login to your Stripe account
-stripe login
-
-# Forward webhooks to local server
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
-```
-
-The CLI will display a webhook signing secret for local testing - use this for `STRIPE_WEBHOOK_SECRET` during development.
-
-### 6. Test Cards
-
-Use these test card numbers in test mode:
-
-| Card Number         | Result                    |
-|---------------------|---------------------------|
-| 4242 4242 4242 4242 | Successful payment        |
-| 4000 0000 0000 9995 | Declined (insufficient)   |
-| 4000 0000 0000 0002 | Card declined             |
-
-Use any future expiry date, any 3-digit CVC, and any postal code.
 
 ---
 

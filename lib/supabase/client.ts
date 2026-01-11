@@ -516,18 +516,61 @@ export async function createServerSupabaseClient() {
 /**
  * Service Role Client (for admin operations, bypasses RLS)
  * NEVER expose to client! Only use in server-side code.
+ * Uses singleton pattern to reuse client across requests.
  */
+let serviceRoleClientInstance: ReturnType<typeof createClient<Database>> | null = null;
+
 export function createServiceRoleClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
+  if (!serviceRoleClientInstance) {
+    serviceRoleClientInstance = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
+  }
+  return serviceRoleClientInstance;
+}
+
+/**
+ * Execute a database query with retry logic for connection errors.
+ * Retries up to 3 times with exponential backoff.
+ */
+export async function withRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelayMs: number = 100
+): Promise<T> {
+  let lastError: Error | undefined;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      
+      const isConnectionError = 
+        lastError.message.includes("fetch failed") ||
+        lastError.message.includes("network") ||
+        lastError.message.includes("ECONNREFUSED") ||
+        lastError.message.includes("ETIMEDOUT") ||
+        lastError.message.includes("socket hang up");
+      
+      if (!isConnectionError || attempt === maxRetries - 1) {
+        throw lastError;
+      }
+      
+      const delayMs = baseDelayMs * Math.pow(2, attempt);
+      console.log(`[Supabase] Connection error, retrying in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
     }
-  );
+  }
+  
+  throw lastError;
 }
 
 /**

@@ -3,6 +3,7 @@
  *
  * Provides functions for creating, updating, and retrieving briefs.
  * Handles saving classification data and other brief metadata to the database.
+ * Includes caching with automatic cache warming and invalidation.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -11,6 +12,7 @@ import type { BriefState, StructureOutput, NarrativeOutput, SummaryOutputs, Clar
 import type { Source } from "../agents/research-agent";
 import { safeQuery, type SafeQueryResult } from "../supabase/safe-query";
 import { withCache } from "../cache/with-cache";
+import { invalidateCache } from "../cache/invalidate";
 
 export interface BriefRecord {
   id: string;
@@ -35,6 +37,9 @@ export interface BriefRecord {
   };
   fork_of: string | null;
 }
+
+const BRIEF_CACHE_TTL = 300; // 5 minutes
+const POPULAR_BRIEFS_CACHE_TTL = 600; // 10 minutes
 
 function getSupabaseClient() {
   return createClient(
@@ -67,6 +72,10 @@ export async function createBrief(
   }
 
   console.log(`[BriefService] Created brief with ID: ${data.id}`);
+
+  // Warm the cache for the newly created brief
+  await warmBriefCache(data.id);
+
   return { id: data.id, error: null };
 }
 
@@ -89,6 +98,9 @@ export async function updateBriefClassification(
     console.error("[BriefService] Error updating classification:", error);
     return { error: new Error(error.message) };
   }
+
+  // Invalidate cache after update
+  await invalidateCache(`brief:${briefId}`);
 
   console.log(`[BriefService] Classification saved successfully for brief ${briefId}`);
   return { error: null };
@@ -141,6 +153,10 @@ export async function updateBriefFromState(
     return { error: new Error(error.message) };
   }
 
+  // Invalidate caches after update
+  await invalidateCache(`brief:${briefId}`);
+  await invalidateCache("briefs:popular");
+
   console.log(`[BriefService] Brief ${briefId} updated successfully`);
   return { error: null };
 }
@@ -190,7 +206,6 @@ export async function saveBriefSources(
  */
 export async function getBriefById(briefId: string): Promise<SafeQueryResult<BriefRecord>> {
   const cacheKey = `brief:${briefId}`;
-  const TTL_SECONDS = 300;
 
   return withCache<SafeQueryResult<BriefRecord>>(
     cacheKey,
@@ -208,8 +223,46 @@ export async function getBriefById(briefId: string): Promise<SafeQueryResult<Bri
         }
       );
     },
-    TTL_SECONDS
+    BRIEF_CACHE_TTL
   );
+}
+
+/**
+ * Get popular briefs with caching
+ */
+export async function getPopularBriefs(limit: number = 10): Promise<SafeQueryResult<BriefRecord[]>> {
+  return withCache<SafeQueryResult<BriefRecord[]>>(
+    "briefs:popular",
+    async () => {
+      const supabase = getSupabaseClient();
+      return safeQuery<BriefRecord[]>(
+        () => (supabase.from("briefs") as any)
+          .select("*")
+          .order("clarity_score", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false })
+          .limit(limit),
+        {
+          queryName: "getPopularBriefs",
+          table: "briefs",
+        }
+      );
+    },
+    POPULAR_BRIEFS_CACHE_TTL
+  );
+}
+
+/**
+ * Warm the cache for a specific brief after creation or update.
+ * This ensures the brief is immediately available from cache.
+ */
+export async function warmBriefCache(briefId: string): Promise<void> {
+  console.log(`[Cache Warming] Warming cache for brief:${briefId}`);
+  try {
+    await getBriefById(briefId);
+    console.log(`[Cache Warming] Successfully warmed cache for brief:${briefId}`);
+  } catch (error) {
+    console.error(`[Cache Warming] Failed to warm cache for brief:${briefId}:`, error);
+  }
 }
 
 /**
@@ -250,6 +303,12 @@ export async function completeBriefGeneration(
       })
       .eq("id", briefId);
   }
+
+  // Warm cache after generation completes
+  await warmBriefCache(briefId);
+
+  // Invalidate popular briefs since rankings may have changed
+  await invalidateCache("briefs:popular");
 
   console.log(`[BriefService] Brief generation completed for ${briefId}`);
   return { error: null };

@@ -1,33 +1,14 @@
 /**
- * Browser-specific Supabase client and types
- * This file should ONLY contain client-safe code (no next/headers imports)
+ * Browser-only Supabase Client
+ * 
+ * Use this in client components (with "use client" directive).
+ * This file is separate from client.ts to avoid importing server-only modules.
  */
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
-// Reading level types for profile preferences
-export type ReadingLevel = "simple" | "standard" | "advanced";
-
-// Notification preferences structure
-export interface NotificationPreferences {
-  email: boolean;
-  push: boolean;
-}
-
-// Simplified Database type for browser usage
-// Full type is in client.ts, but we keep a minimal version here to avoid circular imports
-interface Database {
-  public: {
-    Tables: Record<string, unknown>;
-  };
-}
-
-/**
- * Browser Client
- * Use in client components (use client directive)
- */
-export function createBrowserClient(): SupabaseClient<Database> {
-  return createClient<Database>(
+export function createBrowserClient() {
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
