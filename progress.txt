@@ -304,3 +304,37 @@ Thread: https://ampcode.com/threads/T-019bac04-5c3a-727c-9176-e129158d6ddb
   - Collapsible sections pattern: useState for isOpen, toggle on button click
   - Protected route pattern is consistent: check auth in useEffect, redirect if not authenticated
 ---
+
+## 2026-01-11 - US-016
+Thread: https://ampcode.com/threads/T-019bac09-68eb-74ff-b928-2f75c92b39cf
+- Added reading preferences dropdown to settings page
+- Features:
+  - Preferred Reading Level dropdown (Simple/Standard/Advanced)
+  - Auto-save on change with "Saving..." indicator
+  - Green checkmark "Saved" confirmation for 2 seconds
+  - Fetches current preference on page load
+  - Calls profile PATCH API to persist changes
+- Fixed Supabase type issue using explicit type assertion pattern from progress.txt
+- **Files changed:**
+  - app/settings/page.tsx (modified - added reading level dropdown)
+- **Learnings for future iterations:**
+  - Use explicit type assertion for Supabase query results: `const profile = profileData as { field: type | null } | null`
+---
+
+## 2026-01-11 - US-017
+Thread: https://ampcode.com/threads/T-019bac0c-52d8-7388-8990-a45dc6b3f096
+- Added Topic Interests section to settings page
+- Features:
+  - 10 category chips matching TopicCategoriesGrid categories
+  - Toggleable chips with visual feedback (filled/outlined)
+  - Debounced auto-save (500ms) using useRef timeout
+  - "Saving..." and "Saved" indicators
+  - Fetches existing topic_interests on page load
+  - Persists to profiles.topic_interests array via PATCH API
+- Icons imported from lucide-react for each category
+- **Files changed:**
+  - app/settings/page.tsx (modified - added topic interests UI and logic)
+- **Learnings for future iterations:**
+  - Use useCallback with functional setState to avoid stale closure issues with debounced saves
+  - Clean up timeouts in useEffect cleanup function
+---
