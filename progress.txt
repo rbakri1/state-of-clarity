@@ -41,3 +41,16 @@ Thread: https://ampcode.com/threads/T-019baeab-276a-764f-945b-d063e853a5c5
   - This codebase does not have a /components folder - had to create it
   - Use localStorage for client-side persistence
 ---
+
+## Mon 12 Jan 2026 - US-004
+Thread: https://ampcode.com/threads/T-019baeb6-da35-7169-884c-96e7236d7460
+- Fixed cookie consent persistence to properly store and retrieve JSON format
+- Consent stored as JSON object: {value: "accepted"|"declined", timestamp: ISO string}
+- Added `getStoredConsent()` that parses JSON and falls back to legacy string format
+- Added exported utilities: `getConsentStatus()` and `hasAcceptedCookies()` for other components
+- Banner correctly hidden when consent already exists in localStorage
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Cookie consent uses JSON format in localStorage for audit trail: `{value, timestamp}`
+  - Use `hasAcceptedCookies()` from cookie-consent-banner.tsx to check before loading analytics
+---
