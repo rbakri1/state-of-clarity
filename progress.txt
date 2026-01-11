@@ -8,6 +8,8 @@ Started: Sun 11 Jan 2026 22:25:49 +04
 - Use `(supabase.from("table") as any).update()` for Supabase updates due to type inference issues
 - SWR: Import `useSWR` from 'swr'; provider in layout.tsx provides default fetcher
 - SWR FetchError: Check `error.status === 404` for not found handling
+- Supabase error 22P02: Invalid UUID format - treat as "not found" alongside PGRST116
+- Brief page: Database briefs may have empty/null fields for structured_data, narrative, etc. - use defensive access
 
 ---
 
@@ -106,4 +108,19 @@ Thread: https://ampcode.com/threads/T-019bae6a-7162-7599-9e34-d45a2679be73
   - SWRConfig must be in a client component ("use client") since it uses React context
   - FetchError class exposes status code for proper 404/error handling in useSWR consumers
   - Use `useSWR<T>('/api/endpoint')` with the provider's default fetcher
+---
+
+## Sun 11 Jan 2026 - US-009
+Thread: https://ampcode.com/threads/T-019bae6c-a7d8-707a-93d0-7906ca887302
+- Rewrote /app/brief/[id]/page.tsx to use useSWR for data fetching
+- Added BriefSkeleton component for loading state
+- Added NotFoundError component for 404 handling (when error.status === 404)
+- Added ErrorMessage component for generic errors
+- Made Brief interface fields optional to handle database briefs with null/empty content
+- Updated brief-service to treat 22P02 (invalid UUID) as not found
+- Defensive rendering: definitions, factors, policies, consequences, sources all check length before rendering
+- **Learnings for future iterations:**
+  - Database briefs may not have sources array - check structured_data.sources or metadata.sources
+  - Optional chaining and ?? [] pattern for defensive array access
+  - SWR skeleton must render same page structure without the actual data for smooth transitions
 ---
