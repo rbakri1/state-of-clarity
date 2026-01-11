@@ -46,3 +46,16 @@ Thread: https://ampcode.com/threads/T-019bad44-b2ad-7018-889b-a26a076e8ec9
   - Tailwind's animate-pulse works well for skeleton loading states
   - Use gray-200/gray-700 for light/dark mode skeleton backgrounds
 ---
+
+## 2026-01-11 19:15 - US-012
+Thread: https://ampcode.com/threads/T-019bad48-5423-748c-98b5-e20682f37d5c
+- Created loading skeleton for brief page at /app/brief/[id]/loading.tsx
+- Skeletons for: header (title, clarity score, tags), reading level selector, summary, structured data sections, narrative, sources grid, feedback section
+- Matches BriefPageClient.tsx layout structure exactly
+- Uses existing Skeleton component with variants: text, paragraph, card, button
+- Files changed: app/brief/[id]/loading.tsx
+- **Learnings for future iterations:**
+  - Next.js app router loading.tsx files are automatically used during Suspense boundaries
+  - Match skeleton layout closely to actual page to minimize layout shift
+  - Use Skeleton variant="card" for grid items like sources
+---
