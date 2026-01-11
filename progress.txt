@@ -1,3 +1,37 @@
 # Ralph Progress Log
 Started: Mon 12 Jan 2026 01:41:23 +04
+
+## Codebase Patterns
+- Design system uses warm editorial palette (Sage/Ivory/Ink), NOT blue/slate
+- Current implementation uses shadcn/ui CSS variables pattern (hsl(var(--primary)))
+- Skills folder contains comprehensive design specs: skills/frontend/{design,brand,components,tech}
+- Pages are in app/ directory using Next.js App Router
+- Only one component exists: components/cookie-consent-banner.tsx
+- Header/footer are duplicated inline in each page - need extraction
+
+---
+
+## 2026-01-12 10:45 - US-001
+Thread: https://ampcode.com/threads/T-019baf01-d163-7193-90c2-b3fd229f84b9
+- **What was implemented:** Comprehensive UI audit against design system skills
+- **Files created:** docs/UI-AUDIT.md
+- **Files reviewed:** 
+  - All 4 skill files (design, brand, components, tech)
+  - tailwind.config.ts
+  - app/globals.css
+  - app/page.tsx (homepage)
+  - app/layout.tsx
+  - app/brief/[id]/page.tsx (brief viewer)
+  - app/auth/signup/page.tsx
+  - app/privacy/page.tsx
+  - app/terms/page.tsx
+  - components/cookie-consent-banner.tsx
+- **Learnings for future iterations:**
+  - The design system specifies Deep Sage (#5E6F64) as primary, NOT blue
+  - No pure white (#FFFFFF) or pure black (#000000) allowed - use Ivory/Ink
+  - Typography should use serif for headings (Canela) and body (Source Serif 4)
+  - Reading levels need specific typography: child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug
+  - Political lean colors are for data viz only, NOT UI chrome
+  - All focus states should use focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - 8 key components are completely missing (see audit doc)
 ---
