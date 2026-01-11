@@ -147,3 +147,48 @@ Thread: https://ampcode.com/threads/T-019bad5f-4251-7640-83c4-23f43752a381
   - Use lightweight queries (select id limit 1) for connection checks
   - Consider latency > 5s as "degraded" not "unhealthy"
 ---
+
+## 2026-01-11 23:30 - US-018
+Thread: https://ampcode.com/threads/T-019bad60-fe03-73c8-8360-84827c4cfda0
+- Added Sentry user context to UserMenu.tsx
+- On auth state change, calls Sentry.setUser({ id, email }) for logged-in users
+- On logout (handleSignOut) or no user, calls Sentry.setUser(null)
+- Updated all 3 Sentry config files with environment and version tags
+- Added release, environment, and initialScope.tags to client, server, and edge configs
+- Files changed: app/components/UserMenu.tsx, sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts
+- **Learnings for future iterations:**
+  - UserMenu.tsx is the central place for auth state changes - use onAuthStateChange callback
+  - Sentry.setUser() should be called in fetchUser() which handles both login and state recovery
+  - Use consistent APP_VERSION constant across all Sentry config files
+  - environment defaults to NODE_ENV, release uses format "project-name@version"
+---
+
+## 2026-01-11 - US-019
+Thread: https://ampcode.com/threads/T-019badfe-3201-753c-9ccc-b6982160268a
+- Created 404 not found page at /app/not-found.tsx
+- Page displays: large "404" text, "Page not found" heading, helpful message
+- Includes "Go home" button (primary) and "Browse briefs" secondary button
+- Uses lucide-react Home and Search icons
+- Matches site styling with gradient background, dark mode support
+- Files changed: app/not-found.tsx
+- **Learnings for future iterations:**
+  - Next.js app router uses not-found.tsx for custom 404 pages
+  - Use same gradient background (from-white to-gray-50) as homepage for consistency
+  - Include secondary navigation option (Browse briefs) to help users find content
+---
+
+## 2026-01-11 - US-020
+Thread: https://ampcode.com/threads/T-019bae05-034f-77f8-8035-d3c36d30a353
+- Created OfflineBanner component at /app/components/OfflineBanner.tsx
+- Uses navigator.onLine and window online/offline events for detection
+- Shows fixed yellow banner at top of page when offline
+- Message: "You're offline. Some features may be unavailable."
+- Auto-hides when connection restored
+- Uses WifiOff icon from lucide-react
+- Added to app/layout.tsx to show globally
+- Files changed: app/components/OfflineBanner.tsx, app/layout.tsx
+- **Learnings for future iterations:**
+  - Use useState with useEffect for client-side only state like navigator.onLine
+  - Initial state should be false (assume online) since SSR doesn't have navigator
+  - Fixed positioning with z-50 ensures banner appears above all content
+---
