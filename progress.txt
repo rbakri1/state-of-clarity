@@ -391,3 +391,25 @@ Thread: https://ampcode.com/threads/T-019bac21-3d7c-7412-9319-f0f543d7850e
   - Content-Disposition header triggers browser download behavior
   - Join related tables in Supabase with `briefs:brief_id (id, question, ...)` syntax
 ---
+
+## 2026-01-11 - US-021
+Thread: https://ampcode.com/threads/T-019bace2-ce72-754f-9de8-ee6addb87527
+- Implemented delete account flow for GDPR compliance
+- Features:
+  - Created /app/settings/delete-account/page.tsx with DELETE confirmation
+  - Warning message explaining permanent deletion consequences
+  - Requires typing "DELETE" to confirm
+  - Created /app/api/profile/delete/route.ts API endpoint
+  - Uses Supabase Admin API with service role key to delete user
+  - Signs out user after deletion
+  - Created /app/auth/deleted-account/page.tsx confirmation page
+  - Shows success message with options to go home or create new account
+- **Files changed:**
+  - app/settings/delete-account/page.tsx (new)
+  - app/api/profile/delete/route.ts (new)
+  - app/auth/deleted-account/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use createClient with SUPABASE_SERVICE_ROLE_KEY for admin operations (deleteUser)
+  - Admin client needs auth.admin.deleteUser() not regular auth methods
+  - Protected routes redirect to signin when not authenticated
+---

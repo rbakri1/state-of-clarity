@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   Sparkles,
   ChevronDown,
@@ -14,16 +14,102 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { createBrowserClient } from "@/lib/supabase/browser";
 
 // Import sample briefs (in production, this would come from API)
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
 import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
 
 type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
+type ProfileReadingLevel = "simple" | "standard" | "advanced";
+
+const READING_LEVEL_STORAGE_KEY = "preferred_reading_level";
+
+function mapProfileLevelToReadingLevel(
+  profileLevel: ProfileReadingLevel
+): ReadingLevel {
+  switch (profileLevel) {
+    case "simple":
+      return "child";
+    case "advanced":
+      return "postdoc";
+    case "standard":
+    default:
+      return "undergrad";
+  }
+}
+
+function mapUrlParamToReadingLevel(param: string | null): ReadingLevel | null {
+  if (!param) return null;
+  const validLevels: ReadingLevel[] = ["child", "teen", "undergrad", "postdoc"];
+  if (validLevels.includes(param as ReadingLevel)) {
+    return param as ReadingLevel;
+  }
+  return null;
+}
 
 export default function BriefPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("undergrad");
+  const [isLoadingLevel, setIsLoadingLevel] = useState(true);
+
+  useEffect(() => {
+    async function determineReadingLevel() {
+      const urlLevel = mapUrlParamToReadingLevel(searchParams.get("level"));
+      if (urlLevel) {
+        setActiveLevel(urlLevel);
+        setIsLoadingLevel(false);
+        return;
+      }
+
+      const supabase = createBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("preferred_reading_level")
+          .eq("id", user.id)
+          .single();
+
+        const profile = profileData as {
+          preferred_reading_level: string | null;
+        } | null;
+
+        if (profile?.preferred_reading_level) {
+          const mappedLevel = mapProfileLevelToReadingLevel(
+            profile.preferred_reading_level as ProfileReadingLevel
+          );
+          setActiveLevel(mappedLevel);
+          setIsLoadingLevel(false);
+          return;
+        }
+      }
+
+      const storedLevel = localStorage.getItem(READING_LEVEL_STORAGE_KEY);
+      if (storedLevel) {
+        const parsedLevel = mapUrlParamToReadingLevel(storedLevel);
+        if (parsedLevel) {
+          setActiveLevel(parsedLevel);
+          setIsLoadingLevel(false);
+          return;
+        }
+      }
+
+      setActiveLevel("undergrad");
+      setIsLoadingLevel(false);
+    }
+
+    determineReadingLevel();
+  }, [searchParams]);
+
+  const handleLevelChange = (level: ReadingLevel) => {
+    setActiveLevel(level);
+    localStorage.setItem(READING_LEVEL_STORAGE_KEY, level);
+  };
   const [expandedSections, setExpandedSections] = useState({
     posit: true,
     definitions: true,
@@ -269,7 +355,7 @@ export default function BriefPage() {
                 {readingLevels.map((level) => (
                   <button
                     key={level.key}
-                    onClick={() => setActiveLevel(level.key)}
+                    onClick={() => handleLevelChange(level.key)}
                     className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
                       activeLevel === level.key
                         ? "bg-primary text-primary-foreground"
