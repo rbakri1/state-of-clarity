@@ -1,19 +1,19 @@
 {
   "project": "State of Clarity",
-  "branchName": "ralph/brief-caching",
-  "description": "Brief Caching & Performance - Vercel KV caching, HTTP cache headers, SWR client-side caching, and query optimization for fast brief loading",
+  "branchName": "ralph/security-gdpr",
+  "description": "Security Hardening & GDPR Compliance - Cookie consent, privacy policy, security headers, input validation, and secrets audit for MVP launch readiness",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Install and configure Vercel KV",
-      "description": "As a developer, I need Vercel KV configured so we have a caching backend.",
+      "title": "Create privacy policy page",
+      "description": "As a user, I want to read the privacy policy so I understand how my data is handled.",
       "acceptanceCriteria": [
-        "Install @vercel/kv package",
-        "Add KV_REST_API_URL and KV_REST_API_TOKEN to .env.example",
-        "Create /lib/cache/kv-client.ts that exports kv client",
-        "Add fallback for local development (in-memory Map)",
-        "Document KV setup in SETUP.md",
-        "Typecheck passes"
+        "Create /app/privacy/page.tsx",
+        "Include sections: What data we collect, How we use it, Third parties (Supabase, Stripe, Vercel), User rights (export, delete), Contact info",
+        "Use simple, readable language (not legalese)",
+        "Link to privacy policy from footer",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 1,
       "passes": true,
@@ -21,229 +21,198 @@
     },
     {
       "id": "US-002",
-      "title": "Create cache wrapper utility",
-      "description": "As a developer, I need a reusable wrapper to cache any async function result.",
+      "title": "Create terms of service page",
+      "description": "As a user, I want to read the terms of service so I understand the rules of using the platform.",
       "acceptanceCriteria": [
-        "Create /lib/cache/with-cache.ts",
-        "Function signature: withCache<T>(key: string, fn: () => Promise<T>, ttlSeconds: number)",
-        "Check cache first, return cached value if exists",
-        "If miss, execute fn, store result, return it",
-        "Log cache hits/misses with key name",
-        "Handle cache errors gracefully (fall back to direct fetch)",
-        "Typecheck passes"
+        "Create /app/terms/page.tsx",
+        "Include sections: Acceptance of terms, User responsibilities, Intellectual property, Limitation of liability, Termination",
+        "Use simple, readable language",
+        "Link to terms from footer",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 2,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Create cache invalidation utility",
-      "description": "As a developer, I need to invalidate cached data when briefs are updated.",
+      "title": "Create cookie consent banner component",
+      "description": "As a user, I want to consent to cookies so the site complies with GDPR/ePrivacy.",
       "acceptanceCriteria": [
-        "Create /lib/cache/invalidate.ts",
-        "Function invalidateCache(key: string) deletes single key",
-        "Function invalidatePattern(pattern: string) deletes matching keys",
-        "Log invalidation events",
-        "Typecheck passes"
+        "Create /components/cookie-consent-banner.tsx",
+        "Banner appears at bottom of screen for new visitors",
+        "Shows message explaining cookies used (analytics, functionality)",
+        "Accept and Decline buttons",
+        "Link to privacy policy from banner",
+        "Banner does not block page content",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Cache brief fetches in brief-service",
-      "description": "As a user, I want brief pages to load instantly from cache.",
+      "title": "Persist cookie consent preference",
+      "description": "As a user, I want my cookie preference saved so I don't see the banner repeatedly.",
       "acceptanceCriteria": [
-        "Update getBriefById in /lib/services/brief-service.ts to use withCache",
-        "Cache key format: brief:{id}",
-        "TTL: 300 seconds (5 minutes)",
+        "Store consent in localStorage key 'cookie-consent' with value 'accepted' | 'declined'",
+        "If consent exists, do not show banner",
+        "If declined, do not load analytics scripts (if any)",
+        "Consent persists across sessions",
+        "Add consent timestamp for audit trail",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Invalidate brief cache on updates",
-      "description": "As a user, I want to see fresh content after a brief is updated.",
+      "title": "Audit user data export functionality",
+      "description": "As a developer, I need to verify user data export works completely and includes all user data.",
       "acceptanceCriteria": [
-        "Call invalidateCache in updateBriefFromState after successful update",
-        "Call invalidateCache in updateBriefClassification",
-        "Call invalidateCache for briefs:popular when any brief is updated",
+        "Review existing export endpoint/functionality from Epic 5.1",
+        "Verify export includes: profile data, briefs created, preferences, activity history",
+        "Test export with a real user account",
+        "Export format is JSON (machine-readable)",
+        "Document what data is included in /docs/GDPR.md",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Create brief API endpoint with HTTP caching",
-      "description": "As a user, I want my browser and CDN to cache brief data.",
+      "title": "Audit account deletion functionality",
+      "description": "As a developer, I need to verify account deletion completely removes user data.",
       "acceptanceCriteria": [
-        "Create /app/api/briefs/[id]/route.ts GET endpoint",
-        "Fetch brief using getBriefById (uses server cache)",
-        "Return 404 if brief not found",
-        "Set Cache-Control: public, s-maxage=60, stale-while-revalidate=300",
-        "Set ETag header based on brief.updated_at timestamp",
-        "Return 304 Not Modified if request ETag matches",
+        "Review existing delete endpoint/functionality from Epic 5.1",
+        "Verify deletion removes: auth record, profile, preferences, activity",
+        "Briefs should be ANONYMIZED (not deleted) - set user_id to null, keep content",
+        "Verify deletion cascades properly in database",
+        "Test deletion with a test user account",
+        "Add confirmation step before deletion if not present",
+        "Document deletion process in /docs/GDPR.md",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Create popular briefs endpoint with aggressive caching",
-      "description": "As a user, I want the homepage to load quickly with popular briefs.",
+      "title": "Add security headers",
+      "description": "As a developer, I need security headers to prevent common web attacks.",
       "acceptanceCriteria": [
-        "Create getPopularBriefs function in brief-service.ts",
-        "Query briefs ordered by view_count or upvotes, limit 10",
-        "Cache key: briefs:popular, TTL: 600 seconds (10 minutes)",
-        "Create /app/api/briefs/popular/route.ts",
-        "Set Cache-Control: public, s-maxage=300, stale-while-revalidate=600",
+        "Update next.config.mjs to add security headers",
+        "Add X-Frame-Options: DENY (prevent clickjacking)",
+        "Add X-Content-Type-Options: nosniff (prevent MIME sniffing)",
+        "Add X-XSS-Protection: 1; mode=block",
+        "Add Referrer-Policy: strict-origin-when-cross-origin",
+        "Add Permissions-Policy to disable unused features (camera, microphone, geolocation)",
+        "Verify headers appear in browser DevTools Network tab",
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-008",
-      "title": "Install and configure SWR",
-      "description": "As a developer, I need SWR for client-side data fetching with caching.",
+      "title": "Create Zod schemas for brief API",
+      "description": "As a developer, I need input validation schemas to prevent bad data.",
       "acceptanceCriteria": [
-        "Install swr package",
-        "Create /lib/swr/fetcher.ts with default fetcher function",
-        "Create /lib/swr/config.ts with global SWR config",
-        "Wrap app in SWRConfig provider in layout.tsx",
+        "Create /lib/validation/brief-schemas.ts",
+        "Schema for brief creation request body",
+        "Schema for brief update request body",
+        "Schema for brief query params (id validation)",
+        "Export typed inferred types from schemas",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-009",
-      "title": "Update brief page to use SWR",
-      "description": "As a user, I want brief pages to use client-side caching for instant navigation.",
+      "title": "Apply Zod validation to brief API endpoints",
+      "description": "As a developer, I need API endpoints to validate input and return clear errors.",
       "acceptanceCriteria": [
-        "Update /app/brief/[id]/page.tsx to fetch from /api/briefs/[id] using useSWR",
-        "Show skeleton loading state while fetching",
-        "Handle 404 with appropriate error UI",
-        "Handle errors with ErrorMessage component",
-        "Stale data shown immediately while revalidating in background",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Update /app/api/briefs/[id]/route.ts to validate id param",
+        "Update any POST/PUT brief endpoints to validate request body",
+        "Return 400 Bad Request with clear error message on validation failure",
+        "Use Zod's safeParse for non-throwing validation",
+        "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-010",
-      "title": "Add cache warming after brief generation",
-      "description": "As a user, I want my newly generated brief to load instantly.",
+      "title": "Apply Zod validation to admin endpoints",
+      "description": "As a developer, I need admin endpoints to validate input strictly.",
       "acceptanceCriteria": [
-        "After brief generation completes, call getBriefById to warm cache",
-        "Log cache warming event",
+        "Create /lib/validation/admin-schemas.ts",
+        "Add schema for cache-flush endpoint body",
+        "Update /app/api/admin/cache-flush/route.ts to validate body",
+        "Return 400 with error details on validation failure",
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-011",
-      "title": "Create cache flush admin endpoint",
-      "description": "As an admin, I need to manually clear cache if stale data is stuck.",
+      "title": "Audit secrets and environment variables",
+      "description": "As a developer, I need to ensure no secrets are exposed in code.",
       "acceptanceCriteria": [
-        "Create /app/api/admin/cache-flush/route.ts POST endpoint",
-        "Accept body with optional pattern for selective flush",
-        "Require admin authentication",
-        "Return confirmation of flush action",
-        "Log flush event with admin user info",
+        "Search codebase for hardcoded API keys, tokens, passwords",
+        "Verify all secrets are in .env and not committed",
+        "Verify .env is in .gitignore",
+        "Update .env.example with all required env vars (no actual values)",
+        "Document required environment variables in README or SETUP.md",
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-012",
-      "title": "Optimize Supabase client instantiation",
-      "description": "As a developer, I need efficient database connections without creating new clients per request.",
+      "title": "Create GDPR documentation",
+      "description": "As a developer, I need documentation explaining our GDPR compliance approach.",
       "acceptanceCriteria": [
-        "Review getSupabaseClient() in brief-service.ts",
-        "Ensure client is cached/reused across requests (singleton pattern)",
-        "Add connection error handling with retry",
+        "Create /docs/GDPR.md",
+        "Document what personal data we collect and why",
+        "Document data retention policy",
+        "Document how to handle data export requests",
+        "Document how to handle deletion requests",
+        "Document third-party data processors (Supabase, Stripe, Vercel)",
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-013",
-      "title": "Add slow query logging",
-      "description": "As a developer, I need visibility into slow database queries.",
+      "title": "Add age verification to signup",
+      "description": "As a platform, I need to verify users are 13+ to comply with COPPA/GDPR-K.",
       "acceptanceCriteria": [
-        "Update safeQuery in /lib/supabase/safe-query.ts to track query duration",
-        "Log queries taking >1000ms to console with query name",
-        "Report queries taking >2000ms to Sentry as performance issue",
-        "Typecheck passes"
+        "Add checkbox to signup form: 'I confirm I am 13 years of age or older'",
+        "Checkbox must be checked to proceed with signup",
+        "Store age_verified: true in user profile/metadata",
+        "Block signup if checkbox not checked with clear error message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-014",
-      "title": "Configure static asset caching",
-      "description": "As a user, I want static assets to load instantly from CDN cache.",
-      "acceptanceCriteria": [
-        "Update next.config.mjs with headers() config",
-        "Set immutable, max-age=31536000 for /_next/static/*",
-        "Set public, max-age=86400 for /images/*",
-        "Typecheck passes"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-015",
-      "title": "Implement graceful cache degradation",
-      "description": "As a user, I want the app to work even if the cache service is down.",
-      "acceptanceCriteria": [
-        "Update withCache to catch KV connection errors",
-        "On cache error, log to Sentry and proceed with direct fetch",
-        "Never crash the app due to cache failure",
-        "Add isHealthy() check to /lib/cache/kv-client.ts",
-        "Typecheck passes"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": ""
-    },
-    {
-      "id": "US-016",
-      "title": "Document caching architecture",
-      "description": "As a developer, I need documentation to understand and extend the caching system.",
-      "acceptanceCriteria": [
-        "Create /docs/CACHING.md",
-        "Document cache layers: Browser, CDN, Vercel KV, Supabase",
-        "Document TTL values for each cached resource",
-        "Document cache key naming convention",
-        "Document how to add caching to a new endpoint",
-        "Document cache invalidation strategy",
-        "Typecheck passes"
-      ],
-      "priority": 16,
       "passes": false,
       "notes": ""
     }

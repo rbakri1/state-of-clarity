@@ -262,6 +262,17 @@ export default function Home() {
                 </li>
               </ul>
             </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/privacy" className="hover:text-foreground">
+                    Privacy Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-muted-foreground">
