@@ -14,13 +14,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { LowBalanceWarning } from "@/app/components/LowBalanceWarning";
-
-// Import sample briefs (in production, this would come from API)
-import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
-import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
-
-type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
+import { FetchError } from "@/lib/swr/fetcher";
+import { ReadingLevelSelector } from "@/components/brief/reading-level-selector";
+import type { ReadingLevel } from "@/lib/types/brief";
 
 export default function BriefPage() {
   const params = useParams();
@@ -50,12 +46,7 @@ export default function BriefPage() {
     }));
   };
 
-  const readingLevels = [
-    { key: "child" as const, label: "Child", age: "8-12" },
-    { key: "teen" as const, label: "Teen", age: "13-17" },
-    { key: "undergrad" as const, label: "Undergrad", age: "18-22" },
-    { key: "postdoc" as const, label: "Post-doc", age: "Graduate" },
-  ];
+
 
   const getClarityScoreClass = (score: number) => {
     if (score >= 8) return "high";
@@ -263,32 +254,26 @@ export default function BriefPage() {
             )}
 
             {/* Progressive Summaries */}
-            <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold mb-4">
+            <section className="bg-ivory-100 dark:bg-gray-800 rounded-xl border border-ivory-600 dark:border-gray-700 p-6">
+              <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
                 Progressive Summaries
               </h2>
 
               {/* Reading Level Selector */}
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                {readingLevels.map((level) => (
-                  <button
-                    key={level.key}
-                    onClick={() => setActiveLevel(level.key)}
-                    className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
-                      activeLevel === level.key
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    <div className="text-sm">{level.label}</div>
-                    <div className="text-xs opacity-75">{level.age}</div>
-                  </button>
-                ))}
-              </div>
+              <ReadingLevelSelector
+                currentLevel={activeLevel}
+                onLevelChange={setActiveLevel}
+                className="mb-6"
+              />
 
               {/* Active Summary */}
-              <div className="prose prose-clarity max-w-none">
-                <p className="text-base leading-relaxed">
+              <div
+                id={`panel-${activeLevel}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${activeLevel}`}
+                className="prose prose-custom max-w-prose mx-auto"
+              >
+                <p className="text-base leading-relaxed text-ink-800 font-body">
                   {brief.summaries[activeLevel]}
                 </p>
               </div>
