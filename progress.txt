@@ -199,3 +199,15 @@ Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
   - Signup page follows same structure as privacy/terms pages for consistency
   - Age verification data stored in Supabase Auth user_metadata via signUp options.data
 ---
+
+## 2026-01-12 20:15 - US-010 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019baf44-1419-7555-a2ee-0b3978584158
+- **What was implemented:** Added Header component to global layout
+- **Files changed:**
+  - app/layout.tsx (added Header import and component, updated body colors to bg-ivory-100 text-ink-800)
+- **Browser verification:** Header displays correctly on desktop (1280px) and mobile (375px) with hamburger menu
+- **Learnings for future iterations:**
+  - Header component already existed at @/components/layout/header.tsx with full functionality
+  - Global layout should use Header component, not inline headers on each page
+  - Use design system colors (bg-ivory-100, text-ink-800) instead of shadcn CSS variables (bg-background, text-foreground)
+---
