@@ -46,3 +46,15 @@ Thread: https://ampcode.com/threads/T-019bad13-847d-7049-a93a-be4b7c249867
   - Use componentDidCatch to report to Sentry with component stack context
   - getDerivedStateFromError is for setting error state, componentDidCatch for side effects
 ---
+
+## 2026-01-11 - US-003
+Thread: https://ampcode.com/threads/T-019bad15-e42c-73b6-89ad-9cf9519d8c3b
+- Wrapped app/layout.tsx children with ErrorBoundary component
+- Created global-error.tsx for root-level error handling
+- global-error.tsx uses Sentry for error logging, has "Try again" and "Show details" buttons
+- Verified in browser that homepage loads correctly with error boundary in place
+- **Learnings for future iterations:**
+  - global-error.tsx must include full html/body tags since it replaces the entire document
+  - global-error.tsx receives error.digest for error ID tracking
+  - ErrorBoundary in layout.tsx catches component-level errors; global-error.tsx catches root-level crashes
+---
