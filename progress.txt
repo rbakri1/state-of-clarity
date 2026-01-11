@@ -3,7 +3,9 @@ Started: Sun 11 Jan 2026 10:47:05 +04
 ---
 
 ## Codebase Patterns
-- Import Supabase browser client from `@/lib/supabase/client` (not `browser`)
+- Import Supabase browser client from `@/lib/supabase/browser` for client components
+- Import Supabase server client from `@/lib/supabase/client` for server components/API routes
+- Import Database types from `@/lib/supabase/types` for type-only imports
 - Add explicit types to `.map()` callbacks when working with `any` typed data
 - Use `as Record<string, number>` when iterating Object.entries with unknown values
 
@@ -28,4 +30,31 @@ Thread: https://ampcode.com/threads/T-019babce-f903-716d-ac7f-42555ed5c6ab
 - **Learnings for future iterations:**
   - The briefs object is typed as `any` - map callbacks need explicit type annotations
   - TopicCategoriesGrid was importing from non-existent browser.ts
+---
+
+## 2026-01-11 - US-002
+Thread: https://ampcode.com/threads/T-019babd4-cfd3-75ba-ae5d-522192a28ea9
+- Created sign-in page with magic link functionality at /app/auth/signin/page.tsx
+- Features:
+  - Email input with client-side validation (empty, format)
+  - Send magic link button calls Supabase auth.signInWithOtp()
+  - Success message: "Check your email for the login link"
+  - Error handling for rate limiting and invalid emails
+  - Link to sign-up page
+  - Back to home link
+- Refactored Supabase client structure:
+  - Created lib/supabase/browser.ts for client components (no next/headers import)
+  - Created lib/supabase/types.ts for shared Database types
+  - Updated lib/supabase/client.ts for server-only usage
+  - Updated TopicCategoriesGrid.tsx to use browser.ts
+- **Files changed:**
+  - app/auth/signin/page.tsx (new)
+  - lib/supabase/browser.ts (new)
+  - lib/supabase/types.ts (new)
+  - lib/supabase/client.ts (refactored)
+  - app/components/TopicCategoriesGrid.tsx (import fix)
+- **Learnings for future iterations:**
+  - Use lib/supabase/browser.ts for client components (no next/headers)
+  - Use lib/supabase/client.ts only in server components/API routes
+  - Import Database type from lib/supabase/types.ts for type-only imports
 ---
