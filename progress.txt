@@ -96,3 +96,23 @@ Thread: https://ampcode.com/threads/T-019babdb-b3a5-760b-b0d3-37f9e2bc5da8
   - Track OAuth loading state separately (isOAuthLoading) to show which provider is loading
   - Google logo SVG can be inlined for consistent rendering
 ---
+
+## 2026-01-11 - US-005
+Thread: https://ampcode.com/threads/T-019babdf-9e81-73dd-a435-2381bbc6659e
+- Added Apple OAuth sign-in to sign-in page
+- Features:
+  - "Continue with Apple" button with Apple logo (SVG)
+  - Calls Supabase auth.signInWithOAuth({ provider: 'apple' })
+  - Redirect URL configured to /auth/callback
+  - Loading state with spinner when OAuth is in progress
+  - Disabled state for all buttons during any auth operation
+- Added Apple OAuth setup documentation to SETUP.md (detailed 5-step guide)
+- **Files changed:**
+  - app/auth/signin/page.tsx (modified - added Apple OAuth button + handler)
+  - SETUP.md (modified - added Apple OAuth setup instructions)
+- **Learnings for future iterations:**
+  - Apple OAuth requires an Apple Developer Program membership ($99/year)
+  - Apple Sign In requires creating both an App ID and a Services ID
+  - The Services ID is what gets configured in Supabase, not the App ID
+  - Apple OAuth button pattern is identical to Google - just change provider name
+---
