@@ -8,6 +8,9 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - Pages are in app/ directory using Next.js App Router
 - Only one component exists: components/cookie-consent-banner.tsx
 - Header/footer are duplicated inline in each page - need extraction
+- 9 key components are MISSING: ReadingLevelSelector, SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
+- Types (ReadingLevel, PoliticalLean, etc.) are defined inline in brief page - need extraction to lib/types/brief.ts
+- Brief page reading level selector has no ARIA roles, no sticky positioning, uses blue instead of sage
 
 ---
 
@@ -34,4 +37,22 @@ Thread: https://ampcode.com/threads/T-019baf01-d163-7193-90c2-b3fd229f84b9
   - Political lean colors are for data viz only, NOT UI chrome
   - All focus states should use focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
   - 8 key components are completely missing (see audit doc)
+---
+
+## 2026-01-12 11:30 - US-002
+Thread: https://ampcode.com/threads/T-019baf05-900a-749b-bcb9-2cc922a4d6b8
+- **What was implemented:** Comprehensive component audit against skills/frontend/components/SKILL.md
+- **Files changed:** docs/UI-AUDIT.md (expanded Section 6 with detailed component analysis)
+- **Findings:**
+  - 9 components are MISSING: ReadingLevelSelector, SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
+  - 1 component exists but needs fixes: CookieConsentBanner (wrong colors, no focus rings)
+  - Directory structure completely missing (no ui/, brief/, sources/, generation/, layout/, feedback/ folders)
+  - Types defined inline in brief page rather than exported from lib/types/brief.ts
+- **Learnings for future iterations:**
+  - Reading level selector is inline in app/brief/[id]/page.tsx around lines 296-341
+  - Labels use "Post-doc" instead of "Postdoc" and "Graduate" instead of "Graduate+"
+  - Political lean colors use partisan red/blue instead of muted rose/blue spectrum
+  - No ARIA roles, no sticky positioning on reading level selector
+  - No credibility scores displayed for sources
+  - No generation progress UI exists (users wait 30-60s with no feedback)
 ---

@@ -20,7 +20,7 @@
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Comprehensive audit completed. Created /docs/UI-AUDIT.md with all findings."
+      "notes": "Comprehensive UI audit completed. All inconsistencies documented in /docs/UI-AUDIT.md."
     },
     {
       "id": "US-002",
@@ -38,8 +38,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Comprehensive component audit completed. All 9 required components are MISSING. Detailed analysis with spec vs implementation comparison documented in /docs/UI-AUDIT.md Section 6."
     },
     {
       "id": "US-003",
@@ -395,6 +395,32 @@
       "priority": 22,
       "passes": false,
       "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Create first-time user welcome modal with mission disclaimer",
+      "description": "As a new user, I want to understand the platform's mission and approach before I start using it.",
+      "acceptanceCriteria": [
+        "Create /components/onboarding/welcome-modal.tsx",
+        "Modal appears on first visit (check localStorage for 'has-seen-welcome')",
+        "Modal includes mission disclaimer with key points:",
+        "  - State of Clarity is laser-focused on pursuing informed truth",
+        "  - We provide detailed, thoughtful analysis - not lazy quick takes",
+        "  - Every question gets digestible, evidence-based answers",
+        "  - We are non-partisan and do not pick sides",
+        "  - We show our sources transparently so you can verify",
+        "Headline: 'Welcome to State of Clarity'",
+        "Primary CTA: 'Get Started' button closes modal and saves preference",
+        "Optional: 'Learn More' link to About page",
+        "Modal uses design system styling (Clarity Blue, proper spacing)",
+        "Accessible: focus trap, ESC to close, aria-modal",
+        "Set localStorage 'has-seen-welcome' = true on close",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "Critical for setting user expectations about non-partisan, evidence-based approach"
     }
   ]
 }
