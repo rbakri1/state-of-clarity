@@ -12,6 +12,7 @@ Started: Sun 11 Jan 2026 23:57:46 +04
 - Use `hasAcceptedCookies()` from cookie-consent-banner.tsx to check before loading analytics
 - Client components in Next.js need "use client" directive at top
 - Duplicate files with " 2" suffix can cause build failures - clean them up before running builds
+- Use `createBrowserClient()` from lib/supabase/browser.ts for client components (NOT from client.ts which has server imports)
 ---
 
 ## Sun 12 Jan 2026 - US-001
@@ -171,4 +172,30 @@ Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
 - **Learnings for future iterations:**
   - GDPR.md was created during US-005 implementation - this story was already complete
   - When auditing, check if docs already exist from previous work
+---
+
+## Mon 12 Jan 2026 - US-012
+Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
+- Verified /docs/GDPR.md already exists and is comprehensive (created in US-005)
+- Documentation covers all required sections: personal data collected, data retention, export/deletion handling, third-party processors
+- Build passes successfully
+- **Learnings for future iterations:**
+  - GDPR.md was created during US-005 implementation - this story was already complete
+  - When auditing, check if docs already exist from previous work
+---
+
+## Mon 12 Jan 2026 - US-013
+Thread: https://ampcode.com/threads/T-019baee6-9027-773e-96fd-0d8908c761e9
+- Created /app/auth/signup/page.tsx with complete signup form
+- Added age verification checkbox: "I confirm I am 13 years of age or older"
+- Checkbox validation blocks signup with error message if unchecked
+- Age verification stored in user metadata: age_verified: true, age_verified_at: timestamp
+- Created /lib/supabase/browser.ts for client-side Supabase usage (separate from server file to avoid importing server-only modules)
+- Browser verification passed: all form elements visible and styled correctly
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Client components cannot import from files that have server-only imports (like `next/headers`)
+  - Created separate /lib/supabase/browser.ts for client-side Supabase client
+  - Signup page follows same structure as privacy/terms pages for consistency
+  - Age verification data stored in Supabase Auth user_metadata via signUp options.data
 ---
