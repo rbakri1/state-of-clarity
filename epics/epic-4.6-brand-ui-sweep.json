@@ -1,0 +1,399 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/brand-ui-sweep",
+  "description": "Brand & UI/UX Sweep - Full design system audit, component implementation, copy review, and polish for all user-facing pages before beta launch",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Audit existing UI against design system",
+      "description": "As a developer, I need to identify all UI inconsistencies with the design system defined in skills/frontend/design.",
+      "acceptanceCriteria": [
+        "Review all pages and components against design/SKILL.md",
+        "Check color usage matches Clarity Blue (#0F52BA), Slate palette",
+        "Check typography matches Inter font, correct sizes per reading level",
+        "Check spacing follows 4px grid",
+        "Check shadows, border-radius match spec",
+        "Check interaction states (hover, focus, active, disabled) are implemented",
+        "Document all inconsistencies in /docs/UI-AUDIT.md",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Audit existing components against component skill",
+      "description": "As a developer, I need to identify which components from skills/frontend/components are missing or incomplete.",
+      "acceptanceCriteria": [
+        "Review components/SKILL.md for required components",
+        "Check if ReadingLevelSelector exists and matches spec",
+        "Check if SummaryCard exists with proper typography per level",
+        "Check if SourceCitation exists with political lean colors",
+        "Check if PoliticalLeanBadge exists",
+        "Check if CredibilityBadge exists",
+        "Check if BriefGenerationProgress exists",
+        "Document missing/incomplete components in /docs/UI-AUDIT.md",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Configure Tailwind with design tokens",
+      "description": "As a developer, I need Tailwind config to match our design system exactly.",
+      "acceptanceCriteria": [
+        "Update tailwind.config.ts with clarity color palette (500, 600, 700)",
+        "Add Inter and JetBrains Mono font families",
+        "Add max-w-prose: 65ch for optimal reading width",
+        "Install @tailwindcss/typography and @tailwindcss/forms plugins",
+        "Verify design tokens match skills/frontend/design/SKILL.md",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Implement or fix ReadingLevelSelector component",
+      "description": "As a user, I want to switch between reading levels with a clear, accessible selector.",
+      "acceptanceCriteria": [
+        "Component exists at /components/brief/reading-level-selector.tsx",
+        "Shows all 4 levels: Child (8-12), Teen (13-17), Undergrad (18-22), Postdoc (Graduate+)",
+        "Uses ARIA roles (tablist, tab, aria-selected)",
+        "Sticky positioning (stays visible while reading)",
+        "Responsive: vertical on mobile, horizontal on desktop",
+        "Active state uses bg-clarity-500 with white text",
+        "Focus ring visible for keyboard navigation",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Implement or fix SummaryCard component",
+      "description": "As a user, I want summaries displayed with appropriate typography for my reading level.",
+      "acceptanceCriteria": [
+        "Component exists at /components/brief/summary-card.tsx",
+        "Child level: text-lg (18px), leading-relaxed (1.75)",
+        "Teen/Undergrad level: text-base (16px), leading-normal (1.5)",
+        "Postdoc level: text-sm (14px), leading-normal (1.5)",
+        "Shows reading time with clock icon",
+        "Uses prose prose-slate for narrative styling",
+        "ARIA role=tabpanel with hidden attribute for inactive levels",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Implement PoliticalLeanBadge component",
+      "description": "As a user, I want to see source political lean clearly indicated with non-partisan colors.",
+      "acceptanceCriteria": [
+        "Component exists at /components/sources/political-lean-badge.tsx",
+        "Uses correct colors: Left=#E11D48 (Rose), Center-Left=#F472B6 (Pink), Center=#94A3B8 (Slate), Center-Right=#60A5FA (Blue), Right=#3B82F6 (Blue)",
+        "Displays as pill badge with background color and text",
+        "Accessible: includes title attribute with full label",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Implement CredibilityBadge component",
+      "description": "As a user, I want to see source credibility scores with clear visual indicators.",
+      "acceptanceCriteria": [
+        "Component exists at /components/sources/credibility-badge.tsx",
+        "Score 8+: ShieldCheck icon, green, 'Highly Credible'",
+        "Score 5-7: Shield icon, amber, 'Moderately Credible'",
+        "Score <5: ShieldAlert icon, rose, 'Lower Credibility'",
+        "Shows score as X/10",
+        "Accessible: includes title attribute",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Implement SourceCitation component",
+      "description": "As a user, I want inline citations colored by political lean for transparency.",
+      "acceptanceCriteria": [
+        "Component exists at /components/sources/source-citation.tsx",
+        "Renders as superscript link [1], [2], etc.",
+        "Color matches political lean (rose for left, blue for right, etc.)",
+        "Links to source section anchor",
+        "Hover shows underline",
+        "Accessible: aria-label with source title",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Implement or fix BriefGenerationProgress component",
+      "description": "As a user, I want to see clear progress while my brief generates (30-60s).",
+      "acceptanceCriteria": [
+        "Component exists at /components/generation/generation-progress.tsx",
+        "Shows 5 stages: Researching, Extracting, Summaries, Narrative, Scoring",
+        "Progress bar fills as generation proceeds",
+        "Current stage highlighted with spinner",
+        "Completed stages show green checkmark",
+        "Shows estimated time remaining",
+        "Smooth animations using transition-all",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Standardize navigation header",
+      "description": "As a user, I want consistent navigation across all pages.",
+      "acceptanceCriteria": [
+        "Header component exists at /components/layout/header.tsx",
+        "Logo links to homepage",
+        "Navigation links: Ask Anything, About (if exists)",
+        "Auth state: Show Sign In/Sign Up or user avatar with dropdown",
+        "Mobile: hamburger menu with slide-out nav",
+        "Uses sticky positioning",
+        "Uses Clarity Blue for logo/brand",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Create footer with legal links",
+      "description": "As a user, I want a footer with links to privacy policy, terms, and contact.",
+      "acceptanceCriteria": [
+        "Footer component exists at /components/layout/footer.tsx",
+        "Links: Privacy Policy (/privacy), Terms of Service (/terms), About (optional)",
+        "Copyright: © 2026 State of Clarity",
+        "Social links if applicable",
+        "Uses slate background, subtle styling",
+        "Footer appears on all pages via layout.tsx",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Polish homepage to match brand",
+      "description": "As a visitor, I want the homepage to clearly communicate what State of Clarity offers.",
+      "acceptanceCriteria": [
+        "Hero section with headline: 'See politics clearly. Decide wisely.'",
+        "Subheadline explains AI-powered policy briefs",
+        "Primary CTA: 'Ask Anything' button using bg-clarity-500",
+        "Showcase briefs section with 3 featured brief cards",
+        "Brief cards show: question, clarity score badge, topics, read time",
+        "Responsive layout (mobile-first)",
+        "Uses design system colors, typography, spacing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Polish brief viewer page",
+      "description": "As a reader, I want the brief viewer to be clean, readable, and match the design system.",
+      "acceptanceCriteria": [
+        "Uses max-w-prose (65ch) for optimal reading width",
+        "Reading level selector is sticky and accessible",
+        "Summary adapts typography to selected level",
+        "Sources section shows all sources with PoliticalLeanBadge and CredibilityBadge",
+        "Inline citations link to sources section",
+        "Clarity score badge with expandable breakdown",
+        "Share and Save buttons visible",
+        "Uses prose prose-slate for narrative",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Polish Ask Anything page",
+      "description": "As a user, I want a clean, inviting interface to submit my question.",
+      "acceptanceCriteria": [
+        "Clear headline explaining the feature",
+        "Large text input for question",
+        "Character count or hint about question length",
+        "Submit button with loading state",
+        "Shows generation progress after submission",
+        "Error handling with clear messages",
+        "Uses design system colors and spacing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Polish authentication pages",
+      "description": "As a user, I want clean, trustworthy sign in/sign up pages.",
+      "acceptanceCriteria": [
+        "Sign in page with email/password or magic link option",
+        "Sign up page with email, password, age verification checkbox",
+        "Links between sign in and sign up",
+        "Error states clearly shown",
+        "Loading states on buttons",
+        "Uses design system colors, centered layout",
+        "Links to privacy policy and terms",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Polish profile/settings page",
+      "description": "As a user, I want a clean settings page to manage my account.",
+      "acceptanceCriteria": [
+        "Profile section: avatar, name, email",
+        "Preferences: default reading level, notification settings",
+        "Data section: Export my data button, Delete account button",
+        "Clear section headings and spacing",
+        "Uses design system cards and buttons",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Review and update homepage copy",
+      "description": "As a visitor, I want copy that sounds rigorous but approachable, matching brand voice.",
+      "acceptanceCriteria": [
+        "Review all homepage text against brand/SKILL.md voice guidelines",
+        "Headline uses active voice, leads with evidence",
+        "Avoid partisan language or dog whistles",
+        "Explain what we do clearly without jargon",
+        "CTAs are action-oriented",
+        "Update any copy that doesn't match brand voice",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Review and update brief viewer copy",
+      "description": "As a reader, I want UI copy that's clear and helpful without being patronizing.",
+      "acceptanceCriteria": [
+        "Review all labels, headings, tooltips",
+        "Reading level labels match spec (Ages 8-12, Ages 13-17, etc.)",
+        "Source transparency copy is clear",
+        "Clarity score explanation is understandable",
+        "Avoid 'unbiased' - use 'transparent' instead",
+        "Update any copy that doesn't match brand voice",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Review and update all other page copy",
+      "description": "As a user, I want consistent brand voice across all pages.",
+      "acceptanceCriteria": [
+        "Review Ask Anything page copy",
+        "Review auth pages copy",
+        "Review settings/profile page copy",
+        "Review error messages and empty states",
+        "Review loading state messages",
+        "All copy uses active voice, acknowledges uncertainty where appropriate",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Add focus states to all interactive elements",
+      "description": "As a keyboard user, I need visible focus indicators on all interactive elements.",
+      "acceptanceCriteria": [
+        "All buttons have focus-visible:ring-2 focus-visible:ring-clarity-500",
+        "All links have visible focus state",
+        "All form inputs have focus ring",
+        "No element uses outline-none without custom ring replacement",
+        "Tab through all pages to verify focus visibility",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Verify WCAG AAA contrast on reading content",
+      "description": "As a user with visual impairments, I need text to have high contrast.",
+      "acceptanceCriteria": [
+        "Body text: slate-600 on white/slate-50 (8.7:1 ratio)",
+        "Headings: slate-800 on white/slate-50 (13.3:1 ratio)",
+        "Run Lighthouse accessibility audit on brief viewer",
+        "Fix any contrast issues found",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Final visual QA across all breakpoints",
+      "description": "As a user on any device, I want the UI to look polished and work correctly.",
+      "acceptanceCriteria": [
+        "Test all pages at mobile (375px), tablet (768px), desktop (1440px)",
+        "No horizontal scrolling on mobile",
+        "Touch targets minimum 44px on mobile",
+        "Text readable at all sizes",
+        "Images/icons scale appropriately",
+        "Fix any responsive issues found",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill at multiple widths"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

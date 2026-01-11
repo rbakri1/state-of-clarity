@@ -32,14 +32,27 @@ This will install all required packages including Next.js, React, Tailwind CSS, 
    cp .env.example .env.local
    ```
 
-2. Open `.env.local` and add your API keys:
-   ```env
-   ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
+2. Open `.env.local` and configure the required environment variables:
 
-**Note**: For the MVP, you only need the Anthropic API key. Supabase and other services can be added later.
+### Required Variables
+
+| Variable | Description | Where to Get It |
+|----------|-------------|-----------------|
+| `ANTHROPIC_API_KEY` | API key for Claude (brief generation, analysis) | [console.anthropic.com](https://console.anthropic.com/) |
+| `TAVILY_API_KEY` | API key for research agent (source discovery) | [tavily.com](https://tavily.com/) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | [supabase.com](https://supabase.com/) dashboard |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key | Supabase dashboard > Settings > API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (for admin ops) | Supabase dashboard > Settings > API |
+
+### Optional Variables
+
+| Variable | Description | When Needed |
+|----------|-------------|-------------|
+| `KV_REST_API_URL` | Vercel KV cache URL | Production caching |
+| `KV_REST_API_TOKEN` | Vercel KV auth token | Production caching |
+| `ADMIN_EMAILS` | Comma-separated admin emails | Admin access control |
+
+**Note**: For initial development, an in-memory cache is used automatically if Vercel KV is not configured.
 
 ---
 
