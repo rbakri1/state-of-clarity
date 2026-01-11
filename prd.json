@@ -92,8 +92,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "SummaryCard component created with typography per reading level (child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug), reading time with Clock icon, ARIA tabpanel with hidden attribute. Integrated into brief page replacing inline implementation."
     },
     {
       "id": "US-006",
@@ -108,8 +108,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component created at components/sources/political-lean-badge.tsx with non-partisan muted rose→grey→blue spectrum per skills/frontend/components/SKILL.md. Includes sm/md size variants, title attribute for accessibility, and proper typing with PoliticalLean type from lib/types/brief.ts."
     },
     {
       "id": "US-007",

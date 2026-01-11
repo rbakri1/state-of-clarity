@@ -14,8 +14,10 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - Brief types (ReadingLevel, PoliticalLean, Source, Brief, etc.) at @/lib/types/brief.ts
 - Components go in components/{brief,sources,generation,layout,feedback}/ subdirectories
 - Header/footer are duplicated inline in each page - need extraction
-- 8 key components STILL MISSING: SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
+- 6 key components STILL MISSING: SourceCitation, SourceCard, CredibilityBadge, BriefGenerationProgress, Header, Footer
+- PoliticalLeanBadge now complete at @/components/sources/political-lean-badge.tsx with muted non-partisan colors
 - ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
+- SummaryCard now complete at @/components/brief/summary-card.tsx with typography per level and reading time
 
 ---
 
@@ -103,4 +105,42 @@ Thread: https://ampcode.com/threads/T-019baf0b-33a1-7320-a513-2c5b2b4dd063
   - Focus states: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
   - Responsive: flex-col on mobile, flex-row on desktop (sm:flex-row)
   - Minimum touch target: min-h-[48px] min-w-[48px] for accessibility
+---
+
+## 2026-01-12 15:30 - US-005
+Thread: https://ampcode.com/threads/T-019baf11-8e64-7236-aa6f-f1326e2dd6c8
+- **What was implemented:** SummaryCard component with progressive typography per reading level
+- **Files created:**
+  - components/brief/summary-card.tsx (main component)
+- **Files changed:**
+  - app/brief/[id]/page.tsx (integrated SummaryCard component, removed inline implementation)
+- **Learnings for future iterations:**
+  - SummaryCard now available at @/components/brief/summary-card for displaying summaries with proper typography
+  - Typography per level: child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug
+  - Reading time calculated automatically from content word count (200 wpm)
+  - ARIA pattern: role="tabpanel" + hidden attribute for inactive panels, aria-labelledby for tab association
+  - Brief data uses Record<ReadingLevel, string> format, not array of ReadingLevelSummary objects
+  - Each level renders as separate tabpanel div with only the active one visible
+---
+
+## 2026-01-12 16:30 - US-006
+Thread: https://ampcode.com/threads/T-019baf15-44fe-74e8-9e66-9d652d3e34a9
+- **What was implemented:** PoliticalLeanBadge component for displaying source political lean
+- **Files created:**
+  - components/sources/political-lean-badge.tsx (main component)
+- **Features:**
+  - Uses muted non-partisan rose→grey→blue spectrum per design spec
+  - Left: muted rose #8B4840 on #F5EBE9
+  - Center-Left: #9A6F6F on #F5ECEC
+  - Center: ink-600 on ivory-200
+  - Center-Right: #4D6672 on #EBF1F4
+  - Right: muted blue #3D5C72 on #E8F0F4
+  - Unknown: ink-500 on ivory-300
+  - Size variants: sm (text-xs) and md (text-sm, default)
+  - Accessible: title attribute with "Political lean: {label}"
+  - Typed with PoliticalLean from lib/types/brief.ts
+- **Learnings for future iterations:**
+  - Components in sources/ directory should import from @/components/sources/{component-name}
+  - Political lean colors are non-partisan - avoid UK flag red/blue associations
+  - Use subtle background colors for readability on badges
 ---
