@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, ArrowLeft, Check, AlertCircle } from "lucide-react";
+import { User, ArrowLeft, Check, AlertCircle, Upload, X } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
@@ -15,6 +15,7 @@ interface FormErrors {
   username?: string;
   bio?: string;
   location?: string;
+  avatar?: string;
 }
 
 export default function EditProfilePage() {
@@ -31,6 +32,11 @@ export default function EditProfilePage() {
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
+
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -122,6 +128,80 @@ export default function EditProfilePage() {
     }
   };
 
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setErrors((prev) => ({
+        ...prev,
+        avatar: "Invalid file type. Allowed: JPG, PNG, GIF, WebP",
+      }));
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        avatar: "File too large. Maximum size is 2MB",
+      }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, avatar: undefined }));
+    setAvatarFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+
+    setIsUploadingAvatar(true);
+    setApiError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("avatar", avatarFile);
+
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setApiError(data.error || "Failed to upload avatar");
+        return;
+      }
+
+      setProfile(data.profile);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch {
+      setApiError("Network error. Please try again.");
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const cancelAvatarPreview = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setErrors((prev) => ({ ...prev, avatar: undefined }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -162,23 +242,85 @@ export default function EditProfilePage() {
           </div>
         )}
 
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="w-full h-full object-cover"
+        <div className="mb-8">
+          <label className="block text-sm font-medium mb-3">Profile Photo</label>
+          <div className="flex items-start gap-4">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center ring-2 ring-gray-200 dark:ring-gray-600">
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-gray-400" />
+                )}
+              </div>
+              {avatarPreview && (
+                <button
+                  type="button"
+                  onClick={cancelAvatarPreview}
+                  className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition"
+                  title="Cancel"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="font-medium">{displayName}</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="avatar"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleAvatarSelect}
+                className="hidden"
               />
-            ) : (
-              <User className="w-10 h-10 text-gray-400" />
-            )}
-          </div>
-          <div>
-            <p className="font-medium">{displayName}</p>
-            <p className="text-sm text-muted-foreground">
-              Avatar upload coming soon
-            </p>
+              {avatarPreview ? (
+                <button
+                  type="button"
+                  onClick={handleAvatarUpload}
+                  disabled={isUploadingAvatar}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition disabled:opacity-50"
+                >
+                  {isUploadingAvatar ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      Upload Photo
+                    </>
+                  )}
+                </button>
+              ) : (
+                <label
+                  htmlFor="avatar"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 transition cursor-pointer"
+                >
+                  <Upload className="w-4 h-4" />
+                  Choose Photo
+                </label>
+              )}
+              <p className="text-xs text-muted-foreground">
+                JPG, PNG, GIF, or WebP. Max 2MB.
+              </p>
+              {errors.avatar && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {errors.avatar}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

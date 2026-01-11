@@ -241,3 +241,49 @@ Thread: https://ampcode.com/threads/T-019babfa-48bc-759a-922c-fba7d2f234f2
   - PGRST116 is the "no rows returned" error code - useful for checking if record exists
   - Can upsert by catching PGRST116 on update and then inserting
 ---
+
+## 2026-01-11 - US-013
+Thread: https://ampcode.com/threads/T-019babfc-23d7-77ef-b2a3-d1f964aa53be
+- Created profile edit page at /app/profile/edit/page.tsx
+- Features:
+  - Protected route (redirects to signin if not authenticated)
+  - Editable fields: Full name, Username (with @ prefix), Bio (280 char limit with counter), Location
+  - Avatar display with placeholder text "Avatar upload coming soon"
+  - Save button calls /api/profile PATCH API
+  - Success toast shows "Profile saved successfully" for 3 seconds
+  - Client-side validation for username format and bio length
+  - API error handling displays inline error message
+  - Cancel button and Back to profile link
+- **Files changed:**
+  - app/profile/edit/page.tsx (new)
+- **Learnings for future iterations:**
+  - When Supabase data returns `never` type from chained queries, use explicit type assertion: `const fetchedProfile = profileData as Profile | null`
+  - Follow existing patterns from /profile page for auth checks and data fetching
+---
+
+## 2026-01-11 - US-014
+Thread: https://ampcode.com/threads/T-019babff-7121-77ca-89a5-12d49b38fb57
+- Created avatar upload functionality for profile edit page
+- Features:
+  - Created /app/api/profile/avatar/route.ts for handling file uploads
+  - Accepts image upload (jpg, png, gif, webp, max 2MB)
+  - Uploads to Supabase Storage bucket 'avatars'
+  - Updates profile.avatar_url with public URL
+  - Client-side preview before upload using FileReader.readAsDataURL
+  - Cancel button to remove preview without uploading
+  - Loading spinner during upload
+  - Error handling for invalid file types and sizes
+- Updated profile edit page with new avatar upload section:
+  - "Profile Photo" label with larger avatar display (24x24 with ring)
+  - "Choose Photo" button to select file
+  - "Upload Photo" button appears after file selected
+  - Cancel (X) button on avatar preview
+  - File format/size instructions text
+- **Files changed:**
+  - app/api/profile/avatar/route.ts (new)
+  - app/profile/edit/page.tsx (modified - added avatar upload UI)
+- **Learnings for future iterations:**
+  - Use FormData for file uploads, not JSON body
+  - FileReader.readAsDataURL creates preview without server round-trip
+  - Supabase storage.upload needs Buffer from arrayBuffer for Node.js
+---
