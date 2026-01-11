@@ -66,3 +66,17 @@ Thread: https://ampcode.com/threads/T-019bae5e-e328-7158-a40c-4a786c7e1158
   - Use `(supabase.from("table") as any).update()` pattern to work around strict types
   - Always invalidate both specific cache key and related collection caches (e.g., `briefs:popular`)
 ---
+
+## Sun 11 Jan 2026 - US-006
+Thread: https://ampcode.com/threads/T-019bae66-6ec8-723d-9df1-39662742c0a5
+- Verified /app/api/briefs/[id]/route.ts GET endpoint was already implemented
+- Fetches brief using getBriefById from brief-service (uses withCache)
+- Returns 404 JSON response if brief not found
+- Sets Cache-Control: public, s-maxage=60, stale-while-revalidate=300
+- Sets ETag header based on brief.updated_at timestamp
+- Returns 304 Not Modified when If-None-Match matches ETag
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Next.js 14+ uses `params: Promise<{ id: string }>` for dynamic route params (must await)
+  - ETag comparison uses exact string match of `"${updated_at}"`
+---
