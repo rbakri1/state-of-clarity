@@ -11,6 +11,7 @@ Started: Sun 11 Jan 2026 22:25:49 +04
 - Supabase error 22P02: Invalid UUID format - treat as "not found" alongside PGRST116
 - Brief page: Database briefs may have empty/null fields for structured_data, narrative, etc. - use defensive access
 - Use `createBrief(briefData)` from brief-service.ts to create briefs with automatic cache warming
+- Use `withRetry(async () => {...})` from /lib/supabase/client.ts for database ops that may have connection issues
 
 ---
 
@@ -149,4 +150,16 @@ Thread: https://ampcode.com/threads/T-019bae83-59a9-7625-b949-d297eb5b6272
 - **Learnings for future iterations:**
   - Previous iterations already implemented this feature - always verify before building
   - withAdmin middleware checks user.role === "admin" OR user.email in ADMIN_EMAILS env var
+---
+
+## Sun 11 Jan 2026 - US-012
+Thread: https://ampcode.com/threads/T-019bae84-feb0-767a-8f39-e2addd955d54
+- Implemented singleton pattern for createServiceRoleClient() in /lib/supabase/client.ts
+- Added withRetry<T>() utility for database operations with exponential backoff (3 retries)
+- Updated all brief-service.ts database operations to use withRetry wrapper
+- Retry logic handles network errors: fetch failed, ECONNREFUSED, ETIMEDOUT, socket hang up
+- **Learnings for future iterations:**
+  - Use `withRetry(async () => { ... })` to wrap any Supabase operation that may have connection issues
+  - Singleton pattern uses module-level variable `serviceRoleClientInstance`
+  - Retry only applies to connection errors, not application errors (PGRST116 is not retried)
 ---
