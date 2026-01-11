@@ -223,3 +223,21 @@ Thread: https://ampcode.com/threads/T-019babf6-8561-731c-9473-efbcd2b04b7b
   - Fetch user's profile with supabase.from("profiles").select("*").eq("id", user.id).single()
   - Fall back to user.user_metadata for display name/avatar if profile is not set
 ---
+
+## 2026-01-11 - US-012
+Thread: https://ampcode.com/threads/T-019babfa-48bc-759a-922c-fba7d2f234f2
+- Created profile API endpoint at /app/api/profile/route.ts
+- Features:
+  - GET: Returns current user's profile with stats (briefs_generated, briefs_saved, feedback_count)
+  - PATCH: Updates profile fields (full_name, username, bio, location, preferences)
+  - Username validation: 3-20 chars, alphanumeric + underscore only
+  - Username uniqueness check before update
+  - Bio length validation (280 chars max)
+  - Creates profile record if it doesn't exist on PATCH
+- **Files changed:**
+  - app/api/profile/route.ts (new)
+- **Learnings for future iterations:**
+  - Use createServerClient pattern with cookie handling for API routes
+  - PGRST116 is the "no rows returned" error code - useful for checking if record exists
+  - Can upsert by catching PGRST116 on update and then inserting
+---
