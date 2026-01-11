@@ -372,3 +372,22 @@ Thread: https://ampcode.com/threads/T-019bac19-ad4b-738f-96e2-faee38880c1d
   - Use identities.some() to check if a specific provider is connected
   - Protected routes require authenticated session - browser verification needs dev server
 ---
+
+## 2026-01-11 - US-020
+Thread: https://ampcode.com/threads/T-019bac21-3d7c-7412-9319-f0f543d7850e
+- Created GDPR data export functionality
+- Features:
+  - Created /app/api/profile/export/route.ts API endpoint
+  - Compiles: user info, profile, saved briefs (with brief details), reading history (with brief details), feedback (with brief details)
+  - Returns as downloadable JSON file with Content-Disposition header
+  - Added "Export my data" button to settings Data & Privacy section
+  - Loading state with spinner during export
+  - Also added delete account link (placeholder for US-021)
+- **Files changed:**
+  - app/api/profile/export/route.ts (new)
+  - app/settings/page.tsx (modified - added export button and delete account link)
+- **Learnings for future iterations:**
+  - Use blob download pattern: fetch → response.blob() → createObjectURL → programmatic click → cleanup
+  - Content-Disposition header triggers browser download behavior
+  - Join related tables in Supabase with `briefs:brief_id (id, question, ...)` syntax
+---
