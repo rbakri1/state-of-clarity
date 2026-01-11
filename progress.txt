@@ -468,3 +468,23 @@ Thread: https://ampcode.com/threads/T-019bacf4-678a-727d-a529-d5c4c76d641b
   - Use Supabase join syntax with colon: `table:foreign_table (columns)` for nested relations
   - Type assertion needed for Supabase joined queries: `data as SavedBrief[]`
 ---
+
+## 2026-01-11 - US-025
+Thread: https://ampcode.com/threads/T-019bacf8-6a47-725f-9915-45d1add5987b
+- Created reading history page at /app/profile/history/page.tsx
+- Features:
+  - Protected route - redirects to /auth/signin if not authenticated
+  - Fetches from reading_history joined with briefs table
+  - Displays: question, clarity score (with color indicator), last viewed (relative time), scroll depth %
+  - Order by last_viewed_at DESC
+  - Links to /brief/[id] for each history item
+  - Empty state with history icon and "Browse briefs" CTA
+  - "Back to profile" link at top
+  - Shows total viewed count in header
+- Used same Supabase join pattern as saved briefs: `brief:briefs (columns)`
+- **Files changed:**
+  - app/profile/history/page.tsx (new)
+- **Learnings for future iterations:**
+  - Relative time formatting helper is useful for "X ago" displays
+  - formatScrollDepth converts 0.00-1.00 to percentage string
+---
