@@ -1,12 +1,59 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Sparkles, TrendingUp, BookOpen, Loader2, User } from "lucide-react";
 import Link from "next/link";
+import { createBrowserClient } from "@/lib/supabase/browser";
+import TopicCategoriesGrid from "./components/TopicCategoriesGrid";
+
+interface ForYouQuestion {
+  id: string;
+  question_text: string;
+  category: string;
+}
 
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [topicInterests, setTopicInterests] = useState<string[]>([]);
+  const [forYouQuestions, setForYouQuestions] = useState<ForYouQuestion[]>([]);
+  const [isLoadingForYou, setIsLoadingForYou] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    async function fetchPersonalization() {
+      const supabase = createBrowserClient();
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setIsAuthenticated(true);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("topic_interests")
+          .eq("id", user.id)
+          .single();
+        
+        const interests = (profile as { topic_interests: string[] | null } | null)?.topic_interests || [];
+        setTopicInterests(interests);
+        
+        if (interests.length > 0) {
+          const { data: questions } = await supabase
+            .from("question_templates")
+            .select("id, question_text, category")
+            .in("category", interests.map((i: string) => i.charAt(0).toUpperCase() + i.slice(1)))
+            .order("display_order", { ascending: true })
+            .limit(6);
+          
+          setForYouQuestions((questions as ForYouQuestion[]) || []);
+        }
+      }
+      
+      setIsLoadingForYou(false);
+    }
+    
+    fetchPersonalization();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,6 +217,62 @@ export default function Home() {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* For You Section - Personalized for authenticated users */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-200 dark:border-gray-800">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-2">
+            {isAuthenticated && topicInterests.length > 0 ? (
+              <>
+                <User className="w-8 h-8 inline mr-2 text-accent" />
+                For You
+              </>
+            ) : (
+              "Browse by Topic"
+            )}
+          </h2>
+          <p className="text-muted-foreground">
+            {isAuthenticated && topicInterests.length > 0
+              ? "Questions from topics you're interested in"
+              : isAuthenticated
+              ? "Select topics in Settings to see personalized questions"
+              : "Explore questions across different policy areas"
+            }
+          </p>
+        </div>
+
+        {/* Personalized Questions */}
+        {isLoadingForYou ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : isAuthenticated && forYouQuestions.length > 0 ? (
+          <div className="mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {forYouQuestions.map((q: ForYouQuestion) => (
+                <button
+                  key={q.id}
+                  onClick={() => setQuestion(q.question_text)}
+                  className="text-left p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-accent hover:shadow-md transition group"
+                >
+                  <span className="text-xs font-medium text-accent uppercase tracking-wide mb-2 block">
+                    {q.category}
+                  </span>
+                  <span className="text-sm group-hover:text-accent transition">
+                    {q.question_text}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Topic Categories Grid */}
+        <TopicCategoriesGrid
+          highlightedTopics={topicInterests}
+          onQuestionClick={(text: string) => setQuestion(text)}
+        />
       </section>
 
       {/* Footer */}

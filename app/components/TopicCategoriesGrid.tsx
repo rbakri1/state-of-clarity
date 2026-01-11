@@ -43,10 +43,12 @@ const categories: TopicCategory[] = [
 
 interface TopicCategoriesGridProps {
   onQuestionClick?: (questionText: string) => void;
+  highlightedTopics?: string[];
 }
 
 export default function TopicCategoriesGrid({
   onQuestionClick,
+  highlightedTopics = [],
 }: TopicCategoriesGridProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [questions, setQuestions] = useState<QuestionTemplate[]>([]);
@@ -95,16 +97,22 @@ export default function TopicCategoriesGrid({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {categories.map((category: TopicCategory) => (
+        {categories.map((category: TopicCategory) => {
+          const isHighlighted = highlightedTopics.includes(category.id);
+          const isSelected = selectedCategory === category.id;
+          
+          return (
           <button
             key={category.id}
             onClick={() => handleCategoryClick(category.id)}
             className={`
               flex flex-col items-center justify-center gap-2 p-4 rounded-xl
-              border transition-all duration-200 cursor-pointer
+              border-2 transition-all duration-200 cursor-pointer relative
               ${
-                selectedCategory === category.id
+                isSelected
                   ? "border-primary bg-primary/5 text-primary"
+                  : isHighlighted
+                  ? "border-accent ring-2 ring-accent/30 bg-accent/5 hover:scale-[1.02]"
                   : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary/50 hover:scale-[1.02]"
               }
             `}
@@ -113,8 +121,10 @@ export default function TopicCategoriesGrid({
               className={`
               w-10 h-10 rounded-lg flex items-center justify-center
               ${
-                selectedCategory === category.id
+                isSelected
                   ? "bg-primary/10 text-primary"
+                  : isHighlighted
+                  ? "bg-accent/10 text-accent"
                   : "bg-muted text-muted-foreground"
               }
             `}
@@ -122,8 +132,12 @@ export default function TopicCategoriesGrid({
               {category.icon}
             </div>
             <span className="text-sm font-medium">{category.label}</span>
+            {isHighlighted && !isSelected && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-accent" />
+            )}
           </button>
-        ))}
+        );
+        })}
       </div>
 
       {selectedCategory && (

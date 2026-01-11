@@ -413,3 +413,21 @@ Thread: https://ampcode.com/threads/T-019bace2-ce72-754f-9de8-ee6addb87527
   - Admin client needs auth.admin.deleteUser() not regular auth methods
   - Protected routes redirect to signin when not authenticated
 ---
+
+## 2026-01-11 - US-022
+Thread: https://ampcode.com/threads/T-019baceb-b5fe-7777-bb4b-957d47c50249
+- Implemented preferred reading level auto-application on brief pages
+- Features:
+  - Fetches user's preferred_reading_level from profile if authenticated
+  - Maps profile levels (simple/standard/advanced) to brief levels (child/undergrad/postdoc)
+  - URL parameter (?level=child) takes priority over all other sources
+  - localStorage fallback for anonymous users
+  - Saves level to localStorage when user clicks a level button
+  - Falls back to 'undergrad' (standard) if nothing set
+- **Files changed:**
+  - app/brief/[id]/page.tsx (modified - added reading level preference logic)
+- **Learnings for future iterations:**
+  - Use useSearchParams() from next/navigation to read URL query params in client components
+  - Map profile reading levels to brief reading levels with a helper function
+  - localStorage persists anonymous user preferences across sessions
+---
