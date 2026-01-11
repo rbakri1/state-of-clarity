@@ -20,7 +20,9 @@ export async function getBriefById(id: string): Promise<Brief | null> {
         .single();
 
       if (error) {
-        if (error.code === "PGRST116") {
+        // PGRST116: No rows found
+        // 22P02: Invalid UUID format
+        if (error.code === "PGRST116" || error.code === "22P02") {
           return null;
         }
         throw error;

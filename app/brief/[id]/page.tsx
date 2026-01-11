@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import useSWR from "swr";
 import {
   Sparkles,
   ChevronDown,
@@ -12,17 +13,194 @@ import {
   Share2,
   BookmarkPlus,
   AlertCircle,
+  FileQuestion,
 } from "lucide-react";
 import Link from "next/link";
-
-// Import sample briefs (in production, this would come from API)
-import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
-import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
+import { FetchError } from "@/lib/swr/fetcher";
 
 type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
 
+interface BriefSource {
+  id: string;
+  url: string;
+  title: string;
+  author: string;
+  publication_date: string;
+  political_lean: string;
+  source_type: string;
+}
+
+interface Brief {
+  id: string;
+  question: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  clarity_score: number | null;
+  summaries: Record<ReadingLevel, string>;
+  structured_data: {
+    definitions?: Array<{
+      term: string;
+      definition: string;
+      source?: string;
+      points_of_contention?: string;
+    }>;
+    factors?: Array<{
+      name: string;
+      impact: string;
+      evidence: string[];
+    }>;
+    policies?: Array<{
+      name: string;
+      pros: string[];
+      cons: string[];
+    }>;
+    consequences?: Array<{
+      action: string;
+      first_order: string;
+      second_order: string;
+    }>;
+    sources?: BriefSource[];
+  };
+  narrative: string;
+  metadata: {
+    tags?: string[];
+    sources?: BriefSource[];
+    [key: string]: unknown;
+  };
+  clarity_critique?: {
+    score: number;
+    breakdown: Record<string, number>;
+    strengths: string[];
+    gaps: string[];
+  } | null;
+  posit?: {
+    question: string;
+    relevance: string;
+  } | null;
+  historical_summary?: {
+    introduction: string;
+    origins: string;
+    key_milestones: string[];
+    modern_context: string;
+    lessons: string[];
+  } | null;
+  foundational_principles?: {
+    enabled: boolean;
+    principles: Array<{
+      rank: number;
+      name: string;
+      definition: string;
+      justification: string;
+    }>;
+    ranking_rationale: string;
+  } | null;
+}
+
+function BriefSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+      <header className="border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold">State of Clarity</span>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8 animate-pulse">
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4 mb-4" />
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse"
+              >
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4" />
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
+              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-4" />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="mb-3">
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2" />
+                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full w-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotFoundError() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
+      <div className="text-center px-4">
+        <FileQuestion className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+        <h1 className="text-2xl font-bold mb-2">Brief Not Found</h1>
+        <p className="text-muted-foreground mb-6">
+          The brief you're looking for doesn't exist or has been removed.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition"
+        >
+          <Sparkles className="w-4 h-4" />
+          Go to Home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ErrorMessage({ message }: { message: string }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
+      <div className="text-center px-4">
+        <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+        <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
+        <p className="text-muted-foreground mb-6">{message}</p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition"
+        >
+          <Sparkles className="w-4 h-4" />
+          Go to Home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function BriefPage() {
   const params = useParams();
+  const briefId = params.id as string;
+
+  const { data: brief, error, isLoading } = useSWR<Brief, FetchError>(
+    `/api/briefs/${briefId}`
+  );
+
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("undergrad");
   const [expandedSections, setExpandedSections] = useState({
     posit: true,
@@ -33,14 +211,6 @@ export default function BriefPage() {
     historical: false,
     principles: false,
   });
-
-  // In production, fetch brief by ID from API
-  const briefs: { [key: string]: any } = {
-    "uk-four-day-week": briefUK4Day,
-    "what-is-a-state": briefWhatIsState,
-  };
-
-  const brief = briefs[params.id as string] || briefUK4Day;
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -67,6 +237,33 @@ export default function BriefPage() {
     if (lean.includes("right")) return "right";
     return "center";
   };
+
+  if (isLoading) {
+    return <BriefSkeleton />;
+  }
+
+  if (error) {
+    if (error.status === 404) {
+      return <NotFoundError />;
+    }
+    return <ErrorMessage message="Failed to load the brief. Please try again later." />;
+  }
+
+  if (!brief) {
+    return <NotFoundError />;
+  }
+
+  // Helper to get sources from various possible locations
+  const sources: BriefSource[] = 
+    brief.structured_data?.sources || 
+    brief.metadata?.sources || 
+    [];
+
+  const tags: string[] = brief.metadata?.tags || [];
+  const definitions = brief.structured_data?.definitions || [];
+  const factors = brief.structured_data?.factors || [];
+  const policies = brief.structured_data?.policies || [];
+  const consequences = brief.structured_data?.consequences || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
@@ -101,14 +298,16 @@ export default function BriefPage() {
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl sm:text-4xl font-bold">{brief.question}</h1>
-            <div
-              className={`clarity-score-badge ${getClarityScoreClass(
-                brief.clarity_score
-              )} shrink-0`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{brief.clarity_score}/10</span>
-            </div>
+            {brief.clarity_score != null && (
+              <div
+                className={`clarity-score-badge ${getClarityScoreClass(
+                  brief.clarity_score
+                )} shrink-0`}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{brief.clarity_score}/10</span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -116,19 +315,27 @@ export default function BriefPage() {
               Version {brief.version} • Updated{" "}
               {new Date(brief.updated_at).toLocaleDateString()}
             </span>
-            <span>•</span>
-            <span>{brief.sources.length} sources</span>
-            <span>•</span>
-            <div className="flex flex-wrap gap-2">
-              {brief.metadata.tags.map((tag: string) => (
-                <span
-                  key={tag}
-                  className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {sources.length > 0 && (
+              <>
+                <span>•</span>
+                <span>{sources.length} sources</span>
+              </>
+            )}
+            {tags.length > 0 && (
+              <>
+                <span>•</span>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag: string) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -239,7 +446,7 @@ export default function BriefPage() {
                       These principles guide our analysis, force-ranked by importance:
                     </p>
 
-                    {brief.foundational_principles.principles.map((principle: any) => (
+                    {brief.foundational_principles.principles.map((principle) => (
                       <div key={principle.rank} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-semibold">{principle.rank}. {principle.name}</h3>
@@ -307,195 +514,202 @@ export default function BriefPage() {
               <h2 className="text-xl font-bold mb-6">Structured Analysis</h2>
 
               {/* Definitions */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("definitions")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Key Definitions ({brief.structured_data.definitions.length})
-                  </h3>
-                  {expandedSections.definitions ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
+              {definitions.length > 0 && (
+                <div className="mb-6">
+                  <button
+                    onClick={() => toggleSection("definitions")}
+                    className="flex items-center justify-between w-full text-left mb-3"
+                  >
+                    <h3 className="text-lg font-semibold">
+                      Key Definitions ({definitions.length})
+                    </h3>
+                    {expandedSections.definitions ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
 
-                {expandedSections.definitions && (
-                  <div className="space-y-3">
-                    {brief.structured_data.definitions.map((def: any, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <dt className="font-semibold text-primary mb-2">
-                          {def.term}
-                        </dt>
-                        <dd className="text-sm mb-2">
-                          {def.definition}
-                        </dd>
-                        {def.source && (
-                          <dd className="text-xs text-muted-foreground mb-2">
-                            <strong>Source:</strong> {def.source}
+                  {expandedSections.definitions && (
+                    <div className="space-y-3">
+                      {definitions.map((def, i: number) => (
+                        <div
+                          key={i}
+                          className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        >
+                          <dt className="font-semibold text-primary mb-2">
+                            {def.term}
+                          </dt>
+                          <dd className="text-sm mb-2">
+                            {def.definition}
                           </dd>
-                        )}
-                        {def.points_of_contention && (
-                          <dd className="text-xs text-orange-600 dark:text-orange-400">
-                            <strong>⚠ Points of Contention:</strong> {def.points_of_contention}
-                          </dd>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                          {def.source && (
+                            <dd className="text-xs text-muted-foreground mb-2">
+                              <strong>Source:</strong> {def.source}
+                            </dd>
+                          )}
+                          {def.points_of_contention && (
+                            <dd className="text-xs text-orange-600 dark:text-orange-400">
+                              <strong>⚠ Points of Contention:</strong> {def.points_of_contention}
+                            </dd>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Factors */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("factors")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Key Factors ({brief.structured_data.factors.length})
-                  </h3>
-                  {expandedSections.factors ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
+              {factors.length > 0 && (
+                <div className="mb-6">
+                  <button
+                    onClick={() => toggleSection("factors")}
+                    className="flex items-center justify-between w-full text-left mb-3"
+                  >
+                    <h3 className="text-lg font-semibold">
+                      Key Factors ({factors.length})
+                    </h3>
+                    {expandedSections.factors ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
 
-                {expandedSections.factors && (
-                  <div className="space-y-4">
-                    {brief.structured_data.factors.map((factor: { name: string; impact: string; evidence: string[] }, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold">{factor.name}</h4>
-                          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-                            {factor.impact}
-                          </span>
+                  {expandedSections.factors && (
+                    <div className="space-y-4">
+                      {factors.map((factor, i: number) => (
+                        <div
+                          key={i}
+                          className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-semibold">{factor.name}</h4>
+                            <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                              {factor.impact}
+                            </span>
+                          </div>
+                          <div className="text-sm text-muted-foreground mb-2">
+                            <strong>Evidence:</strong>
+                            <ul className="list-disc list-inside mt-1 space-y-1">
+                              {factor.evidence.map((ev: string, j: number) => (
+                                <li key={j}>{ev}</li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          <strong>Evidence:</strong>
-                          <ul className="list-disc list-inside mt-1 space-y-1">
-                            {factor.evidence.map((ev: string, j: number) => (
-                              <li key={j}>{ev}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Policies */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("policies")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Policy Options ({brief.structured_data.policies.length})
-                  </h3>
-                  {expandedSections.policies ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
+              {policies.length > 0 && (
+                <div className="mb-6">
+                  <button
+                    onClick={() => toggleSection("policies")}
+                    className="flex items-center justify-between w-full text-left mb-3"
+                  >
+                    <h3 className="text-lg font-semibold">
+                      Policy Options ({policies.length})
+                    </h3>
+                    {expandedSections.policies ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
 
-                {expandedSections.policies && (
-                  <div className="space-y-4">
-                    {brief.structured_data.policies.map((policy: { name: string; pros: string[]; cons: string[] }, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <h4 className="font-semibold mb-3">{policy.name}</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="font-medium text-green-600 dark:text-green-400 mb-2">
-                              Pros:
+                  {expandedSections.policies && (
+                    <div className="space-y-4">
+                      {policies.map((policy, i: number) => (
+                        <div
+                          key={i}
+                          className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        >
+                          <h4 className="font-semibold mb-3">{policy.name}</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="font-medium text-green-600 dark:text-green-400 mb-2">
+                                Pros:
+                              </div>
+                              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                                {policy.pros.map((pro: string, j: number) => (
+                                  <li key={j}>{pro}</li>
+                                ))}
+                              </ul>
                             </div>
-                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.pros.map((pro: string, j: number) => (
-                                <li key={j}>{pro}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <div className="font-medium text-red-600 dark:text-red-400 mb-2">
-                              Cons:
+                            <div>
+                              <div className="font-medium text-red-600 dark:text-red-400 mb-2">
+                                Cons:
+                              </div>
+                              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                                {policy.cons.map((con: string, j: number) => (
+                                  <li key={j}>{con}</li>
+                                ))}
+                              </ul>
                             </div>
-                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.cons.map((con: string, j: number) => (
-                                <li key={j}>{con}</li>
-                              ))}
-                            </ul>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Consequences */}
-              <div>
-                <button
-                  onClick={() => toggleSection("consequences")}
-                  className="flex items-center justify-between w-full text-left mb-3"
-                >
-                  <h3 className="text-lg font-semibold">
-                    Second-Order Effects (
-                    {brief.structured_data.consequences.length})
-                  </h3>
-                  {expandedSections.consequences ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
+              {consequences.length > 0 && (
+                <div>
+                  <button
+                    onClick={() => toggleSection("consequences")}
+                    className="flex items-center justify-between w-full text-left mb-3"
+                  >
+                    <h3 className="text-lg font-semibold">
+                      Second-Order Effects ({consequences.length})
+                    </h3>
+                    {expandedSections.consequences ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
 
-                {expandedSections.consequences && (
-                  <div className="space-y-4">
-                    {brief.structured_data.consequences.map((consequence: { action: string; first_order: string; second_order: string }, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-                      >
-                        <h4 className="font-semibold mb-3">
-                          {consequence.action}
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="font-medium">
-                              First-order:
-                            </span>{" "}
-                            <span className="text-muted-foreground">
-                              {consequence.first_order}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="font-medium">
-                              Second-order:
-                            </span>{" "}
-                            <span className="text-muted-foreground">
-                              {consequence.second_order}
-                            </span>
+                  {expandedSections.consequences && (
+                    <div className="space-y-4">
+                      {consequences.map((consequence, i: number) => (
+                        <div
+                          key={i}
+                          className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        >
+                          <h4 className="font-semibold mb-3">
+                            {consequence.action}
+                          </h4>
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <span className="font-medium">
+                                First-order:
+                              </span>{" "}
+                              <span className="text-muted-foreground">
+                                {consequence.first_order}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium">
+                                Second-order:
+                              </span>{" "}
+                              <span className="text-muted-foreground">
+                                {consequence.second_order}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
 
             {/* Feedback Section */}
@@ -530,97 +744,105 @@ export default function BriefPage() {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Clarity Score Breakdown */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 sticky top-24">
-              <h3 className="font-semibold mb-4">Clarity Score Breakdown</h3>
+            {brief.clarity_critique && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 sticky top-24">
+                <h3 className="font-semibold mb-4">Clarity Score Breakdown</h3>
 
-              <div className="space-y-3">
-                {Object.entries(brief.clarity_critique.breakdown as Record<string, number>).map(
-                  ([key, value]) => (
-                    <div key={key}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm capitalize">
-                          {key.replace(/_/g, " ")}
-                        </span>
-                        <span className="text-sm font-medium">
-                          {(value * 10).toFixed(1)}
-                        </span>
+                <div className="space-y-3">
+                  {Object.entries(brief.clarity_critique.breakdown as Record<string, number>).map(
+                    ([key, value]) => (
+                      <div key={key}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm capitalize">
+                            {key.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-sm font-medium">
+                            {(value * 10).toFixed(1)}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-primary rounded-full h-2 transition-all"
+                            style={{ width: `${value * 100}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-primary rounded-full h-2 transition-all"
-                          style={{ width: `${value * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
+                    )
+                  )}
+                </div>
+
+                {brief.clarity_critique.strengths && brief.clarity_critique.strengths.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium mb-2">Strengths</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      {brief.clarity_critique.strengths.map((strength: string, i: number) => (
+                        <li key={i}>{strength}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {brief.clarity_critique.gaps && brief.clarity_critique.gaps.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-medium mb-2">Gaps</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      {brief.clarity_critique.gaps.map((gap: string, i: number) => (
+                        <li key={i}>{gap}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="font-medium mb-2">Strengths</h4>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  {brief.clarity_critique.strengths.map((strength: string, i: number) => (
-                    <li key={i}>{strength}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Gaps</h4>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  {brief.clarity_critique.gaps.map((gap: string, i: number) => (
-                    <li key={i}>{gap}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            )}
 
             {/* Sources */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="font-semibold mb-4">
-                Sources ({brief.sources.length})
-              </h3>
+            {sources.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <h3 className="font-semibold mb-4">
+                  Sources ({sources.length})
+                </h3>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {brief.sources.map((source: { id: string; url: string; title: string; author: string; publication_date: string; political_lean: string; source_type: string }) => (
-                  <a
-                    key={source.id}
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition group"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="text-sm font-medium group-hover:text-primary line-clamp-2">
-                        {source.title}
-                      </h4>
-                      <ExternalLink className="w-3 h-3 shrink-0 text-muted-foreground" />
-                    </div>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {sources.map((source) => (
+                    <a
+                      key={source.id}
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition group"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="text-sm font-medium group-hover:text-primary line-clamp-2">
+                          {source.title}
+                        </h4>
+                        <ExternalLink className="w-3 h-3 shrink-0 text-muted-foreground" />
+                      </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
-                      <span>{source.author}</span>
-                      <span>•</span>
-                      <span>
-                        {new Date(source.publication_date).getFullYear()}
-                      </span>
-                    </div>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
+                        <span>{source.author}</span>
+                        <span>•</span>
+                        <span>
+                          {new Date(source.publication_date).getFullYear()}
+                        </span>
+                      </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <span
-                        className={`source-tag ${getPoliticalLeanClass(
-                          source.political_lean
-                        )}`}
-                      >
-                        {source.political_lean}
-                      </span>
-                      <span className="source-tag center">
-                        {source.source_type}
-                      </span>
-                    </div>
-                  </a>
-                ))}
+                      <div className="flex flex-wrap gap-2">
+                        <span
+                          className={`source-tag ${getPoliticalLeanClass(
+                            source.political_lean
+                          )}`}
+                        >
+                          {source.political_lean}
+                        </span>
+                        <span className="source-tag center">
+                          {source.source_type}
+                        </span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
