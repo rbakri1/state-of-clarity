@@ -14,8 +14,9 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - Brief types (ReadingLevel, PoliticalLean, Source, Brief, etc.) at @/lib/types/brief.ts
 - Components go in components/{brief,sources,generation,layout,feedback}/ subdirectories
 - Header/footer are duplicated inline in each page - need extraction
-- 6 key components STILL MISSING: SourceCitation, SourceCard, CredibilityBadge, BriefGenerationProgress, Header, Footer
+- 5 key components STILL MISSING: SourceCitation, SourceCard, BriefGenerationProgress, Header, Footer
 - PoliticalLeanBadge now complete at @/components/sources/political-lean-badge.tsx with muted non-partisan colors
+- CredibilityBadge now complete at @/components/sources/credibility-badge.tsx with tiered icons (ShieldCheck/Shield/ShieldAlert)
 - ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
 - SummaryCard now complete at @/components/brief/summary-card.tsx with typography per level and reading time
 
@@ -143,4 +144,25 @@ Thread: https://ampcode.com/threads/T-019baf15-44fe-74e8-9e66-9d652d3e34a9
   - Components in sources/ directory should import from @/components/sources/{component-name}
   - Political lean colors are non-partisan - avoid UK flag red/blue associations
   - Use subtle background colors for readability on badges
+---
+
+## 2026-01-12 17:15 - US-007
+Thread: https://ampcode.com/threads/T-019baf1f-a8a8-77c9-a66b-6e416d680256
+- **What was implemented:** CredibilityBadge component for displaying source credibility scores
+- **Files created:**
+  - components/sources/credibility-badge.tsx (main component)
+- **Features:**
+  - Three score tiers with appropriate icons from lucide-react:
+    - Score 8+: ShieldCheck icon, success-light bg, success-dark text, "Highly Credible"
+    - Score 5-7: Shield icon, warning-light bg, warning-dark text, "Moderately Credible"
+    - Score <5: ShieldAlert icon, error-light bg, error-dark text, "Lower Credibility"
+  - Score displayed as X/10
+  - Size variants: sm (text-xs) and md (text-sm, default)
+  - Accessible: title attribute with "{label}: {score}/10"
+  - Uses design system semantic colors (success, warning, error)
+- **Learnings for future iterations:**
+  - CredibilityBadge now available at @/components/sources/credibility-badge
+  - Uses semantic colors from Tailwind config: success-{DEFAULT,light,dark}, warning-{}, error-{}
+  - Component matches PoliticalLeanBadge pattern for consistency
+  - Not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
 ---
