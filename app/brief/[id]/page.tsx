@@ -19,6 +19,11 @@ import { ReadingLevelSelector } from "@/components/brief/reading-level-selector"
 import { SummaryCard } from "@/components/brief/summary-card";
 import type { ReadingLevel } from "@/lib/types/brief";
 
+// Import sample briefs (in production, this would come from API)
+import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
+import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
+import { LowBalanceWarning } from "@/app/components/LowBalanceWarning";
+
 export default function BriefPage() {
   const params = useParams();
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("undergrad");
