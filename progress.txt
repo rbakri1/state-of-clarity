@@ -149,3 +149,16 @@ Thread: https://ampcode.com/threads/T-019baeca-951e-761a-978a-ff6b5ee2474e
   - Admin schemas follow same pattern as brief-schemas.ts
   - Use `unknown` type for rawBody before validation for type safety
 ---
+
+## Mon 12 Jan 2026 - US-011
+Thread: https://ampcode.com/threads/T-019baee3-f3d0-71e0-a781-8b1baa974f3e
+- Audited codebase for hardcoded secrets - found none (all use process.env.*)
+- Verified .env is in .gitignore
+- Verified .env.example contains all 8 env vars used in codebase
+- Updated SETUP.md with comprehensive environment variable documentation (required vs optional, with source links)
+- Build passes successfully
+- **Learnings for future iterations:**
+  - All secrets use process.env.* - no hardcoded values in codebase
+  - .env.example is comprehensive with comments for each variable
+  - SETUP.md now has tables documenting all required and optional env vars
+---
