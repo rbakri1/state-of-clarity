@@ -143,8 +143,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component created at components/sources/source-citation.tsx. Renders superscript [n] link with political lean color (muted rose→grey→blue spectrum), hover underline, aria-label with source title, links to #source-{id} anchor."
     },
     {
       "id": "US-009",
@@ -162,8 +162,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component created at components/generation/generation-progress.tsx with 5 stages (research, structure, summary, narrative, scoring), progress bar with smooth transitions, Loader2 spinner for active stage, CheckCircle2 for completed stages, ~Xs remaining display. Types added to lib/types/brief.ts (GenerationStage, GenerationProgress). Uses warm editorial palette (sage/ivory/ink)."
     },
     {
       "id": "US-010",

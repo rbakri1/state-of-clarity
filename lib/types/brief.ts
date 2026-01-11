@@ -1,5 +1,18 @@
 export type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
 
+export type GenerationStage =
+  | "research"
+  | "structure"
+  | "summary"
+  | "narrative"
+  | "scoring";
+
+export interface GenerationProgress {
+  currentStage: GenerationStage;
+  progress: number; // 0-100
+  estimatedSecondsRemaining: number;
+}
+
 export type PoliticalLean =
   | "left"
   | "center-left"

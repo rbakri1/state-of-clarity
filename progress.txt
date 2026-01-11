@@ -19,6 +19,7 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - CredibilityBadge now complete at @/components/sources/credibility-badge.tsx with tiered icons (ShieldCheck/Shield/ShieldAlert)
 - ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
 - SummaryCard now complete at @/components/brief/summary-card.tsx with typography per level and reading time
+- BriefGenerationProgress now complete at @/components/generation/generation-progress.tsx with 5 stages, progress bar, spinner/checkmarks
 
 ---
 
@@ -165,4 +166,57 @@ Thread: https://ampcode.com/threads/T-019baf1f-a8a8-77c9-a66b-6e416d680256
   - Uses semantic colors from Tailwind config: success-{DEFAULT,light,dark}, warning-{}, error-{}
   - Component matches PoliticalLeanBadge pattern for consistency
   - Not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
+---
+
+## 2026-01-12 18:00 - US-008
+Thread: https://ampcode.com/threads/T-019baf23-ab08-75b5-9776-8fd2d5d070a5
+- **What was implemented:** SourceCitation component for inline citations
+- **Files created:**
+  - components/sources/source-citation.tsx (main component)
+- **Features:**
+  - Superscript link format [n] per design spec
+  - Political lean color coding (muted rose→grey→blue spectrum):
+    - Left: #C85C6B (muted rose)
+    - Center-Left: #D9A0A0 (soft pink)
+    - Center: ink-400 (ash grey)
+    - Center-Right: #7FA5B8 (soft blue)
+    - Right: #6B8FB3 (muted blue)
+    - Unknown: ivory-600 (soft taupe)
+  - Hover shows underline (no-underline hover:underline)
+  - Links to #source-{source.id} anchor
+  - Accessible: aria-label with "Source {n}: {title}", title attribute
+  - Uses font-ui, transition-colors duration-200
+- **Learnings for future iterations:**
+  - SourceCitation colors are different from PoliticalLeanBadge colors - badges use background colors, citations use text colors only
+  - Citation links should use font-ui not font-body for UI element styling
+  - Component is not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
+---
+
+## 2026-01-12 19:00 - US-009
+Thread: https://ampcode.com/threads/T-019baf25-6c56-71cf-bfb9-8c2b5a2eb149
+- **What was implemented:** BriefGenerationProgress component for showing real-time generation progress
+- **Files created:**
+  - components/generation/generation-progress.tsx (main component)
+- **Files changed:**
+  - lib/types/brief.ts (added GenerationStage type and GenerationProgress interface)
+- **Features:**
+  - 5 generation stages with icons from lucide-react:
+    - research: Search icon, "Researching sources"
+    - structure: ListTree icon, "Extracting key factors"
+    - summary: BookOpen icon, "Generating summaries"
+    - narrative: PenLine icon, "Writing narrative"
+    - scoring: Target icon, "Calculating clarity score"
+  - Progress bar with smooth transition-all duration-500 animation
+  - Active stage: bg-sage-500 with Loader2 spinner
+  - Completed stages: bg-success with CheckCircle2 icon, "Complete" label
+  - Pending stages: bg-ivory-300 with stage icon
+  - Estimated time remaining in ~Xs format
+  - Accessible: role="status", aria-live="polite", aria-label with current stage and time
+  - Progress bar: role="progressbar" with aria-valuenow/min/max
+- **Learnings for future iterations:**
+  - BriefGenerationProgress now available at @/components/generation/generation-progress
+  - Use GenerationStage type ('research' | 'structure' | 'summary' | 'narrative' | 'scoring') from lib/types/brief.ts
+  - Component accepts: currentStage, progress (0-100), estimatedSecondsRemaining
+  - Not yet integrated into any page - will need to be added to "Ask Anything" flow in US-014
+  - Uses same warm editorial palette as other components (sage-500, ivory-100, ink-800)
 ---
