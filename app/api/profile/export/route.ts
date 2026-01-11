@@ -64,6 +64,7 @@ export async function GET() {
       headers: {
         "Content-Type": "application/json",
         "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store, private",
       },
     });
   } catch (error) {
