@@ -3,6 +3,7 @@ import { getStripe } from '@/lib/stripe/client';
 import { addCredits } from '@/lib/services/credit-service';
 import { handlePaymentFailure, markRetrySucceeded } from '@/lib/services/payment-retry-service';
 import type Stripe from 'stripe';
+import * as Sentry from '@sentry/nextjs';
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -57,6 +58,17 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error(`Webhook handler error: ${errorMessage}`);
+    
+    Sentry.captureException(err, {
+      tags: {
+        component: 'stripe',
+        operation: 'webhook_handler',
+      },
+      extra: {
+        eventType: event?.type,
+      },
+    });
+    
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }

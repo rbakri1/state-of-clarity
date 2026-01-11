@@ -8,6 +8,8 @@
 import { createServiceRoleClient, type Database, type PaymentRetryStatus } from "../supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getStripe } from "../stripe/client";
+import { safeStripeCall } from "../stripe/safe-stripe-call";
+import * as Sentry from "@sentry/nextjs";
 
 type PaymentRetry = Database["public"]["Tables"]["payment_retries"]["Row"];
 type PaymentRetryInsert = Database["public"]["Tables"]["payment_retries"]["Insert"];
@@ -137,9 +139,27 @@ export async function processRetry(retry: PaymentRetry): Promise<{ success: bool
       last_attempt_at: now.toISOString(),
     });
 
-    const paymentIntent = await stripe.paymentIntents.confirm(retry.stripe_payment_intent_id);
+    const { data: paymentIntent, error: stripeError, isStripeServiceError } = await safeStripeCall(
+      () => stripe.paymentIntents.confirm(retry.stripe_payment_intent_id),
+      {
+        operation: "payment_intent_confirm",
+        userId: retry.user_id,
+        paymentIntentId: retry.stripe_payment_intent_id,
+      }
+    );
 
-    if (paymentIntent.status === "succeeded") {
+    if (stripeError) {
+      if (isStripeServiceError) {
+        Sentry.captureMessage("Stripe service unavailable during payment retry", {
+          level: "warning",
+          tags: { component: "payment-retry" },
+          extra: { paymentIntentId: retry.stripe_payment_intent_id, attemptNumber },
+        });
+      }
+      throw stripeError;
+    }
+
+    if (paymentIntent?.status === "succeeded") {
       await updatePaymentRetry(retry.id, {
         status: "succeeded",
         next_retry_at: null,
@@ -153,7 +173,7 @@ export async function processRetry(retry: PaymentRetry): Promise<{ success: bool
       return { success: true };
     }
 
-    throw new Error(`Payment intent status: ${paymentIntent.status}`);
+    throw new Error(`Payment intent status: ${paymentIntent?.status}`);
 
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";

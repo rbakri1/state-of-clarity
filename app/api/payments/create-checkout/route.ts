@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient, type Database } from '@/lib/supabase/client';
+import { safeStripeCall } from '@/lib/stripe/safe-stripe-call';
 
 type CreditPackage = Database['public']['Tables']['credit_packages']['Row'];
 
@@ -50,39 +51,56 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: `${creditPackage.name} - ${creditPackage.credits} Credits`,
-              description: `Purchase ${creditPackage.credits} credits for State of Clarity`,
+    const { data: session, error: stripeError, isStripeServiceError } = await safeStripeCall(
+      () => stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'gbp',
+              product_data: {
+                name: `${creditPackage.name} - ${creditPackage.credits} Credits`,
+                description: `Purchase ${creditPackage.credits} credits for State of Clarity`,
+              },
+              unit_amount: Math.round(creditPackage.price_gbp * 100),
             },
-            unit_amount: Math.round(creditPackage.price_gbp * 100),
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      success_url: `${baseUrl}/credits/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/credits`,
-      metadata: {
-        user_id: user.id,
-        package_id: creditPackage.id,
-        credits: creditPackage.credits.toString(),
-      },
-      payment_intent_data: {
+        ],
+        success_url: `${baseUrl}/credits/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/credits`,
         metadata: {
           user_id: user.id,
           package_id: creditPackage.id,
           credits: creditPackage.credits.toString(),
         },
-      },
-    });
+        payment_intent_data: {
+          metadata: {
+            user_id: user.id,
+            package_id: creditPackage.id,
+            credits: creditPackage.credits.toString(),
+          },
+        },
+      }),
+      {
+        operation: 'create_checkout_session',
+        userId: user.id,
+        packageId: creditPackage.id,
+      }
+    );
 
-    return NextResponse.json({ url: session.url });
+    if (stripeError) {
+      return NextResponse.json(
+        { 
+          error: stripeError.message,
+          code: isStripeServiceError ? 'PAYMENT_SERVICE_ERROR' : 'PAYMENT_ERROR',
+        },
+        { status: isStripeServiceError ? 503 : 400 }
+      );
+    }
+
+    return NextResponse.json({ url: session?.url });
   } catch (error) {
     console.error('Error creating checkout session:', error);
     return NextResponse.json(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, Coins, Check, Loader2 } from "lucide-react";
+import { Sparkles, Coins, Check, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { CreditBalance } from "../components/CreditBalance";
 
@@ -21,6 +21,7 @@ export default function CreditsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [purchasingPackageId, setPurchasingPackageId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [paymentServiceAvailable, setPaymentServiceAvailable] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -43,10 +44,29 @@ export default function CreditsPage() {
         setIsLoading(false);
       }
     }
+    
+    async function checkPaymentService() {
+      try {
+        const res = await fetch("/api/payments/health");
+        if (res.ok) {
+          const data = await res.json();
+          setPaymentServiceAvailable(data.healthy);
+        }
+      } catch {
+        setPaymentServiceAvailable(false);
+      }
+    }
+    
     fetchData();
+    checkPaymentService();
   }, []);
 
   const handlePurchase = async (packageId: string) => {
+    if (!paymentServiceAvailable) {
+      setError("Payment service is temporarily unavailable. Please try again later.");
+      return;
+    }
+    
     setPurchasingPackageId(packageId);
     setError(null);
 
@@ -59,7 +79,13 @@ export default function CreditsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to create checkout session.");
+        
+        if (data.code === "PAYMENT_SERVICE_ERROR") {
+          setPaymentServiceAvailable(false);
+          setError("Payment service is temporarily unavailable. Please try again later.");
+        } else {
+          setError(data.error || "Failed to create checkout session.");
+        }
         setPurchasingPackageId(null);
         return;
       }
@@ -136,6 +162,13 @@ export default function CreditsPage() {
           </p>
         </div>
 
+        {!paymentServiceAvailable && (
+          <div className="mb-8 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 flex items-center justify-center gap-2">
+            <AlertTriangle className="w-5 h-5" />
+            <span>Payment service is temporarily unavailable. Please try again later.</span>
+          </div>
+        )}
+
         {error && (
           <div className="mb-8 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-center">
             {error}
@@ -199,7 +232,7 @@ export default function CreditsPage() {
 
                 <button
                   onClick={() => handlePurchase(pkg.id)}
-                  disabled={isPurchasing || !!purchasingPackageId}
+                  disabled={isPurchasing || !!purchasingPackageId || !paymentServiceAvailable}
                   className={`w-full py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
                     isStandard
                       ? "bg-primary text-primary-foreground hover:opacity-90"
@@ -211,6 +244,8 @@ export default function CreditsPage() {
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Processing...</span>
                     </>
+                  ) : !paymentServiceAvailable ? (
+                    <span>Unavailable</span>
                   ) : (
                     <span>Buy Now</span>
                   )}
