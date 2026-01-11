@@ -11,6 +11,9 @@ Started: Sun 11 Jan 2026 17:31:07 +04
 - Supabase query functions use PromiseLike (not Promise) for type compatibility with PostgrestBuilder
 - Use `safeAICall` from lib/ai/safe-ai-call.ts for AI API calls with retry logic (3 attempts) and Sentry logging
 - Use `safeStripeCall` from lib/stripe/safe-stripe-call.ts for Stripe API calls with Sentry logging and user-friendly errors
+- Use `withCache` from lib/cache/with-cache.ts to cache any async function result with TTL
+- Cache key format convention: `{resource}:{id}` e.g., `brief:abc123`
+- Vercel KV uses `kvClient` export from `/lib/cache/kv-client.ts` with automatic fallback to in-memory
 ---
 
 ## 2026-01-11 17:35 - US-009
@@ -191,4 +194,23 @@ Thread: https://ampcode.com/threads/T-019bae05-034f-77f8-8035-d3c36d30a353
   - Use useState with useEffect for client-side only state like navigator.onLine
   - Initial state should be false (assume online) since SSR doesn't have navigator
   - Fixed positioning with z-50 ensures banner appears above all content
+---
+
+## 2026-01-11 - Cache Infrastructure (prep for future caching epic)
+Thread: https://ampcode.com/threads/T-019bae56-a4c5-712c-85a4-719601a1ed38
+- Created cache infrastructure for future Brief Caching & Performance epic
+- Created /lib/cache/kv-client.ts with Vercel KV client and in-memory fallback
+- Created /lib/cache/with-cache.ts with generic cache wrapper utility
+- Created /lib/cache/invalidate.ts with cache invalidation utilities
+- Updated getBriefById in brief-service.ts to use withCache with key 'brief:{id}' and TTL 300s
+- Installed @vercel/kv package
+- Added KV_REST_API_URL and KV_REST_API_TOKEN to .env.example
+- Documented Vercel KV setup in SETUP.md (Step 7)
+- Files changed: lib/cache/kv-client.ts, lib/cache/with-cache.ts, lib/cache/invalidate.ts, lib/services/brief-service.ts, .env.example, SETUP.md, package.json
+- **Learnings for future iterations:**
+  - withCache wraps any async fn: `withCache(key, fn, ttlSeconds)`
+  - Cache errors are gracefully handled - never block main operation
+  - Use invalidateCache('brief:${id}') to clear specific cache
+  - Use invalidatePattern('brief:*') to clear all brief caches
+  - In-memory fallback works for local dev without Vercel KV configured
 ---
