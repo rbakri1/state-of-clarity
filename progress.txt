@@ -163,3 +163,17 @@ Thread: https://ampcode.com/threads/T-019bae84-feb0-767a-8f39-e2addd955d54
   - Singleton pattern uses module-level variable `serviceRoleClientInstance`
   - Retry only applies to connection errors, not application errors (PGRST116 is not retried)
 ---
+
+## Sun 11 Jan 2026 - US-013
+Thread: https://ampcode.com/threads/T-019bae87-b416-7379-93cd-81fd78bd3565
+- Created /lib/supabase/safe-query.ts with safeQuery<T>() and trackedQuery<T>() functions
+- safeQuery tracks query duration using performance.now()
+- Logs queries >1000ms to console with [Query SLOW] prefix
+- Logs queries >2000ms with [Query VERY SLOW] prefix and [Sentry] placeholder
+- Sentry reporting is prepared but commented out (awaits epic 4.1 Sentry installation)
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Sentry is not yet installed in the project; epic 4.1 will add it
+  - Use `safeQuery(queryFn, { queryName: 'myQuery' })` to wrap Supabase queries with perf tracking
+  - Use `trackedQuery(queryFn, 'queryName')` for simpler interface returning just data/error
+---
