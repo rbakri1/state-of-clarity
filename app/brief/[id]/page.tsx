@@ -7,12 +7,14 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  ThumbsUp,
+  ThumbsDown,
   Share2,
   BookmarkPlus,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import VoteButtons from "@/app/components/VoteButtons";
-import FeedbackActions from "@/app/components/FeedbackActions";
+import { LowBalanceWarning } from "@/app/components/LowBalanceWarning";
 
 // Import sample briefs (in production, this would come from API)
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
@@ -96,20 +98,20 @@ export default function BriefPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Low Balance Warning */}
+        <LowBalanceWarning className="mb-6" />
+
         {/* Brief Header */}
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl sm:text-4xl font-bold">{brief.question}</h1>
-            <div className="flex items-center gap-3 shrink-0">
-              <VoteButtons briefId={params.id as string} />
-              <div
-                className={`clarity-score-badge ${getClarityScoreClass(
-                  brief.clarity_score
-                )}`}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>{brief.clarity_score}/10</span>
-              </div>
+            <div
+              className={`clarity-score-badge ${getClarityScoreClass(
+                brief.clarity_score
+              )} shrink-0`}
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>{brief.clarity_score}/10</span>
             </div>
           </div>
 
@@ -385,7 +387,7 @@ export default function BriefPage() {
                         <div className="text-sm text-muted-foreground mb-2">
                           <strong>Evidence:</strong>
                           <ul className="list-disc list-inside mt-1 space-y-1">
-                            {factor.evidence.map((ev: string, j: number) => (
+                            {factor.evidence.map((ev: any, j: number) => (
                               <li key={j}>{ev}</li>
                             ))}
                           </ul>
@@ -426,7 +428,7 @@ export default function BriefPage() {
                               Pros:
                             </div>
                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.pros.map((pro: string, j: number) => (
+                              {policy.pros.map((pro: any, j: number) => (
                                 <li key={j}>{pro}</li>
                               ))}
                             </ul>
@@ -436,7 +438,7 @@ export default function BriefPage() {
                               Cons:
                             </div>
                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                              {policy.cons.map((con: string, j: number) => (
+                              {policy.cons.map((con: any, j: number) => (
                                 <li key={j}>{con}</li>
                               ))}
                             </ul>
@@ -502,11 +504,30 @@ export default function BriefPage() {
 
             {/* Feedback Section */}
             <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-bold mb-2">Help improve this brief</h2>
+              <h2 className="text-xl font-bold mb-4">Help Improve This Brief</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Suggest sources, report errors, or propose edits
+                Found an issue or have a suggestion? Your feedback helps make
+                this brief more accurate and useful.
               </p>
-              <FeedbackActions briefId={params.id as string} />
+
+              <div className="flex flex-wrap gap-3">
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <ThumbsUp className="w-4 h-4" />
+                  <span className="text-sm">Helpful</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <ThumbsDown className="w-4 h-4" />
+                  <span className="text-sm">Not Helpful</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <ExternalLink className="w-4 h-4" />
+                  <span className="text-sm">Suggest Source</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="text-sm">Spot Error</span>
+                </button>
+              </div>
             </section>
           </div>
 
@@ -517,7 +538,7 @@ export default function BriefPage() {
               <h3 className="font-semibold mb-4">Clarity Score Breakdown</h3>
 
               <div className="space-y-3">
-                {Object.entries(brief.clarity_critique.breakdown as Record<string, number>).map(
+                {Object.entries(brief.clarity_critique.breakdown).map(
                   ([key, value]) => (
                     <div key={key}>
                       <div className="flex items-center justify-between mb-1">
@@ -525,13 +546,13 @@ export default function BriefPage() {
                           {key.replace(/_/g, " ")}
                         </span>
                         <span className="text-sm font-medium">
-                          {(value * 10).toFixed(1)}
+                          {((value as number) * 10).toFixed(1)}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-primary rounded-full h-2 transition-all"
-                          style={{ width: `${value * 100}%` }}
+                          style={{ width: `${(value as number) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -542,7 +563,7 @@ export default function BriefPage() {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 className="font-medium mb-2">Strengths</h4>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  {brief.clarity_critique.strengths.map((strength: string, i: number) => (
+                  {brief.clarity_critique.strengths.map((strength: any, i: number) => (
                     <li key={i}>{strength}</li>
                   ))}
                 </ul>
@@ -551,7 +572,7 @@ export default function BriefPage() {
               <div className="mt-4">
                 <h4 className="font-medium mb-2">Gaps</h4>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  {brief.clarity_critique.gaps.map((gap: string, i: number) => (
+                  {brief.clarity_critique.gaps.map((gap: any, i: number) => (
                     <li key={i}>{gap}</li>
                   ))}
                 </ul>

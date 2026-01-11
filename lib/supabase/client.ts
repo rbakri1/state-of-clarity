@@ -56,15 +56,8 @@ export interface Database {
           foundational_principles: any | null; // JSONB
           clarity_score: number | null;
           clarity_critique: any | null; // JSONB
-          classification: any | null; // JSONB - QuestionClassification
           metadata: any; // JSONB
           fork_of: string | null;
-          needs_human_review: boolean;
-          review_reason: string | null;
-          scoring_metadata: any | null; // JSONB
-          quality_warning: boolean;
-          quality_warning_reason: string | null;
-          refinement_metadata: any | null; // JSONB
         };
         Insert: {
           question: string;
@@ -73,27 +66,13 @@ export interface Database {
           narrative: string;
           user_id?: string | null;
           clarity_score?: number | null;
-          classification?: any | null;
           metadata?: any;
-          needs_human_review?: boolean;
-          review_reason?: string | null;
-          scoring_metadata?: any | null;
-          quality_warning?: boolean;
-          quality_warning_reason?: string | null;
-          refinement_metadata?: any | null;
         };
         Update: {
           summaries?: any;
           structured_data?: any;
           narrative?: string;
           clarity_score?: number | null;
-          classification?: any | null;
-          needs_human_review?: boolean;
-          review_reason?: string | null;
-          scoring_metadata?: any | null;
-          quality_warning?: boolean;
-          quality_warning_reason?: string | null;
-          refinement_metadata?: any | null;
         };
       };
       sources: {
@@ -193,42 +172,127 @@ export interface Database {
           error_message?: string | null;
         };
       };
-      agent_execution_logs: {
+      credit_packages: {
         Row: {
           id: string;
-          brief_id: string | null;
-          agent_name: string;
-          agent_type: "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
-          started_at: string;
-          completed_at: string | null;
-          duration_ms: number | null;
-          status: "running" | "success" | "failed" | "skipped";
-          error_message: string | null;
-          metadata: Record<string, unknown>;
+          name: string;
+          credits: number;
+          price_gbp: number;
+          stripe_price_id: string | null;
+          active: boolean;
           created_at: string;
         };
         Insert: {
-          brief_id?: string | null;
-          agent_name: string;
-          agent_type: "fixer" | "orchestrator" | "reconciliation" | "refinement_loop";
-          started_at?: string;
-          completed_at?: string | null;
-          duration_ms?: number | null;
-          status?: "running" | "success" | "failed" | "skipped";
-          error_message?: string | null;
-          metadata?: Record<string, unknown>;
+          name: string;
+          credits: number;
+          price_gbp: number;
+          stripe_price_id?: string | null;
+          active?: boolean;
         };
         Update: {
-          completed_at?: string | null;
-          duration_ms?: number | null;
-          status?: "running" | "success" | "failed" | "skipped";
+          name?: string;
+          credits?: number;
+          price_gbp?: number;
+          stripe_price_id?: string | null;
+          active?: boolean;
+        };
+      };
+      user_credits: {
+        Row: {
+          id: string;
+          user_id: string;
+          balance: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          balance?: number;
+        };
+        Update: {
+          balance?: number;
+        };
+      };
+      credit_batches: {
+        Row: {
+          id: string;
+          user_id: string;
+          credits_remaining: number;
+          purchased_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          user_id: string;
+          credits_remaining: number;
+          expires_at: string;
+        };
+        Update: {
+          credits_remaining?: number;
+        };
+      };
+      credit_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number;
+          transaction_type: CreditTransactionType;
+          description: string | null;
+          brief_id: string | null;
+          stripe_payment_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          amount: number;
+          transaction_type: CreditTransactionType;
+          description?: string | null;
+          brief_id?: string | null;
+          stripe_payment_id?: string | null;
+        };
+        Update: {
+          description?: string | null;
+        };
+      };
+      payment_retries: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_payment_intent_id: string;
+          attempts: number;
+          last_attempt_at: string | null;
+          next_retry_at: string | null;
+          status: PaymentRetryStatus;
+          package_id: string | null;
+          error_message: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          stripe_payment_intent_id: string;
+          attempts?: number;
+          last_attempt_at?: string | null;
+          next_retry_at?: string | null;
+          status?: PaymentRetryStatus;
+          package_id?: string | null;
           error_message?: string | null;
-          metadata?: Record<string, unknown>;
+        };
+        Update: {
+          attempts?: number;
+          last_attempt_at?: string | null;
+          next_retry_at?: string | null;
+          status?: PaymentRetryStatus;
+          error_message?: string | null;
         };
       };
     };
   };
 }
+
+// Credit transaction types
+export type CreditTransactionType = "purchase" | "usage" | "refund" | "expiry" | "bonus";
+
+// Payment retry status types
+export type PaymentRetryStatus = "pending" | "retrying" | "succeeded" | "failed";
 
 /**
  * Browser Client

@@ -253,39 +253,85 @@ State of Clarity _ Claude/
 
 ---
 
-## Step 7: Set Up Sentry Error Tracking (Optional)
+## Step 7: Set Up Stripe Payments
 
-Sentry provides real-time error tracking and performance monitoring.
+State of Clarity uses Stripe for credit purchases. Follow these steps to configure Stripe:
 
-### Create a Sentry Account
+### 1. Create Stripe Account
 
-1. Sign up at [sentry.io](https://sentry.io/) (free tier available)
-2. Create a new project and select **Next.js** as the platform
-3. Copy your DSN from the project settings
+1. Sign up at [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Complete account verification (can use test mode initially)
 
-### Configure Environment Variables
+### 2. Get API Keys
 
-Add to your `.env.local`:
-```env
-NEXT_PUBLIC_SENTRY_DSN=https://your-dsn@o123456.ingest.sentry.io/1234567
-SENTRY_DSN=https://your-dsn@o123456.ingest.sentry.io/1234567
+1. Go to **Developers > API Keys** in Stripe Dashboard
+2. Copy the **Publishable key** (starts with `pk_test_` or `pk_live_`)
+3. Copy the **Secret key** (starts with `sk_test_` or `sk_live_`)
+4. Add to `.env.local`:
+   ```env
+   STRIPE_SECRET_KEY=sk_test_your-key-here
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-key-here
+   ```
+
+### 3. Create Products and Prices
+
+Create 4 products in Stripe Dashboard (**Products > Add Product**):
+
+| Product Name | Price (GBP) | Type       |
+|--------------|-------------|------------|
+| Single       | £0.65       | One-time   |
+| Starter      | £6.00       | One-time   |
+| Standard     | £28.00      | One-time   |
+| Pro          | £52.00      | One-time   |
+
+For each product:
+1. Create the product with the name above
+2. Add a one-time price in GBP
+3. Copy the **Price ID** (starts with `price_`)
+4. Update the `stripe_price_id` in your `credit_packages` database table
+
+### 4. Set Up Webhooks
+
+1. Go to **Developers > Webhooks** in Stripe Dashboard
+2. Click **Add endpoint**
+3. Enter your endpoint URL: `https://your-domain.com/api/webhooks/stripe`
+4. Select events to listen for:
+   - `checkout.session.completed`
+   - `payment_intent.payment_failed`
+5. Copy the **Signing secret** (starts with `whsec_`)
+6. Add to `.env.local`:
+   ```env
+   STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret-here
+   ```
+
+### 5. Local Webhook Testing
+
+For local development, use the Stripe CLI:
+
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Login to your Stripe account
+stripe login
+
+# Forward webhooks to local server
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ```
 
-Optionally, for source map uploads in production:
-```env
-SENTRY_ORG=your-org-name
-SENTRY_PROJECT=your-project-name
-SENTRY_AUTH_TOKEN=your-auth-token
-```
+The CLI will display a webhook signing secret for local testing - use this for `STRIPE_WEBHOOK_SECRET` during development.
 
-### Configuration Files
+### 6. Test Cards
 
-The following files configure Sentry for different runtimes:
-- `sentry.client.config.ts` - Client-side error tracking
-- `sentry.server.config.ts` - Server-side error tracking
-- `sentry.edge.config.ts` - Edge runtime error tracking
+Use these test card numbers in test mode:
 
-Sentry is automatically disabled if the DSN environment variable is not set.
+| Card Number         | Result                    |
+|---------------------|---------------------------|
+| 4242 4242 4242 4242 | Successful payment        |
+| 4000 0000 0000 9995 | Declined (insufficient)   |
+| 4000 0000 0000 0002 | Card declined             |
+
+Use any future expiry date, any 3-digit CVC, and any postal code.
 
 ---
 

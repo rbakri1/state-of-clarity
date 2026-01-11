@@ -1,13 +1,55 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Search, Sparkles, TrendingUp, BookOpen, ThumbsUp } from "lucide-react";
+import { useState } from "react";
+import { Search, Sparkles, TrendingUp, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { CreditBalance } from "./components/CreditBalance";
+import { LowBalanceWarning } from "./components/LowBalanceWarning";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [voteCounts, setVoteCounts] = useState<Record<string, number>>({});
+
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/briefs/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402 && data.creditsLink) {
+          setError(`${data.error} `);
+          setTimeout(() => {
+            window.location.href = data.creditsLink;
+          }, 2000);
+          return;
+        }
+        throw new Error(data.error || "Failed to generate brief");
+      }
+
+      if (data.success && data.briefId) {
+        window.location.href = `/brief/${data.briefId}`;
+      } else if (data.creditRefunded) {
+        setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate brief");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const showcaseBriefs = [
     {
@@ -29,38 +71,6 @@ export default function Home() {
       tags: ["Climate", "Energy", "Economics"],
     },
   ];
-
-  useEffect(() => {
-    const fetchVoteCounts = async () => {
-      const counts: Record<string, number> = {};
-      await Promise.all(
-        showcaseBriefs.map(async (brief) => {
-          try {
-            const res = await fetch(`/api/briefs/${brief.id}/vote`);
-            if (res.ok) {
-              const data = await res.json();
-              counts[brief.id] = data.upvotes;
-            }
-          } catch {
-            // Ignore errors, just don't show count
-          }
-        })
-      );
-      setVoteCounts(counts);
-    };
-    fetchVoteCounts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim()) return;
-
-    setIsLoading(true);
-    // TODO: Implement API call
-    // For now, redirect to sample brief
-    window.location.href = "/brief/uk-four-day-week";
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
@@ -87,6 +97,7 @@ export default function Home() {
               >
                 Browse Briefs
               </Link>
+              <CreditBalance />
               <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition">
                 Sign In
               </button>
@@ -94,6 +105,11 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Low Balance Warning */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <LowBalanceWarning />
+      </div>
 
       {/* Hero Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -139,6 +155,18 @@ export default function Home() {
               </button>
             </div>
           </form>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 max-w-2xl mx-auto p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+              {error}
+              {error.includes("credits") && (
+                <a href="/credits" className="ml-1 underline hover:no-underline font-medium">
+                  Buy credits →
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Features */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">
@@ -205,12 +233,6 @@ export default function Home() {
                   <Sparkles className="w-4 h-4" />
                   <span>{brief.clarity_score}/10</span>
                 </div>
-                {voteCounts[brief.id] > 0 && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <ThumbsUp className="w-4 h-4" />
-                    <span>{voteCounts[brief.id]}</span>
-                  </div>
-                )}
               </div>
 
               <h3 className="font-semibold text-lg mb-3 group-hover:text-primary transition">
