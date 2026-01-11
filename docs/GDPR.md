@@ -92,14 +92,23 @@ Users can delete their account:
 2. Click "Delete my account"
 3. Type "DELETE" to confirm
 
+**API Endpoint**: `POST /api/profile/delete`
+
+Request body:
+```json
+{
+  "confirmation": "DELETE"
+}
+```
+
 **What happens on deletion**:
-- Auth record is deleted from Supabase Auth
-- Profile record is deleted
-- Preferences are deleted
-- Reading history is deleted
-- Saved briefs list is deleted
-- **Briefs are ANONYMIZED** (user_id set to null, content retained)
-- **Feedback is ANONYMIZED** (user_id set to null, content retained)
+- Auth record is deleted from Supabase Auth via Admin API
+- Profile record is CASCADE deleted (linked to auth.users)
+- Saved briefs list is CASCADE deleted
+- Reading history is CASCADE deleted  
+- **Briefs are ANONYMIZED** (user_id set to null via ON DELETE SET NULL, content retained)
+- **Feedback is ANONYMIZED** (user_id set to null via ON DELETE SET NULL, content retained)
+- **Brief jobs are ANONYMIZED** (user_id set to null via ON DELETE SET NULL)
 
 ### Right to Data Portability
 The export feature provides data in JSON format, which is machine-readable and can be imported into other systems.
@@ -119,11 +128,13 @@ Users can opt out of:
 
 ### Deletion Request
 1. User navigates to delete account page
-2. User confirms by typing "DELETE"
-3. System calls Supabase Admin API to delete user
-4. Database cascades delete profile and related records
-5. Briefs and feedback are anonymized (not deleted) to preserve content value
-6. User is signed out and redirected
+2. User confirms by typing "DELETE" in the confirmation field
+3. Frontend calls `POST /api/profile/delete` with `{"confirmation": "DELETE"}`
+4. Backend validates confirmation and calls Supabase Admin API to delete user
+5. Database cascades delete profile, saved_briefs, and reading_history
+6. Database anonymizes briefs, feedback, and brief_jobs (sets user_id to null)
+7. API returns success response
+8. Frontend signs out user and redirects to homepage
 
 ### Manual Requests
 If a user contacts support for data access/deletion:

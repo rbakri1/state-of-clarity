@@ -1,5 +1,17 @@
 # Ralph Progress Log
 Started: Sun 11 Jan 2026 23:57:46 +04
+
+## Codebase Patterns
+- Use `requireAuth()` from lib/supabase/client.ts to protect authenticated endpoints
+- Use `createServiceRoleClient()` for admin operations that bypass RLS (e.g., deleting users)
+- Database schema uses ON DELETE CASCADE for user data (profiles, saved_briefs, reading_history)
+- Database schema uses ON DELETE SET NULL for content anonymization (briefs, feedback, brief_jobs)
+- Export endpoint was not yet implemented despite Epic 5.1 being marked complete
+- Supabase joins work with .select("column, table(columns)") syntax
+- Cookie consent uses JSON format in localStorage for audit trail: `{value, timestamp}`
+- Use `hasAcceptedCookies()` from cookie-consent-banner.tsx to check before loading analytics
+- Client components in Next.js need "use client" directive at top
+- Duplicate files with " 2" suffix can cause build failures - clean them up before running builds
 ---
 
 ## Sun 12 Jan 2026 - US-001
@@ -53,4 +65,38 @@ Thread: https://ampcode.com/threads/T-019baeb6-da35-7169-884c-96e7236d7460
 - **Learnings for future iterations:**
   - Cookie consent uses JSON format in localStorage for audit trail: `{value, timestamp}`
   - Use `hasAcceptedCookies()` from cookie-consent-banner.tsx to check before loading analytics
+---
+
+## Mon 12 Jan 2026 - US-005
+Thread: https://ampcode.com/threads/T-019baeb8-6e29-7708-a9b6-578af2482ca9
+- Created /app/api/profile/export/route.ts endpoint for GDPR data export
+- Export includes: user auth info, profile, briefs created, saved briefs, reading history, feedback, brief jobs
+- Export returns downloadable JSON file with timestamped filename
+- Created comprehensive /docs/GDPR.md documentation covering:
+  - What personal data we collect and why
+  - Data retention policy
+  - Third-party data processors (Supabase, Vercel, Stripe)
+  - User rights (export, rectification, deletion)
+  - How to handle data requests
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Export endpoint was not yet implemented despite Epic 5.1 being marked complete
+  - Use requireAuth() from lib/supabase/client.ts to protect authenticated endpoints
+  - Supabase joins work with .select("column, table(columns)") syntax
+---
+
+## Mon 12 Jan 2026 - US-006
+Thread: https://ampcode.com/threads/T-019baebc-3b4a-76a9-9a24-af0adcd27d10
+- Created /app/api/profile/delete/route.ts endpoint for GDPR account deletion
+- Endpoint requires confirmation: POST with {"confirmation": "DELETE"}
+- Uses createServiceRoleClient() to call Supabase Admin API deleteUser
+- Audited database schema - cascades properly configured:
+  - ON DELETE CASCADE: profiles, saved_briefs, reading_history
+  - ON DELETE SET NULL: briefs, feedback, brief_jobs (anonymization)
+- Updated /docs/GDPR.md with detailed deletion process and API endpoint
+- Build passes successfully
+- **Learnings for future iterations:**
+  - Delete endpoint did not exist - had to create from scratch
+  - Supabase admin.deleteUser() triggers all database cascades/SET NULL automatically
+  - Confirmation pattern: require exact string match before destructive operations
 ---
