@@ -393,6 +393,29 @@ Comprehensive UI/UX sweep to ensure all user-facing pages match the design syste
 - All components from skills/frontend/components implemented
 - Copy review shows all pages match brand voice
 
+### US-023: Create first-time user welcome modal with mission disclaimer
+**Description:** As a new user, I want to understand the platform's mission and approach before I start using it.
+
+**Acceptance Criteria:**
+- [ ] Create /components/onboarding/welcome-modal.tsx
+- [ ] Modal appears on first visit (check localStorage for 'has-seen-welcome')
+- [ ] Modal includes mission disclaimer with key points:
+  - State of Clarity is laser-focused on pursuing informed truth
+  - We provide detailed, thoughtful analysis - not lazy quick takes
+  - Every question gets digestible, evidence-based answers
+  - We are non-partisan and do not pick sides
+  - We show our sources transparently so you can verify
+- [ ] Headline: 'Welcome to State of Clarity'
+- [ ] Primary CTA: 'Get Started' button closes modal and saves preference
+- [ ] Optional: 'Learn More' link to About page
+- [ ] Modal uses design system styling (Clarity Blue, proper spacing)
+- [ ] Accessible: focus trap, ESC to close, aria-modal
+- [ ] Set localStorage 'has-seen-welcome' = true on close
+- [ ] Typecheck passes
+- [ ] Verify in browser using dev-browser skill
+
+---
+
 ## Open Questions
 
 None — scope defined.

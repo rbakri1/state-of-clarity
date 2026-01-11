@@ -105,24 +105,250 @@ This audit identifies **critical inconsistencies** between the current implement
 
 ## 6. Component Audit
 
-### Missing Components (from skills/frontend/components/SKILL.md)
+This section provides a detailed comparison of components specified in skills/frontend/components/SKILL.md versus what exists in the codebase.
 
-| Component | Path | Status |
-|-----------|------|--------|
-| ReadingLevelSelector | /components/brief/reading-level-selector.tsx | ❌ Missing |
-| SummaryCard | /components/brief/summary-card.tsx | ❌ Missing |
-| SourceCitation | /components/sources/source-citation.tsx | ❌ Missing |
-| PoliticalLeanBadge | /components/sources/political-lean-badge.tsx | ❌ Missing |
-| CredibilityBadge | /components/sources/credibility-badge.tsx | ❌ Missing |
-| BriefGenerationProgress | /components/generation/generation-progress.tsx | ❌ Missing |
-| Header | /components/layout/header.tsx | ❌ Missing (inline in pages) |
-| Footer | /components/layout/footer.tsx | ❌ Missing (inline in pages) |
+### Required Components Summary
+
+| Component | Specified Path | Status | Notes |
+|-----------|----------------|--------|-------|
+| ReadingLevelSelector | /components/brief/reading-level-selector.tsx | ❌ **MISSING** | Inline logic exists in brief page but not extracted |
+| SummaryCard | /components/brief/summary-card.tsx | ❌ **MISSING** | Summary rendering inline in brief page |
+| SourceCitation | /components/sources/source-citation.tsx | ❌ **MISSING** | No inline citations implemented |
+| SourceCard | /components/sources/source-card.tsx | ❌ **MISSING** | Source list exists but not as component |
+| PoliticalLeanBadge | /components/sources/political-lean-badge.tsx | ❌ **MISSING** | Uses inline `.source-tag` CSS classes instead |
+| CredibilityBadge | /components/sources/credibility-badge.tsx | ❌ **MISSING** | No credibility scoring visible in UI |
+| BriefGenerationProgress | /components/generation/generation-progress.tsx | ❌ **MISSING** | No generation progress UI exists |
+| Header | /components/layout/header.tsx | ❌ **MISSING** | Duplicated inline in each page |
+| Footer | /components/layout/footer.tsx | ❌ **MISSING** | Duplicated inline in each page |
 
 ### Existing Components
 
 | Component | Path | Issues |
 |-----------|------|--------|
-| CookieConsentBanner | /components/cookie-consent-banner.tsx | Wrong colors, no focus ring on buttons |
+| CookieConsentBanner | /components/cookie-consent-banner.tsx | Wrong colors (`bg-white`, `gray-*`), no focus ring on buttons, uses `text-primary` instead of `text-sage-*` |
+
+---
+
+### Detailed Component Analysis
+
+#### ReadingLevelSelector
+
+**Spec (skills/frontend/components/SKILL.md):**
+- Shows all 4 levels: Child (8-12), Teen (13-17), Undergrad (18-22), Postdoc (Graduate+)
+- Uses ARIA roles (`role="tablist"`, `role="tab"`, `aria-selected`)
+- Sticky positioning (`sticky top-4`)
+- Responsive: vertical on mobile, horizontal on desktop
+- Active state uses `bg-sage-500` with `text-ivory-100`
+- Focus ring: `focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2`
+- Warm Ivory base (`bg-ivory-100`), Soft Ink text
+
+**Current Implementation (app/brief/[id]/page.tsx lines 296-341):**
+- ❌ Not extracted to component - inline in page
+- ❌ Labels incorrect: "Post-doc" should be "Postdoc"
+- ❌ Age labels: "Graduate" should be "Graduate+"
+- ❌ No ARIA roles (missing `role="tablist"`, `role="tab"`, `aria-selected`)
+- ❌ Not sticky positioned
+- ❌ Not responsive (no `flex-col sm:flex-row`)
+- ❌ Uses inline color styles (`#667eea`) instead of design system tokens
+- ❌ Uses blue/purple instead of sage-500
+- ❌ No focus-visible ring
+
+**Priority:** P1 - Critical component
+
+---
+
+#### SummaryCard
+
+**Spec (skills/frontend/components/SKILL.md):**
+- Typography scales per reading level:
+  - Child: `text-lg`, `leading-relaxed` (1.65)
+  - Teen/Undergrad: `text-base`, `leading-normal` (1.6)
+  - Postdoc: `text-base`, `leading-snug` (1.55)
+- Shows reading time with clock icon
+- Uses `prose prose-custom` for narrative styling
+- ARIA `role="tabpanel"` with `hidden` attribute for inactive levels
+- Soft Ink text on Warm Ivory background
+
+**Current Implementation (app/brief/[id]/page.tsx lines 343-360):**
+- ❌ Not extracted to component
+- ❌ No typography differentiation per level - all levels use same styling
+- ❌ No reading time display
+- ❌ No prose styling for narrative
+- ❌ No ARIA `role="tabpanel"` or `hidden` attribute
+- ❌ Uses gray colors instead of ink/ivory palette
+
+**Priority:** P1 - Critical component
+
+---
+
+#### SourceCitation (Inline)
+
+**Spec (skills/frontend/components/SKILL.md):**
+- Renders as superscript link `[1]`, `[2]`, etc.
+- Color-coded by political lean (muted rose→grey→blue spectrum)
+- Links to source section anchor (`#source-{id}`)
+- Hover shows underline
+- Accessible: `aria-label` with source title
+
+**Current Implementation:**
+- ❌ Component does not exist
+- ❌ No inline citations in narrative text
+- ❌ Sources only shown in sidebar, not linked from content
+
+**Priority:** P2 - Important for source transparency
+
+---
+
+#### PoliticalLeanBadge
+
+**Spec (skills/frontend/components/SKILL.md):**
+- Uses muted, non-partisan colors:
+  - Left: `#C85C6B` (muted rose), bg `#F5EBE9`
+  - Center-Left: `#9A6F6F`, bg `#F5ECEC`
+  - Center: `text-ink-600`, bg `ivory-200`
+  - Center-Right: `#4D6672`, bg `#EBF1F4`
+  - Right: `#3D5C72`, bg `#E8F0F4`
+- Displays as pill badge with background and text
+- `title` attribute with full label
+
+**Current Implementation (app/brief/[id]/page.tsx, globals.css):**
+- ❌ Component does not exist - uses `.source-tag` CSS classes
+- ❌ Uses partisan colors: blue (`#3B82F6`) for left, red (`#EF4444`) for right
+- ❌ No `title` attribute for accessibility
+
+**Priority:** P1 - Critical for non-partisan appearance
+
+---
+
+#### CredibilityBadge
+
+**Spec (skills/frontend/components/SKILL.md):**
+- Score 8+: `ShieldCheck` icon, green, "Highly Credible"
+- Score 5-7: `Shield` icon, amber, "Moderately Credible"
+- Score <5: `ShieldAlert` icon, rose, "Lower Credibility"
+- Shows score as `X/10`
+- `title` attribute for accessibility
+
+**Current Implementation:**
+- ❌ Component does not exist
+- ❌ No credibility scores displayed for sources
+- ❌ No shield icons or color coding
+
+**Priority:** P1 - Critical for source transparency
+
+---
+
+#### BriefGenerationProgress
+
+**Spec (skills/frontend/components/SKILL.md):**
+- Shows 5 stages: Researching, Extracting, Summaries, Narrative, Scoring
+- Progress bar fills as generation proceeds
+- Current stage highlighted with spinner
+- Completed stages show green checkmark
+- Estimated time remaining
+- Smooth animations using `transition-all`
+
+**Current Implementation:**
+- ❌ Component does not exist
+- ❌ No generation progress UI visible
+- ❌ Users have no feedback during 30-60s generation
+
+**Priority:** P1 - Critical for UX during long waits
+
+---
+
+#### Header Component
+
+**Spec implied by layout patterns:**
+- Logo links to homepage
+- Navigation links
+- Auth state handling
+- Mobile hamburger menu
+- Sticky positioning
+- Clarity Sage branding
+
+**Current Implementation:**
+- ❌ Not extracted to component
+- ❌ Duplicated in every page (brief/[id]/page.tsx, page.tsx, etc.)
+- ❌ Uses blue gradient instead of sage
+- ❌ Inconsistent across pages
+
+**Priority:** P1 - DRY violation
+
+---
+
+#### Footer Component
+
+**Spec implied by layout patterns:**
+- Links: Privacy Policy, Terms of Service, About
+- Copyright: © 2026 State of Clarity
+- Subtle slate/ivory styling
+- Should appear on all pages via layout.tsx
+
+**Current Implementation:**
+- ❌ Not extracted to component
+- ❌ Duplicated in every page
+- ❌ Copyright says © 2025 instead of © 2026
+- ❌ Uses gray colors instead of ivory/ink
+
+**Priority:** P2 - DRY violation
+
+---
+
+### Components Directory Structure Gap
+
+**Expected (from skills/frontend/components/SKILL.md):**
+```
+components/
+├── ui/              # shadcn/ui base components
+├── brief/           # Reading interface components
+│   ├── brief-viewer.tsx
+│   ├── reading-level-selector.tsx
+│   ├── summary-card.tsx
+│   └── narrative-viewer.tsx
+├── sources/         # Citation transparency
+│   ├── source-citation.tsx
+│   ├── source-card.tsx
+│   ├── political-lean-badge.tsx
+│   └── credibility-badge.tsx
+├── generation/      # Brief generation UI
+│   ├── generation-progress.tsx
+│   └── agent-status-display.tsx
+├── layout/          # Layout components
+│   ├── header.tsx
+│   └── footer.tsx
+└── feedback/        # Community features
+    ├── upvote-downvote.tsx
+    └── suggest-source-modal.tsx
+```
+
+**Actual:**
+```
+components/
+└── cookie-consent-banner.tsx
+```
+
+**Missing Directories:** ui/, brief/, sources/, generation/, layout/, feedback/
+
+---
+
+### Type Definitions Gap
+
+**Expected (lib/types/brief.ts):**
+- `ReadingLevel` type
+- `PoliticalLean` type
+- `Source` interface
+- `ReadingLevelSummary` interface
+- `ClarityScore` interface
+- `Brief` interface
+
+**Current:**
+- Types defined inline in brief/[id]/page.tsx
+- Not exported for reuse
+- Missing `ClarityScore` detailed type
+- Missing `PoliticalLean` union type (uses `string`)
+
+**Priority:** P2 - Affects type safety and reusability
 
 ---
 
