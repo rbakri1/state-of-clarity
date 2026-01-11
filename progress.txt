@@ -188,3 +188,20 @@ Thread: https://ampcode.com/threads/T-019bae89-ebc8-71f6-a137-f46bf1c3ad78
   - Next.js headers() is an async function that returns an array of header rules
   - Use `:path*` pattern for wildcard matching in header source paths
 ---
+
+## Sun 11 Jan 2026 - US-015
+Thread: https://ampcode.com/threads/T-019bae8b-68d9-76d2-8731-220acbb3ff00
+- Added isHealthy() method to KVClient interface and both implementations
+- VercelKVClient.isHealthy() uses ping() to verify connection
+- InMemoryKV.isHealthy() always returns true
+- Exported isHealthy() function from kv-client.ts
+- Updated withCache to detect connection errors and log to Sentry (placeholder)
+- Added isConnectionError() helper to identify network-related failures
+- Added logCacheError() helper that logs and reports to Sentry
+- Cache errors never crash the app - always proceeds with direct fetch
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Vercel KV has a ping() method for health checks
+  - Connection errors include: fetch failed, ECONNREFUSED, ETIMEDOUT, upstash
+  - Sentry is not yet installed - use placeholder comments for future integration
+---
