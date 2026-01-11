@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/client";
 import Anthropic from "@anthropic-ai/sdk";
 import { withErrorHandling } from "@/lib/errors/with-error-handling";
 import { ApiError } from "@/lib/errors/api-error";
+import { safeAICall } from "@/lib/ai/safe-ai-call";
 
 export const dynamic = "force-dynamic";
 
@@ -49,18 +50,19 @@ function setCachedSuggestions(query: string, suggestions: Suggestion[]): void {
 }
 
 async function generateAiSuggestions(query: string): Promise<Suggestion[]> {
-  try {
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+  const result = await safeAICall(
+    async () => {
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
 
-    const message = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
-      max_tokens: 300,
-      messages: [
-        {
-          role: "user",
-          content: `Generate 2 well-formed policy questions related to "${query}".
+      const message = await anthropic.messages.create({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 300,
+        messages: [
+          {
+            role: "user",
+            content: `Generate 2 well-formed policy questions related to "${query}".
 
 Requirements:
 - Questions should be specific, clear, and answerable with factual policy information
@@ -70,27 +72,38 @@ Requirements:
 
 Return ONLY a JSON array of 2 strings, nothing else:
 ["question 1?", "question 2?"]`,
-        },
-      ],
-    });
+          },
+        ],
+      });
 
-    const responseText =
-      message.content[0].type === "text" ? message.content[0].text : "";
+      const responseText =
+        message.content[0].type === "text" ? message.content[0].text : "";
 
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      return [];
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        return [];
+      }
+
+      const questions = JSON.parse(jsonMatch[0]) as string[];
+      return questions.slice(0, 2).map((text) => ({
+        text,
+        source: "ai" as const,
+      }));
+    },
+    {
+      operationName: "AI Suggestions",
+      model: "claude-3-5-haiku-20241022",
+      promptSummary: `Generate policy questions related to: ${query.substring(0, 50)}`,
     }
+  );
 
-    const questions = JSON.parse(jsonMatch[0]) as string[];
-    return questions.slice(0, 2).map((text) => ({
-      text,
-      source: "ai" as const,
-    }));
-  } catch (error) {
-    console.error("[AI Suggestions] Failed to generate:", error);
+  // On AI failure, fall back to empty array (template-only results)
+  if (result.error || !result.data) {
+    console.warn("[AI Suggestions] Falling back to template-only results");
     return [];
   }
+
+  return result.data;
 }
 
 export const GET = withErrorHandling(async (request: NextRequest) => {

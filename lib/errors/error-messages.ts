@@ -5,7 +5,7 @@ export interface FriendlyError {
   message: string;
 }
 
-const errorMessages: Record<ErrorCode | 'NETWORK_ERROR' | 'UNKNOWN', FriendlyError> = {
+const errorMessages: Record<ErrorCode | 'NETWORK_ERROR' | 'AI_SERVICE_ERROR' | 'UNKNOWN', FriendlyError> = {
   [ErrorCodes.UNAUTHORIZED]: {
     title: 'Access Denied',
     message: 'You need to sign in to access this resource. Please log in and try again.',
@@ -29,6 +29,10 @@ const errorMessages: Record<ErrorCode | 'NETWORK_ERROR' | 'UNKNOWN', FriendlyErr
   NETWORK_ERROR: {
     title: 'Connection Error',
     message: 'Unable to connect to the server. Please check your internet connection and try again.',
+  },
+  AI_SERVICE_ERROR: {
+    title: 'AI Service Unavailable',
+    message: 'Our AI service is temporarily unavailable. Please try again in a few moments.',
   },
   UNKNOWN: {
     title: 'Something Went Wrong',

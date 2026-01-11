@@ -6,6 +6,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { safeAICall } from "@/lib/ai/safe-ai-call";
 
 // Tavily AI client setup
 interface TavilySearchParams {
@@ -33,23 +34,38 @@ interface TavilySearchResponse {
 }
 
 async function tavilySearch(params: TavilySearchParams): Promise<TavilySearchResponse> {
-  const response = await fetch("https://api.tavily.com/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.TAVILY_API_KEY}`,
-    },
-    body: JSON.stringify({
-      api_key: process.env.TAVILY_API_KEY,
-      ...params,
-    }),
-  });
+  const result = await safeAICall(
+    async () => {
+      const response = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.TAVILY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          api_key: process.env.TAVILY_API_KEY,
+          ...params,
+        }),
+      });
 
-  if (!response.ok) {
-    throw new Error(`Tavily API error: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Tavily API error: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json() as Promise<TavilySearchResponse>;
+    },
+    {
+      operationName: "Tavily Search",
+      model: "tavily-advanced",
+      promptSummary: `Search query: ${params.query.substring(0, 100)}`,
+    }
+  );
+
+  if (result.error || !result.data) {
+    throw new Error("AI service temporarily unavailable");
   }
 
-  return response.json();
+  return result.data;
 }
 
 // Source types for State of Clarity
@@ -132,10 +148,6 @@ export async function researchAgent(question: string): Promise<Source[]> {
  * (More efficient than individual calls)
  */
 async function classifyPoliticalLeanBatch(sources: Partial<Source>[]): Promise<Partial<Source>[]> {
-  const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  });
-
   const prompt = `
 You are a media bias expert. Classify the political lean of these ${sources.length} sources.
 
@@ -162,27 +174,51 @@ Guidelines:
 - Unknown publishers: mark as "unknown"
 `;
 
-  const message = await anthropic.messages.create({
-    model: "claude-3-5-haiku-20241022", // Use Haiku for classification (cheaper)
-    max_tokens: 2000,
-    messages: [{
-      role: "user",
-      content: prompt,
-    }],
-  });
+  const result = await safeAICall(
+    async () => {
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
 
-  const responseText = message.content[0].type === "text" ? message.content[0].text : "";
+      const message = await anthropic.messages.create({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 2000,
+        messages: [{
+          role: "user",
+          content: prompt,
+        }],
+      });
 
-  // Extract JSON from response (Claude sometimes adds explanation text)
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error("Could not extract JSON from Claude response");
+      const responseText = message.content[0].type === "text" ? message.content[0].text : "";
+
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) {
+        throw new Error("Could not extract JSON from Claude response");
+      }
+      return JSON.parse(jsonMatch[0]) as Array<{ index: number; political_lean: string }>;
+    },
+    {
+      operationName: "Political Lean Classification",
+      model: "claude-3-5-haiku-20241022",
+      promptSummary: `Classify political lean for ${sources.length} sources`,
+    }
+  );
+
+  // If AI fails, fall back to "unknown" for all sources
+  if (result.error || !result.data) {
+    console.warn("[Research Agent] Political classification failed, defaulting to unknown");
+    return sources.map(source => ({
+      ...source,
+      political_lean: "unknown" as const,
+    }));
   }
-  const classifications = JSON.parse(jsonMatch[0]);
 
+  type PoliticalLean = "left" | "center-left" | "center" | "center-right" | "right" | "unknown";
+  const classifications = result.data;
+  
   return sources.map((source, index) => ({
     ...source,
-    political_lean: classifications[index].political_lean,
+    political_lean: (classifications[index]?.political_lean || "unknown") as PoliticalLean,
   }));
 }
 

@@ -151,12 +151,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
 
       console.error("[Brief Generation] Error:", generationError);
 
+      // Check if this is an AI service error
+      const errorMessage = generationError instanceof Error ? generationError.message : "";
+      const isAIError = errorMessage.toLowerCase().includes("ai service") || 
+                        errorMessage.toLowerCase().includes("temporarily unavailable");
+
       return NextResponse.json({
         success: false,
         briefId,
         question,
         creditRefunded: true,
-        error: "Brief generation failed. Your credit has been refunded.",
+        error: isAIError 
+          ? "AI service temporarily unavailable. Please try again in a few moments. Your credit has been refunded."
+          : "Brief generation failed. Your credit has been refunded.",
       });
     }
 
