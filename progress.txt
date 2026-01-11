@@ -355,3 +355,20 @@ Thread: https://ampcode.com/threads/T-019bac10-5c6b-766d-82ab-2824724b9635
   - Follow same pattern as reading level: immediate save on change, not debounced
   - Protected routes redirect to signin - browser verification requires authenticated session
 ---
+
+## 2026-01-11 - US-019
+Thread: https://ampcode.com/threads/T-019bac19-ad4b-738f-96e2-faee38880c1d
+- Added Connected Accounts section to settings page
+- Features:
+  - Shows Google with official logo and "Connected" badge if linked
+  - Shows Apple with official logo and "Connected" badge if linked
+  - Shows "Not connected" text if provider not linked
+  - Uses user.identities array from Supabase auth to detect connected providers
+  - "Contact support" mailto link for disconnecting accounts (MVP requirement)
+- **Files changed:**
+  - app/settings/page.tsx (modified - added connected accounts UI)
+- **Learnings for future iterations:**
+  - user.identities contains provider info (e.g., { provider: "google" | "apple" })
+  - Use identities.some() to check if a specific provider is connected
+  - Protected routes require authenticated session - browser verification needs dev server
+---

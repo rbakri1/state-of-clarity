@@ -22,6 +22,8 @@ import {
   Scale,
   Cpu,
   Landmark,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -105,6 +107,7 @@ export default function SettingsPage() {
   const [newFeatures, setNewFeatures] = useState(true);
   const [isSavingNotifications, setIsSavingNotifications] = useState(false);
   const [notificationsSaved, setNotificationsSaved] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const saveTopicInterests = useCallback(async (interests: string[]) => {
     setIsSavingTopics(true);
@@ -251,6 +254,32 @@ export default function SettingsPage() {
       console.error("Failed to save reading level:", error);
     } finally {
       setIsSavingReadingLevel(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    setIsExporting(true);
+
+    try {
+      const response = await fetch("/api/profile/export");
+
+      if (!response.ok) {
+        throw new Error("Export failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `state-of-clarity-data-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Failed to export data:", error);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -520,8 +549,53 @@ export default function SettingsPage() {
             <p className="text-muted-foreground text-sm">
               Export your data or delete your account.
             </p>
-            <div className="text-sm text-muted-foreground italic">
-              Data & privacy options coming soon...
+
+            <div className="space-y-3">
+              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium">Export my data</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Download a copy of all your data including your profile, saved briefs, reading history, and feedback.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleExportData}
+                    disabled={isExporting}
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium whitespace-nowrap"
+                  >
+                    {isExporting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Exporting...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        Export
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-red-700 dark:text-red-400">Delete account</h4>
+                    <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1">
+                      Permanently delete your account and all associated data. This action cannot be undone.
+                    </p>
+                  </div>
+                  <Link
+                    href="/settings/delete-account"
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium whitespace-nowrap"
+                  >
+                    Delete
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </CollapsibleSection>
