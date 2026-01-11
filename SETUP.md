@@ -69,7 +69,96 @@ Click on any showcase brief (e.g., "UK 4-Day Work Week") to see the full brief v
 
 ---
 
-## Step 5: Set Up Supabase (Optional - for full functionality)
+## Step 5: Configure OAuth Providers (Optional)
+
+### Google OAuth Setup
+
+To enable "Continue with Google" sign-in:
+
+1. **Create Google OAuth Credentials**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+   - Navigate to **APIs & Services > Credentials**
+   - Click **Create Credentials > OAuth client ID**
+   - Select **Web application** as the application type
+   - Add authorized redirect URIs:
+     - For development: `http://localhost:3000/auth/callback`
+     - For production: `https://your-domain.com/auth/callback`
+     - Supabase callback: `https://your-project.supabase.co/auth/v1/callback`
+
+2. **Configure Supabase**:
+   - Go to your [Supabase Dashboard](https://app.supabase.com/)
+   - Navigate to **Authentication > Providers**
+   - Enable **Google**
+   - Enter your **Client ID** and **Client Secret** from Google Cloud Console
+   - Save the configuration
+
+3. **Update Authorized Domains** (if needed):
+   - In Google Cloud Console, go to **OAuth consent screen**
+   - Add your production domain to **Authorized domains**
+
+**Note**: Google OAuth requires HTTPS in production. It works on `localhost` for development.
+
+### Apple OAuth Setup
+
+To enable "Continue with Apple" sign-in:
+
+1. **Apple Developer Account Requirements**:
+   - You need an [Apple Developer Program](https://developer.apple.com/programs/) membership ($99/year)
+   - Apple Sign In is not available on free developer accounts
+
+2. **Create an App ID**:
+   - Go to [Apple Developer Portal](https://developer.apple.com/account/)
+   - Navigate to **Certificates, Identifiers & Profiles > Identifiers**
+   - Click **+** to create a new identifier
+   - Select **App IDs** and click **Continue**
+   - Select **App** as the type
+   - Enter a description and Bundle ID (e.g., `com.stateofclarity.app`)
+   - Under **Capabilities**, enable **Sign in with Apple**
+   - Click **Register**
+
+3. **Create a Services ID**:
+   - Go to **Identifiers** and click **+**
+   - Select **Services IDs** and click **Continue**
+   - Enter a description (e.g., "State of Clarity Web")
+   - Enter an identifier (e.g., `com.stateofclarity.web`)
+   - Click **Register**
+   - Click on the newly created Services ID to edit it
+   - Enable **Sign in with Apple** and click **Configure**
+   - Set the Primary App ID to the App ID created above
+   - Add domains:
+     - Domain: `your-project.supabase.co` (your Supabase project domain)
+     - Return URL: `https://your-project.supabase.co/auth/v1/callback`
+   - For development, also add:
+     - Domain: `localhost`
+     - Return URL: `http://localhost:3000/auth/callback`
+   - Click **Save**
+
+4. **Create a Private Key**:
+   - Go to **Keys** and click **+**
+   - Enter a name (e.g., "State of Clarity Auth Key")
+   - Enable **Sign in with Apple** and click **Configure**
+   - Select the Primary App ID created above
+   - Click **Register** and then **Download** the key file
+   - **Important**: Save this key securely – you can only download it once
+   - Note the **Key ID** displayed on the page
+
+5. **Configure Supabase**:
+   - Go to your [Supabase Dashboard](https://app.supabase.com/)
+   - Navigate to **Authentication > Providers**
+   - Enable **Apple**
+   - Enter the following:
+     - **Services ID**: The Services ID identifier (e.g., `com.stateofclarity.web`)
+     - **Secret Key**: The contents of the downloaded `.p8` key file
+     - **Key ID**: The Key ID from the Apple Developer Portal
+     - **Team ID**: Found in the top-right of Apple Developer Portal (10-character code)
+   - Save the configuration
+
+**Note**: Apple Sign In requires HTTPS for redirect URLs in production. It may work with `localhost` during development, but some features may be limited.
+
+---
+
+## Step 6: Set Up Supabase (Optional - for full functionality)
 
 ### Create Database Tables
 
@@ -155,7 +244,7 @@ CREATE POLICY "Authenticated users can create feedback"
 
 ---
 
-## Step 6: Test the Sample Brief
+## Step 7: Test the Sample Brief
 
 1. Navigate to [http://localhost:3000](http://localhost:3000)
 2. Click on "UK 4-Day Work Week" showcase brief

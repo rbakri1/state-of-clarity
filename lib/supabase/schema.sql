@@ -19,6 +19,14 @@ CREATE TABLE public.profiles (
   avatar_url TEXT,
   bio TEXT,
   reputation_score INTEGER DEFAULT 0,
+  
+  -- User preferences
+  preferred_reading_level TEXT DEFAULT 'standard',
+  topic_interests TEXT[],
+  location TEXT,
+  notification_email_digest BOOLEAN DEFAULT false,
+  notification_new_features BOOLEAN DEFAULT true,
+  
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
 
