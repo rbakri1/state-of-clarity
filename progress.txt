@@ -3,6 +3,10 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 
 ## Codebase Patterns
 - Design system uses warm editorial palette (Sage/Ivory/Ink), NOT blue/slate
+- Tailwind config now has full design tokens: use `bg-ivory-100`, `text-ink-800`, `bg-sage-500` etc.
+- Font families: `font-heading` (Canela/serif), `font-body` (Source Serif 4), `font-ui` (Inter)
+- Use `max-w-prose` for 65ch optimal reading width
+- Political lean colors: `political-left`, `political-center`, `political-right` etc.
 - Current implementation uses shadcn/ui CSS variables pattern (hsl(var(--primary)))
 - Skills folder contains comprehensive design specs: skills/frontend/{design,brand,components,tech}
 - Pages are in app/ directory using Next.js App Router
@@ -55,4 +59,28 @@ Thread: https://ampcode.com/threads/T-019baf05-900a-749b-bcb9-2cc922a4d6b8
   - No ARIA roles, no sticky positioning on reading level selector
   - No credibility scores displayed for sources
   - No generation progress UI exists (users wait 30-60s with no feedback)
+---
+
+## 2026-01-12 12:15 - US-003
+Thread: https://ampcode.com/threads/T-019baf08-5056-7472-a711-caf108566707
+- **What was implemented:** Tailwind configuration updated with full design system tokens
+- **Files changed:** 
+  - tailwind.config.ts (complete rewrite with design tokens)
+  - package.json (added @tailwindcss/typography, @tailwindcss/forms)
+- **Changes:**
+  - Added ivory color palette (50-900) for backgrounds
+  - Added ink color palette (50-900) for text
+  - Added sage color palette (50-900) for primary accent
+  - Added rust color palette (50-900) for secondary accent
+  - Added smoke color palette (50-900) for cool counterbalance
+  - Added semantic colors (success, warning, error, info)
+  - Added political lean colors for data visualization
+  - Added font families: font-heading (Canela serif), font-body (Source Serif 4), font-ui (Inter)
+  - Added max-w-prose: 65ch for optimal reading width
+  - Added typography plugin with custom prose styles
+  - Installed @tailwindcss/typography and @tailwindcss/forms plugins
+- **Learnings for future iterations:**
+  - Keep shadcn/ui CSS variable colors for compatibility with existing components
+  - New design system colors are additive, can be used alongside existing patterns
+  - Use `prose prose-custom` for narrative content with design system colors
 ---
