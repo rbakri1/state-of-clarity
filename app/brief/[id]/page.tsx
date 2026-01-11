@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { FetchError } from "@/lib/swr/fetcher";
 import { ReadingLevelSelector } from "@/components/brief/reading-level-selector";
+import { SummaryCard } from "@/components/brief/summary-card";
 import type { ReadingLevel } from "@/lib/types/brief";
 
 export default function BriefPage() {
@@ -266,17 +267,15 @@ export default function BriefPage() {
                 className="mb-6"
               />
 
-              {/* Active Summary */}
-              <div
-                id={`panel-${activeLevel}`}
-                role="tabpanel"
-                aria-labelledby={`tab-${activeLevel}`}
-                className="prose prose-custom max-w-prose mx-auto"
-              >
-                <p className="text-base leading-relaxed text-ink-800 font-body">
-                  {brief.summaries[activeLevel]}
-                </p>
-              </div>
+              {/* Summary Cards for each level */}
+              {(["child", "teen", "undergrad", "postdoc"] as const).map((level) => (
+                <SummaryCard
+                  key={level}
+                  level={level}
+                  content={brief.summaries[level] || ""}
+                  isActive={activeLevel === level}
+                />
+              ))}
             </section>
 
             {/* Narrative Analysis */}
