@@ -18,3 +18,15 @@ Thread: https://ampcode.com/threads/T-019bad40-e1da-729c-9c27-b468fd383615
   - Follow existing ErrorBoundary styling patterns for consistency
   - Use collapsible details pattern with useState for show/hide toggle
 ---
+
+## 2026-01-11 18:10 - US-010
+Thread: https://ampcode.com/threads/T-019bad42-e43c-7506-81e2-a86d988af9fb
+- Created error message mapping at /lib/errors/error-messages.ts
+- Maps all error codes from api-error.ts plus NETWORK_ERROR and UNKNOWN fallback
+- FriendlyError interface with title and message fields
+- Two helper functions: getFriendlyError(code) and getErrorByStatusCode(statusCode)
+- Files changed: lib/errors/error-messages.ts
+- **Learnings for future iterations:**
+  - Reuse ErrorCodes from api-error.ts for type safety
+  - Include UNKNOWN as default fallback for any unmapped error codes
+---
