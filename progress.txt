@@ -150,3 +150,17 @@ Thread: https://ampcode.com/threads/T-019babe5-6f58-70ac-9d93-e423ce354b02
   - useSearchParams requires Suspense boundary in Next.js 14 for pages to be statically pre-rendered
   - Extract the component using useSearchParams into a separate client component wrapped in Suspense
 ---
+
+## 2026-01-11 - US-008
+Thread: https://ampcode.com/threads/T-019babe8-2280-71eb-80e0-712377871cc9
+- Created sign-out API endpoint at /app/api/auth/signout/route.ts
+- Features:
+  - POST endpoint using createServerClient pattern from auth/callback
+  - Calls supabase.auth.signOut()
+  - Redirects to homepage with 302 status
+- **Files changed:**
+  - app/api/auth/signout/route.ts (new)
+- **Learnings for future iterations:**
+  - Sign-out uses POST method for security (prevents CSRF via link clicks)
+  - Reuse the same createServerClient cookie pattern from auth/callback
+---
