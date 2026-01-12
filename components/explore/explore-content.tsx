@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,15 @@ interface BriefsResponse {
   briefs: Brief[];
   total: number;
   hasMore: boolean;
+}
+
+interface TagWithCount {
+  tag: string;
+  count: number;
+}
+
+interface TagsResponse {
+  tags: TagWithCount[];
 }
 
 function BriefCardSkeleton() {
@@ -74,11 +83,6 @@ function EmptyState({ hasSearch }: { hasSearch: boolean }) {
   );
 }
 
-interface TagWithCount {
-  tag: string;
-  count: number;
-}
-
 export function ExploreContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -102,27 +106,13 @@ export function ExploreContent() {
     return (dateParam as DateRange) || "all";
   });
   const [briefs, setBriefs] = useState<Brief[]>([]);
-  const [allBriefs, setAllBriefs] = useState<Brief[]>([]);
+  const [availableTags, setAvailableTags] = useState<TagWithCount[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isTagsLoading, setIsTagsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Compute available tags from all briefs (fetched once without filters)
-  const availableTags = useMemo((): TagWithCount[] => {
-    const tagCounts = new Map<string, number>();
-    allBriefs.forEach((brief) => {
-      const tags = brief.metadata?.tags || [];
-      tags.forEach((tag: string) => {
-        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-      });
-    });
-    return Array.from(tagCounts.entries())
-      .map(([tag, count]) => ({ tag, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [allBriefs]);
 
   // Update URL when search query changes
   const handleSearchChange = useCallback(
@@ -241,23 +231,23 @@ export function ExploreContent() {
     }
   }, [searchParams]);
 
-  // Fetch all briefs once for tag counts (no filters)
+  // Fetch available tags from dedicated endpoint
   useEffect(() => {
-    async function fetchAllBriefs() {
+    async function fetchTags() {
       setIsTagsLoading(true);
       try {
-        const response = await fetch("/api/briefs?limit=1000&offset=0");
+        const response = await fetch("/api/briefs/tags");
         if (response.ok) {
-          const data: BriefsResponse = await response.json();
-          setAllBriefs(data.briefs);
+          const data: TagsResponse = await response.json();
+          setAvailableTags(data.tags);
         }
       } catch (err) {
-        console.error("Error fetching all briefs for tags:", err);
+        console.error("Error fetching tags:", err);
       } finally {
         setIsTagsLoading(false);
       }
     }
-    fetchAllBriefs();
+    fetchTags();
   }, []);
 
   // Fetch briefs when search query, tags, minScore, or sort change
