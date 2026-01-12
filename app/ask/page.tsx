@@ -103,27 +103,80 @@ export default function AskPage() {
         body: JSON.stringify({ question: question.trim() }),
       });
 
-      const data = await response.json();
+      // Check for non-streaming error responses (auth, credits, etc.)
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
+        clearInterval(progressInterval);
+        
+        if (!response.ok) {
+          if (response.status === 402 && data.creditsLink) {
+            setError(`${data.error} `);
+            setTimeout(() => {
+              window.location.href = data.creditsLink;
+            }, 2000);
+            return;
+          }
+          throw new Error(data.error || "Failed to generate brief");
+        }
+        return;
+      }
+
+      // Handle SSE stream
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Failed to start generation stream");
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            const eventType = line.slice(7);
+            continue;
+          }
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              // Update progress based on stage
+              if (data.stage === "research") {
+                setGenerationStage("research");
+              } else if (data.stage === "credits_deducted") {
+                setGenerationStage("structure");
+              }
+
+              // Handle completion
+              if (data.success !== undefined) {
+                clearInterval(progressInterval);
+                setGenerationProgress(100);
+                
+                if (data.success && data.briefId) {
+                  window.location.href = `/brief/${data.briefId}`;
+                  return;
+                } else if (data.creditRefunded) {
+                  setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+                } else if (data.error) {
+                  setError(data.error);
+                }
+              }
+            } catch {
+              // Ignore parse errors for heartbeats etc
+            }
+          }
+        }
+      }
 
       clearInterval(progressInterval);
-      setGenerationProgress(100);
-
-      if (!response.ok) {
-        if (response.status === 402 && data.creditsLink) {
-          setError(`${data.error} `);
-          setTimeout(() => {
-            window.location.href = data.creditsLink;
-          }, 2000);
-          return;
-        }
-        throw new Error(data.error || "Failed to generate brief");
-      }
-
-      if (data.success && data.briefId) {
-        window.location.href = `/brief/${data.briefId}`;
-      } else if (data.creditRefunded) {
-        setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
-      }
     } catch (err) {
       clearInterval(progressInterval);
       setError(err instanceof Error ? err.message : "Failed to generate brief");

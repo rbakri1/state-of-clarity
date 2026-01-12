@@ -1,15 +1,15 @@
 /**
- * Brief Generation API Route
+ * Brief Generation API Route (Streaming)
  * 
  * Generates a policy brief with integrated credit system:
  * 1. Check user has credits before starting
  * 2. Deduct 1 credit at start
- * 3. Run research agent + generate brief
+ * 3. Run research agent + generate brief (with streaming progress)
  * 4. Evaluate with quality gate
  * 5. Refund credit if quality score < 6.0
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { hasCredits, deductCredits, refundCredits } from "@/lib/services/credit-service";
@@ -22,21 +22,22 @@ export const maxDuration = 300; // 5 minutes - brief generation involves multipl
 
 const BRIEF_COST = 1;
 
-interface GenerateBriefRequest {
-  question: string;
+function createSSEResponse(stream: ReadableStream) {
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+    },
+  });
 }
 
-interface GenerateBriefResponse {
-  success: boolean;
-  briefId?: string;
-  question?: string;
-  clarityScore?: number;
-  creditRefunded?: boolean;
-  error?: string;
-  creditsLink?: string;
+function sendSSE(controller: ReadableStreamDefaultController, event: string, data: any) {
+  const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+  controller.enqueue(new TextEncoder().encode(message));
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse<GenerateBriefResponse>> {
+export async function POST(request: NextRequest) {
   console.log('[Brief Generate] Starting request...');
   
   // Check required env vars
@@ -51,174 +52,206 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
   
   if (!envCheck.hasAnthropicKey || !envCheck.hasTavilyKey) {
     console.error('[Brief Generate] Missing API keys!');
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: "Server configuration error" },
       { status: 500 }
     );
   }
-  
+
+  // Auth check
+  const cookieStore = await cookies();
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error('[Brief Generate] Authentication failed:', authError);
+    return Response.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
+  let body;
   try {
-    const cookieStore = await cookies();
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { success: false, error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  if (!body.question || typeof body.question !== "string" || body.question.trim().length === 0) {
+    return Response.json(
+      { success: false, error: "Question is required" },
+      { status: 400 }
+    );
+  }
+
+  const question = body.question.trim();
+
+  const hasSufficientCredits = await hasCredits(user.id, BRIEF_COST);
+
+  if (!hasSufficientCredits) {
+    return Response.json(
       {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
-            });
-          },
-        },
-      }
+        success: false,
+        error: "Insufficient credits. Each brief generation costs 1 credit.",
+        creditsLink: "/credits",
+      },
+      { status: 402 }
     );
+  }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  // Create SSE stream for progress updates
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        // Send initial progress
+        sendSSE(controller, "progress", { stage: "starting", message: "Initializing..." });
 
-    if (authError || !user) {
-      console.error('[Brief Generate] Authentication failed:', authError);
-      return NextResponse.json(
-        { success: false, error: "Authentication required" },
-        { status: 401 }
-      );
-    }
+        // Step 1: Create brief record in database to get UUID
+        const { id: briefId, error: createError } = await createBrief(question, user.id);
 
-    const body: GenerateBriefRequest = await request.json();
+        if (createError || !briefId) {
+          console.error('[Brief Generate] Failed to create brief:', createError);
+          sendSSE(controller, "error", { 
+            success: false, 
+            error: "Failed to create brief record. Please try again." 
+          });
+          controller.close();
+          return;
+        }
 
-    if (!body.question || typeof body.question !== "string" || body.question.trim().length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Question is required" },
-        { status: 400 }
-      );
-    }
+        sendSSE(controller, "progress", { stage: "created", briefId, message: "Brief record created" });
 
-    const question = body.question.trim();
-
-    const hasSufficientCredits = await hasCredits(user.id, BRIEF_COST);
-
-    if (!hasSufficientCredits) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Insufficient credits. Each brief generation costs 1 credit.",
-          creditsLink: "/credits",
-        },
-        { status: 402 }
-      );
-    }
-
-    // Step 1: Create brief record in database to get UUID
-    const { id: briefId, error: createError } = await createBrief(question, user.id);
-
-    if (createError || !briefId) {
-      console.error('[Brief Generate] Failed to create brief:', createError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to create brief record. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
-
-    // Step 2: Deduct credits
-    const creditDeducted = await deductCredits(
-      user.id,
-      BRIEF_COST,
-      briefId,
-      `Brief generation: "${question.substring(0, 50)}${question.length > 50 ? "..." : ""}"`
-    );
-
-    if (!creditDeducted) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to deduct credits. Please try again.",
-        },
-        { status: 500 }
-      );
-    }
-
-    let clarityScore = 0;
-    let creditRefunded = false;
-
-    try {
-      // Step 3: Run full brief generation orchestrator
-      console.log(`[Brief Generate] Starting full generation for brief ${briefId}`);
-      const briefState = await generateBrief(question, briefId);
-
-      // Check for generation errors
-      if (briefState.error) {
-        throw new Error(briefState.error);
-      }
-
-      // Step 4: Evaluate quality gate
-      clarityScore = briefState.clarityScore?.overall || 0;
-
-      if (clarityScore < 60) {
-        await refundCredits(
+        // Step 2: Deduct credits
+        const creditDeducted = await deductCredits(
           user.id,
           BRIEF_COST,
           briefId,
-          `Quality gate failed: clarity score ${clarityScore} < 60`
+          `Brief generation: "${question.substring(0, 50)}${question.length > 50 ? "..." : ""}"`
         );
-        creditRefunded = true;
 
-        return NextResponse.json({
-          success: false,
-          briefId,
-          question,
-          clarityScore: clarityScore / 10, // Convert to 0-10 scale for display
-          creditRefunded: true,
-          error: `Brief quality score (${(clarityScore / 10).toFixed(1)}/10) did not meet minimum threshold of 6.0. Your credit has been refunded.`,
-        });
+        if (!creditDeducted) {
+          sendSSE(controller, "error", {
+            success: false,
+            error: "Failed to deduct credits. Please try again.",
+          });
+          controller.close();
+          return;
+        }
+
+        sendSSE(controller, "progress", { stage: "credits_deducted", message: "Credits deducted" });
+
+        // Keep-alive: send heartbeat every 10 seconds during generation
+        const heartbeatInterval = setInterval(() => {
+          try {
+            sendSSE(controller, "heartbeat", { timestamp: Date.now() });
+          } catch {
+            clearInterval(heartbeatInterval);
+          }
+        }, 10000);
+
+        try {
+          // Step 3: Run full brief generation orchestrator
+          console.log(`[Brief Generate] Starting full generation for brief ${briefId}`);
+          sendSSE(controller, "progress", { stage: "research", message: "Researching sources..." });
+          
+          const briefState = await generateBrief(question, briefId);
+
+          clearInterval(heartbeatInterval);
+
+          // Check for generation errors
+          if (briefState.error) {
+            throw new Error(briefState.error);
+          }
+
+          // Step 4: Evaluate quality gate
+          const clarityScore = briefState.clarityScore?.overall || 0;
+
+          if (clarityScore < 60) {
+            await refundCredits(
+              user.id,
+              BRIEF_COST,
+              briefId,
+              `Quality gate failed: clarity score ${clarityScore} < 60`
+            );
+
+            sendSSE(controller, "complete", {
+              success: false,
+              briefId,
+              question,
+              clarityScore: clarityScore / 10,
+              creditRefunded: true,
+              error: `Brief quality score (${(clarityScore / 10).toFixed(1)}/10) did not meet minimum threshold of 6.0. Your credit has been refunded.`,
+            });
+            controller.close();
+            return;
+          }
+
+          console.log(`[Brief Generate] Successfully generated brief ${briefId} with score ${clarityScore}`);
+
+          sendSSE(controller, "complete", {
+            success: true,
+            briefId,
+            question,
+            clarityScore: clarityScore / 10,
+            creditRefunded: false,
+          });
+          controller.close();
+
+        } catch (generationError) {
+          clearInterval(heartbeatInterval);
+          
+          await refundCredits(
+            user.id,
+            BRIEF_COST,
+            briefId,
+            `Generation failed: ${generationError instanceof Error ? generationError.message : "Unknown error"}`
+          );
+
+          console.error("[Brief Generation] Error:", generationError);
+
+          const errorMessage = generationError instanceof Error ? generationError.message : "";
+          const isAIError = errorMessage.toLowerCase().includes("ai service") || 
+                           errorMessage.toLowerCase().includes("temporarily unavailable");
+
+          sendSSE(controller, "complete", {
+            success: false,
+            briefId,
+            question,
+            creditRefunded: true,
+            error: isAIError 
+              ? "AI service temporarily unavailable. Please try again in a few moments. Your credit has been refunded."
+              : "Brief generation failed. Your credit has been refunded.",
+          });
+          controller.close();
+        }
+
+      } catch (error) {
+        console.error("[Brief Generation] Unexpected error:", error);
+        sendSSE(controller, "error", { success: false, error: "Internal server error" });
+        controller.close();
       }
+    },
+  });
 
-      console.log(`[Brief Generate] Successfully generated brief ${briefId} with score ${clarityScore}`);
-
-      return NextResponse.json({
-        success: true,
-        briefId,
-        question,
-        clarityScore: clarityScore / 10, // Convert to 0-10 scale for display
-        creditRefunded: false,
-      });
-
-    } catch (generationError) {
-      await refundCredits(
-        user.id,
-        BRIEF_COST,
-        briefId,
-        `Generation failed: ${generationError instanceof Error ? generationError.message : "Unknown error"}`
-      );
-
-      console.error("[Brief Generation] Error:", generationError);
-
-      // Check if this is an AI service error
-      const errorMessage = generationError instanceof Error ? generationError.message : "";
-      const isAIError = errorMessage.toLowerCase().includes("ai service") || 
-                        errorMessage.toLowerCase().includes("temporarily unavailable");
-
-      return NextResponse.json({
-        success: false,
-        briefId,
-        question,
-        creditRefunded: true,
-        error: isAIError 
-          ? "AI service temporarily unavailable. Please try again in a few moments. Your credit has been refunded."
-          : "Brief generation failed. Your credit has been refunded.",
-      });
-    }
-
-  } catch (error) {
-    console.error("[Brief Generation] Unexpected error:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+  return createSSEResponse(stream);
 }
