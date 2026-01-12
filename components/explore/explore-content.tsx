@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "./search-input";
+import { TagFilter } from "./tag-filter";
 import { BriefCard } from "./brief-card";
 import type { Brief } from "@/lib/types/brief";
 
@@ -70,16 +71,41 @@ function EmptyState({ hasSearch }: { hasSearch: boolean }) {
   );
 }
 
+interface TagWithCount {
+  tag: string;
+  count: number;
+}
+
 export function ExploreContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Get initial search query from URL
+  // Get initial values from URL
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tagsParam = searchParams.get("tags");
+    return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+  });
   const [briefs, setBriefs] = useState<Brief[]>([]);
+  const [allBriefs, setAllBriefs] = useState<Brief[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTagsLoading, setIsTagsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Compute available tags from all briefs (fetched once without filters)
+  const availableTags = useMemo((): TagWithCount[] => {
+    const tagCounts = new Map<string, number>();
+    allBriefs.forEach((brief) => {
+      const tags = brief.metadata?.tags || [];
+      tags.forEach((tag: string) => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      });
+    });
+    return Array.from(tagCounts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [allBriefs]);
 
   // Update URL when search query changes
   const handleSearchChange = useCallback(
@@ -97,15 +123,67 @@ export function ExploreContent() {
     [searchParams, router]
   );
 
-  // Sync search query from URL on mount/navigation
+  // Update URL when tags change
+  const updateTagsUrl = useCallback(
+    (tags: string[]) => {
+      const newParams = new URLSearchParams(searchParams.toString());
+      if (tags.length > 0) {
+        newParams.set("tags", tags.join(","));
+      } else {
+        newParams.delete("tags");
+      }
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
+  // Toggle a tag on/off
+  const handleTagToggle = useCallback(
+    (tag: string) => {
+      setSelectedTags((prev) => {
+        const newTags = prev.includes(tag)
+          ? prev.filter((t) => t !== tag)
+          : [...prev, tag];
+        updateTagsUrl(newTags);
+        return newTags;
+      });
+    },
+    [updateTagsUrl]
+  );
+
+  // Sync search query and tags from URL on mount/navigation
   useEffect(() => {
     const urlQuery = searchParams.get("q") || "";
     if (urlQuery !== searchQuery) {
       setSearchQuery(urlQuery);
     }
+    const urlTags = searchParams.get("tags");
+    const parsedTags = urlTags ? urlTags.split(",").filter(Boolean) : [];
+    if (JSON.stringify(parsedTags) !== JSON.stringify(selectedTags)) {
+      setSelectedTags(parsedTags);
+    }
   }, [searchParams]);
 
-  // Fetch briefs when search query changes
+  // Fetch all briefs once for tag counts (no filters)
+  useEffect(() => {
+    async function fetchAllBriefs() {
+      setIsTagsLoading(true);
+      try {
+        const response = await fetch("/api/briefs?limit=1000&offset=0");
+        if (response.ok) {
+          const data: BriefsResponse = await response.json();
+          setAllBriefs(data.briefs);
+        }
+      } catch (err) {
+        console.error("Error fetching all briefs for tags:", err);
+      } finally {
+        setIsTagsLoading(false);
+      }
+    }
+    fetchAllBriefs();
+  }, []);
+
+  // Fetch briefs when search query or tags change
   useEffect(() => {
     async function fetchBriefs() {
       setIsLoading(true);
@@ -117,6 +195,9 @@ export function ExploreContent() {
         params.set("offset", "0");
         if (searchQuery) {
           params.set("q", searchQuery);
+        }
+        if (selectedTags.length > 0) {
+          params.set("tags", selectedTags.join(","));
         }
 
         const response = await fetch(`/api/briefs?${params.toString()}`);
@@ -137,12 +218,14 @@ export function ExploreContent() {
     }
 
     fetchBriefs();
-  }, [searchQuery]);
+  }, [searchQuery, selectedTags]);
 
-  const handleTagClick = (tag: string) => {
-    // Tag click handling will be implemented in US-009
-    console.log("Tag clicked:", tag);
-  };
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      handleTagToggle(tag);
+    },
+    [handleTagToggle]
+  );
 
   if (error) {
     return (
@@ -178,6 +261,14 @@ export function ExploreContent() {
         />
       </div>
 
+      {/* Tag filter */}
+      <TagFilter
+        tags={availableTags}
+        selectedTags={selectedTags}
+        onTagToggle={handleTagToggle}
+        isLoading={isTagsLoading}
+      />
+
       {/* Results count */}
       <div className="mb-6">
         {isLoading ? (
@@ -190,6 +281,12 @@ export function ExploreContent() {
               <span className="text-ink-400">
                 {" "}
                 for &quot;{searchQuery}&quot;
+              </span>
+            )}
+            {selectedTags.length > 0 && (
+              <span className="text-ink-400">
+                {" "}
+                with tags: {selectedTags.join(", ")}
               </span>
             )}
           </p>
