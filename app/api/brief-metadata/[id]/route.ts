@@ -16,6 +16,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBriefById } from "@/lib/services/brief-service";
 
+// Import sample briefs for friendly ID mapping
+import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
+import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
+import briefMedicareForAll from "@/sample-briefs/medicare-for-all.json";
+import briefUKBanConversion from "@/sample-briefs/uk-ban-conversion-therapy.json";
+import briefUKMandatoryVoting from "@/sample-briefs/uk-mandatory-voting.json";
+import briefUKRentControls from "@/sample-briefs/uk-rent-controls.json";
+import briefUKScotlandIndependence from "@/sample-briefs/uk-scotland-independence-economics.json";
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -34,44 +43,73 @@ export async function GET(
   let description = "An AI-powered policy brief that delivers transparent, multi-layered analysis.";
   let clarityScore: number | null = null;
   let usingFallback = false;
-  let source: "database" | "fallback" = "fallback";
+  let source: "sample" | "database" | "fallback" = "fallback";
 
-  // Fetch from database (works for both sample briefs and user-generated briefs)
-  try {
-    const result = await getBriefById(id);
-    if (result.data) {
-      source = "database";
-      question = result.data.question;
-      clarityScore = typeof result.data.clarity_score === 'number' ? result.data.clarity_score : null;
+  // Check for hardcoded sample briefs first (matches page.tsx and layout.tsx)
+  const sampleBriefs: { [key: string]: any } = {
+    "uk-four-day-week": briefUK4Day,
+    "brief-001-uk-4day-week": briefUK4Day,
+    "what-is-a-state": briefWhatIsState,
+    "brief-002-what-is-a-state": briefWhatIsState,
+    "medicare-for-all": briefMedicareForAll,
+    "brief-008-medicare-for-all": briefMedicareForAll,
+    "uk-ban-conversion-therapy": briefUKBanConversion,
+    "uk-mandatory-voting": briefUKMandatoryVoting,
+    "uk-rent-controls": briefUKRentControls,
+    "uk-scotland-independence-economics": briefUKScotlandIndependence,
+  };
 
-      // Handle both array and object formats for summaries
-      const summaries = result.data.summaries;
-      if (summaries) {
-        let summaryText: string | undefined;
-        if (Array.isArray(summaries)) {
-          const undergrad = summaries.find((s: { level: string }) => s.level === "undergrad");
-          const teen = summaries.find((s: { level: string }) => s.level === "teen");
-          summaryText = undergrad?.content || teen?.content;
-        } else if (typeof summaries === "object") {
-          const sumObj = summaries as unknown as { child?: string; teen?: string; undergrad?: string; postdoc?: string };
-          summaryText = sumObj.undergrad || sumObj.teen;
-        }
-        if (summaryText) {
-          description = summaryText.slice(0, 200) + (summaryText.length > 200 ? "..." : "");
+  if (sampleBriefs[id]) {
+    // Use hardcoded sample brief
+    source = "sample";
+    const brief = sampleBriefs[id];
+    question = brief.question;
+    clarityScore = brief.clarity_score;
+
+    // Extract summary from summaries object
+    if (brief.summaries?.undergrad) {
+      description = brief.summaries.undergrad;
+    } else if (brief.summaries?.teen) {
+      description = brief.summaries.teen;
+    }
+  } else {
+    // Fetch from database for UUID-based briefs
+    try {
+      const result = await getBriefById(id);
+      if (result.data) {
+        source = "database";
+        question = result.data.question;
+        clarityScore = typeof result.data.clarity_score === 'number' ? result.data.clarity_score : null;
+
+        // Handle both array and object formats for summaries
+        const summaries = result.data.summaries;
+        if (summaries) {
+          let summaryText: string | undefined;
+          if (Array.isArray(summaries)) {
+            const undergrad = summaries.find((s: { level: string }) => s.level === "undergrad");
+            const teen = summaries.find((s: { level: string }) => s.level === "teen");
+            summaryText = undergrad?.content || teen?.content;
+          } else if (typeof summaries === "object") {
+            const sumObj = summaries as unknown as { child?: string; teen?: string; undergrad?: string; postdoc?: string };
+            summaryText = sumObj.undergrad || sumObj.teen;
+          }
+          if (summaryText) {
+            description = summaryText.slice(0, 200) + (summaryText.length > 200 ? "..." : "");
+          } else {
+            response.warnings.push("No suitable summary found for brief");
+          }
         } else {
-          response.warnings.push("No suitable summary found for brief");
+          response.warnings.push("Brief has no summaries");
         }
       } else {
-        response.warnings.push("Brief has no summaries");
+        response.error = `Brief ${id} not found in database`;
+        usingFallback = true;
       }
-    } else {
-      response.error = `Brief ${id} not found in database`;
+    } catch (error) {
+      response.error = error instanceof Error ? error.message : String(error);
+      response.warnings.push("Check that NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set correctly");
       usingFallback = true;
     }
-  } catch (error) {
-    response.error = error instanceof Error ? error.message : String(error);
-    response.warnings.push("Check that NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set correctly");
-    usingFallback = true;
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://stateofclarity.org";
