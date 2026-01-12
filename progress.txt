@@ -216,3 +216,31 @@ Thread: https://ampcode.com/threads/T-019bb3c3-348a-71bc-8de0-a3923d5d9de6
   - Check if feature is already implemented before starting work
   - The homepage showcase section is in app/page.tsx after line 549
 ---
+
+## Mon 12 Jan 2026 - US-016
+Thread: https://ampcode.com/threads/T-019bb3c7-ce2b-708d-ae2a-9addd5427e94
+- Created `/api/briefs/tags` endpoint to fetch unique tags with counts from public briefs
+- Endpoint returns `{ tags: TagWithCount[] }` sorted by count descending
+- Updated `components/explore/explore-content.tsx` to use new tags endpoint
+- Removed inefficient fetch of all briefs (limit=1000) just for tag counts
+- Added 5min cache (s-maxage=300) to tags endpoint for performance
+- **Learnings for future iterations:**
+  - Create dedicated endpoints for specific data needs rather than over-fetching
+  - Tags endpoint pattern: fetch metadata only, compute counts in-memory, cache result
+  - TagWithCount interface: `{ tag: string, count: number }` is the standard shape
+---
+
+## Tue 13 Jan 2026 - US-017
+Thread: https://ampcode.com/threads/T-019bb3ca-796a-7517-8546-5002c5c55d28
+- Created `components/explore/mobile-filter-drawer.tsx` for mobile-friendly filter UI
+- Slide-up drawer with all filters: tags, score, date range, sort
+- Filters button with active count badge (sage-500 bg, white text)
+- Apply Filters (sage-500 primary) and Clear All buttons in drawer footer
+- Body scroll lock when drawer is open, Escape key closes drawer
+- Desktop filters hidden with `hidden md:block`, mobile drawer with `md:hidden`
+- Browser verified: drawer slides up, all filters work, badge shows active count
+- **Learnings for future iterations:**
+  - Use `document.body.style.overflow = "hidden"` for body scroll lock
+  - Cleanup body overflow in useEffect return to prevent memory leaks
+  - Badge count calculation: sum of all non-default filter values
+---

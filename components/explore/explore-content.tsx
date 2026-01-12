@@ -9,6 +9,7 @@ import { TagFilter } from "./tag-filter";
 import { ScoreFilter } from "./score-filter";
 import { SortFilter, type SortOption } from "./sort-filter";
 import { DateFilter, type DateRange } from "./date-filter";
+import { MobileFilterDrawer } from "./mobile-filter-drawer";
 import { BriefCard } from "./brief-card";
 import type { Brief } from "@/lib/types/brief";
 
@@ -379,24 +380,43 @@ export function ExploreContent() {
         />
       </div>
 
-      {/* Tag filter */}
-      <TagFilter
-        tags={availableTags}
-        selectedTags={selectedTags}
-        onTagToggle={handleTagToggle}
-        isLoading={isTagsLoading}
-      />
+      {/* Mobile filter drawer */}
+      <div className="mb-6 md:hidden">
+        <MobileFilterDrawer
+          availableTags={availableTags}
+          selectedTags={selectedTags}
+          onTagToggle={handleTagToggle}
+          isTagsLoading={isTagsLoading}
+          minScore={minScore}
+          onMinScoreChange={handleMinScoreChange}
+          sort={sort}
+          onSortChange={handleSortChange}
+          dateRange={dateRange}
+          onDateRangeChange={handleDateRangeChange}
+        />
+      </div>
 
-      {/* Score, Date, and Sort filters */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="w-40">
-          <ScoreFilter value={minScore} onChange={handleMinScoreChange} />
-        </div>
-        <div className="w-40">
-          <DateFilter value={dateRange} onChange={handleDateRangeChange} />
-        </div>
-        <div className="w-40">
-          <SortFilter value={sort} onChange={handleSortChange} />
+      {/* Desktop filters - hidden on mobile */}
+      <div className="hidden md:block">
+        {/* Tag filter */}
+        <TagFilter
+          tags={availableTags}
+          selectedTags={selectedTags}
+          onTagToggle={handleTagToggle}
+          isLoading={isTagsLoading}
+        />
+
+        {/* Score, Date, and Sort filters */}
+        <div className="flex flex-wrap gap-4 mb-6">
+          <div className="w-40">
+            <ScoreFilter value={minScore} onChange={handleMinScoreChange} />
+          </div>
+          <div className="w-40">
+            <DateFilter value={dateRange} onChange={handleDateRangeChange} />
+          </div>
+          <div className="w-40">
+            <SortFilter value={sort} onChange={handleSortChange} />
+          </div>
         </div>
       </div>
 

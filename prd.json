@@ -253,8 +253,8 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "API: /api/briefs/tags returns { tags: TagWithCount[] }. Explore page updated to use this endpoint instead of fetching all briefs."
     },
     {
       "id": "US-017",
@@ -270,8 +270,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/mobile-filter-drawer.tsx - slide-up drawer with all filters, Clear All/Apply Filters buttons, active count badge on Filters button"
     }
   ]
 }
