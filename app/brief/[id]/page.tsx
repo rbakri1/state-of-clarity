@@ -26,6 +26,11 @@ import ReactMarkdown from "react-markdown";
 
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
 import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
+import briefMedicareForAll from "@/sample-briefs/medicare-for-all.json";
+import briefUKBanConversion from "@/sample-briefs/uk-ban-conversion-therapy.json";
+import briefUKMandatoryVoting from "@/sample-briefs/uk-mandatory-voting.json";
+import briefUKRentControls from "@/sample-briefs/uk-rent-controls.json";
+import briefUKScotlandIndependence from "@/sample-briefs/uk-scotland-independence-economics.json";
 import { LowBalanceWarning } from "@/app/components/LowBalanceWarning";
 
 export default function BriefPage() {
@@ -62,9 +67,19 @@ export default function BriefPage() {
       const id = params.id as string;
 
       // Check for hardcoded sample briefs first
+      // Map multiple ID formats to the same brief for flexibility
       const sampleBriefs: { [key: string]: any } = {
         "uk-four-day-week": briefUK4Day,
+        "brief-001-uk-4day-week": briefUK4Day,
         "what-is-a-state": briefWhatIsState,
+        "brief-002-what-is-a-state": briefWhatIsState,
+        "medicare-for-all": briefMedicareForAll,
+        "brief-008-medicare-for-all": briefMedicareForAll,
+        "uk-ban-conversion-therapy": briefUKBanConversion,
+        "uk-mandatory-voting": briefUKMandatoryVoting,
+        "uk-rent-controls": briefUKRentControls,
+        "uk-scotland-independence-economics": briefUKScotlandIndependence,
+        "scottish-independence-economics": briefUKScotlandIndependence,
       };
 
       if (sampleBriefs[id]) {

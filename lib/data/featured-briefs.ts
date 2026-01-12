@@ -1,7 +1,7 @@
 /**
  * Featured briefs with excerpts for homepage rotation.
  * These are high-quality completed briefs that showcase State of Clarity's analysis.
- * Updated January 2026.
+ * Only includes briefs that actually exist (sample files or database).
  */
 
 export interface FeaturedBrief {
@@ -14,7 +14,7 @@ export interface FeaturedBrief {
 }
 
 export const FEATURED_BRIEFS: FeaturedBrief[] = [
-  // Foundational briefs
+  // Foundational briefs (sample files)
   {
     id: "what-is-a-state",
     question: "What is a state?",
@@ -31,50 +31,6 @@ export const FEATURED_BRIEFS: FeaturedBrief[] = [
     tags: ["Economics", "Labor Policy"],
     readTime: "6 min",
   },
-
-  // UK Policy Briefs (January 2026)
-  {
-    id: "uk-council-tax-reform",
-    question: "How should the UK reform council tax to make it more progressive?",
-    excerpt: "Council tax bands haven't been updated since 1991, creating a system where the poorest pay 4.8% of income versus 1.6% for the richest. Reform options range from revaluation to land value tax, but 18 million properties would see increases.",
-    clarity_score: 8.2,
-    tags: ["Taxation", "UK Policy"],
-    readTime: "6 min",
-  },
-  {
-    id: "uk-proportional-representation",
-    question: "Should the UK adopt proportional representation instead of first-past-the-post?",
-    excerpt: "In 2024, Labour won 63% of seats with 34% of votes, while Reform UK got 14% of votes but 1% of seats. PR would make representation fairer but typically produces coalition governments—Germany averages 4-party coalitions.",
-    clarity_score: 8.4,
-    tags: ["Electoral Reform", "Democracy"],
-    readTime: "7 min",
-  },
-
-  // US Policy Briefs (January 2026)
-  {
-    id: "us-federal-wealth-tax",
-    question: "Should the United States implement a federal wealth tax?",
-    excerpt: "A 2% wealth tax on fortunes above $50M could raise $250-400 billion annually. But enforcement challenges are severe: wealthy Americans can hide assets offshore or renounce citizenship—France's wealth tax raised less than predicted before repeal.",
-    clarity_score: 8.0,
-    tags: ["Taxation", "US Policy"],
-    readTime: "7 min",
-  },
-  {
-    id: "us-qualified-immunity",
-    question: "What would be the effects of ending qualified immunity for police officers?",
-    excerpt: "Qualified immunity shields police from civil lawsuits unless they violate 'clearly established' rights. Ending it could increase accountability for misconduct but may also drive officers from the profession and raise city liability insurance costs.",
-    clarity_score: 8.1,
-    tags: ["Criminal Justice", "Police Reform"],
-    readTime: "6 min",
-  },
-  {
-    id: "brief-007-us-assault-weapons-ban",
-    question: "Should the US ban assault weapons nationwide?",
-    excerpt: "Assault weapons account for ~3% of US gun deaths but feature prominently in mass shootings. The 1994-2004 federal ban showed mixed results—some studies find reduced mass shooting deaths, others find no significant overall impact.",
-    clarity_score: 8.5,
-    tags: ["Gun Policy", "Public Safety"],
-    readTime: "7 min",
-  },
   {
     id: "medicare-for-all",
     question: "How would Medicare for All impact the US healthcare system and economy?",
@@ -83,9 +39,38 @@ export const FEATURED_BRIEFS: FeaturedBrief[] = [
     tags: ["Healthcare", "US Policy"],
     readTime: "9 min",
   },
-
-  // More briefs coming soon
-  // Next: International relations, technology, climate
+  {
+    id: "uk-ban-conversion-therapy",
+    question: "Should the UK ban conversion therapy?",
+    excerpt: "Medical consensus condemns conversion therapy as harmful and ineffective, but defining its boundaries remains contested. The key tension: protecting LGBTQ+ individuals while preserving legitimate therapeutic and religious practices.",
+    clarity_score: 8.3,
+    tags: ["LGBTQ+ Rights", "UK Policy"],
+    readTime: "6 min",
+  },
+  {
+    id: "uk-mandatory-voting",
+    question: "Should the UK introduce mandatory voting?",
+    excerpt: "Australia's compulsory voting achieves 90%+ turnout, but critics argue it conflicts with democratic freedom. The debate centers on whether low turnout reflects apathy to be corrected or legitimate political expression to be respected.",
+    clarity_score: 8.1,
+    tags: ["Democracy", "Electoral Reform"],
+    readTime: "5 min",
+  },
+  {
+    id: "uk-rent-controls",
+    question: "Should the UK introduce rent controls?",
+    excerpt: "Rent controls provide immediate relief for current tenants but economic evidence consistently shows they reduce housing supply long-term. The challenge is balancing short-term affordability with housing investment incentives.",
+    clarity_score: 8.0,
+    tags: ["Housing", "UK Policy"],
+    readTime: "6 min",
+  },
+  {
+    id: "scottish-independence-economics",
+    question: "What would Scottish independence mean for the economy?",
+    excerpt: "An independent Scotland would face significant fiscal challenges: a £15bn deficit, currency uncertainty, and trade barriers with England. But proponents argue EU membership and oil revenues could offset these costs over time.",
+    clarity_score: 8.4,
+    tags: ["Scotland", "Economics"],
+    readTime: "8 min",
+  },
 ];
 
 /**
@@ -101,7 +86,6 @@ export function getRandomFeaturedBriefs(count: number = 3): FeaturedBrief[] {
  */
 export function getRotatingFeaturedBriefs(): FeaturedBrief[] {
   // Show 4 random briefs from the full collection
-  // This ensures variety while keeping foundational briefs in rotation
   const shuffled = [...FEATURED_BRIEFS].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, Math.min(4, FEATURED_BRIEFS.length));
 }
