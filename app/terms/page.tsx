@@ -98,7 +98,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>The service will be uninterrupted or error-free</li>
-              <li>AI-generated content will be accurate, complete, or unbiased</li>
+              <li>AI-generated content will be accurate, complete, or free from limitations</li>
               <li>The service will meet your specific requirements</li>
             </ul>
             <p className="text-muted-foreground mt-4">

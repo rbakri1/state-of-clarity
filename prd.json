@@ -310,8 +310,8 @@
         "Typecheck passes"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Homepage copy updated to match brand voice: removed 'AI-powered' from Clarity Score card, added active voice ('We link every claim', 'We meet you where you are'), improved hint text with concrete example, updated showcase section to emphasize first-principles reasoning and source transparency."
     },
     {
       "id": "US-018",

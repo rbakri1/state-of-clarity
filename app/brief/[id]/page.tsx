@@ -363,9 +363,12 @@ export default function BriefPage() {
 
             {/* Progressive Summaries */}
             <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
-              <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
-                Progressive Summaries
+              <h2 className="text-xl font-bold font-heading text-ink-800 mb-2">
+                Choose Your Reading Level
               </h2>
+              <p className="text-sm text-ink-600 font-body mb-4">
+                We meet you where you are – same evidence, tailored depth.
+              </p>
 
               {/* Reading Level Selector */}
               <ReadingLevelSelector
@@ -610,11 +613,11 @@ export default function BriefPage() {
             {/* Feedback Section */}
             <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
               <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
-                Help Improve This Brief
+                Help Us Improve
               </h2>
               <p className="text-sm text-ink-600 mb-4 font-body">
-                Found an issue or have a suggestion? Your feedback helps make
-                this brief more accurate and useful.
+                Spotted an error or know a source we missed? Collaborative 
+                truth-seeking works best when you challenge our work.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -705,9 +708,10 @@ export default function BriefPage() {
                   <div className="flex items-start gap-2">
                     <Info className="w-4 h-4 text-sage-600 mt-0.5 shrink-0" />
                     <p className="text-xs text-ink-600 font-body">
-                      The Clarity Score measures source diversity, evidence
-                      quality, logical completeness, and accessibility. It does
-                      not indicate which position is "correct."
+                      We score each brief on source diversity, evidence quality, 
+                      logical completeness, and accessibility. The Clarity Score 
+                      shows how transparent and well-supported the analysis is – 
+                      not which position is &quot;correct.&quot;
                     </p>
                   </div>
                 </div>
@@ -719,9 +723,12 @@ export default function BriefPage() {
               id="sources-section"
               className="bg-ivory-200 rounded-xl border border-ivory-600 p-6 sticky top-24"
             >
-              <h3 className="font-semibold mb-4 font-ui text-ink-800">
+              <h3 className="font-semibold mb-2 font-ui text-ink-800">
                 Sources ({brief.sources.length})
               </h3>
+              <p className="text-xs text-ink-500 font-ui mb-4">
+                We show credibility scores and political lean – verify for yourself.
+              </p>
 
               <div className="space-y-3 max-h-[60vh] overflow-y-auto">
                 {brief.sources.map((source: any, index: number) => (

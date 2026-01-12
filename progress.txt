@@ -340,3 +340,22 @@ Thread: https://ampcode.com/threads/T-019bb0a1-d076-7705-8a21-0afc886245d5
   - Settings includes topics_of_interest with pill-style toggle buttons
   - Delete account flows to /settings/delete-account
 ---
+
+## 2026-01-12 24:30 - US-017 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0a4-558b-712a-aa84-996463dcb607
+- **What was implemented:** Homepage copy review and update to match brand voice guidelines
+- **Files changed:**
+  - app/page.tsx (copy updates in 5 locations)
+- **Changes:**
+  - Removed "AI-powered self-critique" → "Every brief scores itself" (avoid AI as selling point)
+  - Changed "Meets you where you are, without dumbing down" → "We meet you where you are – no condescension, no gatekeeping" (active voice, brand values)
+  - Changed "Every claim linked to sources" → "We link every claim to its source. You see credibility scores and political lean – verify for yourself" (active voice, emphasize transparency)
+  - Updated question hint to use concrete example: "Try asking about a specific policy, e.g., 'Should the UK raise the minimum wage?'"
+  - Updated showcase section headline to "See Evidence-Based Analysis in Action" with first-principles reasoning copy
+- **Learnings for future iterations:**
+  - Avoid "AI-powered" as selling point per brand guidelines
+  - Use active voice: "We [verb]" instead of passive constructions
+  - Lead with evidence and transparency, not features
+  - Include concrete examples in hints/placeholders
+  - "First principles" and "source transparency" are key brand terms
+---
