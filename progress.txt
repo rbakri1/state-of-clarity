@@ -20,6 +20,8 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
 - SummaryCard now complete at @/components/brief/summary-card.tsx with typography per level and reading time
 - BriefGenerationProgress now complete at @/components/generation/generation-progress.tsx with 5 stages, progress bar, spinner/checkmarks
+- Focus states pattern: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2` on all buttons/links/inputs
+- Form inputs in modals use: `border-ivory-600 bg-ivory-50 text-ink-800 focus-visible:ring-sage-500`
 
 ---
 
@@ -406,4 +408,30 @@ Thread: https://ampcode.com/threads/T-019bb0a9-3a80-707c-9c6e-8a60b258c9ba
   - Reading level age ranges use en-dashes (–) not hyphens (-)
   - Generation progress labels should describe the work being done, not technical processes
   - Support contact (mailto:support@stateofclarity.com) for persistent errors
+---
+
+## 2026-01-12 27:00 - US-020 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0ad-cea3-77ae-b216-fbf6b80f6afa
+- **What was implemented:** Added consistent focus states to all interactive elements across 9 components
+- **Files changed:**
+  - app/components/SpotErrorModal.tsx (focus rings on all inputs, buttons, close button)
+  - app/components/ProposeEditModal.tsx (focus rings on all inputs, buttons, close button)
+  - app/components/SuggestSourceModal.tsx (focus rings on all inputs, buttons, close button)
+  - app/components/FeedbackForm.tsx (focus rings on all buttons, textarea)
+  - app/components/GenerationFailed.tsx (focus ring on Try Again button)
+  - app/components/QuestionInput.tsx (focus ring on input and submit button)
+  - app/components/auth/EmailPasswordForm.tsx (focus rings on all inputs, buttons)
+  - app/components/auth/AuthModal.tsx (focus rings on close button, tab buttons, input, submit button, toggle links)
+  - components/cookie-consent-banner.tsx (focus rings on Accept/Decline buttons, privacy link)
+- **Changes:**
+  - Standardized focus pattern: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2`
+  - Updated form inputs to use design system: `border-ivory-600 bg-ivory-50 text-ink-800`
+  - Updated buttons to use design system: `bg-sage-500 hover:bg-sage-600`, `bg-rust-500` for destructive actions
+  - Added `rounded` class to inline text links for proper focus ring appearance
+  - Replaced `focus:ring-primary` with `focus-visible:ring-sage-500` throughout
+- **Learnings for future iterations:**
+  - Use `focus-visible:` prefix instead of `focus:` for keyboard-only focus indicators
+  - Always add `rounded` or `rounded-md` to elements before adding focus ring for proper appearance
+  - Form inputs in modals should use `bg-ivory-50` with `border-ivory-600` for design system consistency
+  - Use `focus-visible:ring-offset-2` for proper spacing between element and focus ring
 ---
