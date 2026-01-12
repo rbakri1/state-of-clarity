@@ -191,8 +191,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/date-filter.tsx - dropdown with All Time/Past Week/Past Month/Past Year options. URL sync via ?date param (all is default, not persisted in URL)."
     },
     {
       "id": "US-013",

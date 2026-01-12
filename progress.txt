@@ -159,3 +159,18 @@ Thread: https://ampcode.com/threads/T-019bb369-ec04-76da-a044-a55858ebc433
   - Default values don't need URL persistence (only set when changed from default)
   - SortOption type exported from component for use in parent state
 ---
+
+## Mon 12 Jan 2026 - US-012
+Thread: https://ampcode.com/threads/T-019bb370-50bd-731b-8484-cda5aa90c47d
+- Created `components/explore/date-filter.tsx` with Date Range dropdown filter
+- Dropdown options: All Time (default), Past Week, Past Month, Past Year
+- Integrated into explore-content.tsx with state management and URL persistence
+- Date filter syncs with URL via `?date=X` parameter ("all" is default, not persisted in URL)
+- Results count shows "from past [range]" when non-default date is active
+- API already supported date filtering via created_at comparison
+- Browser verification: Dropdown renders correctly, URL params sync in both directions
+- **Learnings for future iterations:**
+  - Follow same pattern as SortFilter and ScoreFilter for new filter components
+  - DateRange type exported from component similar to SortOption pattern
+  - API date filtering uses ISO date string comparison with `gte("created_at", ...)`
+---
