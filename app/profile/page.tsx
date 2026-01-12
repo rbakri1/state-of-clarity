@@ -107,9 +107,9 @@ export default function ProfilePage() {
           <div className="h-28 sm:h-32 bg-gradient-to-br from-sage-500 via-sage-500 to-sage-600" />
 
           <div className="px-5 sm:px-8 pb-8">
-            {/* Avatar and Name Section */}
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-14 sm:-mt-16">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-ivory-50 border-4 border-ivory-50 shadow-md overflow-hidden flex items-center justify-center flex-shrink-0">
+            {/* Avatar - positioned to overlap the banner */}
+            <div className="-mt-14 sm:-mt-16 mb-4">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-ivory-50 border-4 border-ivory-50 shadow-md overflow-hidden flex items-center justify-center">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
@@ -122,27 +122,26 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
+            </div>
 
-              <div className="flex-1 pt-6 sm:pt-4 sm:pb-2">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="space-y-0.5">
-                    <h1 className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{displayName}</h1>
-                    {user?.email && (
-                      <p className="text-sm text-ink-500 font-ui">{user.email}</p>
-                    )}
-                    {profile?.username && (
-                      <p className="text-ink-400 font-ui text-sm">@{profile.username}</p>
-                    )}
-                  </div>
-                  <Link
-                    href="/profile/edit"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-ivory-200 text-ink-700 font-ui font-medium text-sm hover:bg-ivory-300 border border-ivory-500 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 self-start"
-                  >
-                    <Edit className="w-4 h-4" />
-                    Edit profile
-                  </Link>
-                </div>
+            {/* Name and Edit Button */}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
+              <div className="space-y-0.5">
+                <h1 className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{displayName}</h1>
+                {user?.email && (
+                  <p className="text-sm text-ink-500 font-ui">{user.email}</p>
+                )}
+                {profile?.username && (
+                  <p className="text-ink-400 font-ui text-sm">@{profile.username}</p>
+                )}
               </div>
+              <Link
+                href="/profile/edit"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-ivory-200 text-ink-700 font-ui font-medium text-sm hover:bg-ivory-300 border border-ivory-500 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 self-start"
+              >
+                <Edit className="w-4 h-4" />
+                Edit profile
+              </Link>
             </div>
 
             {/* Bio */}
