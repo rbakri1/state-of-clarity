@@ -174,10 +174,10 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
         <button
           onClick={() => handleQuickFeedback("upvote")}
           disabled={submitting === "upvote" || votedType !== null}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
             votedType === "upvote"
-              ? "bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300"
-              : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+              ? "bg-success-light border-success text-success-dark"
+              : "border-ivory-600 dark:border-gray-700 hover:bg-ivory-200 dark:hover:bg-gray-700"
           } disabled:opacity-50`}
         >
           <ThumbsUp
@@ -189,10 +189,10 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
         <button
           onClick={() => handleQuickFeedback("downvote")}
           disabled={submitting === "downvote" || votedType !== null}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
             votedType === "downvote"
-              ? "bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-700 dark:text-red-300"
-              : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+              ? "bg-error-light border-error text-error-dark"
+              : "border-ivory-600 dark:border-gray-700 hover:bg-ivory-200 dark:hover:bg-gray-700"
           } disabled:opacity-50`}
         >
           <ThumbsDown
@@ -204,7 +204,7 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
         <button
           onClick={() => handleOpenContentForm("suggest_source")}
           disabled={submitting === "suggest_source"}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-ivory-600 dark:border-gray-700 hover:bg-ivory-200 dark:hover:bg-gray-700 transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
         >
           <ExternalLink className="w-4 h-4" />
           <span className="text-sm">Suggest Source</span>
@@ -213,7 +213,7 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
         <button
           onClick={() => handleOpenContentForm("spot_error")}
           disabled={submitting === "spot_error"}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-ivory-600 dark:border-gray-700 hover:bg-ivory-200 dark:hover:bg-gray-700 transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
         >
           <AlertCircle className="w-4 h-4" />
           <span className="text-sm">Spot Error</span>
@@ -236,14 +236,14 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
                 ? "https://example.com/source or describe the source..."
                 : "Describe what's incorrect and what the correct information should be..."
             }
-            className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-700 rounded-lg bg-ivory-50 dark:bg-gray-900 text-ink-800 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             rows={3}
           />
           <div className="flex gap-2 mt-3">
             <button
               onClick={handleSubmitContent}
               disabled={!content.trim() || submitting !== null}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition disabled:opacity-50"
+              className="px-4 py-2 bg-sage-500 text-white rounded-lg hover:bg-sage-600 transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             >
               Submit
             </button>
@@ -252,7 +252,7 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
                 setShowContentForm(null);
                 setContent("");
               }}
-              className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              className="px-4 py-2 border border-ivory-600 dark:border-gray-700 rounded-lg hover:bg-ivory-200 dark:hover:bg-gray-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             >
               Cancel
             </button>
@@ -265,7 +265,7 @@ export function FeedbackForm({ briefId }: FeedbackFormProps) {
         <p className="text-sm text-muted-foreground mt-4">
           <button
             onClick={() => openModal()}
-            className="text-primary hover:underline"
+            className="text-sage-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
           >
             Sign in
           </button>{" "}

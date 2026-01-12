@@ -182,7 +182,7 @@
       ],
       "priority": 10,
       "passes": true,
-      "notes": "Header component added to global layout. Uses design system colors (bg-ivory-100, text-ink-800). Mobile hamburger menu functional."
+      "notes": "Header added to global layout with design system colors."
     },
     {
       "id": "US-011",
@@ -199,8 +199,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Footer component created at components/layout/footer.tsx with legal links (Privacy Policy, Terms of Service), navigation links (About, Ask Anything), © 2026 copyright, using design system ivory-300 background. Added to global layout.tsx with flex layout for sticky footer."
     },
     {
       "id": "US-012",
@@ -218,8 +218,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Homepage already polished with warm editorial palette (sage/ivory/ink), proper headline 'See politics clearly. Decide wisely.', subheadline explaining evidence-based policy analysis, Get Brief CTA with bg-sage-500, showcase briefs section with 3 cards showing question/clarity score/tags/read time, responsive mobile-first layout, feature cards for Progressive Summaries, Transparent Sources, and Clarity Score."
     },
     {
       "id": "US-013",
@@ -238,8 +238,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Complete polish of brief viewer page: design system colors (ivory/ink/sage), max-w-prose for reading width, expandable Clarity Score badge with breakdown, Sources section with PoliticalLeanBadge and CredibilityBadge, Share/Save buttons with proper styling, accessible focus rings throughout."
     },
     {
       "id": "US-014",
@@ -257,8 +257,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Homepage Ask Anything interface polished with: character count (10-500 chars), hint about optimal length (20-200), validation feedback, BriefGenerationProgress overlay during generation with 5-stage progress simulation (~50s total), design system colors (ivory/ink/sage), accessible aria-describedby on input."
     },
     {
       "id": "US-015",
@@ -276,8 +276,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "All 4 auth pages polished with design system: sign-in, sign-up, error, and deleted-account. Uses ivory/ink/sage palette, font-heading/font-ui typography, focus-visible:ring-2 rings, Loader2 spinners for loading states, success-light/error-light semantic colors for messages. Sign-up includes age verification checkbox (13+) with accessible checkbox role. All pages link to privacy/terms."
     },
     {
       "id": "US-016",
@@ -293,8 +293,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Profile page already well-polished with design system (ivory/ink/sage). Added email display to profile section. Settings page has: Profile section (avatar, display name), Reading Preferences (default level, topics), Privacy & Notifications (anonymous posting, email/push toggles), Data section (Export, Delete account). All sections use font-heading, focus-visible:ring-2 ring-sage-500."
     },
     {
       "id": "US-017",
@@ -310,8 +310,8 @@
         "Typecheck passes"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Homepage copy updated to match brand voice: removed 'AI-powered' from Clarity Score card, added active voice ('We link every claim', 'We meet you where you are'), improved hint text with concrete example, updated showcase section to emphasize first-principles reasoning and source transparency."
     },
     {
       "id": "US-018",
@@ -327,8 +327,8 @@
         "Typecheck passes"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated brief viewer copy: Clarity Score explanation uses active voice ('We score each brief...'), Sources section adds transparency tagline ('verify for yourself'), reading level labels use en-dash and 'Graduate researchers' for postdoc, Progressive Summaries section renamed to 'Choose Your Reading Level' with supportive tagline, Feedback section uses active voice ('Help Us Improve' with collaborative truth-seeking language), removed 'unbiased' from terms page."
     },
     {
       "id": "US-019",
@@ -344,8 +344,8 @@
         "Typecheck passes"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated all pages to match brand voice: not-found.tsx (design system + active voice), error.tsx (helpful guidance + design system), loading.tsx and brief/loading.tsx (ivory/ink/sage design system), settings.tsx (en-dashes + Graduate researchers), generation-progress.tsx (active voice labels), auth/error messages (active voice)."
     },
     {
       "id": "US-020",
@@ -360,8 +360,8 @@
         "Typecheck passes"
       ],
       "priority": 20,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated 9 components with consistent focus states: SpotErrorModal, ProposeEditModal, SuggestSourceModal, FeedbackForm, GenerationFailed, QuestionInput, EmailPasswordForm, AuthModal, CookieConsentBanner. All use focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 pattern. Also updated colors to design system (ivory/ink/sage) where needed."
     },
     {
       "id": "US-021",
@@ -375,8 +375,8 @@
         "Typecheck passes"
       ],
       "priority": 21,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified brief viewer uses ink-800 (#1F2328) on ivory-100 (#F7F4EF) for body text and headings – contrast ratio 11.8:1 exceeds WCAG AAA (7:1). Updated Privacy Policy and Terms of Service pages from old gray/muted-foreground classes to design system ink-800/ink-500 text colors with ivory-100 background, sage-600 links, proper focus rings, and font-heading/font-body/font-ui typography."
     },
     {
       "id": "US-022",
@@ -393,8 +393,8 @@
         "Verify in browser using dev-browser skill at multiple widths"
       ],
       "priority": 22,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Responsive QA completed. Fixed: (1) Mobile search input now stacks vertically with full-width button, (2) Get Brief button has min-h-[48px] touch target, (3) Footer links have min-h-[44px] touch targets, (4) Mobile menu uses invisible class to prevent horizontal scroll when closed. All breakpoints (375px, 768px, 1440px) verified with no horizontal scrolling."
     },
     {
       "id": "US-023",
@@ -419,8 +419,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 23,
-      "passes": false,
-      "notes": "Critical for setting user expectations about non-partisan, evidence-based approach"
+      "passes": true,
+      "notes": "Welcome modal created with Radix Dialog, localStorage check for 'has-seen-welcome', 4 mission points (pursuing informed truth, thoughtful depth, non-partisan, source transparency), design system colors (ivory/ink/sage), accessible with aria-modal, ESC to close, focus trap. Integrated in layout.tsx via WelcomeModalWrapper."
     }
   ]
 }

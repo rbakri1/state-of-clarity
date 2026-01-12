@@ -131,7 +131,7 @@ export function EmailPasswordForm({
               setShowForgotPassword(false);
               setResetSent(false);
             }}
-            className="text-primary hover:underline font-medium"
+            className="text-sage-600 hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
           >
             Back to sign in
           </button>
@@ -154,7 +154,7 @@ export function EmailPasswordForm({
             value={email}
             onChange={(e) => onEmailChange(e.target.value)}
             placeholder="you@example.com"
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+            className="w-full px-4 py-3 rounded-lg border border-ivory-600 dark:border-gray-700 bg-ivory-50 dark:bg-gray-800 text-ink-800 focus-visible:outline-none focus-visible:border-sage-500 focus-visible:ring-2 focus-visible:ring-sage-500/20 transition"
             disabled={isLoading}
             autoComplete="email"
           />
@@ -163,7 +163,7 @@ export function EmailPasswordForm({
         <button
           type="submit"
           disabled={isLoading || !email.trim()}
-          className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-lg bg-sage-500 text-white font-medium hover:bg-sage-600 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
         >
           {isLoading ? (
             <>
@@ -178,7 +178,7 @@ export function EmailPasswordForm({
         <button
           type="button"
           onClick={() => setShowForgotPassword(false)}
-          className="w-full text-center text-sm text-primary hover:underline"
+          className="w-full text-center text-sm text-sage-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
         >
           Back to sign in
         </button>
@@ -198,7 +198,7 @@ export function EmailPasswordForm({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           placeholder="you@example.com"
-          className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+          className="w-full px-4 py-3 rounded-lg border border-ivory-600 dark:border-gray-700 bg-ivory-50 dark:bg-gray-800 text-ink-800 focus-visible:outline-none focus-visible:border-sage-500 focus-visible:ring-2 focus-visible:ring-sage-500/20 transition"
           disabled={isLoading}
           autoComplete="email"
         />
@@ -215,14 +215,14 @@ export function EmailPasswordForm({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={mode === "signup" ? "Min. 8 characters" : "Enter your password"}
-            className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+            className="w-full px-4 py-3 pr-12 rounded-lg border border-ivory-600 dark:border-gray-700 bg-ivory-50 dark:bg-gray-800 text-ink-800 focus-visible:outline-none focus-visible:border-sage-500 focus-visible:ring-2 focus-visible:ring-sage-500/20 transition"
             disabled={isLoading}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -241,7 +241,7 @@ export function EmailPasswordForm({
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm your password"
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+            className="w-full px-4 py-3 rounded-lg border border-ivory-600 dark:border-gray-700 bg-ivory-50 dark:bg-gray-800 text-ink-800 focus-visible:outline-none focus-visible:border-sage-500 focus-visible:ring-2 focus-visible:ring-sage-500/20 transition"
             disabled={isLoading}
             autoComplete="new-password"
           />
@@ -253,7 +253,7 @@ export function EmailPasswordForm({
           <button
             type="button"
             onClick={() => setShowForgotPassword(true)}
-            className="text-sm text-primary hover:underline"
+            className="text-sm text-sage-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
           >
             Forgot password?
           </button>
@@ -263,7 +263,7 @@ export function EmailPasswordForm({
       <button
         type="submit"
         disabled={isLoading || !email.trim() || !password.trim()}
-        className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+        className="w-full py-3 rounded-lg bg-sage-500 text-white font-medium hover:bg-sage-600 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
       >
         {isLoading ? (
           <>
@@ -284,7 +284,7 @@ export function EmailPasswordForm({
             <button
               type="button"
               onClick={() => onModeChange("signup")}
-              className="text-primary hover:underline font-medium"
+              className="text-sage-600 hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
             >
               Sign up
             </button>
@@ -295,7 +295,7 @@ export function EmailPasswordForm({
             <button
               type="button"
               onClick={() => onModeChange("signin")}
-              className="text-primary hover:underline font-medium"
+              className="text-sage-600 hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
             >
               Sign in
             </button>

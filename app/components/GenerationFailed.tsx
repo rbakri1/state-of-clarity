@@ -65,7 +65,7 @@ export default function GenerationFailed({
               <button
                 type="button"
                 onClick={onTryAgain}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-rust-500 hover:bg-rust-600 text-white font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
               >
                 <RefreshCw className="w-4 h-4" />
                 Try Again

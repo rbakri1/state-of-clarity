@@ -150,7 +150,7 @@ export default function ProposeEditModal({
                 </Dialog.Title>
                 <Dialog.Close asChild>
                   <button
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     aria-label="Close"
                   >
                     <X className="w-5 h-5" />
@@ -165,7 +165,7 @@ export default function ProposeEditModal({
                   </p>
                   <a
                     href="/auth/signin"
-                    className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+                    className="inline-block px-4 py-2 bg-sage-500 text-white rounded-lg hover:bg-sage-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                   >
                     Sign In
                   </a>
@@ -183,7 +183,7 @@ export default function ProposeEditModal({
                       id="section"
                       value={section}
                       onChange={(e) => setSection(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     >
                       {SECTION_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -211,7 +211,7 @@ export default function ProposeEditModal({
                       onChange={(e) => setOriginalText(e.target.value)}
                       placeholder="Copy the original text you want to change..."
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white resize-none"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -233,7 +233,7 @@ export default function ProposeEditModal({
                       onChange={(e) => setProposedText(e.target.value)}
                       placeholder="Write your improved version of the text..."
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white resize-none"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -255,7 +255,7 @@ export default function ProposeEditModal({
                       onChange={(e) => setRationale(e.target.value)}
                       placeholder="Explain why this change improves the brief..."
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white resize-none"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -266,10 +266,10 @@ export default function ProposeEditModal({
                   <button
                     type="submit"
                     disabled={!isValid || isSubmitting}
-                    className={`w-full py-2.5 rounded-lg font-medium transition ${
+                    className={`w-full py-2.5 rounded-lg font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                       isValid && !isSubmitting
-                        ? "bg-blue-500 text-white hover:bg-blue-600"
-                        : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+                        ? "bg-sage-500 text-white hover:bg-sage-600"
+                        : "bg-ivory-400 dark:bg-gray-700 text-ink-400 cursor-not-allowed"
                     }`}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Edit Proposal"}

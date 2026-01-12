@@ -10,10 +10,10 @@ interface ReadingLevelSelectorProps {
 }
 
 const LEVELS = [
-  { value: "child" as const, label: "Child", audience: "Ages 8-12" },
-  { value: "teen" as const, label: "Teen", audience: "Ages 13-17" },
-  { value: "undergrad" as const, label: "Undergrad", audience: "Ages 18-22" },
-  { value: "postdoc" as const, label: "Postdoc", audience: "Graduate+" },
+  { value: "child" as const, label: "Child", audience: "Ages 8–12" },
+  { value: "teen" as const, label: "Teen", audience: "Ages 13–17" },
+  { value: "undergrad" as const, label: "Undergrad", audience: "Ages 18–22" },
+  { value: "postdoc" as const, label: "Postdoc", audience: "Graduate researchers" },
 ];
 
 export function ReadingLevelSelector({

@@ -9,19 +9,21 @@ import {
   Camera,
   Save,
   Loader2,
-  Sparkles,
   AlertCircle,
   CheckCircle,
+  Download,
+  Trash2,
 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
-type ReadingLevel = "simple" | "standard" | "advanced";
+type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
 type NotificationPreferences = { email: boolean; push: boolean };
 
-const READING_LEVELS: { value: ReadingLevel; label: string }[] = [
-  { value: "simple", label: "Simple (Easy to understand)" },
-  { value: "standard", label: "Standard (Balanced detail)" },
-  { value: "advanced", label: "Advanced (Full technical depth)" },
+const READING_LEVELS: { value: ReadingLevel; label: string; description: string }[] = [
+  { value: "child", label: "Child (Ages 8–12)", description: "Simple language, relatable examples" },
+  { value: "teen", label: "Teen (Ages 13–17)", description: "More context, balanced detail" },
+  { value: "undergrad", label: "Undergrad (Ages 18–22)", description: "Standard depth and terminology" },
+  { value: "postdoc", label: "Postdoc (Graduate researchers)", description: "Full technical depth" },
 ];
 
 const TOPIC_OPTIONS = [
@@ -202,33 +204,26 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-ivory-100 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-sage-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-ivory-100">
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800">
+      <header className="border-b border-ivory-600 bg-ivory-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="sr-only">Back</span>
-              </Link>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">Settings</span>
-              </div>
-            </div>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/profile"
+              className="flex items-center gap-2 text-ink-500 hover:text-ink-800 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg p-1"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="sr-only">Back to profile</span>
+            </Link>
+            <h1 className="text-xl font-heading font-bold text-ink-800">Settings</h1>
           </div>
         </div>
       </header>
@@ -237,30 +232,30 @@ export default function SettingsPage() {
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Notifications */}
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <div className="mb-6 p-4 rounded-lg bg-error-light border border-error/20 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-error flex-shrink-0" />
+            <p className="text-sm text-error-dark font-ui">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-            <p className="text-sm text-green-600 dark:text-green-400">
-              Settings saved successfully!
+          <div className="mb-6 p-4 rounded-lg bg-success-light border border-success/20 flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
+            <p className="text-sm text-success-dark font-ui">
+              Settings saved successfully
             </p>
           </div>
         )}
 
         <div className="space-y-8">
           {/* Profile Section */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold mb-4">Profile</h2>
+          <section className="bg-ivory-50 rounded-xl border border-ivory-600 p-6">
+            <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Profile</h2>
 
             {/* Avatar */}
             <div className="flex items-center gap-4 mb-6">
               <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                <div className="w-20 h-20 rounded-full bg-ivory-200 flex items-center justify-center overflow-hidden border-2 border-ivory-500">
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
@@ -268,10 +263,10 @@ export default function SettingsPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-10 h-10 text-gray-400" />
+                    <User className="w-10 h-10 text-ink-400" />
                   )}
                 </div>
-                <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:opacity-90 transition">
+                <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-sage-500 text-ivory-100 flex items-center justify-center cursor-pointer hover:bg-sage-600 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2">
                   <Camera className="w-4 h-4" />
                   <input
                     type="file"
@@ -282,7 +277,7 @@ export default function SettingsPage() {
                 </label>
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-ui font-medium text-ink-800 mb-2">
                   Display Name
                 </label>
                 <input
@@ -292,19 +287,19 @@ export default function SettingsPage() {
                     setProfile((prev) => ({ ...prev, display_name: e.target.value }))
                   }
                   placeholder="Your display name"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                  className="w-full px-4 py-2 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus:border-sage-500 outline-none transition-colors"
                 />
               </div>
             </div>
           </section>
 
           {/* Reading Preferences */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold mb-4">Reading Preferences</h2>
+          <section className="bg-ivory-50 rounded-xl border border-ivory-600 p-6">
+            <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Reading Preferences</h2>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">
-                Preferred Reading Level
+              <label className="block text-sm font-ui font-medium text-ink-800 mb-2">
+                Default Reading Level
               </label>
               <select
                 value={profile.preferred_reading_level || ""}
@@ -315,7 +310,7 @@ export default function SettingsPage() {
                       (e.target.value as ReadingLevel) || null,
                   }))
                 }
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                className="w-full px-4 py-2 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus:border-sage-500 outline-none transition-colors"
               >
                 <option value="">No preference</option>
                 {READING_LEVELS.map((level) => (
@@ -324,13 +319,13 @@ export default function SettingsPage() {
                   </option>
                 ))}
               </select>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-ink-500 font-ui">
                 Briefs will open at this reading level by default.
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-ui font-medium text-ink-800 mb-2">
                 Topics of Interest
               </label>
               <div className="flex flex-wrap gap-2">
@@ -339,32 +334,32 @@ export default function SettingsPage() {
                     key={topic}
                     type="button"
                     onClick={() => handleTopicToggle(topic)}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                    className={`px-3 py-1.5 rounded-full text-sm font-ui font-medium transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                       profile.topics_of_interest.includes(topic)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                        ? "bg-sage-500 text-ivory-100"
+                        : "bg-ivory-200 text-ink-600 hover:bg-ivory-300 border border-ivory-500"
                     }`}
                   >
                     {topic}
                   </button>
                 ))}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-ink-500 font-ui">
                 Select topics to personalize your brief recommendations.
               </p>
             </div>
           </section>
 
           {/* Privacy & Notifications */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold mb-4">Privacy & Notifications</h2>
+          <section className="bg-ivory-50 rounded-xl border border-ivory-600 p-6">
+            <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Privacy & Notifications</h2>
 
             <div className="space-y-4">
               {/* Anonymous Posting */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Anonymous Posting</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-ui font-medium text-ink-800">Anonymous Posting</p>
+                  <p className="text-sm text-ink-500 font-ui">
                     Your name will be hidden on public feedback and comments.
                   </p>
                 </div>
@@ -376,14 +371,16 @@ export default function SettingsPage() {
                       anonymous_posting: !prev.anonymous_posting,
                     }))
                   }
-                  className={`relative w-12 h-6 rounded-full transition ${
+                  role="switch"
+                  aria-checked={profile.anonymous_posting}
+                  className={`relative w-12 h-6 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                     profile.anonymous_posting
-                      ? "bg-primary"
-                      : "bg-gray-200 dark:bg-gray-600"
+                      ? "bg-sage-500"
+                      : "bg-ivory-400"
                   }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ivory-50 shadow-sm transition-transform ${
                       profile.anonymous_posting ? "translate-x-6" : ""
                     }`}
                   />
@@ -393,8 +390,8 @@ export default function SettingsPage() {
               {/* Email Notifications */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Email Notifications</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-ui font-medium text-ink-800">Email Notifications</p>
+                  <p className="text-sm text-ink-500 font-ui">
                     Receive updates about your briefs and activity.
                   </p>
                 </div>
@@ -409,14 +406,16 @@ export default function SettingsPage() {
                       },
                     }))
                   }
-                  className={`relative w-12 h-6 rounded-full transition ${
+                  role="switch"
+                  aria-checked={profile.notification_preferences.email}
+                  className={`relative w-12 h-6 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                     profile.notification_preferences.email
-                      ? "bg-primary"
-                      : "bg-gray-200 dark:bg-gray-600"
+                      ? "bg-sage-500"
+                      : "bg-ivory-400"
                   }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ivory-50 shadow-sm transition-transform ${
                       profile.notification_preferences.email
                         ? "translate-x-6"
                         : ""
@@ -428,8 +427,8 @@ export default function SettingsPage() {
               {/* Push Notifications */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Push Notifications</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-ui font-medium text-ink-800">Push Notifications</p>
+                  <p className="text-sm text-ink-500 font-ui">
                     Get notified in your browser.
                   </p>
                 </div>
@@ -444,14 +443,16 @@ export default function SettingsPage() {
                       },
                     }))
                   }
-                  className={`relative w-12 h-6 rounded-full transition ${
+                  role="switch"
+                  aria-checked={profile.notification_preferences.push}
+                  className={`relative w-12 h-6 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                     profile.notification_preferences.push
-                      ? "bg-primary"
-                      : "bg-gray-200 dark:bg-gray-600"
+                      ? "bg-sage-500"
+                      : "bg-ivory-400"
                   }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ivory-50 shadow-sm transition-transform ${
                       profile.notification_preferences.push
                         ? "translate-x-6"
                         : ""
@@ -462,22 +463,40 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* Account Actions */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold mb-4">Account</h2>
-            <Link
-              href="/settings/delete-account"
-              className="text-red-600 dark:text-red-400 hover:underline text-sm"
-            >
-              Delete my account
-            </Link>
+          {/* Data Section */}
+          <section className="bg-ivory-50 rounded-xl border border-ivory-600 p-6">
+            <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Your Data</h2>
+            
+            <div className="space-y-4">
+              <a
+                href="/api/profile/export"
+                className="flex items-center gap-3 p-4 rounded-lg border border-ivory-600 bg-ivory-100 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+              >
+                <Download className="w-5 h-5 text-sage-500" />
+                <div>
+                  <p className="font-ui font-medium text-ink-800">Export my data</p>
+                  <p className="text-sm text-ink-500 font-ui">Download all your data in JSON format</p>
+                </div>
+              </a>
+
+              <Link
+                href="/settings/delete-account"
+                className="flex items-center gap-3 p-4 rounded-lg border border-error/30 bg-error-light hover:bg-error-light/80 transition-colors focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2"
+              >
+                <Trash2 className="w-5 h-5 text-error" />
+                <div>
+                  <p className="font-ui font-medium text-error-dark">Delete my account</p>
+                  <p className="text-sm text-error-dark/70 font-ui">Permanently delete your account and all data</p>
+                </div>
+              </Link>
+            </div>
           </section>
 
           {/* Save Button */}
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full py-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
           >
             {isSaving ? (
               <>

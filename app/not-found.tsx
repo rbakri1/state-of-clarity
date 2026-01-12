@@ -1,38 +1,59 @@
 import Link from "next/link";
-import { Home, Search } from "lucide-react";
+import { Home, Search, Sparkles } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
-      <div className="text-center px-4">
-        <div className="mb-8">
-          <h1 className="text-8xl font-bold text-gray-200 dark:text-gray-800">404</h1>
+    <div className="min-h-screen bg-ivory-100 flex flex-col">
+      <header className="border-b border-ivory-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
+            >
+              <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-ivory-100" />
+              </div>
+              <span className="text-xl font-semibold font-heading text-ink-800">State of Clarity</span>
+            </Link>
+          </div>
         </div>
-        
-        <h2 className="text-2xl font-bold mb-4">Page not found</h2>
-        
-        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition font-medium"
-          >
-            <Home className="w-4 h-4" />
-            Go home
-          </Link>
-          
-          <Link
-            href="/briefs"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium"
-          >
-            <Search className="w-4 h-4" />
-            Browse briefs
-          </Link>
+      </header>
+
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="text-center max-w-md">
+          <div className="mb-8">
+            <span className="text-8xl font-heading font-bold text-ivory-500">404</span>
+          </div>
+
+          <h1 className="text-2xl font-heading font-semibold text-ink-800 mb-4">
+            We couldn&apos;t find that page
+          </h1>
+
+          <p className="text-ink-500 font-ui text-base mb-8">
+            The page you&apos;re looking for may have been moved or removed. 
+            Try searching for what you need or head back to the homepage.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            >
+              <Home className="w-4 h-4" />
+              Go to homepage
+            </Link>
+
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-ivory-600 bg-ivory-50 text-ink-800 font-ui font-medium hover:bg-ivory-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            >
+              <Search className="w-4 h-4" />
+              Ask a question
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

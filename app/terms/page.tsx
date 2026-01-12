@@ -8,16 +8,19 @@ export const metadata = {
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-ivory-100">
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800">
+      <header className="border-b border-ivory-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+            <Link 
+              href="/" 
+              className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
+            >
+              <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-ivory-100" />
               </div>
-              <span className="text-xl font-bold">State of Clarity</span>
+              <span className="text-xl font-bold font-heading text-ink-800">State of Clarity</span>
             </Link>
           </div>
         </div>
@@ -27,26 +30,26 @@ export default function TermsOfServicePage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
+          className="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-700 font-ui mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
 
-        <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
+        <h1 className="text-4xl font-bold font-heading text-ink-800 mb-8">Terms of Service</h1>
         
-        <p className="text-muted-foreground mb-8">
+        <p className="text-ink-500 font-ui mb-8">
           Last updated: January 2025
         </p>
 
-        <div className="prose prose-gray dark:prose-invert max-w-none space-y-8">
+        <div className="prose prose-custom max-w-none space-y-8 font-body">
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Acceptance of Terms</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Acceptance of Terms</h2>
+            <p className="text-ink-800 mb-4">
               By accessing or using State of Clarity, you agree to be bound by these Terms of Service. 
               If you do not agree to these terms, please do not use our service.
             </p>
-            <p className="text-muted-foreground">
+            <p className="text-ink-800">
               We may update these terms from time to time. Continued use of the service after changes 
               means you accept the updated terms. We will notify you of significant changes via email 
               or a notice on our website.
@@ -54,11 +57,11 @@ export default function TermsOfServicePage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">User Responsibilities</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">User Responsibilities</h2>
+            <p className="text-ink-800 mb-4">
               When using State of Clarity, you agree to:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+            <ul className="list-disc pl-6 space-y-2 text-ink-800">
               <li>Provide accurate information when creating your account</li>
               <li>Keep your account credentials secure and confidential</li>
               <li>Use the service only for lawful purposes</li>
@@ -67,72 +70,72 @@ export default function TermsOfServicePage() {
               <li>Not upload malicious content or attempt to harm the platform</li>
               <li>Respect other users and engage in constructive discourse</li>
             </ul>
-            <p className="text-muted-foreground mt-4">
+            <p className="text-ink-800 mt-4">
               You are responsible for all activity that occurs under your account. If you believe 
               your account has been compromised, please contact us immediately.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Intellectual Property</h2>
-            <p className="text-muted-foreground mb-4">
-              <strong>Our content:</strong> State of Clarity, including its design, code, and branding, 
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Intellectual Property</h2>
+            <p className="text-ink-800 mb-4">
+              <strong className="text-ink-800">Our content:</strong> State of Clarity, including its design, code, and branding, 
               is our intellectual property. You may not copy, modify, or distribute our platform without permission.
             </p>
-            <p className="text-muted-foreground mb-4">
-              <strong>Your content:</strong> You retain ownership of content you create on State of Clarity, 
+            <p className="text-ink-800 mb-4">
+              <strong className="text-ink-800">Your content:</strong> You retain ownership of content you create on State of Clarity, 
               such as saved briefs and preferences. By using our service, you grant us a license to store, 
               display, and process your content to provide the service to you.
             </p>
-            <p className="text-muted-foreground">
-              <strong>AI-generated content:</strong> Policy briefs generated by our AI are provided for 
+            <p className="text-ink-800">
+              <strong className="text-ink-800">AI-generated content:</strong> Policy briefs generated by our AI are provided for 
               informational purposes. While we strive for accuracy, AI-generated content should be 
               verified independently before making important decisions.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Limitation of Liability</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Limitation of Liability</h2>
+            <p className="text-ink-800 mb-4">
               State of Clarity is provided &quot;as is&quot; without warranties of any kind. We do not guarantee that:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+            <ul className="list-disc pl-6 space-y-2 text-ink-800">
               <li>The service will be uninterrupted or error-free</li>
-              <li>AI-generated content will be accurate, complete, or unbiased</li>
+              <li>AI-generated content will be accurate, complete, or free from limitations</li>
               <li>The service will meet your specific requirements</li>
             </ul>
-            <p className="text-muted-foreground mt-4">
+            <p className="text-ink-800 mt-4">
               To the maximum extent permitted by law, State of Clarity and its team shall not be liable 
               for any indirect, incidental, special, consequential, or punitive damages arising from 
               your use of the service.
             </p>
-            <p className="text-muted-foreground mt-4">
+            <p className="text-ink-800 mt-4">
               Our total liability for any claims under these terms shall not exceed the amount you paid 
               us in the 12 months prior to the claim.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Termination</h2>
-            <p className="text-muted-foreground mb-4">
-              <strong>By you:</strong> You may stop using State of Clarity at any time. You can delete 
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Termination</h2>
+            <p className="text-ink-800 mb-4">
+              <strong className="text-ink-800">By you:</strong> You may stop using State of Clarity at any time. You can delete 
               your account through your account settings, and we will remove your personal data as 
               described in our Privacy Policy.
             </p>
-            <p className="text-muted-foreground mb-4">
-              <strong>By us:</strong> We may suspend or terminate your access if you violate these terms, 
+            <p className="text-ink-800 mb-4">
+              <strong className="text-ink-800">By us:</strong> We may suspend or terminate your access if you violate these terms, 
               engage in harmful behavior, or if we need to discontinue the service. We will try to provide 
               reasonable notice when possible.
             </p>
-            <p className="text-muted-foreground">
+            <p className="text-ink-800">
               Upon termination, your right to use the service ends. Sections that should survive termination 
               (like Limitation of Liability) will remain in effect.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Dispute Resolution</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Dispute Resolution</h2>
+            <p className="text-ink-800">
               If you have a dispute with State of Clarity, we encourage you to contact us first to try 
               to resolve it informally. Any legal proceedings shall be conducted in accordance with 
               applicable law, and you agree to submit to the jurisdiction of the courts in our 
@@ -141,22 +144,22 @@ export default function TermsOfServicePage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Contact Us</h2>
+            <p className="text-ink-800">
               If you have questions about these Terms of Service, please contact us:
             </p>
-            <p className="text-muted-foreground mt-4">
-              Email: <a href="mailto:legal@stateofclarity.com" className="text-primary hover:underline">legal@stateofclarity.com</a>
+            <p className="text-ink-800 mt-4">
+              Email: <a href="mailto:legal@stateofclarity.com" className="text-sage-600 hover:text-sage-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded">legal@stateofclarity.com</a>
             </p>
           </section>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-800 mt-16">
+      <footer className="border-t border-ivory-600 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 State of Clarity. Truth over tribe. Open-source evolution.</p>
+          <div className="text-center text-sm text-ink-500 font-ui">
+            <p>© 2026 State of Clarity. Truth over tribe. Open-source evolution.</p>
           </div>
         </div>
       </footer>

@@ -133,7 +133,7 @@ export default function SpotErrorModal({
                 </Dialog.Title>
                 <Dialog.Close asChild>
                   <button
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     aria-label="Close"
                   >
                     <X className="w-5 h-5" />
@@ -148,7 +148,7 @@ export default function SpotErrorModal({
                   </p>
                   <a
                     href="/auth/signin"
-                    className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+                    className="inline-block px-4 py-2 bg-sage-500 text-white rounded-lg hover:bg-sage-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                   >
                     Sign In
                   </a>
@@ -166,7 +166,7 @@ export default function SpotErrorModal({
                       id="errorType"
                       value={errorType}
                       onChange={(e) => setErrorType(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     >
                       {ERROR_TYPE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -194,7 +194,7 @@ export default function SpotErrorModal({
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Describe the error you found in detail..."
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white resize-none"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -211,7 +211,7 @@ export default function SpotErrorModal({
                       value={locationHint}
                       onChange={(e) => setLocationHint(e.target.value)}
                       placeholder="e.g., In the summary, third paragraph"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -222,10 +222,10 @@ export default function SpotErrorModal({
                   <button
                     type="submit"
                     disabled={!isValid || isSubmitting}
-                    className={`w-full py-2.5 rounded-lg font-medium transition ${
+                    className={`w-full py-2.5 rounded-lg font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                       isValid && !isSubmitting
-                        ? "bg-orange-500 text-white hover:bg-orange-600"
-                        : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+                        ? "bg-rust-500 text-white hover:bg-rust-600"
+                        : "bg-ivory-400 dark:bg-gray-700 text-ink-400 cursor-not-allowed"
                     }`}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Report"}

@@ -8,16 +8,19 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-ivory-100">
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800">
+      <header className="border-b border-ivory-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+            <Link 
+              href="/" 
+              className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
+            >
+              <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-ivory-100" />
               </div>
-              <span className="text-xl font-bold">State of Clarity</span>
+              <span className="text-xl font-bold font-heading text-ink-800">State of Clarity</span>
             </Link>
           </div>
         </div>
@@ -27,39 +30,39 @@ export default function PrivacyPolicyPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
+          className="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-700 font-ui mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
 
-        <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
+        <h1 className="text-4xl font-bold font-heading text-ink-800 mb-8">Privacy Policy</h1>
         
-        <p className="text-muted-foreground mb-8">
+        <p className="text-ink-500 font-ui mb-8">
           Last updated: January 2025
         </p>
 
-        <div className="prose prose-gray dark:prose-invert max-w-none space-y-8">
+        <div className="prose prose-custom max-w-none space-y-8 font-body">
           <section>
-            <h2 className="text-2xl font-semibold mb-4">What Data We Collect</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">What Data We Collect</h2>
+            <p className="text-ink-800 mb-4">
               We collect information you provide directly to us when using State of Clarity:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-              <li><strong>Account information:</strong> Email address and password when you create an account</li>
-              <li><strong>Profile information:</strong> Optional display name and preferences you choose to provide</li>
-              <li><strong>Content:</strong> Questions you ask and policy briefs you create or save</li>
-              <li><strong>Usage data:</strong> How you interact with our service (pages visited, features used)</li>
-              <li><strong>Device information:</strong> Browser type, operating system, and IP address for security and analytics</li>
+            <ul className="list-disc pl-6 space-y-2 text-ink-800">
+              <li><strong className="text-ink-800">Account information:</strong> Email address and password when you create an account</li>
+              <li><strong className="text-ink-800">Profile information:</strong> Optional display name and preferences you choose to provide</li>
+              <li><strong className="text-ink-800">Content:</strong> Questions you ask and policy briefs you create or save</li>
+              <li><strong className="text-ink-800">Usage data:</strong> How you interact with our service (pages visited, features used)</li>
+              <li><strong className="text-ink-800">Device information:</strong> Browser type, operating system, and IP address for security and analytics</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">How We Use Your Data</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">How We Use Your Data</h2>
+            <p className="text-ink-800 mb-4">
               We use your information to:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+            <ul className="list-disc pl-6 space-y-2 text-ink-800">
               <li>Provide, maintain, and improve State of Clarity</li>
               <li>Process your questions and generate policy briefs</li>
               <li>Send you service-related notifications (account security, updates)</li>
@@ -70,28 +73,28 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Third Parties We Work With</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Third Parties We Work With</h2>
+            <p className="text-ink-800 mb-4">
               We use trusted third-party services to operate State of Clarity:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+            <ul className="list-disc pl-6 space-y-2 text-ink-800">
               <li>
-                <strong>Supabase:</strong> Provides our database and authentication infrastructure. 
+                <strong className="text-ink-800">Supabase:</strong> Provides our database and authentication infrastructure. 
                 Your account data is stored securely on their servers.{" "}
-                <a href="https://supabase.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                <a href="https://supabase.com/privacy" className="text-sage-600 hover:text-sage-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded" target="_blank" rel="noopener noreferrer">
                   Supabase Privacy Policy
                 </a>
               </li>
               <li>
-                <strong>Stripe:</strong> Processes payments for premium subscriptions. 
+                <strong className="text-ink-800">Stripe:</strong> Processes payments for premium subscriptions. 
                 We never store your full payment card details.{" "}
-                <a href="https://stripe.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                <a href="https://stripe.com/privacy" className="text-sage-600 hover:text-sage-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded" target="_blank" rel="noopener noreferrer">
                   Stripe Privacy Policy
                 </a>
               </li>
               <li>
-                <strong>Vercel:</strong> Hosts our application and provides analytics.{" "}
-                <a href="https://vercel.com/legal/privacy-policy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                <strong className="text-ink-800">Vercel:</strong> Hosts our application and provides analytics.{" "}
+                <a href="https://vercel.com/legal/privacy-policy" className="text-sage-600 hover:text-sage-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded" target="_blank" rel="noopener noreferrer">
                   Vercel Privacy Policy
                 </a>
               </li>
@@ -99,35 +102,35 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Your Rights</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Your Rights</h2>
+            <p className="text-ink-800 mb-4">
               You have the following rights regarding your personal data:
             </p>
-            <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+            <ul className="list-disc pl-6 space-y-2 text-ink-800">
               <li>
-                <strong>Access:</strong> Request a copy of all personal data we hold about you
+                <strong className="text-ink-800">Access:</strong> Request a copy of all personal data we hold about you
               </li>
               <li>
-                <strong>Export:</strong> Download your data in a machine-readable format (JSON)
+                <strong className="text-ink-800">Export:</strong> Download your data in a machine-readable format (JSON)
               </li>
               <li>
-                <strong>Correction:</strong> Update or correct inaccurate information in your profile
+                <strong className="text-ink-800">Correction:</strong> Update or correct inaccurate information in your profile
               </li>
               <li>
-                <strong>Deletion:</strong> Request deletion of your account and associated personal data
+                <strong className="text-ink-800">Deletion:</strong> Request deletion of your account and associated personal data
               </li>
               <li>
-                <strong>Objection:</strong> Object to processing of your data for certain purposes
+                <strong className="text-ink-800">Objection:</strong> Object to processing of your data for certain purposes
               </li>
             </ul>
-            <p className="text-muted-foreground mt-4">
+            <p className="text-ink-800 mt-4">
               To exercise any of these rights, visit your account settings or contact us at the address below.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Data Retention</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Data Retention</h2>
+            <p className="text-ink-800">
               We retain your personal data for as long as your account is active or as needed to provide you services.
               If you delete your account, we will remove your personal data within 30 days, except where we need to 
               retain certain information for legal obligations or legitimate business purposes. Anonymized content 
@@ -136,8 +139,8 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Cookies</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Cookies</h2>
+            <p className="text-ink-800">
               We use cookies and similar technologies to keep you logged in, remember your preferences, and 
               understand how you use our service. You can control cookie preferences through our cookie consent 
               banner or your browser settings. Essential cookies required for the service to function cannot be disabled.
@@ -145,8 +148,8 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Security</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Security</h2>
+            <p className="text-ink-800">
               We implement appropriate technical and organizational measures to protect your personal data against 
               unauthorized access, alteration, disclosure, or destruction. This includes encryption in transit (HTTPS), 
               secure password hashing, and regular security reviews.
@@ -154,20 +157,20 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Contact Us</h2>
+            <p className="text-ink-800">
               If you have any questions about this Privacy Policy or our data practices, please contact us:
             </p>
-            <p className="text-muted-foreground mt-4">
-              Email: <a href="mailto:privacy@stateofclarity.com" className="text-primary hover:underline">privacy@stateofclarity.com</a>
+            <p className="text-ink-800 mt-4">
+              Email: <a href="mailto:privacy@stateofclarity.com" className="text-sage-600 hover:text-sage-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded">privacy@stateofclarity.com</a>
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Changes to This Policy</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl font-semibold font-heading text-ink-800 mb-4">Changes to This Policy</h2>
+            <p className="text-ink-800">
               We may update this Privacy Policy from time to time. We will notify you of any significant changes 
-              by posting the new policy on this page and updating the "Last updated" date. We encourage you to 
+              by posting the new policy on this page and updating the &quot;Last updated&quot; date. We encourage you to 
               review this policy periodically.
             </p>
           </section>
@@ -175,10 +178,10 @@ export default function PrivacyPolicyPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-800 mt-16">
+      <footer className="border-t border-ivory-600 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 State of Clarity. Truth over tribe. Open-source evolution.</p>
+          <div className="text-center text-sm text-ink-500 font-ui">
+            <p>© 2026 State of Clarity. Truth over tribe. Open-source evolution.</p>
           </div>
         </div>
       </footer>

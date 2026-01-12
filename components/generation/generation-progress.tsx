@@ -17,11 +17,11 @@ const STAGES: {
   icon: typeof Search;
   label: string;
 }[] = [
-  { name: "research", icon: Search, label: "Researching sources" },
-  { name: "structure", icon: ListTree, label: "Extracting key factors" },
-  { name: "summary", icon: BookOpen, label: "Generating summaries" },
-  { name: "narrative", icon: PenLine, label: "Writing narrative" },
-  { name: "scoring", icon: Target, label: "Calculating clarity score" },
+  { name: "research", icon: Search, label: "Finding credible sources" },
+  { name: "structure", icon: ListTree, label: "Identifying key factors" },
+  { name: "summary", icon: BookOpen, label: "Writing summaries for each reading level" },
+  { name: "narrative", icon: PenLine, label: "Building the full analysis" },
+  { name: "scoring", icon: Target, label: "Scoring for clarity and transparency" },
 ];
 
 interface BriefGenerationProgressProps {
