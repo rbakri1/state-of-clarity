@@ -9,14 +9,43 @@ import { WelcomeModalWrapper } from "@/components/onboarding/welcome-modal-wrapp
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://stateofclarity.org";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "State of Clarity | See politics clearly. Decide wisely.",
   description:
     "An AI-powered policy brief generator that delivers transparent, multi-layered answers to any political question.",
+  icons: {
+    icon: "/brand/favicon.svg",
+    shortcut: "/brand/favicon.svg",
+    apple: "/brand/favicon.svg",
+  },
   openGraph: {
     title: "State of Clarity",
     description: "See politics clearly. Decide wisely.",
+    url: baseUrl,
+    siteName: "State of Clarity",
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "State of Clarity - See politics clearly. Decide wisely.",
+      },
+    ],
+    locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "State of Clarity",
+    description: "See politics clearly. Decide wisely.",
+    images: ["/api/og"],
+    creator: "@stateofclarity",
+  },
+  alternates: {
+    canonical: baseUrl,
   },
 };
 

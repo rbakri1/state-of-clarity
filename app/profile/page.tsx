@@ -108,7 +108,7 @@ export default function ProfilePage() {
 
           <div className="px-5 sm:px-8 pb-8">
             {/* Avatar and Name Section */}
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-14 sm:-mt-16">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-20 sm:-mt-20">
               <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-ivory-50 border-4 border-ivory-50 shadow-md overflow-hidden flex items-center justify-center flex-shrink-0">
                 {avatarUrl ? (
                   <img

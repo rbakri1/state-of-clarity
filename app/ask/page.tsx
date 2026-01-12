@@ -22,14 +22,60 @@ const STAGE_TIMINGS: { stage: GenerationStage; duration: number }[] = [
 
 const TOTAL_ESTIMATED_TIME = STAGE_TIMINGS.reduce((acc, s) => acc + s.duration, 0);
 
-const EXAMPLE_QUESTIONS = [
+// Large pool of zeitgeist-aware questions for UK and USA
+const QUESTION_POOL = [
+  // UK Politics & Society
   "Should the UK rejoin the EU?",
-  "What are the pros and cons of Universal Basic Income?",
   "How would abolishing the House of Lords affect UK democracy?",
   "Should the UK adopt a written constitution?",
   "What would be the impact of legalising cannabis in the UK?",
   "How effective is the UK's points-based immigration system?",
+  "Should the UK introduce proportional representation?",
+  "What are the trade-offs of renationalising UK railways?",
+  "Should Scotland hold another independence referendum?",
+  "How should the UK reform the NHS funding model?",
+  "What would a four-day work week mean for the UK economy?",
+  "Should the UK lower the voting age to 16?",
+  "How can the UK balance net zero targets with economic growth?",
+  "Should the UK introduce rent controls?",
+  "What are the implications of reforming UK planning laws?",
+  "Should university tuition fees be abolished in the UK?",
+
+  // US Politics & Society
+  "What are the pros and cons of Universal Basic Income?",
+  "Should the US adopt Medicare for All?",
+  "How would abolishing the Electoral College affect US democracy?",
+  "Should the Supreme Court have term limits?",
+  "What would be the impact of federal marijuana legalization?",
+  "Should the US implement ranked choice voting nationwide?",
+  "How can the US balance border security with immigration reform?",
+  "Should corporations face stricter antitrust enforcement?",
+  "What are the trade-offs of student loan forgiveness?",
+  "Should the US adopt a carbon tax?",
+  "How would federal paid family leave affect American workers?",
+  "Should the US ban Congressional stock trading?",
+  "What would raising the federal minimum wage to $15 achieve?",
+  "Should the US implement universal pre-K education?",
+  "How can the US address housing affordability?",
+
+  // Shared Global Issues
+  "How should democracies regulate AI development?",
+  "What are the trade-offs of central bank digital currencies?",
+  "Should social media platforms be regulated like utilities?",
+  "How can nations balance free speech with online safety?",
+  "What's the most effective approach to reduce wealth inequality?",
+  "Should governments tax automation and robots?",
+  "How should countries respond to declining birth rates?",
+  "What role should nuclear power play in decarbonization?",
+  "Should there be a wealth tax on billionaires?",
+  "How can democracies combat political polarization?",
 ];
+
+// Shuffle and select questions - returns different questions each render
+function getRandomQuestions(count: number = 6): string[] {
+  const shuffled = [...QUESTION_POOL].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 export default function AskPage() {
   const [question, setQuestion] = useState("");
@@ -41,8 +87,20 @@ export default function AskPage() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(TOTAL_ESTIMATED_TIME / 1000);
 
+  // Dynamic example questions that change on mount and rotate
+  const [exampleQuestions, setExampleQuestions] = useState<string[]>([]);
+
   useEffect(() => {
     inputRef.current?.focus();
+    // Initialize with random questions
+    setExampleQuestions(getRandomQuestions(6));
+
+    // Rotate questions every 30 seconds
+    const rotateInterval = setInterval(() => {
+      setExampleQuestions(getRandomQuestions(6));
+    }, 30000);
+
+    return () => clearInterval(rotateInterval);
   }, []);
 
   const startProgressSimulation = useCallback(() => {
@@ -338,31 +396,33 @@ export default function AskPage() {
         )}
 
         {/* Example Questions */}
-        <div>
-          <h2 className="text-sm font-ui font-medium text-ink-500 mb-4 text-center">
-            Or try one of these examples:
-          </h2>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {EXAMPLE_QUESTIONS.map((exampleQuestion) => (
-              <button
-                key={exampleQuestion}
-                type="button"
-                onClick={() => handleExampleClick(exampleQuestion)}
-                disabled={isLoading}
-                className={cn(
-                  "px-3 py-2 rounded-lg",
-                  "bg-ivory-50 border border-ivory-600",
-                  "text-sm font-ui text-ink-600",
-                  "hover:bg-ivory-300 hover:border-ivory-700 transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
-                  "disabled:opacity-50 disabled:cursor-not-allowed"
-                )}
-              >
-                {exampleQuestion}
-              </button>
-            ))}
+        {exampleQuestions.length > 0 && (
+          <div>
+            <h2 className="text-sm font-ui font-medium text-ink-500 mb-4 text-center">
+              Or try one of these examples:
+            </h2>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {exampleQuestions.map((exampleQuestion) => (
+                <button
+                  key={exampleQuestion}
+                  type="button"
+                  onClick={() => handleExampleClick(exampleQuestion)}
+                  disabled={isLoading}
+                  className={cn(
+                    "px-3 py-2 rounded-lg",
+                    "bg-ivory-50 border border-ivory-600",
+                    "text-sm font-ui text-ink-600",
+                    "hover:bg-ivory-300 hover:border-ivory-700 transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
+                >
+                  {exampleQuestion}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
