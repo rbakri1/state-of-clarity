@@ -22,26 +22,26 @@ const LEVEL_CONFIG: Record<ReadingLevel, {
   child: {
     text: "text-lg",
     lineHeight: "leading-relaxed",
-    label: "Child",
+    label: "Beginner",
     description: "Ages 8-12",
     icon: Baby,
-    badgeColor: "bg-blue-100 text-blue-700 border-blue-200",
+    badgeColor: "bg-sage-100 text-sage-700 border-sage-200",
   },
   teen: {
     text: "text-base",
     lineHeight: "leading-normal",
-    label: "Teen",
+    label: "Intermediate",
     description: "Ages 13-17",
     icon: BookOpen,
-    badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+    badgeColor: "bg-sage-100 text-sage-700 border-sage-200",
   },
   undergrad: {
     text: "text-base",
     lineHeight: "leading-normal",
-    label: "Undergraduate",
+    label: "Advanced",
     description: "University Level",
     icon: GraduationCap,
-    badgeColor: "bg-green-100 text-green-700 border-green-200",
+    badgeColor: "bg-sage-100 text-sage-700 border-sage-200",
   },
   postdoc: {
     text: "text-base",
@@ -49,7 +49,7 @@ const LEVEL_CONFIG: Record<ReadingLevel, {
     label: "Expert",
     description: "Research Level",
     icon: Lightbulb,
-    badgeColor: "bg-amber-100 text-amber-700 border-amber-200",
+    badgeColor: "bg-sage-100 text-sage-700 border-sage-200",
   },
 };
 

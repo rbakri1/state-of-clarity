@@ -18,6 +18,7 @@ import { createBrief } from "@/lib/services/brief-service";
 import type { Database } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300; // 5 minutes - brief generation involves multiple AI calls
 
 const BRIEF_COST = 1;
 

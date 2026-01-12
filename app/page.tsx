@@ -282,8 +282,8 @@ export default function Home() {
                   charStatus.status === "empty" && "text-ink-400"
                 )}>
                   {charStatus.message || (question.length === 0 ? (
-                    <span className="inline-flex items-center gap-1">
-                      <span>Try asking about a specific policy, e.g.,</span>
+                    <span>
+                      Try asking about a specific policy, e.g.,{" "}
                       <span
                         className="transition-opacity duration-300"
                         style={{ opacity: questionOpacity }}
