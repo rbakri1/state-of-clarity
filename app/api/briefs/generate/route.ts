@@ -14,7 +14,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { hasCredits, deductCredits, refundCredits } from "@/lib/services/credit-service";
 import { generateBrief } from "@/lib/agents/langgraph-orchestrator";
-import { createBrief } from "@/lib/services/brief-service";
+import { createBrief, completeBriefGeneration } from "@/lib/services/brief-service";
 import type { Database } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
@@ -222,6 +222,18 @@ export async function POST(request: NextRequest) {
           }
 
           console.log(`[Brief Generate] Successfully generated brief ${briefId} with score ${clarityScore}`);
+
+          // Explicitly save to database and wait for completion
+          sendSSE(controller, "progress", { stage: "saving", message: "Saving brief to database..." });
+          const startSave = Date.now();
+          const { error: saveError } = await completeBriefGeneration(briefId, briefState, startSave);
+          
+          if (saveError) {
+            console.error(`[Brief Generate] Failed to save brief: ${saveError.message}`);
+            throw new Error(`Failed to save brief: ${saveError.message}`);
+          }
+          
+          console.log(`[Brief Generate] Brief saved successfully`);
 
           sendSSE(controller, "complete", {
             success: true,
