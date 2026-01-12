@@ -172,9 +172,24 @@ export async function POST(request: NextRequest) {
         try {
           // Step 3: Run full brief generation orchestrator
           console.log(`[Brief Generate] Starting full generation for brief ${briefId}`);
+          console.log(`[Brief Generate] Using Anthropic key: ${process.env.ANTHROPIC_API_KEY?.slice(0, 10)}...`);
+          console.log(`[Brief Generate] Using Tavily key: ${process.env.TAVILY_API_KEY?.slice(0, 10)}...`);
           sendSSE(controller, "progress", { stage: "research", message: "Researching sources..." });
           
-          const briefState = await generateBrief(question, briefId);
+          let briefState;
+          try {
+            briefState = await generateBrief(question, briefId);
+            console.log(`[Brief Generate] Generation completed. Error: ${briefState.error || 'none'}`);
+            console.log(`[Brief Generate] Completed steps: ${briefState.completedSteps?.join(', ') || 'none'}`);
+            console.log(`[Brief Generate] Has sources: ${briefState.sources?.length || 0}`);
+            console.log(`[Brief Generate] Has structure: ${!!briefState.structure}`);
+            console.log(`[Brief Generate] Has narrative: ${!!briefState.narrative}`);
+            console.log(`[Brief Generate] Has summaries: ${Object.keys(briefState.summaries || {}).join(', ') || 'none'}`);
+            console.log(`[Brief Generate] Clarity score: ${briefState.clarityScore?.overall || 'none'}`);
+          } catch (genErr) {
+            console.error(`[Brief Generate] Generation threw error:`, genErr);
+            throw genErr;
+          }
 
           clearInterval(heartbeatInterval);
 
