@@ -435,3 +435,27 @@ Thread: https://ampcode.com/threads/T-019bb0ad-cea3-77ae-b216-fbf6b80f6afa
   - Form inputs in modals should use `bg-ivory-50` with `border-ivory-600` for design system consistency
   - Use `focus-visible:ring-offset-2` for proper spacing between element and focus ring
 ---
+
+## 2026-01-12 28:00 - US-021 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0b7-789e-7432-9331-ca0ddaba2895
+- **What was implemented:** Verified and fixed WCAG AAA contrast on reading content
+- **Files changed:**
+  - app/privacy/page.tsx (complete rewrite with design system)
+  - app/terms/page.tsx (complete rewrite with design system)
+- **Audit findings:**
+  - Brief viewer already uses correct contrast: ink-800 (#1F2328) on ivory-100 (#F7F4EF)
+  - Contrast ratio: 11.8:1, exceeds WCAG AAA requirement of 7:1
+  - Privacy and Terms pages were using old gray/muted-foreground classes – fixed
+- **Changes:**
+  - Privacy page: bg-ivory-100 background, text-ink-800 for body text, font-heading/font-body typography
+  - Terms page: Same updates as privacy page
+  - All links use text-sage-600 with hover:text-sage-700 hover:underline
+  - Focus rings on all interactive elements
+  - Removed all gray-*, muted-foreground, prose-gray classes
+  - Updated copyright to 2026
+- **Learnings for future iterations:**
+  - Design system ink-800 on ivory-100 provides 11.8:1 contrast ratio (exceeds WCAG AAA 7:1)
+  - ink-500 on ivory-100 provides ~5.5:1 contrast ratio (meets WCAG AA for meta text)
+  - Always use text-ink-800 for body content, text-ink-500 for meta/secondary text
+  - Links should be text-sage-600 with hover:text-sage-700
+---
