@@ -104,3 +104,17 @@ Thread: https://ampcode.com/threads/T-019bb351-1cd4-7516-a9eb-5f57cef07047
   - Skeleton loaders use animate-pulse class for loading animation
   - onTagClick callback placeholder for future tag filter integration (US-009)
 ---
+
+## Mon 12 Jan 2026 - US-008
+Thread: https://ampcode.com/threads/T-019bb358-a776-737c-825e-a0ae55732c50
+- Created `components/explore/search-input.tsx` with debounced search (300ms)
+- Created `components/explore/explore-content.tsx` to manage URL state and grid
+- Updated `app/explore/page.tsx` to use ExploreContent with Suspense boundary
+- Search persists in URL via `?q=searchterm` using useSearchParams/useRouter
+- Clear button (X) resets search, empty state shows "No matching briefs" message
+- Results count shows "for [query]" when filtering
+- **Learnings for future iterations:**
+  - Always wrap useSearchParams in Suspense boundary for Next.js SSG compatibility
+  - Debounce pattern: track localValue in state, sync with prop, useEffect with setTimeout
+  - ExploreContent replaces BriefsGrid with integrated search functionality
+---
