@@ -118,3 +118,17 @@ Thread: https://ampcode.com/threads/T-019bb358-a776-737c-825e-a0ae55732c50
   - Debounce pattern: track localValue in state, sync with prop, useEffect with setTimeout
   - ExploreContent replaces BriefsGrid with integrated search functionality
 ---
+
+## Mon 12 Jan 2026 - US-009
+Thread: https://ampcode.com/threads/T-019bb35c-29fc-740c-83f8-ed8afc0c0a0f
+- Created `components/explore/tag-filter.tsx` with clickable tag pills showing counts
+- Tags sorted by count descending, computed from allBriefs state
+- Multi-select: clicking toggles tag in/out of filter, updates sage-500 bg for active
+- URL persistence: tags synced via `?tags=Climate,Healthcare` param
+- Integrated into explore-content.tsx with handleTagToggle callback
+- Brief card tag clicks now trigger tag filter via handleTagClick → handleTagToggle
+- **Learnings for future iterations:**
+  - Fetch all briefs once (without filters) to compute tag counts, then apply filters for results
+  - TagFilter returns null when no tags available - won't render empty section
+  - useMemo for computing availableTags from allBriefs prevents recomputation
+---

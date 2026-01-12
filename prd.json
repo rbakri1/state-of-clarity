@@ -143,8 +143,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/tag-filter.tsx - pills with counts, multi-select, URL sync via ?tags param. Tags extracted from all briefs and sorted by count."
     },
     {
       "id": "US-010",
