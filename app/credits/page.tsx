@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, Coins, Check, Loader2, AlertTriangle } from "lucide-react";
+import { Coins, Check, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { CreditBalance } from "../components/CreditBalance";
+import { cn } from "@/lib/utils";
 
 interface CreditPackage {
   id: string;
@@ -117,45 +117,45 @@ export default function CreditsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-ivory-100 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-sage-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-ivory-100">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Current Balance */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Coins className="w-6 h-6 text-primary" />
+          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-ivory-50 border border-ivory-600 shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-sage-100 flex items-center justify-center">
+              <Coins className="w-6 h-6 text-sage-600" />
             </div>
             <div className="text-left">
-              <p className="text-sm text-muted-foreground">Your Balance</p>
-              <p className="text-3xl font-bold">{balance} credits</p>
+              <p className="text-sm font-ui text-ink-500">Your Balance</p>
+              <p className="text-3xl font-heading font-semibold text-ink-800">{balance} credits</p>
             </div>
           </div>
         </div>
 
         {/* Section Title */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Buy Credits</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-heading font-semibold text-ink-800 mb-2">Buy Credits</h1>
+          <p className="font-body text-ink-500">
             Each brief generation costs 1 credit. Buy more to save.
           </p>
         </div>
 
         {!paymentServiceAvailable && (
-          <div className="mb-8 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 flex items-center justify-center gap-2">
+          <div className="mb-8 p-4 rounded-lg bg-warning-light border border-warning text-warning-dark flex items-center justify-center gap-2 font-ui text-sm">
             <AlertTriangle className="w-5 h-5" />
             <span>Payment service is temporarily unavailable. Please try again later.</span>
           </div>
         )}
 
         {error && (
-          <div className="mb-8 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-center">
+          <div className="mb-8 p-4 rounded-lg bg-error-light border border-error text-error-dark text-center font-ui text-sm">
             {error}
           </div>
         )}
@@ -170,45 +170,46 @@ export default function CreditsPage() {
             return (
               <div
                 key={pkg.id}
-                className={`relative p-6 rounded-xl bg-white dark:bg-gray-800 border-2 transition ${
+                className={cn(
+                  "relative p-6 rounded-xl bg-ivory-50 border-2 transition-all duration-200",
                   isStandard
-                    ? "border-primary shadow-lg shadow-primary/10"
-                    : "border-gray-200 dark:border-gray-700"
-                }`}
+                    ? "border-sage-500 shadow-lg shadow-sage-500/10"
+                    : "border-ivory-600 hover:border-sage-400"
+                )}
               >
                 {isStandard && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full bg-sage-500 text-ivory-100 text-xs font-ui font-semibold">
                     Most Popular
                   </div>
                 )}
 
                 <div className="text-center mb-6">
-                  <h3 className="text-lg font-semibold mb-1">{pkg.name}</h3>
-                  <div className="text-4xl font-bold mb-1">
+                  <h3 className="text-lg font-heading font-semibold text-ink-800 mb-1">{pkg.name}</h3>
+                  <div className="text-4xl font-heading font-semibold text-ink-800 mb-1">
                     {pkg.credits}
-                    <span className="text-base font-normal text-muted-foreground ml-1">
+                    <span className="text-base font-body font-normal text-ink-500 ml-1">
                       credits
                     </span>
                   </div>
-                  <div className="text-2xl font-semibold text-primary">
+                  <div className="text-2xl font-heading font-semibold text-sage-600">
                     £{pkg.price_gbp.toFixed(2)}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-sm font-ui text-ink-500 mt-2">
                     £{getPerCreditPrice(pkg)} per credit
                   </p>
                 </div>
 
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <Check className="w-4 h-4 text-green-500" />
+                <ul className="space-y-2 mb-6 text-sm font-ui">
+                  <li className="flex items-center gap-2 text-ink-500">
+                    <Check className="w-4 h-4 text-success" />
                     <span>{pkg.credits} brief{pkg.credits > 1 ? "s" : ""}</span>
                   </li>
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <Check className="w-4 h-4 text-green-500" />
+                  <li className="flex items-center gap-2 text-ink-500">
+                    <Check className="w-4 h-4 text-success" />
                     <span>12-month expiry</span>
                   </li>
                   {isBestValue && pkg.credits > 1 && (
-                    <li className="flex items-center gap-2 text-green-600 dark:text-green-400 font-medium">
+                    <li className="flex items-center gap-2 text-success-dark font-medium">
                       <Check className="w-4 h-4" />
                       <span>Best value</span>
                     </li>
@@ -218,11 +219,13 @@ export default function CreditsPage() {
                 <button
                   onClick={() => handlePurchase(pkg.id)}
                   disabled={isPurchasing || !!purchasingPackageId || !paymentServiceAvailable}
-                  className={`w-full py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
+                  className={cn(
+                    "w-full py-3 rounded-lg font-ui font-medium transition-all duration-200 flex items-center justify-center gap-2",
                     isStandard
-                      ? "bg-primary text-primary-foreground hover:opacity-90"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      ? "bg-sage-500 text-ivory-100 hover:bg-sage-600"
+                      : "bg-ivory-300 text-ink-700 hover:bg-ivory-400",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
                 >
                   {isPurchasing ? (
                     <>
@@ -241,7 +244,7 @@ export default function CreditsPage() {
         </div>
 
         {/* Info Section */}
-        <div className="mt-12 text-center text-sm text-muted-foreground">
+        <div className="mt-12 text-center text-sm font-ui text-ink-500">
           <p>
             Secure payments powered by Stripe.
             <br />
@@ -249,7 +252,7 @@ export default function CreditsPage() {
           </p>
           <Link
             href="/credits/history"
-            className="inline-block mt-4 text-primary hover:underline"
+            className="inline-block mt-4 text-sage-600 hover:text-sage-700 hover:underline transition-colors duration-200"
           >
             View transaction history →
           </Link>

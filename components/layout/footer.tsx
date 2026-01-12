@@ -56,13 +56,13 @@ export function Footer({ className }: FooterProps) {
             <h3 className="text-sm font-ui font-semibold text-ink-600 uppercase tracking-wide">
               Navigate
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-0">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     className={cn(
-                      "inline-flex items-center min-h-[44px] py-2 -ml-2 px-2",
+                      "inline-flex items-center min-h-[40px] py-1.5 -ml-2 px-2",
                       "text-sm font-ui text-ink-500",
                       "hover:text-ink-800 transition-colors duration-200",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-md"
@@ -80,13 +80,13 @@ export function Footer({ className }: FooterProps) {
             <h3 className="text-sm font-ui font-semibold text-ink-600 uppercase tracking-wide">
               Legal
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-0">
               {legalLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     className={cn(
-                      "inline-flex items-center min-h-[44px] py-2 -ml-2 px-2",
+                      "inline-flex items-center min-h-[40px] py-1.5 -ml-2 px-2",
                       "text-sm font-ui text-ink-500",
                       "hover:text-ink-800 transition-colors duration-200",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-md"

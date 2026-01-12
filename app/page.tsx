@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Search, Sparkles, BookOpen, Eye, Target, Clock } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { CreditBalance } from "./components/CreditBalance";
 import { LowBalanceWarning } from "./components/LowBalanceWarning";
 import { BriefGenerationProgress } from "@/components/generation/generation-progress";
 import { AuthRequiredModal } from "@/components/auth/auth-required-modal";
 import type { GenerationStage } from "@/lib/types/brief";
+import { EXAMPLE_QUESTIONS } from "@/lib/data/example-questions";
+import { SHOWCASE_BRIEFS, type ShowcaseBrief } from "@/lib/data/showcase-briefs";
 
 const MIN_QUESTION_LENGTH = 10;
 const MAX_QUESTION_LENGTH = 500;
@@ -34,6 +35,33 @@ export default function Home() {
   const [generationStage, setGenerationStage] = useState<GenerationStage>("research");
   const [generationProgress, setGenerationProgress] = useState(0);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(TOTAL_ESTIMATED_TIME / 1000);
+
+  // Rotating example questions
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questionOpacity, setQuestionOpacity] = useState(1);
+  const questionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Rotate questions every 4 seconds with fade effect
+    questionIntervalRef.current = setInterval(() => {
+      // Fade out
+      setQuestionOpacity(0);
+
+      // After fade out, change question and fade in
+      setTimeout(() => {
+        setCurrentQuestionIndex((prev) => (prev + 1) % EXAMPLE_QUESTIONS.length);
+        setQuestionOpacity(1);
+      }, 300);
+    }, 4000);
+
+    return () => {
+      if (questionIntervalRef.current) {
+        clearInterval(questionIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const currentExampleQuestion = EXAMPLE_QUESTIONS[currentQuestionIndex];
 
   const startProgressSimulation = useCallback(() => {
     let elapsedTime = 0;
@@ -138,22 +166,8 @@ export default function Home() {
 
   const charStatus = getCharacterCountStatus();
 
-  const showcaseBriefs = [
-    {
-      id: "what-is-a-state",
-      question: "What is a state?",
-      clarity_score: 8.7,
-      tags: ["Foundational", "Political Philosophy", "First Principles"],
-      readTime: "4 min",
-    },
-    {
-      id: "uk-four-day-week",
-      question: "What would be the impacts of a 4-day work week in the UK?",
-      clarity_score: 8.4,
-      tags: ["Economics", "Labor Policy", "Wellbeing"],
-      readTime: "6 min",
-    },
-  ];
+  // Use first 6 showcase briefs (the two original ones plus 4 more)
+  const showcaseBriefs = SHOWCASE_BRIEFS.slice(0, 6);
 
   const getClarityScoreStyles = (score: number) => {
     if (score >= 8.5) {
@@ -267,10 +281,20 @@ export default function Home() {
                   charStatus.status === "acceptable" && "text-ink-500",
                   charStatus.status === "empty" && "text-ink-400"
                 )}>
-                  {charStatus.message || (question.length === 0 ? "Try asking about a specific policy, e.g., 'Should the UK raise the minimum wage?'" : "")}
+                  {charStatus.message || (question.length === 0 ? (
+                    <span className="inline-flex items-center gap-1">
+                      <span>Try asking about a specific policy, e.g.,</span>
+                      <span
+                        className="transition-opacity duration-300"
+                        style={{ opacity: questionOpacity }}
+                      >
+                        &apos;{currentExampleQuestion}&apos;
+                      </span>
+                    </span>
+                  ) : "")}
                 </span>
                 <span className={cn(
-                  "tabular-nums transition-colors duration-200",
+                  "tabular-nums transition-colors duration-200 flex-shrink-0 ml-2",
                   charStatus.status === "too-long" && "text-error font-medium",
                   charStatus.status === "too-short" && question.length > 0 && "text-warning",
                   charStatus.status !== "too-long" && charStatus.status !== "too-short" && "text-ink-400"
