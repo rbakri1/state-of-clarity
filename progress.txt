@@ -145,3 +145,17 @@ Thread: https://ampcode.com/threads/T-019bb361-9f22-75af-b5c3-0f91fc7f7294
   - Use `searchParams.toString()` to build new params preserving existing ones
   - minScore can be null (All) or number (7/8/9) - handle both in onChange
 ---
+
+## Mon 12 Jan 2026 - US-011
+Thread: https://ampcode.com/threads/T-019bb369-ec04-76da-a044-a55858ebc433
+- Created `components/explore/sort-filter.tsx` with Sort By dropdown
+- Dropdown options: Newest (default), Oldest, Highest Score, Most Read
+- Integrated into explore-content.tsx with state management and URL persistence
+- Sort syncs with URL via `?sort=X` parameter (newest is default, not persisted in URL)
+- Results count shows "sorted by [option]" when non-default sort is active
+- Browser verification: Dropdown renders correctly, URL params work for all options
+- **Learnings for future iterations:**
+  - Follow same pattern as ScoreFilter for new filter components
+  - Default values don't need URL persistence (only set when changed from default)
+  - SortOption type exported from component for use in parent state
+---
