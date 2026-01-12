@@ -6,6 +6,7 @@ import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "./search-input";
 import { TagFilter } from "./tag-filter";
+import { ScoreFilter } from "./score-filter";
 import { BriefCard } from "./brief-card";
 import type { Brief } from "@/lib/types/brief";
 
@@ -86,6 +87,10 @@ export function ExploreContent() {
     const tagsParam = searchParams.get("tags");
     return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
   });
+  const [minScore, setMinScore] = useState<number | null>(() => {
+    const scoreParam = searchParams.get("minScore");
+    return scoreParam ? Number(scoreParam) : null;
+  });
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [allBriefs, setAllBriefs] = useState<Brief[]>([]);
   const [total, setTotal] = useState(0);
@@ -137,6 +142,21 @@ export function ExploreContent() {
     [searchParams, router]
   );
 
+  // Update URL when min score changes
+  const handleMinScoreChange = useCallback(
+    (score: number | null) => {
+      setMinScore(score);
+      const newParams = new URLSearchParams(searchParams.toString());
+      if (score !== null) {
+        newParams.set("minScore", String(score));
+      } else {
+        newParams.delete("minScore");
+      }
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
   // Toggle a tag on/off
   const handleTagToggle = useCallback(
     (tag: string) => {
@@ -151,7 +171,7 @@ export function ExploreContent() {
     [updateTagsUrl]
   );
 
-  // Sync search query and tags from URL on mount/navigation
+  // Sync search query, tags, and minScore from URL on mount/navigation
   useEffect(() => {
     const urlQuery = searchParams.get("q") || "";
     if (urlQuery !== searchQuery) {
@@ -161,6 +181,11 @@ export function ExploreContent() {
     const parsedTags = urlTags ? urlTags.split(",").filter(Boolean) : [];
     if (JSON.stringify(parsedTags) !== JSON.stringify(selectedTags)) {
       setSelectedTags(parsedTags);
+    }
+    const urlMinScore = searchParams.get("minScore");
+    const parsedMinScore = urlMinScore ? Number(urlMinScore) : null;
+    if (parsedMinScore !== minScore) {
+      setMinScore(parsedMinScore);
     }
   }, [searchParams]);
 
@@ -183,7 +208,7 @@ export function ExploreContent() {
     fetchAllBriefs();
   }, []);
 
-  // Fetch briefs when search query or tags change
+  // Fetch briefs when search query, tags, or minScore change
   useEffect(() => {
     async function fetchBriefs() {
       setIsLoading(true);
@@ -198,6 +223,9 @@ export function ExploreContent() {
         }
         if (selectedTags.length > 0) {
           params.set("tags", selectedTags.join(","));
+        }
+        if (minScore !== null) {
+          params.set("minScore", String(minScore));
         }
 
         const response = await fetch(`/api/briefs?${params.toString()}`);
@@ -218,7 +246,7 @@ export function ExploreContent() {
     }
 
     fetchBriefs();
-  }, [searchQuery, selectedTags]);
+  }, [searchQuery, selectedTags, minScore]);
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -269,6 +297,11 @@ export function ExploreContent() {
         isLoading={isTagsLoading}
       />
 
+      {/* Score filter */}
+      <div className="mb-6">
+        <ScoreFilter value={minScore} onChange={handleMinScoreChange} />
+      </div>
+
       {/* Results count */}
       <div className="mb-6">
         {isLoading ? (
@@ -287,6 +320,12 @@ export function ExploreContent() {
               <span className="text-ink-400">
                 {" "}
                 with tags: {selectedTags.join(", ")}
+              </span>
+            )}
+            {minScore !== null && (
+              <span className="text-ink-400">
+                {" "}
+                with score {minScore}+
               </span>
             )}
           </p>
