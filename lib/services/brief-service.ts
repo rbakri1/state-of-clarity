@@ -143,7 +143,13 @@ export async function updateBriefFromState(
   }
 
   if (state.summaries && Object.keys(state.summaries).length > 0) {
+    console.log(`[BriefService] 📊 Summaries to save:`, Object.keys(state.summaries));
+    console.log(`[BriefService] Summary lengths:`, Object.fromEntries(
+      Object.entries(state.summaries).map(([k, v]) => [k, v?.length || 0])
+    ));
     updateData.summaries = state.summaries;
+  } else {
+    console.warn(`[BriefService] ⚠️  NO SUMMARIES to save! state.summaries:`, state.summaries);
   }
 
   if (state.clarityScore) {
@@ -152,6 +158,7 @@ export async function updateBriefFromState(
   }
 
   if (Object.keys(updateData).length === 0) {
+    console.log(`[BriefService] ⚠️  No updates to make for brief ${briefId}`);
     return { error: null };
   }
 
@@ -348,13 +355,18 @@ export async function completeBriefGeneration(
   state: BriefState,
   generationTimeMs?: number
 ): Promise<{ error: Error | null }> {
-  console.log(`[BriefService] Completing brief generation for ${briefId}`);
+  console.log(`[BriefService] 🎬 Completing brief generation for ${briefId}`);
+  console.log(`[BriefService] State has summaries: ${!!state.summaries}`);
+  console.log(`[BriefService] Summaries keys: ${Object.keys(state.summaries || {}).join(', ') || 'NONE'}`);
+  console.log(`[BriefService] Generation time: ${generationTimeMs}ms`);
 
   // Update brief with all generated content
   const { error: updateError } = await updateBriefFromState(briefId, state);
   if (updateError) {
+    console.error(`[BriefService] ❌ Failed to update brief: ${updateError.message}`);
     return { error: updateError };
   }
+  console.log(`[BriefService] ✅ Successfully updated brief ${briefId}`);
 
   // Save sources
   if (state.sources && state.sources.length > 0) {

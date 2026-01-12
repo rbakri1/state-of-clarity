@@ -674,14 +674,18 @@ export async function generateBrief(question: string, briefId?: string): Promise
     
     console.log(`[Orchestrator] Brief generation completed in ${duration}ms`);
     console.log(`[Orchestrator] Completed steps: ${result.completedSteps?.join(', ')}`);
-    
+    console.log(`[Orchestrator] 📊 Final state summaries:`, Object.keys(result.summaries || {}));
+    console.log(`[Orchestrator] Summary lengths:`, Object.fromEntries(
+      Object.entries(result.summaries || {}).map(([k, v]) => [k, v?.length || 0])
+    ));
+
     // Save the complete brief to the database if briefId is available
     if (result.briefId && !result.error) {
       completeBriefGeneration(result.briefId, result as BriefState, duration).catch((err) => {
         console.error('[Orchestrator] Failed to save completed brief to database:', err);
       });
     }
-    
+
     return result as BriefState;
   } catch (error) {
     const duration = Date.now() - startTime;
