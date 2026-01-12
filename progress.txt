@@ -43,3 +43,16 @@ Thread: https://ampcode.com/threads/T-019bb30b-5ba3-775f-a3ad-93ceceb6032c
   - Supabase client pattern: `getSupabaseClient()` function with service role key
   - Keep view tracking non-blocking with silent failures
 ---
+
+## Mon 12 Jan 2026 - US-004
+Thread: https://ampcode.com/threads/T-019bb30e-e822-71c1-ae8c-f8b2aee8375b
+- Created `/api/briefs/route.ts` GET endpoint for Explore page
+- Added `exploreBriefsQuerySchema` to `lib/validation/brief-schemas.ts` for param validation
+- Supports: search (q), tags, minScore, sort (newest/oldest/score/views), date filter, pagination
+- Uses Supabase `.overlaps()` for tag filtering on `metadata->tags` JSONB array
+- Returns `{ briefs, total, hasMore }` with 60s cache
+- **Learnings for future iterations:**
+  - Tags are stored in `metadata.tags` as JSONB array, use `.overlaps()` for array filtering
+  - Use `{ count: "exact" }` in select to get total for pagination
+  - Pattern: Create zod schema in validation file, use in route handler
+---
