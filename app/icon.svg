@@ -1,6 +1,29 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="6" fill="#6B9B7E"/>
-  <path d="M16 8L17.5 12.5L22 14L17.5 15.5L16 20L14.5 15.5L10 14L14.5 12.5L16 8Z" fill="#F9F7F4"/>
-  <path d="M22 9L22.75 11.25L25 12L22.75 12.75L22 15L21.25 12.75L19 12L21.25 11.25L22 9Z" fill="#F9F7F4"/>
-  <path d="M10 19L10.75 21.25L13 22L10.75 22.75L10 25L9.25 22.75L7 22L9.25 21.25L10 19Z" fill="#F9F7F4"/>
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B9B7E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5A8A6D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="32" height="32" rx="7" fill="url(#bgGradient)"/>
+
+  <!-- Central clarity symbol - like a lightbulb/insight moment -->
+  <circle cx="16" cy="14" r="6" fill="none" stroke="#F9F7F4" stroke-width="1.5"/>
+
+  <!-- Light rays emanating outward -->
+  <line x1="16" y1="6" x2="16" y2="3" stroke="#F9F7F4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="23" y1="9" x2="25" y2="7" stroke="#F9F7F4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="26" y1="14" x2="29" y2="14" stroke="#F9F7F4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="9" y1="9" x2="7" y2="7" stroke="#F9F7F4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="3" y1="14" x2="6" y1="14" stroke="#F9F7F4" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Base of the bulb -->
+  <rect x="14" y="21" width="4" height="3" rx="0.5" fill="#F9F7F4"/>
+  <line x1="14" y1="25" x2="18" y2="25" stroke="#F9F7F4" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Inner spark/clarity symbol -->
+  <path d="M16 11 L17 14 L14.5 14 L16 17 L15 14 L17.5 14 Z" fill="#F9F7F4"/>
 </svg>

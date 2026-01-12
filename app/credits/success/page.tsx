@@ -69,17 +69,6 @@ function SuccessContent() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
-        <header className="border-b border-gray-200 dark:border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">State of Clarity</span>
-            </Link>
-          </div>
-        </header>
-
         <main className="max-w-lg mx-auto px-4 py-16 text-center">
           <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 mb-6">
             {error}
@@ -95,20 +84,12 @@ function SuccessContent() {
     );
   }
 
+  if (isLoading) {
+    return null; // Already handled above in the isLoading check
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">State of Clarity</span>
-          </Link>
-        </div>
-      </header>
-
       <main className="max-w-lg mx-auto px-4 py-16">
         {/* Success Icon */}
         <div className="text-center mb-8">

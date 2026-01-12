@@ -13,6 +13,7 @@ import {
   BookmarkPlus,
   AlertCircle,
   Info,
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { ReadingLevelSelector } from "@/components/brief/reading-level-selector";
@@ -144,50 +145,40 @@ export default function BriefPage() {
 
   return (
     <div className="min-h-screen bg-ivory-100">
-      {/* Header */}
-      <header className="border-b border-ivory-600 sticky top-0 bg-ivory-100/95 backdrop-blur-sm z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
-            >
-              <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-ivory-100" />
-              </div>
-              <span className="text-xl font-bold font-heading text-ink-800">
-                State of Clarity
-              </span>
-            </Link>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-ink-500 hover:text-ink-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm">Back</span>
+          </Link>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleShare}
-                className="p-2 hover:bg-ivory-300 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-                title="Share this brief"
-                aria-label="Share this brief"
-              >
-                <Share2 className="w-5 h-5 text-ink-600" />
-              </button>
-              <button
-                className="p-2 hover:bg-ivory-300 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-                title="Save this brief"
-                aria-label="Save this brief"
-              >
-                <BookmarkPlus className="w-5 h-5 text-ink-600" />
-              </button>
-              <Link
-                href="/ask"
-                className="hidden sm:inline-flex px-4 py-2 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-              >
-                Ask Follow-up
-              </Link>
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="p-2 hover:bg-ivory-300 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+              title="Share this brief"
+              aria-label="Share this brief"
+            >
+              <Share2 className="w-5 h-5 text-ink-600" />
+            </button>
+            <button
+              className="p-2 hover:bg-ivory-300 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+              title="Save this brief"
+              aria-label="Save this brief"
+            >
+              <BookmarkPlus className="w-5 h-5 text-ink-600" />
+            </button>
+            <Link
+              href="/ask"
+              className="hidden sm:inline-flex px-4 py-2 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            >
+              Ask Follow-up
+            </Link>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Low Balance Warning */}
         <LowBalanceWarning className="mb-6" />
 

@@ -90,6 +90,7 @@ export default function Home() {
       const response = await fetch("/api/briefs/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ question: question.trim() }),
       });
 

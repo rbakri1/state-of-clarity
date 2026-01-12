@@ -68,18 +68,6 @@ export default function DeleteAccountPage() {
 
   return (
     <div className="min-h-screen bg-ivory-100 flex flex-col">
-      {/* Header */}
-      <header className="border-b border-ivory-600 bg-ivory-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
-              <span className="text-ivory-100 font-heading font-bold text-sm">SC</span>
-            </div>
-            <span className="text-xl font-heading font-bold text-ink-800">State of Clarity</span>
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">

@@ -212,24 +212,16 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-ivory-100">
-      {/* Header */}
-      <header className="border-b border-ivory-600 bg-ivory-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/profile"
-              className="flex items-center gap-2 text-ink-500 hover:text-ink-800 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg p-1"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="sr-only">Back to profile</span>
-            </Link>
-            <h1 className="text-xl font-heading font-bold text-ink-800">Settings</h1>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Link
+          href="/profile"
+          className="flex items-center gap-2 text-ink-500 hover:text-ink-800 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg p-1 mb-6"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm">Back to profile</span>
+        </Link>
+        <h1 className="text-2xl font-heading font-bold text-ink-800 mb-8">Settings</h1>
         {/* Notifications */}
         {error && (
           <div className="mb-6 p-4 rounded-lg bg-error-light border border-error/20 flex items-center gap-3">
