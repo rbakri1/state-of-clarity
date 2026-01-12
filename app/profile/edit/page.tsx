@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, ArrowLeft, Check, AlertCircle, Upload, X } from "lucide-react";
+import { User, ArrowLeft, Check, AlertCircle, Upload, X, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
@@ -204,8 +204,8 @@ export default function EditProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-ivory-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-sage-300 border-t-sage-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -214,249 +214,254 @@ export default function EditProfilePage() {
   const displayName = fullName || profile?.full_name || user?.user_metadata?.full_name || "Anonymous";
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <Link
-        href="/profile"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to profile
-      </Link>
+    <div className="min-h-screen bg-ivory-100">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <Link
+          href="/profile"
+          className="inline-flex items-center gap-2 text-ink-500 hover:text-ink-800 font-ui mb-6 focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg p-1"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to profile
+        </Link>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h1 className="text-2xl font-bold mb-6">Edit Profile</h1>
+        <div className="bg-ivory-50 rounded-2xl shadow-sm border border-ivory-600 p-6">
+          <h1 className="text-2xl font-heading font-bold text-ink-800 mb-6">Edit Profile</h1>
 
-        {showSuccess && (
-          <div className="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3">
-            <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <span className="text-green-700 dark:text-green-300">
-              Profile saved successfully
-            </span>
-          </div>
-        )}
+          {showSuccess && (
+            <div className="mb-6 p-4 rounded-lg bg-success-light border border-success/20 flex items-center gap-3">
+              <Check className="w-5 h-5 text-success" />
+              <span className="text-success-dark font-ui">
+                Profile saved successfully
+              </span>
+            </div>
+          )}
 
-        {apiError && (
-          <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-            <span className="text-red-700 dark:text-red-300">{apiError}</span>
-          </div>
-        )}
+          {apiError && (
+            <div className="mb-6 p-4 rounded-lg bg-error-light border border-error/20 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-error" />
+              <span className="text-error-dark font-ui">{apiError}</span>
+            </div>
+          )}
 
-        <div className="mb-8">
-          <label className="block text-sm font-medium mb-3">Profile Photo</label>
-          <div className="flex items-start gap-4">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center ring-2 ring-gray-200 dark:ring-gray-600">
-                {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={displayName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-12 h-12 text-gray-400" />
+          {/* Avatar Section */}
+          <div className="mb-8">
+            <label className="block text-sm font-ui font-medium text-ink-800 mb-3">Profile Photo</label>
+            <div className="flex items-start gap-4">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full bg-ivory-200 overflow-hidden flex items-center justify-center ring-2 ring-ivory-500">
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-12 h-12 text-ink-400" />
+                  )}
+                </div>
+                {avatarPreview && (
+                  <button
+                    type="button"
+                    onClick={cancelAvatarPreview}
+                    className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-error text-ivory-100 flex items-center justify-center hover:bg-error-dark transition-colors focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2"
+                    title="Cancel"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 )}
               </div>
-              {avatarPreview && (
-                <button
-                  type="button"
-                  onClick={cancelAvatarPreview}
-                  className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition"
-                  title="Cancel"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+              <div className="flex flex-col gap-2">
+                <p className="font-ui font-medium text-ink-800">{displayName}</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  id="avatar"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleAvatarSelect}
+                  className="hidden"
+                />
+                {avatarPreview ? (
+                  <button
+                    type="button"
+                    onClick={handleAvatarUpload}
+                    disabled={isUploadingAvatar}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium text-sm hover:bg-sage-600 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                  >
+                    {isUploadingAvatar ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        Upload Photo
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <label
+                    htmlFor="avatar"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-ivory-600 bg-ivory-100 font-ui font-medium text-sm text-ink-800 hover:bg-ivory-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Choose Photo
+                  </label>
+                )}
+                <p className="text-xs text-ink-500 font-ui">
+                  JPG, PNG, GIF, or WebP. Max 2MB.
+                </p>
+                {errors.avatar && (
+                  <p className="text-sm text-error font-ui">
+                    {errors.avatar}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Form Fields */}
+          <div className="space-y-6">
+            <div>
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-ui font-medium text-ink-800 mb-2"
+              >
+                Full Name
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus:border-sage-500 outline-none transition-colors"
+                placeholder="Your name"
+              />
+              {errors.full_name && (
+                <p className="mt-1 text-sm text-error font-ui">
+                  {errors.full_name}
+                </p>
               )}
             </div>
-            <div className="flex flex-col gap-2">
-              <p className="font-medium">{displayName}</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                id="avatar"
-                accept="image/jpeg,image/png,image/gif,image/webp"
-                onChange={handleAvatarSelect}
-                className="hidden"
-              />
-              {avatarPreview ? (
-                <button
-                  type="button"
-                  onClick={handleAvatarUpload}
-                  disabled={isUploadingAvatar}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition disabled:opacity-50"
-                >
-                  {isUploadingAvatar ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4" />
-                      Upload Photo
-                    </>
-                  )}
-                </button>
-              ) : (
-                <label
-                  htmlFor="avatar"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 transition cursor-pointer"
-                >
-                  <Upload className="w-4 h-4" />
-                  Choose Photo
-                </label>
+
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-ui font-medium text-ink-800 mb-2"
+              >
+                Username
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-500 font-ui">
+                  @
+                </span>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setErrors((prev) => ({ ...prev, username: undefined }));
+                  }}
+                  className={`w-full pl-8 pr-4 py-3 rounded-lg border ${
+                    errors.username
+                      ? "border-error focus:ring-error/20 focus:border-error"
+                      : "border-ivory-600 focus:ring-sage-500/20 focus:border-sage-500"
+                  } bg-ivory-100 text-ink-800 font-ui outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2`}
+                  placeholder="username"
+                />
+              </div>
+              {errors.username && (
+                <p className="mt-1 text-sm text-error font-ui">
+                  {errors.username}
+                </p>
               )}
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG, GIF, or WebP. Max 2MB.
+              <p className="mt-1 text-xs text-ink-500 font-ui">
+                3-20 characters, letters, numbers, and underscores only
               </p>
-              {errors.avatar && (
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {errors.avatar}
+            </div>
+
+            <div>
+              <label htmlFor="bio" className="block text-sm font-ui font-medium text-ink-800 mb-2">
+                Bio
+              </label>
+              <textarea
+                id="bio"
+                value={bio}
+                onChange={(e) => {
+                  setBio(e.target.value);
+                  setErrors((prev) => ({ ...prev, bio: undefined }));
+                }}
+                rows={3}
+                className={`w-full px-4 py-3 rounded-lg border ${
+                  errors.bio
+                    ? "border-error focus:ring-error/20 focus:border-error"
+                    : "border-ivory-600 focus:ring-sage-500/20 focus:border-sage-500"
+                } bg-ivory-100 text-ink-800 font-ui outline-none transition-colors resize-none focus-visible:ring-2 focus-visible:ring-offset-2`}
+                placeholder="Tell us about yourself"
+              />
+              {errors.bio && (
+                <p className="mt-1 text-sm text-error font-ui">
+                  {errors.bio}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-ink-500 font-ui text-right tabular-nums">
+                {bio.length}/280
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor="location"
+                className="block text-sm font-ui font-medium text-ink-800 mb-2"
+              >
+                Location
+              </label>
+              <input
+                id="location"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus:border-sage-500 outline-none transition-colors"
+                placeholder="City, Country"
+              />
+              {errors.location && (
+                <p className="mt-1 text-sm text-error font-ui">
+                  {errors.location}
                 </p>
               )}
             </div>
           </div>
-        </div>
 
-        <div className="space-y-6">
-          <div>
-            <label
-              htmlFor="fullName"
-              className="block text-sm font-medium mb-2"
+          {/* Action Buttons */}
+          <div className="mt-8 flex justify-end gap-4">
+            <Link
+              href="/profile"
+              className="px-6 py-3 rounded-lg border border-ivory-600 bg-ivory-100 font-ui font-medium text-ink-800 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             >
-              Full Name
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-              placeholder="Your name"
-            />
-            {errors.full_name && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.full_name}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium mb-2"
+              Cancel
+            </Link>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-6 py-3 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             >
-              Username
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                @
-              </span>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setErrors((prev) => ({ ...prev, username: undefined }));
-                }}
-                className={`w-full pl-8 pr-4 py-3 rounded-lg border ${
-                  errors.username
-                    ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                    : "border-gray-200 dark:border-gray-700 focus:ring-primary/20 focus:border-primary"
-                } bg-white dark:bg-gray-800 outline-none transition`}
-                placeholder="username"
-              />
-            </div>
-            {errors.username && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.username}
-              </p>
-            )}
-            <p className="mt-1 text-xs text-muted-foreground">
-              3-20 characters, letters, numbers, and underscores only
-            </p>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </button>
           </div>
-
-          <div>
-            <label htmlFor="bio" className="block text-sm font-medium mb-2">
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              value={bio}
-              onChange={(e) => {
-                setBio(e.target.value);
-                setErrors((prev) => ({ ...prev, bio: undefined }));
-              }}
-              rows={3}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                errors.bio
-                  ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                  : "border-gray-200 dark:border-gray-700 focus:ring-primary/20 focus:border-primary"
-              } bg-white dark:bg-gray-800 outline-none transition resize-none`}
-              placeholder="Tell us about yourself"
-            />
-            {errors.bio && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.bio}
-              </p>
-            )}
-            <p className="mt-1 text-xs text-muted-foreground text-right">
-              {bio.length}/280
-            </p>
-          </div>
-
-          <div>
-            <label
-              htmlFor="location"
-              className="block text-sm font-medium mb-2"
-            >
-              Location
-            </label>
-            <input
-              id="location"
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-              placeholder="City, Country"
-            />
-            {errors.location && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.location}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-8 flex justify-end gap-4">
-          <Link
-            href="/profile"
-            className="px-6 py-3 rounded-lg border border-gray-200 dark:border-gray-700 font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
-          >
-            Cancel
-          </Link>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {isSaving ? (
-              <>
-                <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save changes"
-            )}
-          </button>
         </div>
       </div>
     </div>

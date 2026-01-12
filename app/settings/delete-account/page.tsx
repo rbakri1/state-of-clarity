@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Sparkles, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 export default function DeleteAccountPage() {
@@ -60,45 +60,45 @@ export default function DeleteAccountPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-ivory-100 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-sage-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 flex flex-col">
-      <header className="border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg clarity-gradient flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">State of Clarity</span>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-ivory-100 flex flex-col">
+      {/* Header */}
+      <header className="border-b border-ivory-600 bg-ivory-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
+              <span className="text-ivory-100 font-heading font-bold text-sm">SC</span>
+            </div>
+            <span className="text-xl font-heading font-bold text-ink-800">State of Clarity</span>
+          </Link>
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
+          <div className="bg-ivory-50 rounded-2xl shadow-sm border border-ivory-600 p-8">
             <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+              <div className="w-12 h-12 rounded-xl bg-error-light flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6 text-error" />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Delete Account</h1>
-              <p className="text-muted-foreground text-sm">
+              <h1 className="text-2xl font-heading font-bold text-ink-800 mb-2">Delete Account</h1>
+              <p className="text-ink-500 text-sm font-ui">
                 This action is permanent and cannot be undone.
               </p>
             </div>
 
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-              <h2 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">
+            <div className="bg-error-light border border-error/20 rounded-lg p-4 mb-6">
+              <h2 className="text-sm font-ui font-semibold text-error-dark mb-2">
                 Warning: Permanent Deletion
               </h2>
-              <ul className="text-xs text-red-600/80 dark:text-red-400/80 space-y-1">
+              <ul className="text-xs text-error-dark/80 space-y-1 font-ui">
                 <li>• Your profile and all personal information will be deleted</li>
                 <li>• All your saved briefs will be removed</li>
                 <li>• Your reading history will be erased</li>
@@ -111,10 +111,9 @@ export default function DeleteAccountPage() {
               <div>
                 <label
                   htmlFor="confirm"
-                  className="block text-sm font-medium mb-2"
+                  className="block text-sm font-ui font-medium text-ink-800 mb-2"
                 >
-                  Type <span className="font-bold text-red-600">DELETE</span> to
-                  confirm
+                  Type <span className="font-bold text-error">DELETE</span> to confirm
                 </label>
                 <input
                   id="confirm"
@@ -122,20 +121,20 @@ export default function DeleteAccountPage() {
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
                   placeholder="Type DELETE here"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500"
+                  className="w-full px-4 py-2 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 focus:border-error outline-none transition-colors"
                   disabled={isDeleting}
                 />
               </div>
 
               {error && (
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-sm text-error font-ui">{error}</p>
               )}
 
               <button
                 type="button"
                 onClick={handleDeleteAccount}
                 disabled={isDeleting || confirmText !== "DELETE"}
-                className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-lg bg-error text-ivory-100 font-ui font-medium hover:bg-error-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2"
               >
                 {isDeleting ? (
                   <>
@@ -149,7 +148,7 @@ export default function DeleteAccountPage() {
 
               <Link
                 href="/settings"
-                className="w-full py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition flex items-center justify-center gap-2 font-medium"
+                className="w-full py-3 rounded-lg border border-ivory-600 bg-ivory-100 hover:bg-ivory-200 transition-colors flex items-center justify-center gap-2 font-ui font-medium text-ink-800 focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
               >
                 Cancel
               </Link>
@@ -158,7 +157,7 @@ export default function DeleteAccountPage() {
 
           <Link
             href="/settings"
-            className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground hover:text-foreground transition"
+            className="flex items-center justify-center gap-2 mt-6 text-sm text-ink-500 hover:text-ink-800 font-ui transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg p-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to settings
