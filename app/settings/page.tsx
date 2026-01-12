@@ -20,10 +20,10 @@ type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
 type NotificationPreferences = { email: boolean; push: boolean };
 
 const READING_LEVELS: { value: ReadingLevel; label: string; description: string }[] = [
-  { value: "child", label: "Child (Ages 8-12)", description: "Simple language, relatable examples" },
-  { value: "teen", label: "Teen (Ages 13-17)", description: "More context, balanced detail" },
-  { value: "undergrad", label: "Undergrad (Ages 18-22)", description: "Standard depth and terminology" },
-  { value: "postdoc", label: "Postdoc (Graduate+)", description: "Full technical depth" },
+  { value: "child", label: "Child (Ages 8–12)", description: "Simple language, relatable examples" },
+  { value: "teen", label: "Teen (Ages 13–17)", description: "More context, balanced detail" },
+  { value: "undergrad", label: "Undergrad (Ages 18–22)", description: "Standard depth and terminology" },
+  { value: "postdoc", label: "Postdoc (Graduate researchers)", description: "Full technical depth" },
 ];
 
 const TOPIC_OPTIONS = [

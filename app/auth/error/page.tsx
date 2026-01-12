@@ -12,15 +12,15 @@ function ErrorContent() {
   const getErrorMessage = (reason: string | null): string => {
     switch (reason) {
       case "no_code":
-        return "No authentication code was provided. Please try signing in again.";
+        return "We didn't receive an authentication code. Please try signing in again.";
       case "exchange_failed":
-        return "We couldn't complete the sign-in process. Please try again.";
+        return "We couldn't complete your sign-in. Please try again.";
       case "invalid_token":
-        return "Your sign-in link has expired or is invalid. Please request a new one.";
+        return "Your sign-in link has expired. Please request a new one.";
       case "access_denied":
-        return "Access was denied. Please check your permissions and try again.";
+        return "We couldn't grant access. Please check your permissions and try again.";
       default:
-        return "Something went wrong during sign-in. Please try again.";
+        return "We hit an issue during sign-in. Please try again.";
     }
   };
 
