@@ -20,3 +20,14 @@ Thread: https://ampcode.com/threads/T-019bb303-a4c0-74be-b2c9-1dfd678d6410
   - The `BriefRecord` type (service layer) and `Brief` type (frontend) are separate
   - Pre-existing test errors are unrelated to new changes
 ---
+
+## Mon 12 Jan 2026 - US-002
+Thread: https://ampcode.com/threads/T-019bb309-c336-7669-b1cc-bd0c3729851d
+- Added `is_public BOOLEAN DEFAULT true` column to briefs table
+- Created migration: `lib/supabase/migrations/012_add_is_public_column.sql`
+- Updated TypeScript interfaces in `lib/types/brief.ts` and `lib/services/brief-service.ts`
+- Updated main schema `lib/supabase/schema.sql` with column and partial index
+- **Learnings for future iterations:**
+  - Used partial index `WHERE is_public = true` for efficient Explore page filtering
+  - Follow same pattern as US-001 for adding columns
+---

@@ -28,8 +28,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Migration: lib/supabase/migrations/012_add_is_public_column.sql"
     },
     {
       "id": "US-003",
