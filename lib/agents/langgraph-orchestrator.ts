@@ -421,6 +421,14 @@ ${sourceSummary}
 
 Return a JSON object with this exact structure:
 {
+  "definitions": [
+    {
+      "term": "Key term or concept",
+      "definition": "Clear, neutral definition",
+      "source": "Where this definition comes from (optional)",
+      "points_of_contention": "Any contested aspects of this definition (optional)"
+    }
+  ],
   "factors": [
     {
       "name": "Factor name",
@@ -438,6 +446,13 @@ Return a JSON object with this exact structure:
       "tradeoffs": "Description of tradeoffs"
     }
   ],
+  "consequences": [
+    {
+      "action": "Policy action or decision",
+      "first_order": "Immediate, direct effects",
+      "second_order": "Downstream or unintended effects"
+    }
+  ],
   "timeline": [
     {
       "date": "Date or period",
@@ -447,7 +462,12 @@ Return a JSON object with this exact structure:
   ]
 }
 
-Include 3-5 factors, 2-4 policies, and 3-6 timeline events.`
+Include:
+- 3-6 key definitions (terms essential for understanding the topic)
+- 3-5 factors (major considerations or forces at play)
+- 2-4 policies (concrete policy options or approaches)
+- 2-4 consequences (second-order effects of major policy choices)
+- 3-6 timeline events (key historical context)`
     }],
   });
   
