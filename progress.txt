@@ -22,6 +22,8 @@ Started: Mon 12 Jan 2026 01:41:23 +04
 - BriefGenerationProgress now complete at @/components/generation/generation-progress.tsx with 5 stages, progress bar, spinner/checkmarks
 - Focus states pattern: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2` on all buttons/links/inputs
 - Form inputs in modals use: `border-ivory-600 bg-ivory-50 text-ink-800 focus-visible:ring-sage-500`
+- Mobile touch targets: min-h-[44px] for links, min-h-[48px] for buttons
+- Mobile menus: use `invisible` + `overflow-hidden` on closed state to prevent horizontal scroll
 
 ---
 
@@ -458,4 +460,28 @@ Thread: https://ampcode.com/threads/T-019bb0b7-789e-7432-9331-ca0ddaba2895
   - ink-500 on ivory-100 provides ~5.5:1 contrast ratio (meets WCAG AA for meta text)
   - Always use text-ink-800 for body content, text-ink-500 for meta/secondary text
   - Links should be text-sage-600 with hover:text-sage-700
+---
+
+## 2026-01-12 29:00 - US-022 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0bb-dcb9-76b1-a1e0-365307747ce3
+- **What was implemented:** Final visual QA across all breakpoints (mobile 375px, tablet 768px, desktop 1440px)
+- **Files changed:**
+  - app/page.tsx (search input stacked layout on mobile, min-h-[48px] button)
+  - components/layout/footer.tsx (footer links min-h-[44px] touch targets)
+  - components/layout/header.tsx (mobile menu invisible + overflow-hidden when closed)
+- **Issues found and fixed:**
+  - Mobile horizontal scroll caused by mobile menu slide-out panel (w-64 at right-0)
+  - Search input with inline button was too wide on 375px screens
+  - Footer links too close together for touch targets
+  - Get Brief button too small for mobile touch targets
+- **Verification:**
+  - Mobile (375px): scrollWidth=375, clientWidth=375 ✓
+  - Tablet (768px): scrollWidth=768, clientWidth=768 ✓
+  - Desktop (1440px): scrollWidth=1440, clientWidth=1440 ✓
+  - Additional pages (brief, signin, privacy) all pass at mobile ✓
+- **Learnings for future iterations:**
+  - Mobile menus with `translate-x-full` still affect document width; add `invisible` class when closed
+  - Use `overflow-hidden` on parent containers for slide-out panels
+  - Touch targets must be min-h-[44px] on mobile per accessibility guidelines
+  - Stack input+button vertically on mobile with `flex-col sm:flex-row`
 ---

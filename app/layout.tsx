@@ -5,6 +5,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { WelcomeModalWrapper } from "@/components/onboarding/welcome-modal-wrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -33,6 +34,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
         </ErrorBoundary>
         <Footer />
+        <WelcomeModalWrapper />
       </body>
     </html>
   );
