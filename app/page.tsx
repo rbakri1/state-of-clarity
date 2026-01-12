@@ -537,11 +537,25 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <p className="text-sm font-ui text-ink-500">
               <Sparkles className="w-3.5 h-3.5 inline mr-1" />
               Featured insights change on each visit • More being added daily
             </p>
+            <Link
+              href="/explore"
+              className={cn(
+                "inline-flex items-center gap-2 px-6 py-3 rounded-lg",
+                "bg-sage-100 text-sage-700 border border-sage-200",
+                "hover:bg-sage-200 hover:border-sage-300",
+                "font-ui font-medium text-sm",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                "transition-all duration-200"
+              )}
+            >
+              Explore All Briefs
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </section>
       )}

@@ -11,16 +11,21 @@ interface BriefCardProps {
 }
 
 function getClarityScore(brief: Brief): number {
+  let score = 0;
   if (typeof brief.clarity_score === "number") {
-    return brief.clarity_score;
+    score = brief.clarity_score;
+  } else if (brief.clarity_score && typeof brief.clarity_score === "object" && "overall" in brief.clarity_score) {
+    score = brief.clarity_score.overall;
   }
-  if (brief.clarity_score && typeof brief.clarity_score === "object" && "overall" in brief.clarity_score) {
-    return brief.clarity_score.overall;
+  // Normalize: if score > 10, it's stored as 0-100, convert to 0-10
+  if (score > 10) {
+    score = score / 10;
   }
-  return 0;
+  return score;
 }
 
 function getClarityScoreStyles(score: number): string {
+  // Score is already normalized to 0-10 scale
   if (score >= 8.5) {
     return "bg-success-light text-success-dark";
   } else if (score >= 7) {
