@@ -106,7 +106,7 @@ export default function ProfilePage() {
           {/* Header gradient */}
           <div className="h-24 bg-gradient-to-r from-sage-500 to-sage-600" />
 
-          <div className="px-6 pb-6">
+          <div className="px-6 pt-8 pb-6">
             {/* Avatar and Name Section */}
             <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12">
               <div className="w-24 h-24 rounded-full bg-ivory-50 border-4 border-ivory-50 shadow-lg overflow-hidden flex items-center justify-center">
