@@ -33,9 +33,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let question = "Policy Brief";
   let description = "An AI-powered policy brief that delivers transparent, multi-layered analysis.";
   let clarityScore: number | null = null;
+  let usingFallback = false;
 
   // Check sample briefs first
   if (sampleBriefs[id]) {
+    console.log(`[Brief Metadata] Using hardcoded sample brief: ${id}`);
     question = sampleBriefs[id].question;
     clarityScore = sampleBriefs[id].clarity_score;
     const summaries = sampleBriefs[id].summaries;
@@ -44,9 +46,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   } else {
     // Fetch from database
+    console.log(`[Brief Metadata] Fetching brief from database: ${id}`);
     try {
       const result = await getBriefById(id);
       if (result.data) {
+        console.log(`[Brief Metadata] Successfully fetched brief: ${result.data.question}`);
         question = result.data.question;
         clarityScore = typeof result.data.clarity_score === 'number' ? result.data.clarity_score : null;
         // Handle both array and object formats for summaries
@@ -65,15 +69,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           }
           if (summaryText) {
             description = summaryText.slice(0, 200) + (summaryText.length > 200 ? "..." : "");
+          } else {
+            console.warn(`[Brief Metadata] No suitable summary found for brief ${id}`);
           }
+        } else {
+          console.warn(`[Brief Metadata] Brief ${id} has no summaries`);
         }
+      } else {
+        console.error(`[Brief Metadata] Brief ${id} not found in database, using fallback metadata`);
+        usingFallback = true;
       }
     } catch (error) {
-      console.error("[Brief Layout] Error fetching brief for metadata:", error);
+      console.error(`[Brief Metadata] Error fetching brief ${id} for metadata:`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Brief Metadata] Check that NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set correctly');
+      }
+      usingFallback = true;
     }
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://stateofclarity.org";
+
+  if (!process.env.NEXT_PUBLIC_BASE_URL) {
+    console.warn('[Brief Metadata] NEXT_PUBLIC_BASE_URL is not set, using default:', baseUrl);
+  }
 
   // Build OG image URL with query params (data fetched server-side, passed to edge function)
   const ogParams = new URLSearchParams();
@@ -84,6 +103,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const ogImageUrl = `${baseUrl}/api/og?${ogParams.toString()}`;
   const briefUrl = `${baseUrl}/brief/${id}`;
+
+  console.log(`[Brief Metadata] Generated metadata for brief ${id}:`);
+  console.log(`  - Title: ${question}`);
+  console.log(`  - Description: ${description.slice(0, 100)}...`);
+  console.log(`  - Clarity Score: ${clarityScore}`);
+  console.log(`  - OG Image URL: ${ogImageUrl}`);
+  console.log(`  - Brief URL: ${briefUrl}`);
+  console.log(`  - Using Fallback: ${usingFallback}`);
 
   return {
     title: `${question} | State of Clarity`,
