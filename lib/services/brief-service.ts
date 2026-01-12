@@ -87,28 +87,15 @@ export async function createBrief(
 
 /**
  * Update a brief with classification data
+ * Note: classification column doesn't exist in DB yet - this is a no-op
+ * TODO: Add classification column to briefs table in Supabase
  */
 export async function updateBriefClassification(
   briefId: string,
   classification: QuestionClassification
 ): Promise<{ error: Error | null }> {
-  const supabase = getSupabaseClient();
-
-  console.log(`[BriefService] Saving classification for brief ${briefId}:`, classification);
-
-  const { error } = await (supabase.from("briefs") as any)
-    .update({ classification })
-    .eq("id", briefId);
-
-  if (error) {
-    console.error("[BriefService] Error updating classification:", error);
-    return { error: new Error(error.message) };
-  }
-
-  // Invalidate cache after update
-  await invalidateCache(`brief:${briefId}`);
-
-  console.log(`[BriefService] Classification saved successfully for brief ${briefId}`);
+  // Skip - classification column doesn't exist in DB yet
+  console.log(`[BriefService] Skipping classification save (column not in DB) for brief ${briefId}`);
   return { error: null };
 }
 
@@ -123,9 +110,10 @@ export async function updateBriefFromState(
 
   const updateData: Record<string, any> = {};
 
-  if (state.classification) {
-    updateData.classification = state.classification;
-  }
+  // Note: classification column doesn't exist in DB yet - store in metadata instead
+  // if (state.classification) {
+  //   updateData.classification = state.classification;
+  // }
 
   if (state.structure) {
     updateData.structured_data = state.structure;
