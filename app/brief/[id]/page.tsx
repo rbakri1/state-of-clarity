@@ -140,10 +140,18 @@ export default function BriefPage() {
     }));
   };
 
-  const getClarityScoreClass = (score: number) => {
-    if (score >= 8) return "bg-success-light text-success-dark";
-    if (score >= 6) return "bg-warning-light text-warning-dark";
+  const getClarityScoreClass = (score: number | null | undefined) => {
+    const s = typeof score === 'number' ? score : 0;
+    if (s >= 80 || s >= 8) return "bg-success-light text-success-dark";
+    if (s >= 60 || s >= 6) return "bg-warning-light text-warning-dark";
     return "bg-error-light text-error-dark";
+  };
+  
+  // Normalize clarity score (could be 0-100 or 0-10)
+  const getDisplayScore = (score: number | null | undefined) => {
+    if (score === null || score === undefined) return "N/A";
+    if (score > 10) return (score / 10).toFixed(1);
+    return score.toFixed ? score.toFixed(1) : score;
   };
 
   const normalizePolicalLean = (lean: string): PoliticalLean => {
@@ -233,10 +241,10 @@ export default function BriefPage() {
                 "hover:shadow-md cursor-pointer"
               )}
               aria-expanded={showClarityBreakdown}
-              aria-label={`Clarity Score: ${brief.clarity_score}/10. Click to ${showClarityBreakdown ? "hide" : "show"} breakdown`}
+              aria-label={`Clarity Score: ${getDisplayScore(brief.clarity_score)}/10. Click to ${showClarityBreakdown ? "hide" : "show"} breakdown`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>{brief.clarity_score}/10</span>
+              <span>{getDisplayScore(brief.clarity_score)}/10</span>
               {showClarityBreakdown ? (
                 <ChevronUp className="w-3 h-3" />
               ) : (
@@ -251,18 +259,22 @@ export default function BriefPage() {
               {new Date(brief.updated_at).toLocaleDateString()}
             </span>
             <span>•</span>
-            <span>{brief.sources.length} sources</span>
-            <span>•</span>
-            <div className="flex flex-wrap gap-2">
-              {brief.metadata.tags.map((tag: string) => (
-                <span
-                  key={tag}
-                  className="px-2 py-1 rounded-md bg-ivory-300 text-ink-600 text-xs font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            <span>{brief.sources?.length || 0} sources</span>
+            {brief.metadata?.tags?.length > 0 && (
+              <>
+                <span>•</span>
+                <div className="flex flex-wrap gap-2">
+                  {brief.metadata.tags.map((tag: string) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 rounded-md bg-ivory-300 text-ink-600 text-xs font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </header>
 
@@ -762,27 +774,32 @@ export default function BriefPage() {
                   )}
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-ivory-600">
-                  <h4 className="font-medium mb-2 font-ui text-ink-800">
-                    Strengths
-                  </h4>
-                  <ul className="text-sm text-ink-600 space-y-1 list-disc list-inside font-body">
-                    {brief.clarity_critique.strengths.map(
-                      (strength: any, i: number) => (
-                        <li key={i}>{strength}</li>
-                      )
-                    )}
-                  </ul>
-                </div>
+                {/* Show strengths if available, or notes as fallback */}
+                {(brief.clarity_critique.strengths?.length > 0 || brief.clarity_critique.notes?.length > 0) && (
+                  <div className="mt-6 pt-6 border-t border-ivory-600">
+                    <h4 className="font-medium mb-2 font-ui text-ink-800">
+                      {brief.clarity_critique.strengths ? "Strengths" : "Analysis Notes"}
+                    </h4>
+                    <ul className="text-sm text-ink-600 space-y-1 list-disc list-inside font-body">
+                      {(brief.clarity_critique.strengths || brief.clarity_critique.notes || []).map(
+                        (item: any, i: number) => (
+                          <li key={i}>{item}</li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
 
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2 font-ui text-ink-800">Gaps</h4>
-                  <ul className="text-sm text-ink-600 space-y-1 list-disc list-inside font-body">
-                    {brief.clarity_critique.gaps.map((gap: any, i: number) => (
-                      <li key={i}>{gap}</li>
-                    ))}
-                  </ul>
-                </div>
+                {brief.clarity_critique.gaps?.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-medium mb-2 font-ui text-ink-800">Gaps</h4>
+                    <ul className="text-sm text-ink-600 space-y-1 list-disc list-inside font-body">
+                      {brief.clarity_critique.gaps.map((gap: any, i: number) => (
+                        <li key={i}>{gap}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="mt-4 p-3 bg-ivory-100 rounded-lg">
                   <div className="flex items-start gap-2">
