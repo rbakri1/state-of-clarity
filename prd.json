@@ -238,8 +238,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Already implemented in app/page.tsx lines 614-628 with correct styling and /explore link"
     },
     {
       "id": "US-016",

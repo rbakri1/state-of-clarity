@@ -205,3 +205,14 @@ Thread: https://ampcode.com/threads/T-019bb39f-0f96-714f-9f2c-3ce7df12bd47
   - Must set hasMore from initial fetch response too (was missing before)
   - Button should be disabled during loading to prevent double-clicks
 ---
+
+## Mon 12 Jan 2026 - US-015
+Thread: https://ampcode.com/threads/T-019bb3c3-348a-71bc-8de0-a3923d5d9de6
+- Verified "See All Briefs" button already implemented in `app/page.tsx` lines 614-628
+- Button displays below showcase grid with: link to /explore, arrow icon "→"
+- Styled correctly: bg-sage-100, text-sage-600, hover:bg-sage-200
+- Uses design system: inline-flex, gap-2, px-6 py-3, rounded-lg, transition-colors
+- **Learnings for future iterations:**
+  - Check if feature is already implemented before starting work
+  - The homepage showcase section is in app/page.tsx after line 549
+---

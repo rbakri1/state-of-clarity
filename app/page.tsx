@@ -610,6 +610,22 @@ export default function Home() {
             </Link>
           ))}
         </div>
+
+        {/* See All Briefs Button */}
+        <div className="text-center mt-10">
+          <Link
+            href="/explore"
+            className={cn(
+              "inline-flex items-center gap-2 px-6 py-3 rounded-lg",
+              "bg-sage-100 text-sage-600 font-ui font-medium",
+              "hover:bg-sage-200 transition-colors duration-200",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            )}
+          >
+            See All Briefs
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </section>
 
       {/* Note: Footer is rendered in layout.tsx */}
