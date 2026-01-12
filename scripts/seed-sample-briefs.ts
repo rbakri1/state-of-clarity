@@ -52,7 +52,9 @@ async function seedBriefs() {
       .single();
 
     if (existing) {
-      console.log(`⏭️  "${briefData.question.slice(0, 50)}..." already exists, skipping`);
+      // Brief exists - check if it needs sources added
+      await addSourcesToExistingBrief(existing.id, briefData.sources || []);
+      console.log(`⏭️  "${briefData.question.slice(0, 50)}..." already exists, checked sources`);
       continue;
     }
 
@@ -74,23 +76,105 @@ async function seedBriefs() {
       clarity_critique: briefData.clarity_critique || null,
       metadata: {
         tags,
-        sources: briefData.sources || [],
         sample_brief: true, // Mark as sample brief
       },
       is_public: true,
       view_count: 0,
     };
 
-    const { error } = await supabase.from("briefs").insert(briefToInsert);
+    const { data: insertedBrief, error } = await supabase
+      .from("briefs")
+      .insert(briefToInsert)
+      .select("id")
+      .single();
 
     if (error) {
       console.error(`❌ Failed to insert "${briefData.question.slice(0, 50)}...":`, error.message);
     } else {
       console.log(`✅ Inserted: "${briefData.question.slice(0, 50)}..."`);
+      
+      // Now add sources to the sources table and link via brief_sources
+      if (insertedBrief && briefData.sources?.length > 0) {
+        await addSourcesToExistingBrief(insertedBrief.id, briefData.sources);
+      }
     }
   }
 
   console.log("\n🎉 Done!");
+}
+
+/**
+ * Add sources to a brief using the sources and brief_sources tables
+ */
+async function addSourcesToExistingBrief(briefId: string, sources: any[]): Promise<void> {
+  if (!sources || sources.length === 0) {
+    return;
+  }
+
+  // Check if this brief already has sources linked
+  const { data: existingSources } = await supabase
+    .from("brief_sources")
+    .select("source_id")
+    .eq("brief_id", briefId)
+    .limit(1);
+
+  if (existingSources && existingSources.length > 0) {
+    console.log(`   ℹ️  Brief ${briefId.slice(0, 8)}... already has sources linked`);
+    return;
+  }
+
+  console.log(`   📚 Adding ${sources.length} sources to brief ${briefId.slice(0, 8)}...`);
+
+  // Upsert sources into the sources table
+  const sourceRecords = sources.map((source) => ({
+    url: source.url,
+    title: source.title,
+    author: source.author || null,
+    publisher: source.publisher || null,
+    publication_date: source.publication_date || null,
+    source_type: source.source_type || null,
+    political_lean: source.political_lean || null,
+    credibility_score: source.credibility_score || null,
+    excerpt: source.excerpt || source.content?.slice(0, 500) || null,
+    full_content: source.content || null,
+  }));
+
+  const { data: upsertedSources, error: sourcesError } = await supabase
+    .from("sources")
+    .upsert(sourceRecords, { onConflict: "url" })
+    .select("id, url");
+
+  if (sourcesError) {
+    console.error(`   ❌ Failed to upsert sources:`, sourcesError.message);
+    return;
+  }
+
+  // Create URL -> ID map
+  const urlToIdMap = new Map<string, string>();
+  for (const source of upsertedSources || []) {
+    urlToIdMap.set(source.url, source.id);
+  }
+
+  // Create junction table records
+  const junctionRecords = sources
+    .map((source, index) => ({
+      brief_id: briefId,
+      source_id: urlToIdMap.get(source.url),
+      display_order: index + 1,
+    }))
+    .filter((record) => record.source_id);
+
+  if (junctionRecords.length > 0) {
+    const { error: junctionError } = await supabase
+      .from("brief_sources")
+      .insert(junctionRecords);
+
+    if (junctionError) {
+      console.error(`   ❌ Failed to link sources:`, junctionError.message);
+    } else {
+      console.log(`   ✅ Linked ${junctionRecords.length} sources`);
+    }
+  }
 }
 
 function extractTagsFromQuestion(question: string): string[] {
