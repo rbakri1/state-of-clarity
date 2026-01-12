@@ -269,6 +269,41 @@ export default function BriefPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <article className="lg:col-span-2 space-y-8">
+            {/* Executive Summary - Adaptive Reading Levels */}
+            <section className="bg-sage-50 rounded-xl border-2 border-sage-200 p-6">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h2 className="text-2xl font-bold font-heading text-ink-800 mb-1">
+                    Executive Summary
+                  </h2>
+                  <p className="text-sm text-ink-600 font-body">
+                    Choose your preferred complexity level for this overview. The detailed analysis below remains consistent for all readers.
+                  </p>
+                </div>
+              </div>
+
+              {/* Reading Level Selector */}
+              <ReadingLevelSelector
+                currentLevel={activeLevel}
+                onLevelChange={setActiveLevel}
+                className="mb-6"
+              />
+
+              {/* Summary Cards for each level */}
+              <div className="relative">
+                {(["child", "teen", "undergrad", "postdoc"] as const).map(
+                  (level) => (
+                    <SummaryCard
+                      key={level}
+                      level={level}
+                      content={brief.summaries[level] || ""}
+                      isActive={activeLevel === level}
+                    />
+                  )
+                )}
+              </div>
+            </section>
+
             {/* POSIT (if present) */}
             {brief.posit && (
               <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
@@ -436,37 +471,6 @@ export default function BriefPage() {
                 )}
               </section>
             )}
-
-            {/* Progressive Summaries */}
-            <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
-              <h2 className="text-xl font-bold font-heading text-ink-800 mb-2">
-                Choose Your Reading Level
-              </h2>
-              <p className="text-sm text-ink-600 font-body mb-4">
-                We meet you where you are – same evidence, tailored depth.
-              </p>
-
-              {/* Reading Level Selector */}
-              <ReadingLevelSelector
-                currentLevel={activeLevel}
-                onLevelChange={setActiveLevel}
-                className="mb-6"
-              />
-
-              {/* Summary Cards for each level */}
-              <div className="max-w-prose">
-                {(["child", "teen", "undergrad", "postdoc"] as const).map(
-                  (level) => (
-                    <SummaryCard
-                      key={level}
-                      level={level}
-                      content={brief.summaries[level] || ""}
-                      isActive={activeLevel === level}
-                    />
-                  )
-                )}
-              </div>
-            </section>
 
             {/* Narrative Analysis */}
             <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
