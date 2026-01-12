@@ -16,17 +16,29 @@ import { NextRequest } from "next/server";
 export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  try {
+    const { searchParams } = new URL(request.url);
 
-  // Get data from query params (passed by layout.tsx metadata)
-  const title = searchParams.get("title");
-  const description = searchParams.get("description");
-  const score = searchParams.get("score");
+    // Get data from query params (passed by layout.tsx metadata)
+    const title = searchParams.get("title");
+    const description = searchParams.get("description");
+    const score = searchParams.get("score");
 
-  const question = title ? decodeURIComponent(title) : "State of Clarity";
-  const summary = description ? decodeURIComponent(description) : "See politics clearly. Decide wisely.";
-  const clarityScore = score ? parseFloat(score) : null;
-  const hasBrief = !!title;
+    console.log('[OG Image] Generating image with params:', {
+      hasTitle: !!title,
+      hasDescription: !!description,
+      score,
+    });
+
+    const question = title ? decodeURIComponent(title) : "State of Clarity";
+    const summary = description ? decodeURIComponent(description) : "See politics clearly. Decide wisely.";
+    const clarityScore = score ? parseFloat(score) : null;
+    const hasBrief = !!title;
+
+    // Validate score if provided
+    if (score && (isNaN(parseFloat(score)) || parseFloat(score) < 0 || parseFloat(score) > 100)) {
+      console.warn('[OG Image] Invalid clarity score provided:', score);
+    }
 
   // Normalize clarity score for display
   const displayScore = clarityScore !== null
@@ -42,18 +54,18 @@ export async function GET(request: NextRequest) {
     return "#DC2626"; // red
   };
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: "#F7F6F3", // ivory-100
-          padding: "60px",
-        }}
-      >
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: "#F7F6F3", // ivory-100
+            padding: "60px",
+          }}
+        >
         {/* Header with logo and score */}
         <div
           style={{
@@ -209,10 +221,56 @@ export async function GET(request: NextRequest) {
           </span>
         </div>
       </div>
-    ),
-    {
-      width: 1200,
-      height: 630,
-    }
-  );
+      ),
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
+  } catch (error) {
+    console.error('[OG Image] Error generating image:', error);
+
+    // Return a simple fallback image on error
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#F7F6F3",
+            padding: "60px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "48px",
+              fontWeight: 700,
+              color: "#1C1C1C",
+              textAlign: "center",
+            }}
+          >
+            State of Clarity
+          </div>
+          <div
+            style={{
+              fontSize: "24px",
+              color: "#6B7280",
+              marginTop: "20px",
+              textAlign: "center",
+            }}
+          >
+            See politics clearly. Decide wisely.
+          </div>
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
+  }
 }

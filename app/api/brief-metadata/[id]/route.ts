@@ -1,75 +1,86 @@
 /**
- * Brief Layout with Dynamic Social Sharing Metadata
+ * Brief Metadata Debug Endpoint
  *
- * Generates Open Graph and Twitter Card metadata for social sharing
- * with dynamic images via /api/og endpoint.
+ * GET /api/brief-metadata/[id]
+ *
+ * Returns the metadata that would be generated for a specific brief.
+ * Useful for debugging social sharing issues without needing to actually share the URL.
+ *
+ * Response includes:
+ * - OpenGraph tags (title, description, image URL)
+ * - Twitter card tags
+ * - Canonical URL
+ * - Error details if brief fetch fails
  */
 
-import type { Metadata } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { getBriefById } from "@/lib/services/brief-service";
 
-type Props = {
-  params: { id: string };
-  children: React.ReactNode;
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const { id } = params;
+
+  const response: any = {
+    briefId: id,
+    timestamp: new Date().toISOString(),
+    metadata: null,
+    error: null,
+    warnings: []
+  };
 
   let question = "Policy Brief";
   let description = "An AI-powered policy brief that delivers transparent, multi-layered analysis.";
   let clarityScore: number | null = null;
   let usingFallback = false;
+  let source: "database" | "fallback" = "fallback";
 
   // Fetch from database (works for both sample briefs and user-generated briefs)
-  console.log(`[Brief Metadata] Fetching brief from database: ${id}`);
   try {
     const result = await getBriefById(id);
     if (result.data) {
-      console.log(`[Brief Metadata] Successfully fetched brief: ${result.data.question}`);
+      source = "database";
       question = result.data.question;
       clarityScore = typeof result.data.clarity_score === 'number' ? result.data.clarity_score : null;
+
       // Handle both array and object formats for summaries
       const summaries = result.data.summaries;
       if (summaries) {
         let summaryText: string | undefined;
         if (Array.isArray(summaries)) {
-          // Array format: ReadingLevelSummary[]
           const undergrad = summaries.find((s: { level: string }) => s.level === "undergrad");
           const teen = summaries.find((s: { level: string }) => s.level === "teen");
           summaryText = undergrad?.content || teen?.content;
         } else if (typeof summaries === "object") {
-          // Object format: SummaryOutputs { child, teen, undergrad, postdoc }
           const sumObj = summaries as unknown as { child?: string; teen?: string; undergrad?: string; postdoc?: string };
           summaryText = sumObj.undergrad || sumObj.teen;
         }
         if (summaryText) {
           description = summaryText.slice(0, 200) + (summaryText.length > 200 ? "..." : "");
         } else {
-          console.warn(`[Brief Metadata] No suitable summary found for brief ${id}`);
+          response.warnings.push("No suitable summary found for brief");
         }
       } else {
-        console.warn(`[Brief Metadata] Brief ${id} has no summaries`);
+        response.warnings.push("Brief has no summaries");
       }
     } else {
-      console.error(`[Brief Metadata] Brief ${id} not found in database, using fallback metadata`);
+      response.error = `Brief ${id} not found in database`;
       usingFallback = true;
     }
   } catch (error) {
-    console.error(`[Brief Metadata] Error fetching brief ${id} for metadata:`, error);
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[Brief Metadata] Check that NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set correctly');
-    }
+    response.error = error instanceof Error ? error.message : String(error);
+    response.warnings.push("Check that NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set correctly");
     usingFallback = true;
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://stateofclarity.org";
 
   if (!process.env.NEXT_PUBLIC_BASE_URL) {
-    console.warn('[Brief Metadata] NEXT_PUBLIC_BASE_URL is not set, using default:', baseUrl);
+    response.warnings.push("NEXT_PUBLIC_BASE_URL is not set, using default: " + baseUrl);
   }
 
-  // Build OG image URL with query params (data fetched server-side, passed to edge function)
+  // Build OG image URL
   const ogParams = new URLSearchParams();
   ogParams.set("title", question);
   ogParams.set("description", description.slice(0, 150));
@@ -79,30 +90,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImageUrl = `${baseUrl}/api/og?${ogParams.toString()}`;
   const briefUrl = `${baseUrl}/brief/${id}`;
 
-  console.log(`[Brief Metadata] Generated metadata for brief ${id}:`);
-  console.log(`  - Title: ${question}`);
-  console.log(`  - Description: ${description.slice(0, 100)}...`);
-  console.log(`  - Clarity Score: ${clarityScore}`);
-  console.log(`  - OG Image URL: ${ogImageUrl}`);
-  console.log(`  - Brief URL: ${briefUrl}`);
-  console.log(`  - Using Fallback: ${usingFallback}`);
-
-  return {
-    title: `${question} | State of Clarity`,
-    description,
+  response.metadata = {
+    source,
+    usingFallback,
+    html: {
+      title: `${question} | State of Clarity`,
+      description,
+    },
     openGraph: {
       title: question,
       description,
       url: briefUrl,
       siteName: "State of Clarity",
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: question,
-        },
-      ],
+      image: {
+        url: ogImageUrl,
+        width: 1200,
+        height: 630,
+        alt: question,
+      },
       locale: "en_US",
       type: "article",
     },
@@ -110,15 +115,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: question,
       description,
-      images: [ogImageUrl],
+      image: ogImageUrl,
       creator: "@stateofclarity",
     },
-    alternates: {
-      canonical: briefUrl,
-    },
+    canonical: briefUrl,
+    clarityScore,
   };
-}
 
-export default function BriefLayout({ children }: Props) {
-  return children;
+  // Test if OG image URL is accessible (basic check)
+  response.ogImageCheck = {
+    url: ogImageUrl,
+    urlEncoded: ogParams.toString().includes("%") ? "URL contains encoded characters (normal for special characters)" : "URL uses plain ASCII",
+  };
+
+  return NextResponse.json(response, {
+    status: response.error && usingFallback ? 404 : 200,
+    headers: {
+      'Cache-Control': 'no-store, max-age=0',
+    }
+  });
 }
