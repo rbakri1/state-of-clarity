@@ -8,6 +8,7 @@ import { SearchInput } from "./search-input";
 import { TagFilter } from "./tag-filter";
 import { ScoreFilter } from "./score-filter";
 import { SortFilter, type SortOption } from "./sort-filter";
+import { DateFilter, type DateRange } from "./date-filter";
 import { BriefCard } from "./brief-card";
 import type { Brief } from "@/lib/types/brief";
 
@@ -96,6 +97,10 @@ export function ExploreContent() {
     const sortParam = searchParams.get("sort");
     return (sortParam as SortOption) || "newest";
   });
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const dateParam = searchParams.get("date");
+    return (dateParam as DateRange) || "all";
+  });
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [allBriefs, setAllBriefs] = useState<Brief[]>([]);
   const [total, setTotal] = useState(0);
@@ -177,6 +182,21 @@ export function ExploreContent() {
     [searchParams, router]
   );
 
+  // Update URL when date range changes
+  const handleDateRangeChange = useCallback(
+    (dateValue: DateRange) => {
+      setDateRange(dateValue);
+      const newParams = new URLSearchParams(searchParams.toString());
+      if (dateValue !== "all") {
+        newParams.set("date", dateValue);
+      } else {
+        newParams.delete("date");
+      }
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
   // Toggle a tag on/off
   const handleTagToggle = useCallback(
     (tag: string) => {
@@ -211,6 +231,11 @@ export function ExploreContent() {
     const parsedSort = urlSort || "newest";
     if (parsedSort !== sort) {
       setSort(parsedSort);
+    }
+    const urlDateRange = searchParams.get("date") as DateRange | null;
+    const parsedDateRange = urlDateRange || "all";
+    if (parsedDateRange !== dateRange) {
+      setDateRange(parsedDateRange);
     }
   }, [searchParams]);
 
@@ -255,6 +280,9 @@ export function ExploreContent() {
         if (sort !== "newest") {
           params.set("sort", sort);
         }
+        if (dateRange !== "all") {
+          params.set("date", dateRange);
+        }
 
         const response = await fetch(`/api/briefs?${params.toString()}`);
 
@@ -274,7 +302,7 @@ export function ExploreContent() {
     }
 
     fetchBriefs();
-  }, [searchQuery, selectedTags, minScore, sort]);
+  }, [searchQuery, selectedTags, minScore, sort, dateRange]);
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -325,10 +353,13 @@ export function ExploreContent() {
         isLoading={isTagsLoading}
       />
 
-      {/* Score and Sort filters */}
+      {/* Score, Date, and Sort filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="w-40">
           <ScoreFilter value={minScore} onChange={handleMinScoreChange} />
+        </div>
+        <div className="w-40">
+          <DateFilter value={dateRange} onChange={handleDateRangeChange} />
         </div>
         <div className="w-40">
           <SortFilter value={sort} onChange={handleSortChange} />
@@ -359,6 +390,12 @@ export function ExploreContent() {
               <span className="text-ink-400">
                 {" "}
                 with score {minScore}+
+              </span>
+            )}
+            {dateRange !== "all" && (
+              <span className="text-ink-400">
+                {" "}
+                from past {dateRange}
               </span>
             )}
             {sort !== "newest" && (
