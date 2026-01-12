@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   Sparkles,
@@ -31,6 +31,9 @@ export default function BriefPage() {
   const params = useParams();
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("undergrad");
   const [showClarityBreakdown, setShowClarityBreakdown] = useState(false);
+  const [brief, setBrief] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
     posit: true,
     definitions: true,
@@ -41,33 +44,64 @@ export default function BriefPage() {
     principles: false,
   });
 
-  const briefs: { [key: string]: any } = {
-    "uk-four-day-week": briefUK4Day,
-    "what-is-a-state": briefWhatIsState,
-  };
+  // Fetch brief from API
+  useEffect(() => {
+    const fetchBrief = async () => {
+      const id = params.id as string;
 
-  const brief = briefs[params.id as string];
-  
-  if (!brief) {
+      // Check for hardcoded sample briefs first
+      const sampleBriefs: { [key: string]: any } = {
+        "uk-four-day-week": briefUK4Day,
+        "what-is-a-state": briefWhatIsState,
+      };
+
+      if (sampleBriefs[id]) {
+        setBrief(sampleBriefs[id]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch from API
+      try {
+        const response = await fetch(`/api/briefs/${id}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          setError(data.error || "Failed to load brief");
+          setIsLoading(false);
+          return;
+        }
+
+        setBrief(data.brief);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('[Brief Page] Error fetching brief:', err);
+        setError("Failed to load brief");
+        setIsLoading(false);
+      }
+    };
+
+    fetchBrief();
+  }, [params.id]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-ivory-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 text-sage-600">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage-600"></div>
+            <span className="text-lg font-ui">Loading brief...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show 404 if brief not found
+  if (!brief || error) {
     return (
       <div className="min-h-screen bg-ivory-100 flex flex-col">
-        <header className="border-b border-ivory-600">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <Link
-                href="/"
-                className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
-              >
-                <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-ivory-100" />
-                </div>
-                <span className="text-xl font-bold font-heading text-ink-800">
-                  State of Clarity
-                </span>
-              </Link>
-            </div>
-          </div>
-        </header>
         <main className="flex-1 flex items-center justify-center px-4 py-12">
           <div className="text-center max-w-md">
             <div className="mb-8">

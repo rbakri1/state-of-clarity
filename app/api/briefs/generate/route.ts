@@ -13,7 +13,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { hasCredits, deductCredits, refundCredits } from "@/lib/services/credit-service";
-import { researchAgent } from "@/lib/agents/research-agent";
+import { generateBrief } from "@/lib/agents/langgraph-orchestrator";
+import { createBrief } from "@/lib/services/brief-service";
 import type { Database } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
@@ -89,12 +90,25 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
       );
     }
 
-    const briefId = `brief-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    // Step 1: Create brief record in database to get UUID
+    const { id: briefId, error: createError } = await createBrief(question, user.id);
 
+    if (createError || !briefId) {
+      console.error('[Brief Generate] Failed to create brief:', createError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to create brief record. Please try again.",
+        },
+        { status: 500 }
+      );
+    }
+
+    // Step 2: Deduct credits
     const creditDeducted = await deductCredits(
       user.id,
       BRIEF_COST,
-      null,
+      briefId,
       `Brief generation: "${question.substring(0, 50)}${question.length > 50 ? "..." : ""}"`
     );
 
@@ -112,16 +126,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
     let creditRefunded = false;
 
     try {
-      const sources = await researchAgent(question);
-      
-      clarityScore = calculateClarityScore(sources.length);
+      // Step 3: Run full brief generation orchestrator
+      console.log(`[Brief Generate] Starting full generation for brief ${briefId}`);
+      const briefState = await generateBrief(question, briefId);
 
-      if (clarityScore < 6.0) {
+      // Check for generation errors
+      if (briefState.error) {
+        throw new Error(briefState.error);
+      }
+
+      // Step 4: Evaluate quality gate
+      clarityScore = briefState.clarityScore?.overall || 0;
+
+      if (clarityScore < 60) {
         await refundCredits(
           user.id,
           BRIEF_COST,
-          null,
-          `Quality gate failed: clarity score ${clarityScore.toFixed(1)} < 6.0`
+          briefId,
+          `Quality gate failed: clarity score ${clarityScore} < 60`
         );
         creditRefunded = true;
 
@@ -129,17 +151,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
           success: false,
           briefId,
           question,
-          clarityScore,
+          clarityScore: clarityScore / 10, // Convert to 0-10 scale for display
           creditRefunded: true,
-          error: `Brief quality score (${clarityScore.toFixed(1)}) did not meet minimum threshold of 6.0. Your credit has been refunded.`,
+          error: `Brief quality score (${(clarityScore / 10).toFixed(1)}/10) did not meet minimum threshold of 6.0. Your credit has been refunded.`,
         });
       }
+
+      console.log(`[Brief Generate] Successfully generated brief ${briefId} with score ${clarityScore}`);
 
       return NextResponse.json({
         success: true,
         briefId,
         question,
-        clarityScore,
+        clarityScore: clarityScore / 10, // Convert to 0-10 scale for display
         creditRefunded: false,
       });
 
@@ -147,7 +171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
       await refundCredits(
         user.id,
         BRIEF_COST,
-        null,
+        briefId,
         `Generation failed: ${generationError instanceof Error ? generationError.message : "Unknown error"}`
       );
 
@@ -176,12 +200,4 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
       { status: 500 }
     );
   }
-}
-
-function calculateClarityScore(sourceCount: number): number {
-  const baseScore = 5.0;
-  const sourceBonus = Math.min(3.0, sourceCount * 0.15);
-  const randomVariation = (Math.random() - 0.5) * 1.0;
-  
-  return Math.min(10, Math.max(0, baseScore + sourceBonus + randomVariation + 2.0));
 }
