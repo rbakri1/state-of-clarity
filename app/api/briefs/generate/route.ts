@@ -37,6 +37,26 @@ interface GenerateBriefResponse {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<GenerateBriefResponse>> {
+  console.log('[Brief Generate] Starting request...');
+  
+  // Check required env vars
+  const envCheck = {
+    hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
+    hasTavilyKey: !!process.env.TAVILY_API_KEY,
+    hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasSupabaseAnon: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    hasSupabaseService: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+  };
+  console.log('[Brief Generate] Env check:', envCheck);
+  
+  if (!envCheck.hasAnthropicKey || !envCheck.hasTavilyKey) {
+    console.error('[Brief Generate] Missing API keys!');
+    return NextResponse.json(
+      { success: false, error: "Server configuration error" },
+      { status: 500 }
+    );
+  }
+  
   try {
     const cookieStore = await cookies();
 
