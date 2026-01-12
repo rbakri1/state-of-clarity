@@ -6,6 +6,9 @@ Started: Mon 12 Jan 2026 20:21:52 +04
 - TypeScript types for briefs are in both `lib/types/brief.ts` (Brief interface) and `lib/services/brief-service.ts` (BriefRecord interface) - update both
 - Main schema in `lib/supabase/schema.sql` should be updated alongside migrations for documentation
 - Pre-existing test errors in `__tests__/` are not blocking - check typecheck passes on prod code
+- `Brief.clarity_score` can be number OR ClarityScore object - always check typeof before using
+- `Brief.summaries` can be array (ReadingLevelSummary[]) or Record<ReadingLevel, string> - handle both formats
+- Tags are in `metadata.tags` as string array, use `.slice(0, N)` to limit display count
 
 ---
 
@@ -68,4 +71,18 @@ Thread: https://ampcode.com/threads/T-019bb312-8634-75bf-a0fe-46a6cae9e1bf
   - Server components don't need "use client" and can export metadata directly
   - Dev browser may need network idle wait for full CSS hydration
   - Follow existing page patterns from homepage for consistent styling
+---
+
+## Mon 12 Jan 2026 - US-006
+Thread: https://ampcode.com/threads/T-019bb317-67e2-727f-9bba-42948faa9ebf
+- Created `components/explore/brief-card.tsx` component for Explore page grid
+- Card displays: question title, clarity score badge (color-coded), tags (max 3), reading time, 2-line excerpt
+- Uses absolute positioned link overlay for card navigation with z-index for clickable tags
+- Tags are buttons with `onTagClick` callback for filter integration in later stories
+- Followed homepage showcase card styling patterns for consistency
+- **Learnings for future iterations:**
+  - `Brief.clarity_score` can be number OR ClarityScore object - need to handle both cases
+  - Tags are in `metadata.tags` as string array
+  - Summaries can be array (ReadingLevelSummary[]) or Record<ReadingLevel, string> - handle both
+  - Use `line-clamp-2` for 2-line truncation CSS
 ---
