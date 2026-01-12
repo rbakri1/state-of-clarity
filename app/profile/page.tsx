@@ -106,7 +106,7 @@ export default function ProfilePage() {
           {/* Header gradient */}
           <div className="h-28 sm:h-32 bg-gradient-to-br from-sage-500 via-sage-500 to-sage-600" />
 
-          <div className="px-5 sm:px-8 pb-8">
+          <div className="px-5 sm:px-8 pt-8 pb-8">
             {/* Avatar - positioned to overlap the banner */}
             <div className="-mt-14 sm:-mt-16 mb-4">
               <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-ivory-50 border-4 border-ivory-50 shadow-md overflow-hidden flex items-center justify-center">
