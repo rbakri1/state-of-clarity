@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Sparkles, Menu, X, ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createBrowserClient } from "@/lib/supabase/browser";
@@ -18,6 +18,7 @@ export function Header({ className }: HeaderProps) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -51,6 +52,7 @@ export function Header({ className }: HeaderProps) {
 
   const navLinks = [
     { href: "/ask", label: "Ask Anything" },
+    { href: "/explore", label: "Explore" },
     { href: "/about", label: "About" },
   ];
 
@@ -88,9 +90,12 @@ export function Header({ className }: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-ui font-medium text-ink-600",
+                  "text-sm font-ui font-medium",
                   "hover:text-ink-800 transition-colors duration-200",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-md px-1"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-md px-1",
+                  pathname === link.href
+                    ? "text-sage-600"
+                    : "text-ink-600"
                 )}
               >
                 {link.label}
@@ -269,9 +274,12 @@ export function Header({ className }: HeaderProps) {
                 href={link.href}
                 className={cn(
                   "block px-4 py-3 rounded-md min-h-[48px] flex items-center",
-                  "text-base font-ui font-medium text-ink-600",
+                  "text-base font-ui font-medium",
                   "hover:bg-ivory-300 transition-colors duration-200",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                  pathname === link.href
+                    ? "text-sage-600 bg-sage-50"
+                    : "text-ink-600"
                 )}
                 onClick={() => setIsMobileMenuOpen(false)}
               >

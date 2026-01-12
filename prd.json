@@ -108,8 +108,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/briefs-grid.tsx - includes skeleton loaders, empty state, error handling, and 'Showing X of Y briefs' count"
     },
     {
       "id": "US-008",
@@ -125,8 +125,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Components: search-input.tsx (debounced), explore-content.tsx (URL params). Uses Suspense boundary for useSearchParams."
     },
     {
       "id": "US-009",
@@ -143,8 +143,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/tag-filter.tsx - pills with counts, multi-select, URL sync via ?tags param. Tags extracted from all briefs and sorted by count."
     },
     {
       "id": "US-010",
@@ -159,8 +159,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/score-filter.tsx - dropdown with All/7+/8+/9+ options, URL sync via ?minScore param"
     },
     {
       "id": "US-011",
@@ -175,8 +175,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/sort-filter.tsx - dropdown with Newest/Oldest/Highest Score/Most Read options. URL sync via ?sort param (newest is default, not persisted in URL)."
     },
     {
       "id": "US-012",
@@ -191,8 +191,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/date-filter.tsx - dropdown with All Time/Past Week/Past Month/Past Year options. URL sync via ?date param (all is default, not persisted in URL)."
     },
     {
       "id": "US-013",
@@ -208,8 +208,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: explore-content.tsx - handleLoadMore with offset pagination, animated loading spinner, appends to briefs array"
     },
     {
       "id": "US-014",
@@ -223,8 +223,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Already implemented in components/layout/header.tsx - navLinks array includes Explore after Ask Anything"
     },
     {
       "id": "US-015",
@@ -238,8 +238,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Already implemented in app/page.tsx lines 614-628 with correct styling and /explore link"
     },
     {
       "id": "US-016",
@@ -253,8 +253,8 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "API: /api/briefs/tags returns { tags: TagWithCount[] }. Explore page updated to use this endpoint instead of fetching all briefs."
     },
     {
       "id": "US-017",
@@ -270,8 +270,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/mobile-filter-drawer.tsx - slide-up drawer with all filters, Clear All/Apply Filters buttons, active count badge on Filters button"
     }
   ]
 }

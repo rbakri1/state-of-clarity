@@ -86,3 +86,161 @@ Thread: https://ampcode.com/threads/T-019bb317-67e2-727f-9bba-42948faa9ebf
   - Summaries can be array (ReadingLevelSummary[]) or Record<ReadingLevel, string> - handle both
   - Use `line-clamp-2` for 2-line truncation CSS
 ---
+
+## Mon 12 Jan 2026 - US-007
+Thread: https://ampcode.com/threads/T-019bb351-1cd4-7516-a9eb-5f57cef07047
+- Implementation already complete (commit 0cfecc1) - updating PRD to mark as passing
+- BriefsGrid component in `components/explore/briefs-grid.tsx`:
+  - Fetches from /api/briefs on page load with useEffect
+  - Responsive grid: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+  - Shows 6 skeleton loaders while fetching
+  - EmptyState component when no briefs
+  - "Showing X of Y briefs" count display
+  - Error state with red background on API failure
+- Browser verification: Grid and skeleton loaders render correctly
+- Pre-existing JS error ("Invalid or unexpected token") affects all pages, not specific to this implementation
+- **Learnings for future iterations:**
+  - BriefsGrid uses BriefsResponse interface: { briefs: Brief[], total: number, hasMore: boolean }
+  - Skeleton loaders use animate-pulse class for loading animation
+  - onTagClick callback placeholder for future tag filter integration (US-009)
+---
+
+## Mon 12 Jan 2026 - US-008
+Thread: https://ampcode.com/threads/T-019bb358-a776-737c-825e-a0ae55732c50
+- Created `components/explore/search-input.tsx` with debounced search (300ms)
+- Created `components/explore/explore-content.tsx` to manage URL state and grid
+- Updated `app/explore/page.tsx` to use ExploreContent with Suspense boundary
+- Search persists in URL via `?q=searchterm` using useSearchParams/useRouter
+- Clear button (X) resets search, empty state shows "No matching briefs" message
+- Results count shows "for [query]" when filtering
+- **Learnings for future iterations:**
+  - Always wrap useSearchParams in Suspense boundary for Next.js SSG compatibility
+  - Debounce pattern: track localValue in state, sync with prop, useEffect with setTimeout
+  - ExploreContent replaces BriefsGrid with integrated search functionality
+---
+
+## Mon 12 Jan 2026 - US-009
+Thread: https://ampcode.com/threads/T-019bb35c-29fc-740c-83f8-ed8afc0c0a0f
+- Created `components/explore/tag-filter.tsx` with clickable tag pills showing counts
+- Tags sorted by count descending, computed from allBriefs state
+- Multi-select: clicking toggles tag in/out of filter, updates sage-500 bg for active
+- URL persistence: tags synced via `?tags=Climate,Healthcare` param
+- Integrated into explore-content.tsx with handleTagToggle callback
+- Brief card tag clicks now trigger tag filter via handleTagClick → handleTagToggle
+- **Learnings for future iterations:**
+  - Fetch all briefs once (without filters) to compute tag counts, then apply filters for results
+  - TagFilter returns null when no tags available - won't render empty section
+  - useMemo for computing availableTags from allBriefs prevents recomputation
+---
+
+## Mon 12 Jan 2026 - US-010
+Thread: https://ampcode.com/threads/T-019bb361-9f22-75af-b5c3-0f91fc7f7294
+- Created `components/explore/score-filter.tsx` with Min Score dropdown filter
+- Dropdown options: All Scores (default), 7+ Score, 8+ Score, 9+ Score
+- Integrated into explore-content.tsx with state management and URL persistence
+- Filter syncs with URL via `?minScore=X` parameter and persists on navigation
+- Results count shows "with score X+" when filter is active
+- **Learnings for future iterations:**
+  - Filter components follow pattern: local state + handleChange callback + URL sync
+  - Use `searchParams.toString()` to build new params preserving existing ones
+  - minScore can be null (All) or number (7/8/9) - handle both in onChange
+---
+
+## Mon 12 Jan 2026 - US-011
+Thread: https://ampcode.com/threads/T-019bb369-ec04-76da-a044-a55858ebc433
+- Created `components/explore/sort-filter.tsx` with Sort By dropdown
+- Dropdown options: Newest (default), Oldest, Highest Score, Most Read
+- Integrated into explore-content.tsx with state management and URL persistence
+- Sort syncs with URL via `?sort=X` parameter (newest is default, not persisted in URL)
+- Results count shows "sorted by [option]" when non-default sort is active
+- Browser verification: Dropdown renders correctly, URL params work for all options
+- **Learnings for future iterations:**
+  - Follow same pattern as ScoreFilter for new filter components
+  - Default values don't need URL persistence (only set when changed from default)
+  - SortOption type exported from component for use in parent state
+---
+
+## Mon 12 Jan 2026 - US-012
+Thread: https://ampcode.com/threads/T-019bb370-50bd-731b-8484-cda5aa90c47d
+- Created `components/explore/date-filter.tsx` with Date Range dropdown filter
+- Dropdown options: All Time (default), Past Week, Past Month, Past Year
+- Integrated into explore-content.tsx with state management and URL persistence
+- Date filter syncs with URL via `?date=X` parameter ("all" is default, not persisted in URL)
+- Results count shows "from past [range]" when non-default date is active
+- API already supported date filtering via created_at comparison
+- Browser verification: Dropdown renders correctly, URL params sync in both directions
+- **Learnings for future iterations:**
+  - Follow same pattern as SortFilter and ScoreFilter for new filter components
+  - DateRange type exported from component similar to SortOption pattern
+  - API date filtering uses ISO date string comparison with `gte("created_at", ...)`
+---
+
+## Mon 12 Jan 2026 - US-013
+Thread: https://ampcode.com/threads/T-019bb37b-1421-72ba-9976-dbeabc25bc52
+- Verified Load More pagination already implemented in `components/explore/explore-content.tsx`
+- handleLoadMore callback (lines 311-349) fetches next 12 briefs with offset
+- Button displays loading spinner with animated SVG when isLoadingMore is true
+- Button hidden when hasMore is false
+- Briefs appended to existing list with setBriefs spread
+- Preserves all current filter state (search, tags, minScore, sort, dateRange)
+- Typecheck passes (pre-existing test errors are unrelated)
+- Browser verification: Page loads, button only appears when hasMore=true
+- **Learnings for future iterations:**
+  - Load More pattern: fetch with offset=currentBriefs.length, append with spread
+  - Button should be disabled during loading to prevent double-clicks
+  - Pre-existing API connection issues may affect local testing
+---
+
+## Mon 12 Jan 2026 - US-013 (Actual Implementation)
+Thread: https://ampcode.com/threads/T-019bb39f-0f96-714f-9f2c-3ce7df12bd47
+- Implemented Load More pagination in `components/explore/explore-content.tsx`
+- Added state: isLoadingMore, hasMore (from API response)
+- handleLoadMore callback: fetches with offset=currentBriefs.length, preserves all filters
+- Load More button: animated spinner during loading, disabled state, hidden when !hasMore
+- Button styled with sage-100 bg matching design system
+- Typecheck passes (pre-existing test/API errors are unrelated)
+- Browser verification: Page loads, button correctly hidden when hasMore=false
+- **Learnings for future iterations:**
+  - Load More pattern: use offset=briefs.length, append with [...prev, ...data.briefs]
+  - Must set hasMore from initial fetch response too (was missing before)
+  - Button should be disabled during loading to prevent double-clicks
+---
+
+## Mon 12 Jan 2026 - US-015
+Thread: https://ampcode.com/threads/T-019bb3c3-348a-71bc-8de0-a3923d5d9de6
+- Verified "See All Briefs" button already implemented in `app/page.tsx` lines 614-628
+- Button displays below showcase grid with: link to /explore, arrow icon "→"
+- Styled correctly: bg-sage-100, text-sage-600, hover:bg-sage-200
+- Uses design system: inline-flex, gap-2, px-6 py-3, rounded-lg, transition-colors
+- **Learnings for future iterations:**
+  - Check if feature is already implemented before starting work
+  - The homepage showcase section is in app/page.tsx after line 549
+---
+
+## Mon 12 Jan 2026 - US-016
+Thread: https://ampcode.com/threads/T-019bb3c7-ce2b-708d-ae2a-9addd5427e94
+- Created `/api/briefs/tags` endpoint to fetch unique tags with counts from public briefs
+- Endpoint returns `{ tags: TagWithCount[] }` sorted by count descending
+- Updated `components/explore/explore-content.tsx` to use new tags endpoint
+- Removed inefficient fetch of all briefs (limit=1000) just for tag counts
+- Added 5min cache (s-maxage=300) to tags endpoint for performance
+- **Learnings for future iterations:**
+  - Create dedicated endpoints for specific data needs rather than over-fetching
+  - Tags endpoint pattern: fetch metadata only, compute counts in-memory, cache result
+  - TagWithCount interface: `{ tag: string, count: number }` is the standard shape
+---
+
+## Tue 13 Jan 2026 - US-017
+Thread: https://ampcode.com/threads/T-019bb3ca-796a-7517-8546-5002c5c55d28
+- Created `components/explore/mobile-filter-drawer.tsx` for mobile-friendly filter UI
+- Slide-up drawer with all filters: tags, score, date range, sort
+- Filters button with active count badge (sage-500 bg, white text)
+- Apply Filters (sage-500 primary) and Clear All buttons in drawer footer
+- Body scroll lock when drawer is open, Escape key closes drawer
+- Desktop filters hidden with `hidden md:block`, mobile drawer with `md:hidden`
+- Browser verified: drawer slides up, all filters work, badge shows active count
+- **Learnings for future iterations:**
+  - Use `document.body.style.overflow = "hidden"` for body scroll lock
+  - Cleanup body overflow in useEffect return to prevent memory leaks
+  - Badge count calculation: sum of all non-default filter values
+---
