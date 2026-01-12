@@ -56,3 +56,16 @@ Thread: https://ampcode.com/threads/T-019bb30e-e822-71c1-ae8c-f8b2aee8375b
   - Use `{ count: "exact" }` in select to get total for pagination
   - Pattern: Create zod schema in validation file, use in route handler
 ---
+
+## Mon 12 Jan 2026 - US-005
+Thread: https://ampcode.com/threads/T-019bb312-8634-75bf-a0fe-46a6cae9e1bf
+- Created `/app/explore/page.tsx` with hero section for Explore Briefs
+- Hero includes: Compass icon badge, "Explore Briefs" heading, discovery subtitle
+- Uses design system: ivory-100 bg, ink-800 text, sage-100/600 for badge, font-heading/font-body
+- Server component with metadata for SEO (title, description)
+- Placeholder content section for upcoming grid/filters stories
+- **Learnings for future iterations:**
+  - Server components don't need "use client" and can export metadata directly
+  - Dev browser may need network idle wait for full CSS hydration
+  - Follow existing page patterns from homepage for consistent styling
+---
