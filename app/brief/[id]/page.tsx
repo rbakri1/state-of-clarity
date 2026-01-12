@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Sparkles,
   ChevronDown,
@@ -30,15 +30,16 @@ import { LowBalanceWarning } from "@/app/components/LowBalanceWarning";
 
 export default function BriefPage() {
   const params = useParams();
+  const router = useRouter();
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("undergrad");
   const [showClarityBreakdown, setShowClarityBreakdown] = useState(false);
   const [brief, setBrief] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
-    posit: true,
-    definitions: true,
-    factors: true,
+    posit: false,
+    definitions: false,
+    factors: false,
     policies: false,
     consequences: false,
     historical: false,
@@ -183,6 +184,57 @@ export default function BriefPage() {
       : "unknown";
   };
 
+  const extractPublication = (url: string, title: string): string | null => {
+    // Try to extract from URL domain first
+    try {
+      const hostname = new URL(url).hostname.replace('www.', '');
+      const domainParts = hostname.split('.');
+      const domain = domainParts.length > 1 ? domainParts[domainParts.length - 2] : domainParts[0];
+      
+      // Map common domains to readable names
+      const domainMap: Record<string, string> = {
+        'bbc': 'BBC',
+        'theguardian': 'The Guardian',
+        'nytimes': 'New York Times',
+        'washingtonpost': 'Washington Post',
+        'reuters': 'Reuters',
+        'apnews': 'AP News',
+        'economist': 'The Economist',
+        'ft': 'Financial Times',
+        'wsj': 'Wall Street Journal',
+        'telegraph': 'The Telegraph',
+        'independent': 'The Independent',
+        'cnn': 'CNN',
+        'politico': 'Politico',
+        'rte': 'RTÉ',
+        'gov': 'Government',
+        'parliament': 'Parliament',
+      };
+      
+      if (domainMap[domain.toLowerCase()]) {
+        return domainMap[domain.toLowerCase()];
+      }
+      
+      // Check for government/academic domains
+      if (hostname.endsWith('.gov') || hostname.endsWith('.gov.uk')) {
+        return 'Government';
+      }
+      if (hostname.endsWith('.edu') || hostname.endsWith('.ac.uk')) {
+        return 'Academic';
+      }
+      
+      // Fallback: capitalize the domain
+      return domain.charAt(0).toUpperCase() + domain.slice(1);
+    } catch {
+      // If URL parsing fails, try to extract from title (e.g., "Title - BBC")
+      const match = title.match(/\s-\s([^-]+)$/);
+      if (match) {
+        return match[1].trim();
+      }
+      return null;
+    }
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -203,13 +255,13 @@ export default function BriefPage() {
     <div className="min-h-screen bg-ivory-100">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-6">
-          <Link
-            href="/"
+          <button
+            onClick={() => router.back()}
             className="flex items-center gap-2 text-ink-500 hover:text-ink-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm">Back</span>
-          </Link>
+          </button>
 
           <div className="flex items-center gap-2">
             <button
@@ -299,11 +351,11 @@ export default function BriefPage() {
             <section className="bg-sage-50 rounded-xl border-2 border-sage-200 p-6">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h2 className="text-2xl font-bold font-heading text-ink-800 mb-1">
+                  <h2 className="text-xl font-bold font-heading text-ink-800 mb-1">
                     Executive Summary
                   </h2>
-                  <p className="text-sm text-ink-600 font-body">
-                    Choose your preferred complexity level for this overview. The detailed analysis below remains consistent for all readers.
+                  <p className="text-sm text-ink-500 font-body">
+                    Choose your preferred complexity level. The detailed analysis below is consistent across all levels.
                   </p>
                 </div>
               </div>
@@ -504,7 +556,7 @@ export default function BriefPage() {
                 <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
                   Narrative Analysis
                 </h2>
-                <div className="prose prose-sage max-w-prose prose-headings:font-heading prose-headings:text-ink-800 prose-p:text-ink-700 prose-strong:text-ink-800 prose-ul:text-ink-700 prose-li:text-ink-700">
+                <div className="prose prose-sage max-w-prose text-base leading-relaxed prose-headings:font-heading prose-headings:text-ink-800 prose-p:text-ink-700 prose-strong:text-ink-800 prose-ul:text-ink-700 prose-li:text-ink-700">
                   <ReactMarkdown>{brief.narrative}</ReactMarkdown>
                 </div>
               </section>
@@ -543,10 +595,10 @@ export default function BriefPage() {
                       (brief.structured_data.definitions || []).map(
                         (def: any, i: number) => (
                           <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                            <dt className="font-semibold text-sage-600 mb-2 font-ui">
+                            <dt className="text-base font-semibold text-sage-600 mb-2 font-ui">
                               {def.term}
                             </dt>
-                            <dd className="text-sm mb-2 text-ink-700 font-body">
+                            <dd className="text-sm leading-relaxed mb-2 text-ink-700 font-body">
                               {def.definition}
                             </dd>
                             {def.source && (
@@ -594,16 +646,16 @@ export default function BriefPage() {
                       (brief.structured_data.factors || []).map(
                         (factor: any, i: number) => (
                           <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                            <h4 className="font-semibold font-ui text-ink-800 mb-2">
+                            <h4 className="text-base font-semibold font-ui text-ink-800 mb-2">
                               {factor.name}
                             </h4>
                             {factor.description && (
-                              <p className="text-sm text-ink-600 mb-3 font-body">
+                              <p className="text-sm leading-relaxed text-ink-600 mb-3 font-body">
                                 {factor.description}
                               </p>
                             )}
                             {factor.impact && (
-                              <div className="text-sm text-ink-700 mb-2 font-body">
+                              <div className="text-sm leading-relaxed text-ink-700 mb-2 font-body">
                                 <strong className="font-ui text-sage-700">Impact:</strong>{" "}
                                 {factor.impact}
                               </div>
@@ -661,16 +713,16 @@ export default function BriefPage() {
                       (brief.structured_data.policies || []).map(
                         (policy: any, i: number) => (
                           <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                            <h4 className="font-semibold mb-2 font-ui text-ink-800">
+                            <h4 className="text-base font-semibold mb-2 font-ui text-ink-800">
                               {policy.name}
                             </h4>
                             {policy.description && (
-                              <p className="text-sm text-ink-600 mb-3 font-body">
+                              <p className="text-sm leading-relaxed text-ink-600 mb-3 font-body">
                                 {policy.description}
                               </p>
                             )}
                             {policy.tradeoffs && (
-                              <div className="text-sm text-ink-700 mb-3 font-body">
+                              <div className="text-sm leading-relaxed text-ink-700 mb-3 font-body">
                                 <strong className="font-ui text-sage-700">Trade-offs:</strong>{" "}
                                 {policy.tradeoffs}
                               </div>
@@ -946,8 +998,10 @@ export default function BriefPage() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 text-xs text-ink-500 mb-2 font-ui pl-6">
-                      {source.author && <span>{source.author}</span>}
-                      {source.author && source.publication_date && <span>•</span>}
+                      {extractPublication(source.url, source.title) && (
+                        <span className="font-medium text-ink-600">{extractPublication(source.url, source.title)}</span>
+                      )}
+                      {extractPublication(source.url, source.title) && source.publication_date && <span>•</span>}
                       {source.publication_date && (
                         <span>
                           {new Date(source.publication_date).getFullYear()}

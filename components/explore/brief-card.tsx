@@ -102,7 +102,7 @@ export function BriefCard({ brief, onTagClick }: BriefCardProps) {
       />
       
       {/* Score and Read Time */}
-      <div className="flex items-center justify-between mb-4 relative z-10">
+      <div className="flex items-center justify-between mb-4 pointer-events-none">
         <div className={cn(
           "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
           "text-sm font-ui font-medium",
@@ -118,13 +118,13 @@ export function BriefCard({ brief, onTagClick }: BriefCardProps) {
       </div>
 
       {/* Question (Title) */}
-      <h3 className="font-heading font-semibold text-lg text-ink-800 mb-3 group-hover:text-sage-600 transition-colors duration-200 leading-snug relative z-10">
+      <h3 className="font-heading font-semibold text-lg text-ink-800 mb-3 group-hover:text-sage-600 transition-colors duration-200 leading-snug pointer-events-none">
         {brief.question}
       </h3>
 
       {/* Excerpt - truncated to 2 lines via CSS */}
       {excerpt && (
-        <p className="font-body text-sm text-ink-500 mb-4 line-clamp-2 relative z-10">
+        <p className="font-body text-sm text-ink-500 mb-4 line-clamp-2 pointer-events-none">
           {excerpt}
         </p>
       )}
@@ -147,6 +147,7 @@ export function BriefCard({ brief, onTagClick }: BriefCardProps) {
                 "text-xs font-ui font-medium",
                 "hover:bg-sage-100 hover:text-sage-700",
                 "transition-colors duration-150",
+                "pointer-events-auto",
                 onTagClick ? "cursor-pointer" : "cursor-default"
               )}
             >
