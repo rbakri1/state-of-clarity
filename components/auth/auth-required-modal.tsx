@@ -14,7 +14,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-50 animate-in fade-in duration-200" />
+        <Dialog.Overlay className="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-50 animate-in fade-in duration-150" />
         <Dialog.Content
           aria-modal="true"
           aria-labelledby="auth-required-title"
@@ -24,7 +24,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
             "w-[calc(100%-2rem)] max-w-md",
             "rounded-2xl bg-ivory-100 shadow-xl border border-ivory-600",
             "p-6 sm:p-8",
-            "animate-in fade-in slide-in-from-bottom-4 duration-300",
+            "animate-in fade-in duration-150",
             "focus:outline-none"
           )}
         >

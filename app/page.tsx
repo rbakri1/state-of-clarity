@@ -219,7 +219,7 @@ export default function Home() {
                       "focus:ring-2 focus:ring-sage-500/20 outline-none",
                       "transition-all duration-200",
                       "disabled:bg-ivory-200 disabled:cursor-not-allowed",
-                      "resize-none",
+                      "resize-none overflow-hidden",
                       "min-h-[56px]",
                       charStatus.status === "too-long" ? "border-error focus:border-error" :
                       charStatus.status === "too-short" && question.length > 0 ? "border-warning focus:border-warning" :
