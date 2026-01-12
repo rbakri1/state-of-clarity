@@ -146,13 +146,6 @@ export default function Home() {
       tags: ["Economics", "Labor Policy", "Wellbeing"],
       readTime: "6 min",
     },
-    {
-      id: "net-zero-2050",
-      question: "Can the UK realistically achieve Net Zero by 2050?",
-      clarity_score: 7.9,
-      tags: ["Climate", "Energy", "Economics"],
-      readTime: "7 min",
-    },
   ];
 
   const getClarityScoreStyles = (score: number) => {

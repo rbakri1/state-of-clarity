@@ -45,7 +45,7 @@ export default function NotFound() {
             </Link>
 
             <Link
-              href="/"
+              href="/ask"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-ivory-600 bg-ivory-50 text-ink-800 font-ui font-medium hover:bg-ivory-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
             >
               <Search className="w-4 h-4" />

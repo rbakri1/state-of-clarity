@@ -1,0 +1,342 @@
+"use client";
+
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Search, Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { BriefGenerationProgress } from "@/components/generation/generation-progress";
+import type { GenerationStage } from "@/lib/types/brief";
+
+const MIN_QUESTION_LENGTH = 10;
+const MAX_QUESTION_LENGTH = 500;
+const OPTIMAL_MIN_LENGTH = 20;
+const OPTIMAL_MAX_LENGTH = 200;
+
+const STAGE_TIMINGS: { stage: GenerationStage; duration: number }[] = [
+  { stage: "research", duration: 12000 },
+  { stage: "structure", duration: 8000 },
+  { stage: "summary", duration: 15000 },
+  { stage: "narrative", duration: 10000 },
+  { stage: "scoring", duration: 5000 },
+];
+
+const TOTAL_ESTIMATED_TIME = STAGE_TIMINGS.reduce((acc, s) => acc + s.duration, 0);
+
+const EXAMPLE_QUESTIONS = [
+  "Should the UK rejoin the EU?",
+  "What are the pros and cons of Universal Basic Income?",
+  "How would abolishing the House of Lords affect UK democracy?",
+  "Should the UK adopt a written constitution?",
+  "What would be the impact of legalising cannabis in the UK?",
+  "How effective is the UK's points-based immigration system?",
+];
+
+export default function AskPage() {
+  const [question, setQuestion] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const [generationStage, setGenerationStage] = useState<GenerationStage>("research");
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(TOTAL_ESTIMATED_TIME / 1000);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const startProgressSimulation = useCallback(() => {
+    let elapsedTime = 0;
+    let currentStageIndex = 0;
+    let stageElapsed = 0;
+
+    const interval = setInterval(() => {
+      elapsedTime += 200;
+      stageElapsed += 200;
+
+      const currentStage = STAGE_TIMINGS[currentStageIndex];
+
+      if (currentStage && stageElapsed >= currentStage.duration && currentStageIndex < STAGE_TIMINGS.length - 1) {
+        currentStageIndex++;
+        stageElapsed = 0;
+        setGenerationStage(STAGE_TIMINGS[currentStageIndex].stage);
+      }
+
+      const progress = Math.min(95, (elapsedTime / TOTAL_ESTIMATED_TIME) * 100);
+      setGenerationProgress(progress);
+
+      const remaining = Math.max(5, Math.ceil((TOTAL_ESTIMATED_TIME - elapsedTime) / 1000));
+      setEstimatedTimeRemaining(remaining);
+
+      if (elapsedTime >= TOTAL_ESTIMATED_TIME) {
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return interval;
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+    if (question.trim().length < MIN_QUESTION_LENGTH) {
+      setError(`Question must be at least ${MIN_QUESTION_LENGTH} characters.`);
+      return;
+    }
+    if (question.trim().length > MAX_QUESTION_LENGTH) {
+      setError(`Question must be less than ${MAX_QUESTION_LENGTH} characters.`);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setGenerationStage("research");
+    setGenerationProgress(0);
+    setEstimatedTimeRemaining(TOTAL_ESTIMATED_TIME / 1000);
+
+    const progressInterval = startProgressSimulation();
+
+    try {
+      const response = await fetch("/api/briefs/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question.trim() }),
+      });
+
+      const data = await response.json();
+
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
+
+      if (!response.ok) {
+        if (response.status === 402 && data.creditsLink) {
+          setError(`${data.error} `);
+          setTimeout(() => {
+            window.location.href = data.creditsLink;
+          }, 2000);
+          return;
+        }
+        throw new Error(data.error || "Failed to generate brief");
+      }
+
+      if (data.success && data.briefId) {
+        window.location.href = `/brief/${data.briefId}`;
+      } else if (data.creditRefunded) {
+        setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+      }
+    } catch (err) {
+      clearInterval(progressInterval);
+      setError(err instanceof Error ? err.message : "Failed to generate brief");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getCharacterCountStatus = () => {
+    const len = question.length;
+    if (len === 0) return { status: "empty", message: "" };
+    if (len < MIN_QUESTION_LENGTH) return { status: "too-short", message: `${MIN_QUESTION_LENGTH - len} more characters needed` };
+    if (len > MAX_QUESTION_LENGTH) return { status: "too-long", message: `${len - MAX_QUESTION_LENGTH} characters over limit` };
+    if (len >= OPTIMAL_MIN_LENGTH && len <= OPTIMAL_MAX_LENGTH) return { status: "optimal", message: "Good length for a policy question" };
+    return { status: "acceptable", message: "" };
+  };
+
+  const charStatus = getCharacterCountStatus();
+
+  const handleExampleClick = (exampleQuestion: string) => {
+    setQuestion(exampleQuestion);
+    inputRef.current?.focus();
+  };
+
+  return (
+    <div className="min-h-screen bg-ivory-100">
+      {/* Header */}
+      <header className="border-b border-ivory-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-lg"
+            >
+              <div className="w-8 h-8 rounded-lg bg-sage-500 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-ivory-100" />
+              </div>
+              <span className="text-xl font-semibold font-heading text-ink-800">State of Clarity</span>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-700 font-ui mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </Link>
+
+        <div className="text-center mb-10">
+          <h1 className="text-3xl sm:text-4xl font-semibold font-heading text-ink-800 mb-4">
+            Ask Anything
+          </h1>
+          <p className="text-lg font-body text-ink-600 max-w-xl mx-auto">
+            Transform any political question into an evidence-based policy brief with transparent sources 
+            and four reading levels.
+          </p>
+        </div>
+
+        {/* Ask Form */}
+        <form onSubmit={handleSubmit} className="mb-10">
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute top-4 left-4 pointer-events-none">
+                <Search className="h-5 w-5 text-ink-400" />
+              </div>
+              <textarea
+                ref={inputRef}
+                value={question}
+                onChange={(e) => {
+                  if (e.target.value.length <= MAX_QUESTION_LENGTH + 50) {
+                    setQuestion(e.target.value);
+                  }
+                }}
+                placeholder="Ask a policy question..."
+                rows={3}
+                className={cn(
+                  "w-full pl-12 pr-4 py-4 rounded-xl resize-none",
+                  "border-2 bg-ivory-50",
+                  "text-ink-800 font-body text-base",
+                  "placeholder:text-ink-400",
+                  "focus:ring-2 focus:ring-sage-500/20 outline-none",
+                  "transition-all duration-200",
+                  "disabled:bg-ivory-200 disabled:cursor-not-allowed",
+                  charStatus.status === "too-long" ? "border-error focus:border-error" :
+                  charStatus.status === "too-short" && question.length > 0 ? "border-warning focus:border-warning" :
+                  "border-ivory-600 focus:border-sage-500"
+                )}
+                disabled={isLoading}
+                maxLength={MAX_QUESTION_LENGTH + 50}
+                aria-describedby="question-hint"
+              />
+            </div>
+
+            {/* Character Count & Hint */}
+            <div id="question-hint" className="flex items-center justify-between text-sm font-ui">
+              <span className={cn(
+                "transition-colors duration-200",
+                charStatus.status === "optimal" && "text-success",
+                charStatus.status === "too-short" && question.length > 0 && "text-warning",
+                charStatus.status === "too-long" && "text-error",
+                charStatus.status === "acceptable" && "text-ink-500",
+                charStatus.status === "empty" && "text-ink-400"
+              )}>
+                {charStatus.message || (question.length === 0 ? "Be specific for better results" : "")}
+              </span>
+              <span className={cn(
+                "tabular-nums transition-colors duration-200",
+                charStatus.status === "too-long" && "text-error font-medium",
+                charStatus.status === "too-short" && question.length > 0 && "text-warning",
+                charStatus.status !== "too-long" && charStatus.status !== "too-short" && "text-ink-400"
+              )}>
+                {question.length}/{MAX_QUESTION_LENGTH}
+              </span>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading || !question.trim() || charStatus.status === "too-short" || charStatus.status === "too-long"}
+              className={cn(
+                "w-full",
+                "px-6 py-4 rounded-xl",
+                "min-h-[48px]",
+                "bg-sage-500 text-ivory-100 font-ui font-medium text-base",
+                "hover:bg-sage-600 transition-all duration-200",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                "disabled:bg-ivory-400 disabled:text-ink-400 disabled:cursor-not-allowed",
+                "flex items-center justify-center gap-2"
+              )}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Generating Brief...
+                </>
+              ) : (
+                "Get Brief"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Generation Progress Overlay */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/40 backdrop-blur-sm">
+            <BriefGenerationProgress
+              currentStage={generationStage}
+              progress={generationProgress}
+              estimatedSecondsRemaining={estimatedTimeRemaining}
+              className="shadow-xl"
+            />
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && !isLoading && (
+          <div className={cn(
+            "mb-8 p-4 rounded-lg",
+            "bg-error-light border border-error text-error-dark",
+            "font-ui text-sm"
+          )}>
+            {error}
+            {error.includes("credits") && (
+              <Link
+                href="/credits"
+                className="ml-1 underline hover:no-underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded"
+              >
+                Buy credits →
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Example Questions */}
+        <div>
+          <h2 className="text-sm font-ui font-medium text-ink-500 mb-4 text-center">
+            Or try one of these examples:
+          </h2>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {EXAMPLE_QUESTIONS.map((exampleQuestion) => (
+              <button
+                key={exampleQuestion}
+                type="button"
+                onClick={() => handleExampleClick(exampleQuestion)}
+                disabled={isLoading}
+                className={cn(
+                  "px-3 py-2 rounded-lg",
+                  "bg-ivory-50 border border-ivory-600",
+                  "text-sm font-ui text-ink-600",
+                  "hover:bg-ivory-300 hover:border-ivory-700 transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                )}
+              >
+                {exampleQuestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-ivory-600 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center text-sm text-ink-500 font-ui">
+            <p>© 2026 State of Clarity. Evidence-based. Non-partisan.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

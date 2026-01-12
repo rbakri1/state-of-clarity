@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Sparkles, Menu, X, ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createBrowserClient } from "@/lib/supabase/browser";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface HeaderProps {
   className?: string;
@@ -12,10 +15,39 @@ interface HeaderProps {
 export function Header({ className }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  // TODO: Replace with actual auth state from Supabase
-  const isAuthenticated = false;
-  const user = null as { name?: string; email?: string; avatar_url?: string } | null;
+  useEffect(() => {
+    const supabase = createBrowserClient();
+
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setIsLoading(false);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = createBrowserClient();
+    await supabase.auth.signOut();
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    router.push("/");
+    router.refresh();
+  };
+
+  const isAuthenticated = !!user;
 
   const navLinks = [
     { href: "/ask", label: "Ask Anything" },
@@ -79,9 +111,9 @@ export function Header({ className }: HeaderProps) {
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
                 >
-                  {user.avatar_url ? (
+                  {user.user_metadata?.avatar_url ? (
                     <img
-                      src={user.avatar_url}
+                      src={user.user_metadata.avatar_url}
                       alt=""
                       className="w-6 h-6 rounded-full"
                     />
@@ -91,7 +123,7 @@ export function Header({ className }: HeaderProps) {
                     </div>
                   )}
                   <span className="hidden sm:inline">
-                    {user.name || user.email?.split("@")[0] || "Account"}
+                    {user.user_metadata?.full_name || user.email?.split("@")[0] || "Account"}
                   </span>
                   <ChevronDown
                     className={cn(
@@ -149,10 +181,7 @@ export function Header({ className }: HeaderProps) {
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
                         )}
                         role="menuitem"
-                        onClick={() => {
-                          // TODO: Implement sign out
-                          setIsUserMenuOpen(false);
-                        }}
+                        onClick={handleSignOut}
                       >
                         Sign Out
                       </button>
@@ -253,57 +282,54 @@ export function Header({ className }: HeaderProps) {
             <div className="border-t border-ivory-600 my-4" />
 
             {isAuthenticated && user ? (
-              <>
-                <Link
-                  href="/profile"
-                  className={cn(
-                    "block px-4 py-3 rounded-md min-h-[48px] flex items-center gap-3",
-                    "text-base font-ui font-medium text-ink-600",
-                    "hover:bg-ivory-300 transition-colors duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {user.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt=""
-                      className="w-6 h-6 rounded-full"
-                    />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-sage-200 flex items-center justify-center">
-                      <User className="w-4 h-4 text-sage-600" />
-                    </div>
-                  )}
-                  Profile
-                </Link>
-                <Link
-                  href="/settings"
-                  className={cn(
-                    "block px-4 py-3 rounded-md min-h-[48px] flex items-center",
-                    "text-base font-ui font-medium text-ink-600",
-                    "hover:bg-ivory-300 transition-colors duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-                <button
-                  className={cn(
-                    "w-full text-left px-4 py-3 rounded-md min-h-[48px] flex items-center",
-                    "text-base font-ui font-medium text-ink-600",
-                    "hover:bg-ivory-300 transition-colors duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-                  )}
-                  onClick={() => {
-                    // TODO: Implement sign out
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  Sign Out
-                </button>
-              </>
+            <>
+              <Link
+                href="/profile"
+                className={cn(
+                  "block px-4 py-3 rounded-md min-h-[48px] flex items-center gap-3",
+                  "text-base font-ui font-medium text-ink-600",
+                  "hover:bg-ivory-300 transition-colors duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                )}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {user.user_metadata?.avatar_url ? (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt=""
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-sage-200 flex items-center justify-center">
+                    <User className="w-4 h-4 text-sage-600" />
+                  </div>
+                )}
+                Profile
+              </Link>
+              <Link
+                href="/settings"
+                className={cn(
+                  "block px-4 py-3 rounded-md min-h-[48px] flex items-center",
+                  "text-base font-ui font-medium text-ink-600",
+                  "hover:bg-ivory-300 transition-colors duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                )}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Settings
+              </Link>
+              <button
+                className={cn(
+                  "w-full text-left px-4 py-3 rounded-md min-h-[48px] flex items-center",
+                  "text-base font-ui font-medium text-ink-600",
+                  "hover:bg-ivory-300 transition-colors duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                )}
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </button>
+            </>
             ) : (
               <>
                 <Link

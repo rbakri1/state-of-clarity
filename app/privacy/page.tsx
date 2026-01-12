@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
               We collect information you provide directly to us when using State of Clarity:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-ink-800">
-              <li><strong className="text-ink-800">Account information:</strong> Email address and password when you create an account</li>
+              <li><strong className="text-ink-800">Account information:</strong> Email address when you create an account</li>
               <li><strong className="text-ink-800">Profile information:</strong> Optional display name and preferences you choose to provide</li>
               <li><strong className="text-ink-800">Content:</strong> Questions you ask and policy briefs you create or save</li>
               <li><strong className="text-ink-800">Usage data:</strong> How you interact with our service (pages visited, features used)</li>
