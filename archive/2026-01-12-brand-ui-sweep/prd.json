@@ -1,0 +1,277 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/explore-page",
+  "description": "Explore Page - Article discovery with search, filtering by tags/score/date, sorting, and pagination. Adds 'Explore' to navbar and 'See All' button to homepage.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add view_count column to briefs table",
+      "description": "As a developer, I need to track brief views for 'Most Read' sorting.",
+      "acceptanceCriteria": [
+        "Add view_count integer column to briefs table (default 0)",
+        "Create Supabase migration file",
+        "Migration runs successfully",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Add is_public column to briefs table",
+      "description": "As a developer, I need to track brief visibility for privacy.",
+      "acceptanceCriteria": [
+        "Add is_public boolean column to briefs table (default true)",
+        "Create Supabase migration file",
+        "Migration runs successfully",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Increment view_count when brief is viewed",
+      "description": "As a developer, I need to track views when users visit brief pages.",
+      "acceptanceCriteria": [
+        "Increment view_count in brief page server component or API",
+        "Only increment once per session/user (use cookie or localStorage)",
+        "Handle errors gracefully (don't break page load)",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create GET /api/briefs endpoint",
+      "description": "As a developer, I need an API to fetch briefs with filtering and pagination.",
+      "acceptanceCriteria": [
+        "Create /api/briefs/route.ts with GET handler",
+        "Query params: q (search), tags (comma-separated), minScore (number), sort (newest|oldest|score|views), date (week|month|year|all), limit (default 12), offset (default 0)",
+        "Search uses ilike on question column",
+        "Filter by tags uses array contains or overlap",
+        "Only return briefs where is_public = true",
+        "Return JSON: { briefs: Brief[], total: number, hasMore: boolean }",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create Explore page route and layout",
+      "description": "As a user, I want to access an Explore page to browse all briefs.",
+      "acceptanceCriteria": [
+        "Create /app/explore/page.tsx",
+        "Page has hero section: 'Explore Briefs' title, subtitle explaining discovery",
+        "Uses design system (ivory/ink/sage colors, font-heading/font-body)",
+        "Consistent header/footer with rest of site",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create BriefCard component for Explore grid",
+      "description": "As a user, I want to see briefs as cards with key info.",
+      "acceptanceCriteria": [
+        "Create /components/explore/brief-card.tsx",
+        "Card shows: question (title), clarity score badge, tags (max 3), read time, excerpt (truncated to 2 lines)",
+        "Card links to /brief/[id]",
+        "Hover state with elevation/border change",
+        "Uses design system colors and typography",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Display briefs grid on Explore page",
+      "description": "As a user, I want to see briefs in a responsive grid layout.",
+      "acceptanceCriteria": [
+        "Fetch briefs from /api/briefs on page load",
+        "Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop",
+        "Show loading skeleton while fetching",
+        "Show empty state if no briefs",
+        "Display total count: 'Showing X of Y briefs'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Add search input to Explore page",
+      "description": "As a user, I want to search briefs by keyword.",
+      "acceptanceCriteria": [
+        "Search input at top of page with Search icon",
+        "Debounced input (300ms) triggers API call with q param",
+        "Search term persisted in URL: ?q=searchterm",
+        "Clear button to reset search",
+        "Empty state when no results match",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add tag filter to Explore page",
+      "description": "As a user, I want to filter briefs by tags.",
+      "acceptanceCriteria": [
+        "Tag filter section shows all available tags",
+        "Tags displayed as clickable pills with count",
+        "Multi-select: clicking adds/removes tag from filter",
+        "Active tags highlighted with sage-500 bg",
+        "Tags persisted in URL: ?tags=Climate,Healthcare",
+        "Clicking tag on brief card adds it to filter",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add clarity score filter to Explore page",
+      "description": "As a user, I want to filter by minimum clarity score.",
+      "acceptanceCriteria": [
+        "Score filter dropdown: All, 7+, 8+, 9+",
+        "Default: All",
+        "Filter updates results in real-time",
+        "Persisted in URL: ?minScore=8",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Add sort dropdown to Explore page",
+      "description": "As a user, I want to sort briefs by different criteria.",
+      "acceptanceCriteria": [
+        "Sort dropdown: Newest, Oldest, Highest Score, Most Read",
+        "Default: Newest",
+        "Sort updates results in real-time",
+        "Persisted in URL: ?sort=score",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Add date range filter to Explore page",
+      "description": "As a user, I want to filter by when briefs were created.",
+      "acceptanceCriteria": [
+        "Date filter: All Time, Past Week, Past Month, Past Year",
+        "Default: All Time",
+        "Filter updates results in real-time",
+        "Persisted in URL: ?date=month",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Add Load More pagination to Explore page",
+      "description": "As a user, I want to load more briefs without page refresh.",
+      "acceptanceCriteria": [
+        "Initial load shows 12 briefs",
+        "'Load More' button appears if hasMore is true",
+        "Clicking loads next 12 briefs and appends to grid",
+        "Loading state on button while fetching",
+        "Button hidden when no more briefs",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Add Explore link to main navigation",
+      "description": "As a user, I want to access Explore from the navbar.",
+      "acceptanceCriteria": [
+        "Add 'Explore' link to header nav (after Home or Ask)",
+        "Active state when on /explore route",
+        "Works in mobile menu as well",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Add See All button to homepage showcase section",
+      "description": "As a user, I want to see more briefs from the homepage.",
+      "acceptanceCriteria": [
+        "Add 'See All Briefs →' button below showcase grid on homepage",
+        "Button links to /explore",
+        "Styled as secondary CTA (sage-100 bg, sage-600 text, hover:sage-200)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Fetch available tags for filter sidebar",
+      "description": "As a developer, I need to get all unique tags with counts.",
+      "acceptanceCriteria": [
+        "Create /api/briefs/tags endpoint or include in /api/briefs response",
+        "Return array of { tag: string, count: number }",
+        "Only count tags from public briefs",
+        "Sort by count descending",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Mobile-friendly filter UI",
+      "description": "As a mobile user, I want filters to be accessible on small screens.",
+      "acceptanceCriteria": [
+        "Filters collapse into a 'Filters' button on mobile",
+        "Clicking opens a slide-up drawer or modal",
+        "All filters accessible in drawer",
+        "Apply/Clear buttons in drawer",
+        "Active filter count shown on button badge",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

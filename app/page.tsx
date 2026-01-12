@@ -10,6 +10,7 @@ import { AuthRequiredModal } from "@/components/auth/auth-required-modal";
 import type { GenerationStage } from "@/lib/types/brief";
 import { EXAMPLE_QUESTIONS } from "@/lib/data/example-questions";
 import { SHOWCASE_BRIEFS, type ShowcaseBrief } from "@/lib/data/showcase-briefs";
+import { getRotatingFeaturedBriefs, type FeaturedBrief } from "@/lib/data/featured-briefs";
 
 const MIN_QUESTION_LENGTH = 10;
 const MAX_QUESTION_LENGTH = 500;
@@ -31,6 +32,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Get rotating featured briefs on component mount
+  const [featuredBriefs, setFeaturedBriefs] = useState<FeaturedBrief[]>([]);
 
   const [generationStage, setGenerationStage] = useState<GenerationStage>("research");
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -62,6 +66,11 @@ export default function Home() {
   }, []);
 
   const currentExampleQuestion = EXAMPLE_QUESTIONS[currentQuestionIndex];
+
+  // Load rotating featured briefs on mount
+  useEffect(() => {
+    setFeaturedBriefs(getRotatingFeaturedBriefs());
+  }, []);
 
   const startProgressSimulation = useCallback(() => {
     let elapsedTime = 0;
@@ -452,6 +461,90 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured Insights - Rotating Brief Cards */}
+      {featuredBriefs.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-ivory-500">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage-100 text-sage-600 text-sm font-ui font-medium mb-4">
+              <Sparkles className="w-4 h-4" />
+              <span>Featured Insights</span>
+            </div>
+            <h2 className="text-3xl font-heading font-semibold text-ink-800 mb-3">
+              Deep Dives into Today's Biggest Questions
+            </h2>
+            <p className="font-body text-ink-500 max-w-xl mx-auto">
+              Explore high-quality briefs that showcase first-principles reasoning,
+              transparent sources, and balanced analysis of complex policy questions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+            {featuredBriefs.map((brief) => (
+              <Link
+                key={brief.id}
+                href={`/brief/${brief.id}`}
+                className={cn(
+                  "group p-6 rounded-xl",
+                  "bg-gradient-to-br from-sage-50 to-ivory-50 border border-sage-200",
+                  "hover:border-sage-400 hover:shadow-lg hover:scale-[1.02]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                  "transition-all duration-200"
+                )}
+              >
+                {/* Score and Read Time */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className={cn(
+                    "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
+                    "text-sm font-ui font-medium",
+                    getClarityScoreStyles(brief.clarity_score)
+                  )}>
+                    <Target className="w-3.5 h-3.5" />
+                    <span>{brief.clarity_score}/10</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1 text-ink-400 font-ui text-sm">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{brief.readTime}</span>
+                  </div>
+                </div>
+
+                {/* Question */}
+                <h3 className="font-heading font-semibold text-base text-ink-800 mb-3 group-hover:text-sage-600 transition-colors duration-200 leading-snug">
+                  {brief.question}
+                </h3>
+
+                {/* Excerpt */}
+                <p className="text-sm font-body text-ink-600 leading-relaxed mb-4 line-clamp-3">
+                  {brief.excerpt}
+                </p>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {brief.tags.slice(0, 2).map((tag) => (
+                    <span
+                      key={tag}
+                      className={cn(
+                        "px-2 py-0.5 rounded-md",
+                        "bg-sage-100 text-sage-700",
+                        "text-xs font-ui font-medium"
+                      )}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm font-ui text-ink-500">
+              <Sparkles className="w-3.5 h-3.5 inline mr-1" />
+              Featured insights change on each visit • More being added daily
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Showcase Briefs */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-ivory-500">

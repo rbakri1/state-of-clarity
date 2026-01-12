@@ -1,0 +1,21 @@
+# Ralph Progress Log
+Started: Mon 12 Jan 2026
+
+## Codebase Patterns
+- Design system uses warm editorial palette (Sage/Ivory/Ink), NOT blue/slate
+- Tailwind config now has full design tokens: use `bg-ivory-100`, `text-ink-800`, `bg-sage-500` etc.
+- Font families: `font-heading` (Canela/serif), `font-body` (Source Serif 4), `font-ui` (Inter)
+- Use `max-w-prose` for 65ch optimal reading width
+- Political lean colors: `political-left`, `political-center`, `political-right` etc.
+- Current implementation uses shadcn/ui CSS variables pattern (hsl(var(--primary)))
+- Skills folder contains comprehensive design specs: skills/frontend/{design,brand,components,tech}
+- Pages are in app/ directory using Next.js App Router
+- cn() helper at @/lib/utils for conditional Tailwind classes (uses clsx + tailwind-merge)
+- Brief types (ReadingLevel, PoliticalLean, Source, Brief, etc.) at @/lib/types/brief.ts
+- Components go in components/{brief,sources,generation,layout}/ subdirectories
+- Focus states pattern: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2` on all buttons/links/inputs
+- Mobile touch targets: min-h-[44px] for links, min-h-[48px] for buttons
+- Use useSearchParams and useRouter for URL param persistence
+- Supabase client at lib/supabase/client.ts for frontend, server.ts for server components
+
+---

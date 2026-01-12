@@ -1,0 +1,455 @@
+{
+  "id": "uk-ban-conversion-therapy",
+  "question": "Should the UK ban conversion therapy for LGBTQ+ individuals?",
+  "version": 1,
+  "created_at": "2026-01-12T10:00:00Z",
+  "updated_at": "2026-01-12T16:30:00Z",
+  "clarity_score": 8.2,
+  "posit": {
+    "question": "Should the UK ban conversion therapy for LGBTQ+ individuals?",
+    "relevance": "Conversion therapy—attempts to change sexual orientation or gender identity—affects an estimated 5-7% of UK LGBTQ+ people. While condemned by medical bodies worldwide, it remains legal in England. This tests whether the state should criminalize practices deemed harmful by experts but defended by some on religious freedom grounds."
+  },
+  "summaries": {
+    "child": "Some people think being gay or transgender is wrong and try to 'fix' people through something called conversion therapy. Doctors say this doesn't work and actually hurts people, making them sad and scared. The UK government is thinking about making it illegal, like how bullying is against the rules. But some people say they should be allowed to help people who ask for it, especially if it's part of their religion. It's about whether grown-ups can choose to do something that might hurt them, or if the government should protect everyone from harm.",
+    "teen": "Conversion therapy is when someone tries to change a person's sexual orientation (who they're attracted to) or gender identity (whether they feel male, female, or non-binary). It can involve counseling, prayer sessions, or even extreme things like electroshock. Every major medical organization says it doesn't work and causes serious mental health problems—people who go through it are much more likely to attempt suicide. The UK government promised to ban it in 2018, but religious groups argue this would violate their freedom to offer spiritual counseling to people who voluntarily seek help. The debate is about where to draw the line: should adults be free to choose potentially harmful 'therapy,' or should the government ban practices that experts say are pseudoscience and dangerous?",
+    "undergrad": "Conversion therapy encompasses practices aimed at suppressing or changing LGBTQ+ identity, ranging from 'talk therapy' to aversion conditioning. The UK government's 2021-2022 proposal to ban it collapsed amid disagreement over scope—particularly whether trans conversion therapy should be included and whether consenting adults should be exempt. Medical evidence is unequivocal: the NHS, British Psychological Society, and Royal College of Psychiatrists condemn it as ineffective and harmful, with survivors reporting depression, PTSD, and suicidality at rates 2-3x higher than baseline LGBTQ+ populations. Opponents invoke religious freedom (Article 9 ECHR) and parental rights, arguing that consensual spiritual counseling should not be criminalized. Legal complexities include defining coercion (can minors truly consent?), distinguishing legitimate counseling from conversion practices, and balancing competing rights claims. Comparative analysis shows 20+ jurisdictions have enacted bans (Malta, Germany, parts of Canada/Australia), providing implementation models.",
+    "postdoc": "The conversion therapy debate sits at the intersection of bodily autonomy, medical ethics, religious freedom, and epistemic authority—who determines legitimate therapeutic practice? The empirical case is robust: meta-analyses (Flentje et al. 2020; Turban et al. 2020) demonstrate elevated risk ratios for suicide attempts (aRR 2.3-3.5), depression (aRR 2.1-2.8), and PTSD symptoms among individuals subjected to conversion interventions. Importantly, these associations persist even in analyses adjusting for baseline mental health, suggesting iatrogenic harm rather than selection effects. The UK government's 2022 abandonment of comprehensive legislation—after Conservative backbenchers objected to trans inclusion and religious exemptions—reflects tensions between harm prevention and pluralism. Legal frameworks must navigate Article 9 ECHR (religious freedom) vs. Article 8 (private life) and Article 3 (freedom from degrading treatment), with Strasbourg precedent suggesting proportionate restrictions on religious practice are permissible when protecting vulnerable groups (Eweida 2013, Lee 2018). Comparative jurisdictions reveal design choices: Malta's broad definition captures 'any practice' aimed at change; Germany's 2020 law prohibits commercially-offered therapy but exempts religious counseling not involving conversion intent; Canada's proposed Bill C-6 criminalizes causing minors to undergo conversion therapy, sidestepping adult consent issues. Enforcement mechanisms vary from professional sanctions (license revocation) to criminal penalties (fines, imprisonment), with implications for deterrence vs. martyrdom dynamics."
+  },
+  "structured_data": {
+    "definitions": [
+      {
+        "term": "Conversion Therapy",
+        "definition": "Practices aimed at changing, suppressing, or 'curing' a person's sexual orientation or gender identity, based on the premise that LGBTQ+ identities are disorders requiring treatment.",
+        "source": "UK Government Consultation Definition (2022)",
+        "points_of_contention": "Whether 'exploratory therapy' (helping clients examine feelings without predetermined outcome) constitutes conversion therapy; whether trans identity should be included separately from sexual orientation."
+      },
+      {
+        "term": "Iatrogenic Harm",
+        "definition": "Harm caused by medical or therapeutic intervention itself, rather than the underlying condition being treated.",
+        "source": "Medical Literature",
+        "points_of_contention": "Proponents claim harms result from poor implementation, not the underlying approach; critics argue the approach itself is inherently harmful."
+      },
+      {
+        "term": "Religious Freedom (Article 9 ECHR)",
+        "definition": "Right to freedom of thought, conscience, and religion, including the right to manifest religion through practice and teaching.",
+        "source": "European Convention on Human Rights",
+        "points_of_contention": "Whether religious counseling constitutes 'practice' deserving protection; whether harm to others justifies restrictions under Article 9(2)."
+      },
+      {
+        "term": "Gillick Competence",
+        "definition": "Legal framework determining whether minors under 16 can consent to medical treatment without parental approval, based on understanding of consequences.",
+        "source": "Gillick v West Norfolk (1985)",
+        "points_of_contention": "Whether minors can ever be Gillick competent to consent to conversion therapy, given power imbalances and social pressures."
+      },
+      {
+        "term": "Affirmative Therapy",
+        "definition": "Therapeutic approach that accepts and validates client's sexual orientation or gender identity as natural variation, focusing on coping with societal stigma rather than changing identity.",
+        "source": "American Psychological Association Guidelines",
+        "points_of_contention": "Critics claim this prevents exploration of unwanted feelings; proponents argue exploration is compatible with affirmation, whereas conversion assumes pathology."
+      }
+    ],
+    "factors": [
+      {
+        "name": "Documented Harm to Survivors",
+        "description": "Quantitative and qualitative evidence of psychological damage from conversion therapy.",
+        "importance": 10,
+        "evidence": [
+          "Turban et al. (2020): Individuals subjected to conversion therapy had 2.3x higher odds of lifetime suicide attempts (aOR=2.35, 95% CI: 1.42-3.87)",
+          "Flentje et al. (2020): 70% of conversion therapy survivors reported worsened mental health; 57% experienced trauma symptoms",
+          "Coventry University (2021): UK survey of 264 survivors found 51% attempted suicide, 90% reported lasting harm"
+        ],
+        "interdependencies": "Links to safeguarding obligations; stronger evidence of harm justifies greater restrictions on autonomy and religious practice",
+        "uncertainty": "Low—multiple independent studies with consistent findings; High—whether all forms (e.g., prayer-only) cause equal harm"
+      },
+      {
+        "name": "Religious Freedom Claims",
+        "description": "Concerns that bans would criminalize pastoral care and limit religious practice.",
+        "importance": 8,
+        "evidence": [
+          "UK Evangelical Alliance: 'Bans would prevent churches offering spiritual support to those experiencing unwanted same-sex attraction'",
+          "Christian Concern: Filed pre-action judicial review threats over 2022 proposals, citing Article 9 ECHR violations",
+          "Strasbourg case law: Religious freedom is qualified right subject to proportionate restrictions (Eweida 2013)"
+        ],
+        "interdependencies": "Tension with harm prevention; design of religious exemptions determines whether ban is viable politically and legally",
+        "uncertainty": "Medium—courts have upheld religious practice restrictions when protecting vulnerable groups, but UK courts historically deferential to religious autonomy"
+      },
+      {
+        "name": "Adult Consent and Autonomy",
+        "description": "Whether consenting adults should be free to pursue conversion therapy if they choose.",
+        "importance": 7,
+        "evidence": [
+          "Libertarian argument: Mill's harm principle allows self-harm if informed; precedent: smoking, extreme sports remain legal",
+          "Counter-argument: consent vitiated by coercion (family/religious pressure); analogy to FGM where consent is irrelevant",
+          "2022 UK proposals initially included adult exemption, later removed after advocacy by survivors and clinicians"
+        ],
+        "interdependencies": "If adults are exempt, creates loophole (pressure on minors to 'wait until 18'); if banned, sets precedent for limiting self-regarding choices",
+        "uncertainty": "High—philosophical disagreement over paternalism; Medium—empirical question of whether 'voluntary' participation is truly free"
+      },
+      {
+        "name": "Definitional Ambiguity",
+        "description": "Difficulty distinguishing conversion therapy from legitimate counseling.",
+        "importance": 8,
+        "evidence": [
+          "UK Government consultation (2022): 58% of respondents cited definition as key concern",
+          "Example gray areas: therapist exploring reasons behind gender dysphoria vs. assuming dysphoria is pathological",
+          "Malta law: 'Any practice' aimed at change—broad but clear; German law: Requires 'commercial' provision—narrow, enforceable"
+        ],
+        "interdependencies": "Overly broad definitions risk chilling legitimate practice; overly narrow definitions leave loopholes",
+        "uncertainty": "High—intent-based definitions are hard to enforce; Medium—behavior-based definitions may be clearer but catch benign counseling"
+      },
+      {
+        "name": "Trans Inclusion Controversy",
+        "description": "Political resistance to including gender identity in ban, distinct from sexual orientation.",
+        "importance": 9,
+        "evidence": [
+          "UK Government (2022): Dropped trans inclusion from ban after Conservative MPs threatened rebellion",
+          "Concern: Would criminalize therapists helping detransitioners or questioning youth explore feelings",
+          "Medical consensus: Same professional bodies that condemn LGB conversion therapy condemn trans conversion therapy (BPS, RCPsych)"
+        ],
+        "interdependencies": "Excluding trans people creates two-tier protection; including them makes legislation politically unfeasible under current government",
+        "uncertainty": "Low—medical consensus on harm; High—political feasibility of comprehensive ban"
+      },
+      {
+        "name": "Enforcement Challenges",
+        "description": "Practical difficulties in prosecuting conversion therapy, which often occurs in private.",
+        "importance": 7,
+        "evidence": [
+          "Occurs in private counseling, religious settings, or families—difficult to detect",
+          "Germany's law: Only 3 prosecutions in first 2 years (2020-2022) despite likely ongoing practice",
+          "Potential for drive underground: bans may push practice into less visible contexts"
+        ],
+        "interdependencies": "Even if ban is justified in principle, ineffective enforcement undermines deterrence and wastes resources",
+        "uncertainty": "Medium—some practices are overt (advertised conversion therapies) but many are covert"
+      }
+    ],
+    "policies": [
+      {
+        "name": "Comprehensive Ban (All Ages, Including Trans)",
+        "detail": "Criminalize all conversion therapy practices for minors and adults, covering sexual orientation and gender identity. Penalties: fines and/or imprisonment for practitioners; professional sanctions (license revocation); no religious exemptions.",
+        "justification": "Medical consensus is clear: conversion therapy is harmful pseudoscience. Protecting vulnerable people (especially youth) outweighs religious freedom to harm. Adult 'consent' is often coerced by family/religious pressure.",
+        "incentives_created": "Strong deterrent; clear message that LGBTQ+ identities are not disorders; survivors can seek justice.",
+        "opportunities_for_grift": "Risk of vexatious complaints against legitimate therapists; potential for politically motivated prosecutions; definitional disputes in courts.",
+        "second_order_consequences": "Practices go underground; some religious groups claim martyrdom, galvanizing opposition; chilling effect on exploratory counseling for questioning individuals.",
+        "third_order_consequences": "Normalization of LGBTQ+ identities as UK distances itself from harmful practices; or prolonged legal battles if religious groups mount Article 9 challenges; possible impact on UK's international human rights standing.",
+        "case_studies": [
+          "Malta (2016): First European country with comprehensive ban; no successful legal challenges; low enforcement but symbolic impact",
+          "Germany (2020): Ban covers minors, commercial provision; excludes religious counseling—resulted in narrow applicability",
+          "Victoria, Australia (2021): Comprehensive ban including adults and trans people; civil enforcement via health complaints; early success"
+        ]
+      },
+      {
+        "name": "Ban for Minors Only",
+        "detail": "Criminalize conversion therapy for under-18s, with adult exemption. Covers sexual orientation and gender identity. Parental consent irrelevant—child protection trumps parental rights.",
+        "justification": "Children cannot truly consent due to power imbalances and developmental vulnerability. Adults should have autonomy even to make harmful choices, consistent with liberal principles.",
+        "incentives_created": "Protects most vulnerable without full paternalism; politically easier to pass; respects adult autonomy.",
+        "opportunities_for_grift": "Loophole: pressure on youth to 'wait until 18' then pursue therapy; family coercion continues, just delayed; definitional battles over when practice 'targets' minors.",
+        "second_order_consequences": "Creates incentive for young adults (18-25) to undergo therapy under family pressure once 'legal'; may not reduce overall harm, just shift it temporally.",
+        "third_order_consequences": "Precedent for age-based restrictions may extend to other controversial therapies; or, evidence from minors ban demonstrates need for comprehensive protection.",
+        "case_studies": [
+          "Canada (Bill C-6 proposed 2020): Criminalizes causing minors to undergo conversion therapy; stalled in parliament due to adult consent debates",
+          "New Zealand (2021): Ban covers minors only; adults exempt to ensure passage; limited prosecutions"
+        ]
+      },
+      {
+        "name": "Ban Excluding Trans Conversion Therapy",
+        "detail": "Criminalize conversion therapy targeting sexual orientation (LGB) but exclude gender identity (T). Rationale: political compromise to pass legislation; concerns about impact on gender-questioning youth.",
+        "justification": "Protects LGB people while avoiding politically contentious trans debates. Allows therapists to explore gender dysphoria without fear of prosecution.",
+        "incentives_created": "LGB individuals gain protection; legislation politically feasible under Conservative government.",
+        "opportunities_for_grift": "Conversion therapists rebrand to focus on 'gender confusion' instead of sexual orientation; trans people left unprotected; reinforces false distinction between LGB and T.",
+        "second_order_consequences": "Creates two-tier protection; trans advocacy groups mobilize against exclusion, potentially derailing legislation; or pragmatists accept partial protection as first step.",
+        "third_order_consequences": "If LGB ban succeeds, builds momentum for later trans inclusion; or entrenches view that trans identities are legitimately subject to 'correction' unlike LGB identities.",
+        "case_studies": [
+          "UK Government (2022): Attempted exactly this approach; withdrew legislation after backlash from both LGBTQ+ advocates (exclusion of trans) and religious groups (insufficient exemptions)",
+          "No successful examples of LGB-only bans internationally—most are comprehensive or fail"
+        ]
+      },
+      {
+        "name": "Professional Sanctions Without Criminalization",
+        "detail": "No criminal penalties, but conversion therapy grounds for professional discipline (license revocation for doctors, psychologists, counselors). Does not cover religious figures outside regulated professions.",
+        "justification": "Protects clients without criminalizing religious practice. Relies on professional bodies' ethical standards to enforce ban. Avoids free speech and religious freedom challenges.",
+        "incentives_created": "Regulated professionals cease offering conversion therapy; lower political resistance; no martyrdom narrative for religious groups.",
+        "opportunities_for_grift": "Unregulated practitioners (life coaches, religious counselors) continue unimpeded; creates two-tier system based on professional status; limited deterrence.",
+        "second_order_consequences": "Conversion therapy migrates to unregulated sector; professional bodies face lobbying to weaken standards; limited impact on religiously-motivated practices.",
+        "third_order_consequences": "May serve as stepping stone to later criminalization; or be seen as sufficient compromise that prevents stronger action; enforcement burden shifts to professional bodies.",
+        "case_studies": [
+          "Various US states (pre-legislation): Professional bodies sanctioned conversion therapy but lacked legal teeth; many practitioners continued",
+          "UK status quo: Most professional bodies (BPS, BACP, RCPsych) prohibit conversion therapy in codes of conduct, but enforcement is inconsistent"
+        ]
+      },
+      {
+        "name": "Status Quo (No Ban, Existing Professional Standards)",
+        "detail": "Maintain current approach: professional bodies condemn conversion therapy in ethics codes; no criminal penalties; religious practices unregulated.",
+        "justification": "Respects religious freedom and adult autonomy. Avoids definitional challenges. Allows professional self-regulation without state interference.",
+        "incentives_created": "Preserves pluralism; no legal risk for religious counselors; no chilling effect on legitimate counseling.",
+        "opportunities_for_grift": "Conversion therapy continues unchecked, harming vulnerable individuals. Religious and unregulated practitioners operate freely. Survivors lack recourse.",
+        "second_order_consequences": "LGBTQ+ advocacy continues demanding legislation; UK falls behind international trend (20+ jurisdictions with bans); ongoing harm to individuals subjected to therapy.",
+        "third_order_consequences": "Eventual legislation becomes more likely as public opinion shifts; or status quo persists if political will never materializes; UK's international reputation on LGBTQ+ rights suffers.",
+        "case_studies": [
+          "UK (current): Professional standards exist but no legal ban; estimated 2-5% of LGBTQ+ people undergo conversion therapy annually",
+          "United States (pre-state bans): No federal ban, resulting in patchwork state laws; ongoing harm in states without protection"
+        ]
+      }
+    ],
+    "consequences": [
+      {
+        "action": "Implement comprehensive ban (all ages, LGB and T, no exemptions)",
+        "first_order": "Immediate cessation of overt conversion therapy practices by regulated professionals; religious groups protest; some practices move underground or to private religious contexts.",
+        "second_order": "Legal challenges under Article 9 ECHR; prosecutions difficult due to definitional issues and private nature of therapy; symbolic effect stronger than enforcement effect; UK joins 20+ jurisdictions with bans.",
+        "third_order": "Over decades, normalization of LGBTQ+ identities as conversion therapy becomes historically taboo (like lobotomy); or religious freedom jurisprudence evolves in response; or enforcement failures lead to cynicism about symbolic legislation."
+      },
+      {
+        "action": "Ban for minors only, adults exempt",
+        "first_order": "Protection for under-18s; adult conversion therapy remains legal; reduced political resistance compared to comprehensive ban.",
+        "second_order": "Families pressure youth to wait until 18 to undergo therapy; adult conversion therapy becomes growth industry; advocates push for later expansion to adults.",
+        "third_order": "Either serves as stepping stone to comprehensive ban (as evidence of harm continues); or entrenches adult exemption as permanent compromise."
+      },
+      {
+        "action": "Exclude trans conversion therapy from ban",
+        "first_order": "LGB individuals protected; trans people left vulnerable; political feasibility increases but LGBTQ+ advocacy splits over whether to support.",
+        "second_order": "Conversion therapists rebrand to focus on 'gender identity exploration'; trans exclusion becomes flashpoint in culture wars; possible legislation collapse if no consensus.",
+        "third_order": "If partial ban passes, either builds momentum for later trans inclusion; or creates entrenched two-tier system where trans identities are seen as legitimately mutable."
+      },
+      {
+        "action": "Professional sanctions only (no criminalization)",
+        "first_order": "Regulated professionals cease conversion therapy; unregulated practitioners (religious counselors, life coaches) continue unaffected.",
+        "second_order": "Conversion therapy migrates to unregulated sector; limited public health impact; lower political cost and legal risk.",
+        "third_order": "May be stable equilibrium (sufficient to address worst practices without culture war); or revealed as inadequate, prompting later criminalization."
+      },
+      {
+        "action": "Maintain status quo (no ban)",
+        "first_order": "Ongoing harm to individuals subjected to conversion therapy; continued advocacy pressure; UK falls behind international human rights standards.",
+        "second_order": "Public opinion continues shifting toward ban; Conservative party faces internal pressure from both wings (libertarians oppose ban, moderates support); Labour may adopt comprehensive ban as manifesto commitment.",
+        "third_order": "Eventually, political change enables ban (e.g., Labour government); or culture war dynamics prevent action indefinitely; UK becomes outlier among Western democracies."
+      }
+    ]
+  },
+  "narrative": "The question of whether to ban conversion therapy is not primarily empirical—the medical evidence is overwhelming and uncontested among credible institutions. Every major professional body, from the NHS to the British Psychological Society to the Royal College of Psychiatrists, condemns conversion therapy as ineffective and harmful. Turban et al.'s 2020 study found individuals subjected to conversion efforts had 2.3 times higher odds of lifetime suicide attempts, even after adjusting for baseline mental health. Coventry University's 2021 UK survey revealed that 51% of conversion therapy survivors attempted suicide, and 90% reported lasting psychological harm.\n\nThe debate, then, is not about evidence but about values: religious freedom, parental rights, adult autonomy, and the limits of state paternalism. This is a collision between incommensurable frameworks.\n\nFrom a harm-prevention perspective, the case for a comprehensive ban is straightforward. If a practice demonstrably causes severe psychological harm—depression, PTSD, suicidality—with no countervailing therapeutic benefit, the state has a duty to prohibit it, particularly when it targets vulnerable minors. We don't permit parents to subject children to bloodletting or exorcisms as medical treatment; why should conversion therapy be different? The analogy to female genital mutilation (FGM) is instructive: the UK banned FGM despite cultural and religious justifications, and despite claims that some adult women consent. The principle is that certain harms are so severe and so clearly non-therapeutic that consent—even adult consent—is insufficient justification.\n\nYet the religious freedom objection cannot be dismissed as mere bigotry. For many religious communities, homosexuality and gender transition conflict with deeply held theological convictions. Article 9 of the European Convention on Human Rights protects not just belief but the manifestation of belief through practice. If a pastor offers prayer counseling to a congregant experiencing 'unwanted same-sex attraction,' is this not religious practice deserving protection? The Evangelical Alliance argues that bans would criminalize pastoral care, forcing churches to affirm what they believe to be sinful.\n\nThe legal question is whether prohibiting conversion therapy constitutes a proportionate interference with religious freedom under Article 9(2). Strasbourg case law establishes that religious freedom is not absolute: restrictions are permissible if they serve a legitimate aim (protecting health and rights of others) and are necessary and proportionate. In Eweida (2013) and Lee (2018), the court upheld religious practice restrictions when they conflicted with anti-discrimination protections. The harm documented in conversion therapy studies—elevated suicide risk, trauma symptoms—arguably justifies restriction as protecting a vulnerable group.\n\nBut the definitional challenge is real. How do we distinguish conversion therapy from legitimate counseling? If a therapist helps a client explore gender dysphoria without assuming transition is the only outcome, is that conversion therapy? The UK government's 2022 consultation revealed 58% of respondents identified definition as a key concern. Malta's law defines conversion therapy broadly as 'any practice' aimed at changing identity—clear, but potentially overbroad. Germany's law requires 'commercial' provision, exempting religious counseling—narrower, but creates loopholes.\n\nThe gender identity dimension adds another layer of complexity. The UK government's 2022 proposal initially included trans people, but Conservative MPs threatened rebellion, arguing that banning 'trans conversion therapy' would criminalize therapists helping detransitioners or questioning youth explore feelings without social pressure. This concern, while sometimes weaponized by anti-trans activists, has a kernel of legitimacy: if a teenager experiencing gender dysphoria wants to explore underlying factors (trauma, autism, social contagion) without being steered toward immediate transition, should therapists be free to facilitate that exploration? The question is whether this can be distinguished from conversion therapy that assumes dysphoria is pathological and seeks to eliminate it.\n\nThe medical consensus is that affirmative therapy—accepting the client's identity as valid while exploring their feelings—is distinct from conversion therapy, which presumes pathology. But in practice, the line is contested. The Cass Review (2024) into NHS gender services recommended more 'exploratory' approaches for youth, prompting accusations from some trans advocates that exploration itself is conversion therapy. This conflation makes trans inclusion politically toxic, as evidenced by the UK government's 2022 withdrawal of legislation.\n\nThe adult consent issue further complicates matters. Liberal principles generally hold that competent adults should be free to make self-regarding choices, even harmful ones (smoking, skydiving, cosmetic surgery). Why should conversion therapy be different? The counter-argument is that 'consent' to conversion therapy is rarely free: it's coerced by family pressure, religious indoctrination, or internalized homophobia. The analogy is to FGM, where adult women's 'consent' is deemed irrelevant because the practice is inherently harmful and choice is vitiated by social pressure. Yet this paternalistic logic—we ban X because people's choices aren't truly free—is a slippery slope. Who decides which choices are sufficiently autonomous?\n\nComparative jurisdictions offer lessons. Malta's comprehensive ban (2016) has faced no successful legal challenges and has symbolic weight, even if enforcement is limited. Germany's narrow law (2020) protects minors but exempts religious counseling, limiting effectiveness. Victoria, Australia's ban (2021) includes adults and trans people, with civil enforcement showing early success. Canada's Bill C-6 criminalizes causing minors to undergo conversion therapy, sidestepping adult consent debates—but it stalled in parliament for years.\n\nThe political economy suggests a phased approach may be most viable in the UK context. Begin with a narrow ban: criminalize conversion therapy for minors, covering both sexual orientation and gender identity, with no parental consent defense. This protects the most vulnerable, has strong public support (64% in 2021 polls), and avoids adult autonomy debates. Couple it with professional sanctions (license revocation) for regulated practitioners offering conversion therapy to adults. After 5-7 years, review evidence: if adult conversion therapy remains widespread and harmful, extend the criminal ban; if professional sanctions suffice, maintain equilibrium.\n\nThis gradualist approach balances competing values: prioritizes child protection, respects (some) adult autonomy, minimizes religious freedom conflicts, and builds evidence base. But it's morally unsatisfying to those who see conversion therapy as inherently abusive—half-measures perpetuate harm. The purist position: ban it all, immediately, comprehensively. The pragmatic position: protect minors first, build political consensus, expand later if needed.\n\nThe first-principles question is whether liberal democracies should permit harmful practices in the name of autonomy and pluralism. My answer: not when the harm is severe, the victims are vulnerable, and the practice has no legitimate therapeutic basis. Conversion therapy meets all three criteria. The state should ban it comprehensively, accept the legal challenges, and defend the ban as protecting human dignity against pseudoscientific harm. But I acknowledge this is a values judgment, not a logical necessity. Those who prioritize religious freedom and adult autonomy over harm prevention will disagree—and their position, while I think mistaken, is not obviously irrational.",
+  "sources": [
+    {
+      "id": "source-001",
+      "url": "https://jamanetwork.com/journals/jamapsychiatry/fullarticle/2749479",
+      "title": "Association Between Recalled Exposure to Gender Identity Conversion Efforts and Psychological Distress and Suicide Attempts",
+      "author": "Jack L. Turban, Dana King, Jonathon W. Keuroghlian, Alex S. Keuroghlian",
+      "publication_date": "2020-01-01",
+      "publisher": "JAMA Psychiatry",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.5,
+      "excerpt": "Gender identity conversion efforts were significantly associated with higher odds of lifetime suicide attempts (aOR=2.35, 95% CI: 1.42-3.87).",
+      "accessed_at": "2026-01-12T10:00:00Z"
+    },
+    {
+      "id": "source-002",
+      "url": "https://psycnet.apa.org/record/2020-70844-001",
+      "title": "Mental Health Outcomes in Transgender and Gender Diverse Youth Exposed to Conversion Therapy",
+      "author": "Alexis E. Flentje, Nicholas C. Heck, Bryan N. Cochran",
+      "publication_date": "2020-06-15",
+      "publisher": "American Journal of Public Health",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "70% of respondents reported worsened mental health following conversion therapy; 57% met criteria for trauma-related symptoms.",
+      "accessed_at": "2026-01-12T10:15:00Z"
+    },
+    {
+      "id": "source-003",
+      "url": "https://www.coventry.ac.uk/research/areas-of-research/health-and-wellbeing/conversion-therapy-research/",
+      "title": "Conversion Therapy: An Evidence Assessment and Qualitative Study",
+      "author": "Coventry University Centre for LGBTQ+ Health Research",
+      "publication_date": "2021-03-20",
+      "publisher": "Coventry University",
+      "source_type": "primary",
+      "political_lean": "center-left",
+      "credibility_score": 8.5,
+      "excerpt": "Survey of 264 UK conversion therapy survivors: 51% attempted suicide, 90% reported lasting harm, 25% experienced physical violence during therapy.",
+      "accessed_at": "2026-01-12T10:30:00Z"
+    },
+    {
+      "id": "source-004",
+      "url": "https://www.gov.uk/government/consultations/banning-conversion-therapy",
+      "title": "Banning Conversion Therapy: Government Consultation Response",
+      "author": "UK Government Equalities Office",
+      "publication_date": "2022-03-29",
+      "publisher": "UK Government",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "58% of consultation respondents cited definitional clarity as primary concern; government withdrew comprehensive ban after Conservative backbench opposition.",
+      "accessed_at": "2026-01-12T10:45:00Z"
+    },
+    {
+      "id": "source-005",
+      "url": "https://www.bps.org.uk/news-and-policy/memorandum-conversion-therapy",
+      "title": "Memorandum of Understanding on Conversion Therapy",
+      "author": "British Psychological Society, Royal College of Psychiatrists, et al.",
+      "publication_date": "2022-06-01",
+      "publisher": "BPS",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.5,
+      "excerpt": "There is no scientific evidence that sexual orientation or gender identity can be changed. Conversion therapy is unethical and potentially harmful.",
+      "accessed_at": "2026-01-12T11:00:00Z"
+    },
+    {
+      "id": "source-006",
+      "url": "https://www.eauk.org/news-and-views/conversion-therapy-ban-concerns",
+      "title": "Evangelical Alliance Concerns on Conversion Therapy Ban",
+      "author": "UK Evangelical Alliance",
+      "publication_date": "2022-04-15",
+      "publisher": "Evangelical Alliance",
+      "source_type": "secondary",
+      "political_lean": "right",
+      "credibility_score": 6.5,
+      "excerpt": "Proposed bans would criminalize pastoral conversations and prevent churches offering spiritual support to those with unwanted same-sex attraction.",
+      "accessed_at": "2026-01-12T11:15:00Z"
+    },
+    {
+      "id": "source-007",
+      "url": "https://hudoc.echr.coe.int/eng#{%22itemid%22:[%22001-115881%22]}",
+      "title": "Eweida and Others v. United Kingdom",
+      "author": "European Court of Human Rights",
+      "publication_date": "2013-01-15",
+      "publisher": "ECHR",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 10.0,
+      "excerpt": "Religious freedom under Article 9 is a qualified right; proportionate restrictions are permissible to protect rights of others.",
+      "accessed_at": "2026-01-12T11:30:00Z"
+    },
+    {
+      "id": "source-008",
+      "url": "https://www.legislation.gov.mt/eli/act/2016/11/eng",
+      "title": "Affirmation of Sexual Orientation, Gender Identity and Gender Expression Act",
+      "author": "Malta Parliament",
+      "publication_date": "2016-12-05",
+      "publisher": "Government of Malta",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "First European comprehensive ban on conversion therapy; prohibits 'any treatment, practice or sustained effort' aimed at changing orientation or identity.",
+      "accessed_at": "2026-01-12T11:45:00Z"
+    },
+    {
+      "id": "source-009",
+      "url": "https://www.bgbl.de/xaver/bgbl/start.xav?startbk=Bundesanzeiger_BGBl&jumpTo=bgbl120s1285.pdf",
+      "title": "Act to Protect Against Conversion Therapy (Konversionsbehandlungsschutzgesetz)",
+      "author": "German Bundestag",
+      "publication_date": "2020-05-12",
+      "publisher": "Federal Republic of Germany",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "Bans conversion therapy for minors and adults where services are commercially offered; religious counseling largely exempt.",
+      "accessed_at": "2026-01-12T12:00:00Z"
+    },
+    {
+      "id": "source-010",
+      "url": "https://www.legislation.vic.gov.au/in-force/acts/change-or-suppression-conversion-practices-prohibition-act-2021",
+      "title": "Change or Suppression (Conversion) Practices Prohibition Act 2021",
+      "author": "Parliament of Victoria",
+      "publication_date": "2021-02-04",
+      "publisher": "State of Victoria, Australia",
+      "source_type": "primary",
+      "political_lean": "center-left",
+      "credibility_score": 9.0,
+      "excerpt": "Comprehensive ban including adults and trans people; civil enforcement mechanism via health complaints commission; criminal penalties for serious harm.",
+      "accessed_at": "2026-01-12T12:15:00Z"
+    },
+    {
+      "id": "source-011",
+      "url": "https://www.parl.ca/legisinfo/en/bill/43-2/c-6",
+      "title": "Bill C-6: An Act to Amend the Criminal Code (Conversion Therapy)",
+      "author": "Parliament of Canada",
+      "publication_date": "2020-10-01",
+      "publisher": "Government of Canada",
+      "source_type": "primary",
+      "political_lean": "center-left",
+      "credibility_score": 9.0,
+      "excerpt": "Criminalizes causing minors to undergo conversion therapy; passed House of Commons 2021; defines conversion therapy as practice aimed at changing orientation or identity.",
+      "accessed_at": "2026-01-12T12:30:00Z"
+    },
+    {
+      "id": "source-012",
+      "url": "https://cass.independent-review.uk/home/publications/final-report/",
+      "title": "Independent Review of Gender Identity Services for Children and Young People (Cass Review)",
+      "author": "Dr. Hilary Cass",
+      "publication_date": "2024-04-10",
+      "publisher": "NHS England",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 8.5,
+      "excerpt": "Recommends more exploratory approaches to gender dysphoria in youth; emphasizes need for holistic assessment without presumption of medical pathway.",
+      "accessed_at": "2026-01-12T12:45:00Z"
+    },
+    {
+      "id": "source-013",
+      "url": "https://www.stonewall.org.uk/about-us/news/stonewall-statement-conversion-therapy",
+      "title": "Stonewall Statement on Conversion Therapy Ban",
+      "author": "Stonewall UK",
+      "publication_date": "2022-04-01",
+      "publisher": "Stonewall",
+      "source_type": "secondary",
+      "political_lean": "left",
+      "credibility_score": 7.5,
+      "excerpt": "Exclusion of trans people from ban is devastating betrayal; calls for comprehensive legislation without exemptions.",
+      "accessed_at": "2026-01-12T13:00:00Z"
+    },
+    {
+      "id": "source-014",
+      "url": "https://yougov.co.uk/topics/politics/articles-reports/2021/05/20/majority-britons-support-ban-conversion-therapy",
+      "title": "Majority of Britons Support Ban on Conversion Therapy",
+      "author": "YouGov",
+      "publication_date": "2021-05-20",
+      "publisher": "YouGov",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 8.5,
+      "excerpt": "64% of UK adults support banning conversion therapy; support spans all age groups and regions; 18% oppose, 18% unsure.",
+      "accessed_at": "2026-01-12T13:15:00Z"
+    }
+  ],
+  "metadata": {
+    "user_id": null,
+    "fork_of": null,
+    "view_count": 0,
+    "citation_count": 0,
+    "tags": [
+      "lgbtq-rights",
+      "uk-policy",
+      "healthcare",
+      "religious-freedom",
+      "human-rights"
+    ],
+    "related_briefs": ["uk-trans-healthcare-reform", "religious-freedom-limits"]
+  },
+  "clarity_critique": {
+    "score": 8.2,
+    "breakdown": {
+      "source_diversity": 0.86,
+      "recency": 0.92,
+      "primary_ratio": 0.79,
+      "logical_completeness": 0.85,
+      "readability": 0.81,
+      "user_feedback": 0.50
+    },
+    "strengths": [
+      "Strong medical evidence base (Turban, Flentje, Coventry studies)",
+      "Excellent international comparison (Malta, Germany, Victoria, Canada)",
+      "Steel-mans religious freedom concerns (Evangelical Alliance, ECHR jurisprudence)",
+      "Addresses definitional challenges explicitly",
+      "Explores second-order effects (underground practices, martyrdom narratives)"
+    ],
+    "gaps": [
+      "Limited survivor testimony (mostly quantitative studies, less qualitative narratives)",
+      "Weak coverage of detransitioner perspectives (mentioned but not deeply explored)",
+      "Missing economic analysis (costs of enforcement vs. healthcare savings)",
+      "Disability intersection not addressed (autistic individuals' gender exploration)"
+    ],
+    "suggestions": [
+      "Add: Survivor testimony source (e.g., Conversion Therapy Survivors UK)",
+      "Include: Detransitioner advocacy perspectives for balance",
+      "Expand: Economic cost-benefit analysis of ban implementation",
+      "Consider: Autism-gender dysphoria research (Warrier et al. 2020) for nuance on exploration"
+    ]
+  }
+}

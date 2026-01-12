@@ -65,6 +65,7 @@ export interface Brief {
   updated_at: string;
   version?: number;
   view_count?: number;
+  is_public?: boolean;
   metadata?: {
     tags?: string[];
     sources?: Source[];
