@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { SearchInput } from "./search-input";
 import { TagFilter } from "./tag-filter";
 import { ScoreFilter } from "./score-filter";
+import { SortFilter, type SortOption } from "./sort-filter";
 import { BriefCard } from "./brief-card";
 import type { Brief } from "@/lib/types/brief";
 
@@ -91,6 +92,10 @@ export function ExploreContent() {
     const scoreParam = searchParams.get("minScore");
     return scoreParam ? Number(scoreParam) : null;
   });
+  const [sort, setSort] = useState<SortOption>(() => {
+    const sortParam = searchParams.get("sort");
+    return (sortParam as SortOption) || "newest";
+  });
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [allBriefs, setAllBriefs] = useState<Brief[]>([]);
   const [total, setTotal] = useState(0);
@@ -157,6 +162,21 @@ export function ExploreContent() {
     [searchParams, router]
   );
 
+  // Update URL when sort changes
+  const handleSortChange = useCallback(
+    (sortValue: SortOption) => {
+      setSort(sortValue);
+      const newParams = new URLSearchParams(searchParams.toString());
+      if (sortValue !== "newest") {
+        newParams.set("sort", sortValue);
+      } else {
+        newParams.delete("sort");
+      }
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
   // Toggle a tag on/off
   const handleTagToggle = useCallback(
     (tag: string) => {
@@ -171,7 +191,7 @@ export function ExploreContent() {
     [updateTagsUrl]
   );
 
-  // Sync search query, tags, and minScore from URL on mount/navigation
+  // Sync search query, tags, minScore, and sort from URL on mount/navigation
   useEffect(() => {
     const urlQuery = searchParams.get("q") || "";
     if (urlQuery !== searchQuery) {
@@ -186,6 +206,11 @@ export function ExploreContent() {
     const parsedMinScore = urlMinScore ? Number(urlMinScore) : null;
     if (parsedMinScore !== minScore) {
       setMinScore(parsedMinScore);
+    }
+    const urlSort = searchParams.get("sort") as SortOption | null;
+    const parsedSort = urlSort || "newest";
+    if (parsedSort !== sort) {
+      setSort(parsedSort);
     }
   }, [searchParams]);
 
@@ -208,7 +233,7 @@ export function ExploreContent() {
     fetchAllBriefs();
   }, []);
 
-  // Fetch briefs when search query, tags, or minScore change
+  // Fetch briefs when search query, tags, minScore, or sort change
   useEffect(() => {
     async function fetchBriefs() {
       setIsLoading(true);
@@ -226,6 +251,9 @@ export function ExploreContent() {
         }
         if (minScore !== null) {
           params.set("minScore", String(minScore));
+        }
+        if (sort !== "newest") {
+          params.set("sort", sort);
         }
 
         const response = await fetch(`/api/briefs?${params.toString()}`);
@@ -246,7 +274,7 @@ export function ExploreContent() {
     }
 
     fetchBriefs();
-  }, [searchQuery, selectedTags, minScore]);
+  }, [searchQuery, selectedTags, minScore, sort]);
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -297,9 +325,14 @@ export function ExploreContent() {
         isLoading={isTagsLoading}
       />
 
-      {/* Score filter */}
-      <div className="mb-6">
-        <ScoreFilter value={minScore} onChange={handleMinScoreChange} />
+      {/* Score and Sort filters */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className="w-40">
+          <ScoreFilter value={minScore} onChange={handleMinScoreChange} />
+        </div>
+        <div className="w-40">
+          <SortFilter value={sort} onChange={handleSortChange} />
+        </div>
       </div>
 
       {/* Results count */}
@@ -326,6 +359,12 @@ export function ExploreContent() {
               <span className="text-ink-400">
                 {" "}
                 with score {minScore}+
+              </span>
+            )}
+            {sort !== "newest" && (
+              <span className="text-ink-400">
+                {" "}
+                sorted by {sort === "oldest" ? "oldest" : sort === "score" ? "highest score" : "most read"}
               </span>
             )}
           </p>
