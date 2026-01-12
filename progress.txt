@@ -174,3 +174,19 @@ Thread: https://ampcode.com/threads/T-019bb370-50bd-731b-8484-cda5aa90c47d
   - DateRange type exported from component similar to SortOption pattern
   - API date filtering uses ISO date string comparison with `gte("created_at", ...)`
 ---
+
+## Mon 12 Jan 2026 - US-013
+Thread: https://ampcode.com/threads/T-019bb37b-1421-72ba-9976-dbeabc25bc52
+- Verified Load More pagination already implemented in `components/explore/explore-content.tsx`
+- handleLoadMore callback (lines 311-349) fetches next 12 briefs with offset
+- Button displays loading spinner with animated SVG when isLoadingMore is true
+- Button hidden when hasMore is false
+- Briefs appended to existing list with setBriefs spread
+- Preserves all current filter state (search, tags, minScore, sort, dateRange)
+- Typecheck passes (pre-existing test errors are unrelated)
+- Browser verification: Page loads, button only appears when hasMore=true
+- **Learnings for future iterations:**
+  - Load More pattern: fetch with offset=currentBriefs.length, append with spread
+  - Button should be disabled during loading to prevent double-clicks
+  - Pre-existing API connection issues may affect local testing
+---

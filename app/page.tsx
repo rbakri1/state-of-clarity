@@ -320,8 +320,8 @@ export default function Home() {
                   disabled={isLoading || !question.trim() || charStatus.status === "too-short" || charStatus.status === "too-long"}
                   className={cn(
                     "w-full sm:w-auto",
-                    "px-6 py-4 sm:py-2.5 rounded-xl sm:rounded-lg",
-                    "min-h-[48px]",
+                    "px-6 py-4 sm:py-0 rounded-xl sm:rounded-lg",
+                    "min-h-[48px] sm:h-[56px]",
                     "bg-sage-500 text-ivory-100 font-ui font-medium",
                     "hover:bg-sage-600 transition-all duration-200",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
@@ -408,7 +408,7 @@ export default function Home() {
             {/* Progressive Summaries */}
             <div className={cn(
               "p-6 rounded-xl",
-              "bg-ivory-500 border border-ivory-600",
+              "bg-ivory-200 border border-ivory-400",
               "text-left transition-all duration-200"
             )}>
               <div className="w-10 h-10 rounded-lg bg-sage-100 flex items-center justify-center mb-4">
@@ -426,7 +426,7 @@ export default function Home() {
             {/* Transparent Sources */}
             <div className={cn(
               "p-6 rounded-xl",
-              "bg-ivory-500 border border-ivory-600",
+              "bg-ivory-200 border border-ivory-400",
               "text-left transition-all duration-200"
             )}>
               <div className="w-10 h-10 rounded-lg bg-sage-100 flex items-center justify-center mb-4">
@@ -444,7 +444,7 @@ export default function Home() {
             {/* Clarity Score */}
             <div className={cn(
               "p-6 rounded-xl",
-              "bg-ivory-500 border border-ivory-600",
+              "bg-ivory-200 border border-ivory-400",
               "text-left transition-all duration-200"
             )}>
               <div className="w-10 h-10 rounded-lg bg-sage-100 flex items-center justify-center mb-4">
