@@ -86,3 +86,21 @@ Thread: https://ampcode.com/threads/T-019bb317-67e2-727f-9bba-42948faa9ebf
   - Summaries can be array (ReadingLevelSummary[]) or Record<ReadingLevel, string> - handle both
   - Use `line-clamp-2` for 2-line truncation CSS
 ---
+
+## Mon 12 Jan 2026 - US-007
+Thread: https://ampcode.com/threads/T-019bb351-1cd4-7516-a9eb-5f57cef07047
+- Implementation already complete (commit 0cfecc1) - updating PRD to mark as passing
+- BriefsGrid component in `components/explore/briefs-grid.tsx`:
+  - Fetches from /api/briefs on page load with useEffect
+  - Responsive grid: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+  - Shows 6 skeleton loaders while fetching
+  - EmptyState component when no briefs
+  - "Showing X of Y briefs" count display
+  - Error state with red background on API failure
+- Browser verification: Grid and skeleton loaders render correctly
+- Pre-existing JS error ("Invalid or unexpected token") affects all pages, not specific to this implementation
+- **Learnings for future iterations:**
+  - BriefsGrid uses BriefsResponse interface: { briefs: Brief[], total: number, hasMore: boolean }
+  - Skeleton loaders use animate-pulse class for loading animation
+  - onTagClick callback placeholder for future tag filter integration (US-009)
+---
