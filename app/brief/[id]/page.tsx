@@ -500,7 +500,7 @@ export default function BriefPage() {
                   className="flex items-center justify-between w-full text-left mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
                 >
                   <h3 className="text-lg font-semibold font-ui text-ink-800">
-                    Key Definitions ({brief.structured_data.definitions.length})
+                    Key Definitions ({brief.structured_data.definitions?.length || 0})
                   </h3>
                   {expandedSections.definitions ? (
                     <ChevronUp className="w-5 h-5 text-ink-600" />
@@ -511,7 +511,7 @@ export default function BriefPage() {
 
                 {expandedSections.definitions && (
                   <div className="space-y-3">
-                    {brief.structured_data.definitions.map(
+                    {(brief.structured_data.definitions || []).map(
                       (def: any, i: number) => (
                         <div key={i} className="p-4 bg-ivory-100 rounded-lg">
                           <dt className="font-semibold text-sage-600 mb-2 font-ui">
@@ -545,7 +545,7 @@ export default function BriefPage() {
                   className="flex items-center justify-between w-full text-left mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
                 >
                   <h3 className="text-lg font-semibold font-ui text-ink-800">
-                    Key Factors ({brief.structured_data.factors.length})
+                    Key Factors ({brief.structured_data.factors?.length || 0})
                   </h3>
                   {expandedSections.factors ? (
                     <ChevronUp className="w-5 h-5 text-ink-600" />
@@ -556,7 +556,7 @@ export default function BriefPage() {
 
                 {expandedSections.factors && (
                   <div className="space-y-4">
-                    {brief.structured_data.factors.map(
+                    {(brief.structured_data.factors || []).map(
                       (factor: any, i: number) => (
                         <div key={i} className="p-4 bg-ivory-100 rounded-lg">
                           <div className="flex items-start justify-between mb-2">
@@ -589,7 +589,7 @@ export default function BriefPage() {
                   className="flex items-center justify-between w-full text-left mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
                 >
                   <h3 className="text-lg font-semibold font-ui text-ink-800">
-                    Policy Options ({brief.structured_data.policies.length})
+                    Policy Options ({brief.structured_data.policies?.length || 0})
                   </h3>
                   {expandedSections.policies ? (
                     <ChevronUp className="w-5 h-5 text-ink-600" />
@@ -600,7 +600,7 @@ export default function BriefPage() {
 
                 {expandedSections.policies && (
                   <div className="space-y-4">
-                    {brief.structured_data.policies.map(
+                    {(brief.structured_data.policies || []).map(
                       (policy: any, i: number) => (
                         <div key={i} className="p-4 bg-ivory-100 rounded-lg">
                           <h4 className="font-semibold mb-3 font-ui text-ink-800">
@@ -643,7 +643,7 @@ export default function BriefPage() {
                 >
                   <h3 className="text-lg font-semibold font-ui text-ink-800">
                     Second-Order Effects (
-                    {brief.structured_data.consequences.length})
+                    {brief.structured_data.consequences?.length || 0})
                   </h3>
                   {expandedSections.consequences ? (
                     <ChevronUp className="w-5 h-5 text-ink-600" />
@@ -654,7 +654,7 @@ export default function BriefPage() {
 
                 {expandedSections.consequences && (
                   <div className="space-y-4">
-                    {brief.structured_data.consequences.map(
+                    {(brief.structured_data.consequences || []).map(
                       (consequence: any, i: number) => (
                         <div key={i} className="p-4 bg-ivory-100 rounded-lg">
                           <h4 className="font-semibold mb-3 font-ui text-ink-800">

@@ -20,11 +20,18 @@ import { reconcileOutputs as reconcileOutputsAgent } from "./reconciliation-agen
 import { updateBriefClassification, completeBriefGeneration } from "../services/brief-service";
 
 export interface StructureOutput {
+  definitions?: Array<{
+    term: string;
+    definition: string;
+    source?: string;
+    points_of_contention?: string;
+  }>;
   factors: Array<{
     name: string;
     description: string;
     stakeholders: string[];
     impact: string;
+    evidence?: string[];
   }>;
   policies: Array<{
     name: string;
@@ -32,6 +39,13 @@ export interface StructureOutput {
     proponents: string[];
     opponents: string[];
     tradeoffs: string;
+    pros?: string[];
+    cons?: string[];
+  }>;
+  consequences?: Array<{
+    action: string;
+    first_order: string;
+    second_order: string;
   }>;
   timeline?: Array<{
     date: string;

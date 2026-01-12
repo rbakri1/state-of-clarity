@@ -61,7 +61,13 @@ export async function createBrief(
     question,
     user_id: userId || null,
     summaries: {},
-    structured_data: { factors: [], policies: [], timeline: [] },
+    structured_data: {
+      definitions: [],
+      factors: [],
+      policies: [],
+      consequences: [],
+      timeline: []
+    },
     narrative: "",
     metadata: { tags: [] },
   }).select("id").single();
@@ -126,7 +132,14 @@ export async function updateBriefFromState(
   }
 
   if (state.narrative) {
-    updateData.narrative = JSON.stringify(state.narrative);
+    // Convert NarrativeOutput object to plain text with double newlines
+    const narrativeParts = [
+      state.narrative.introduction,
+      state.narrative.mainBody,
+      state.narrative.conclusion
+    ].filter(part => part && part.trim().length > 0);
+
+    updateData.narrative = narrativeParts.join("\n\n");
   }
 
   if (state.summaries && Object.keys(state.summaries).length > 0) {
@@ -163,6 +176,7 @@ export async function updateBriefFromState(
 
 /**
  * Save sources associated with a brief
+ * Uses the sources table + brief_sources junction table
  */
 export async function saveBriefSources(
   briefId: string,
@@ -174,35 +188,70 @@ export async function saveBriefSources(
 
   const supabase = getSupabaseClient();
 
-  const sourceRecords = sources.map((source) => ({
-    brief_id: briefId,
-    url: source.url,
-    title: source.title,
-    author: source.author || null,
-    publisher: source.publisher || null,
-    publication_date: source.publication_date || null,
-    source_type: source.source_type || null,
-    political_lean: source.political_lean || null,
-    credibility_score: source.credibility_score || null,
-    excerpt: source.content?.slice(0, 500) || null,
-    full_content: source.content || null,
-  }));
+  try {
+    // Step 1: Upsert sources into the sources table (using URL as unique key)
+    const sourceRecords = sources.map((source) => ({
+      url: source.url,
+      title: source.title,
+      author: source.author || null,
+      publisher: source.publisher || null,
+      publication_date: source.publication_date || null,
+      source_type: source.source_type || null,
+      political_lean: source.political_lean || null,
+      credibility_score: source.credibility_score || null,
+      excerpt: source.content?.slice(0, 500) || null,
+      full_content: source.content || null,
+    }));
 
-  const { error } = await (supabase.from("sources") as any).insert(sourceRecords);
+    // Upsert sources (insert or update if URL already exists)
+    const { data: upsertedSources, error: sourcesError } = await (supabase
+      .from("sources") as any)
+      .upsert(sourceRecords, { onConflict: "url" })
+      .select("id, url");
 
-  if (error) {
-    console.error("[BriefService] Error saving sources:", error);
-    return { error: new Error(error.message) };
+    if (sourcesError) {
+      console.error("[BriefService] Error upserting sources:", sourcesError);
+      return { error: new Error(sourcesError.message) };
+    }
+
+    // Step 2: Create a map of URL -> source_id for the junction table
+    const urlToIdMap = new Map<string, string>();
+    for (const source of upsertedSources || []) {
+      urlToIdMap.set(source.url, source.id);
+    }
+
+    // Step 3: Insert relationships into brief_sources junction table
+    const junctionRecords = sources.map((source, index) => ({
+      brief_id: briefId,
+      source_id: urlToIdMap.get(source.url),
+      display_order: index + 1,
+      usage_note: null,
+    })).filter(record => record.source_id); // Only include records where we have a source_id
+
+    if (junctionRecords.length > 0) {
+      const { error: junctionError } = await (supabase
+        .from("brief_sources") as any)
+        .insert(junctionRecords);
+
+      if (junctionError) {
+        console.error("[BriefService] Error linking sources to brief:", junctionError);
+        return { error: new Error(junctionError.message) };
+      }
+    }
+
+    console.log(`[BriefService] Saved ${sources.length} sources for brief ${briefId}`);
+    return { error: null };
+  } catch (err) {
+    console.error("[BriefService] Unexpected error saving sources:", err);
+    return { error: err instanceof Error ? err : new Error(String(err)) };
   }
-
-  console.log(`[BriefService] Saved ${sources.length} sources for brief ${briefId}`);
-  return { error: null };
 }
 
 /**
  * Get a brief by ID with caching and safe error handling
  * Cache key format: brief:{id}
  * TTL: 300 seconds (5 minutes)
+ * Includes sources via the brief_sources junction table
  */
 export async function getBriefById(briefId: string): Promise<SafeQueryResult<BriefRecord>> {
   const cacheKey = `brief:${briefId}`;
@@ -211,9 +260,17 @@ export async function getBriefById(briefId: string): Promise<SafeQueryResult<Bri
     cacheKey,
     async () => {
       const supabase = getSupabaseClient();
-      return safeQuery<BriefRecord>(
+
+      // Fetch brief with sources via junction table
+      const result = await safeQuery<any>(
         () => (supabase.from("briefs") as any)
-          .select("*")
+          .select(`
+            *,
+            brief_sources(
+              display_order,
+              sources(*)
+            )
+          `)
           .eq("id", briefId)
           .single(),
         {
@@ -222,6 +279,23 @@ export async function getBriefById(briefId: string): Promise<SafeQueryResult<Bri
           briefId,
         }
       );
+
+      // Transform the data structure to flatten sources
+      if (result.data && result.data.brief_sources) {
+        const sources = result.data.brief_sources
+          .map((bs: any) => bs.sources)
+          .filter((s: any) => s !== null)
+          .sort((a: any, b: any) => {
+            const orderA = result.data.brief_sources.find((bs: any) => bs.sources?.id === a.id)?.display_order || 0;
+            const orderB = result.data.brief_sources.find((bs: any) => bs.sources?.id === b.id)?.display_order || 0;
+            return orderA - orderB;
+          });
+
+        result.data.sources = sources;
+        delete result.data.brief_sources;
+      }
+
+      return result as SafeQueryResult<BriefRecord>;
     },
     BRIEF_CACHE_TTL
   );
