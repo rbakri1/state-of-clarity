@@ -1,426 +1,277 @@
 {
   "project": "State of Clarity",
-  "branchName": "ralph/brand-ui-sweep",
-  "description": "Brand & UI/UX Sweep - Full design system audit, component implementation, copy review, and polish for all user-facing pages before beta launch. References skills: skills/frontend/brand, skills/frontend/design, skills/frontend/components, skills/frontend/tech",
+  "branchName": "ralph/explore-page",
+  "description": "Explore Page - Article discovery with search, filtering by tags/score/date, sorting, and pagination. Adds 'Explore' to navbar and 'See All' button to homepage.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Audit existing UI against design system",
-      "description": "As a developer, I need to identify all UI inconsistencies with the design system defined in skills/frontend/design.",
+      "title": "Add view_count column to briefs table",
+      "description": "As a developer, I need to track brief views for 'Most Read' sorting.",
       "acceptanceCriteria": [
-        "READ skills/frontend/design/SKILL.md, skills/frontend/brand/SKILL.md, skills/frontend/components/SKILL.md, skills/frontend/tech/SKILL.md first",
-        "Review all pages and components against design/SKILL.md",
-        "Check color usage matches Clarity Blue (#0F52BA), Slate palette",
-        "Check typography matches Inter font, correct sizes per reading level",
-        "Check spacing follows 4px grid",
-        "Check shadows, border-radius match spec",
-        "Check interaction states (hover, focus, active, disabled) are implemented",
-        "Document all inconsistencies in /docs/UI-AUDIT.md",
+        "Add view_count integer column to briefs table (default 0)",
+        "Create Supabase migration file",
+        "Migration runs successfully",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Comprehensive UI audit completed. All inconsistencies documented in /docs/UI-AUDIT.md."
+      "notes": "Migration: lib/supabase/migrations/011_add_view_count_column.sql"
     },
     {
       "id": "US-002",
-      "title": "Audit existing components against component skill",
-      "description": "As a developer, I need to identify which components from skills/frontend/components are missing or incomplete.",
+      "title": "Add is_public column to briefs table",
+      "description": "As a developer, I need to track brief visibility for privacy.",
       "acceptanceCriteria": [
-        "Review components/SKILL.md for required components",
-        "Check if ReadingLevelSelector exists and matches spec",
-        "Check if SummaryCard exists with proper typography per level",
-        "Check if SourceCitation exists with political lean colors",
-        "Check if PoliticalLeanBadge exists",
-        "Check if CredibilityBadge exists",
-        "Check if BriefGenerationProgress exists",
-        "Document missing/incomplete components in /docs/UI-AUDIT.md",
+        "Add is_public boolean column to briefs table (default true)",
+        "Create Supabase migration file",
+        "Migration runs successfully",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Comprehensive component audit completed. All 9 required components are MISSING. Detailed analysis with spec vs implementation comparison documented in /docs/UI-AUDIT.md Section 6."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Configure Tailwind with design tokens",
-      "description": "As a developer, I need Tailwind config to match our design system exactly.",
+      "title": "Increment view_count when brief is viewed",
+      "description": "As a developer, I need to track views when users visit brief pages.",
       "acceptanceCriteria": [
-        "Update tailwind.config.ts with clarity color palette (500, 600, 700)",
-        "Add Inter and JetBrains Mono font families",
-        "Add max-w-prose: 65ch for optimal reading width",
-        "Install @tailwindcss/typography and @tailwindcss/forms plugins",
-        "Verify design tokens match skills/frontend/design/SKILL.md",
+        "Increment view_count in brief page server component or API",
+        "Only increment once per session/user (use cookie or localStorage)",
+        "Handle errors gracefully (don't break page load)",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Tailwind config updated with full design system: ivory, ink, sage, rust, smoke color palettes, font families (heading/body/ui), max-w-prose: 65ch, typography plugin with custom prose styles, forms plugin."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Implement or fix ReadingLevelSelector component",
-      "description": "As a user, I want to switch between reading levels with a clear, accessible selector.",
+      "title": "Create GET /api/briefs endpoint",
+      "description": "As a developer, I need an API to fetch briefs with filtering and pagination.",
       "acceptanceCriteria": [
-        "Component exists at /components/brief/reading-level-selector.tsx",
-        "Shows all 4 levels: Child (8-12), Teen (13-17), Undergrad (18-22), Postdoc (Graduate+)",
-        "Uses ARIA roles (tablist, tab, aria-selected)",
-        "Sticky positioning (stays visible while reading)",
-        "Responsive: vertical on mobile, horizontal on desktop",
-        "Active state uses bg-clarity-500 with white text",
-        "Focus ring visible for keyboard navigation",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /api/briefs/route.ts with GET handler",
+        "Query params: q (search), tags (comma-separated), minScore (number), sort (newest|oldest|score|views), date (week|month|year|all), limit (default 12), offset (default 0)",
+        "Search uses ilike on question column",
+        "Filter by tags uses array contains or overlap",
+        "Only return briefs where is_public = true",
+        "Return JSON: { briefs: Brief[], total: number, hasMore: boolean }",
+        "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Component created at components/brief/reading-level-selector.tsx with ARIA roles, sticky positioning, responsive layout, sage-500 active state, focus rings. Also created lib/utils.ts (cn helper) and lib/types/brief.ts. Browser verification limited due to empty brief summaries in test data."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Implement or fix SummaryCard component",
-      "description": "As a user, I want summaries displayed with appropriate typography for my reading level.",
+      "title": "Create Explore page route and layout",
+      "description": "As a user, I want to access an Explore page to browse all briefs.",
       "acceptanceCriteria": [
-        "Component exists at /components/brief/summary-card.tsx",
-        "Child level: text-lg (18px), leading-relaxed (1.75)",
-        "Teen/Undergrad level: text-base (16px), leading-normal (1.5)",
-        "Postdoc level: text-sm (14px), leading-normal (1.5)",
-        "Shows reading time with clock icon",
-        "Uses prose prose-slate for narrative styling",
-        "ARIA role=tabpanel with hidden attribute for inactive levels",
+        "Create /app/explore/page.tsx",
+        "Page has hero section: 'Explore Briefs' title, subtitle explaining discovery",
+        "Uses design system (ivory/ink/sage colors, font-heading/font-body)",
+        "Consistent header/footer with rest of site",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "SummaryCard component created with typography per reading level (child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug), reading time with Clock icon, ARIA tabpanel with hidden attribute. Integrated into brief page replacing inline implementation."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Implement PoliticalLeanBadge component",
-      "description": "As a user, I want to see source political lean clearly indicated with non-partisan colors.",
+      "title": "Create BriefCard component for Explore grid",
+      "description": "As a user, I want to see briefs as cards with key info.",
       "acceptanceCriteria": [
-        "Component exists at /components/sources/political-lean-badge.tsx",
-        "Uses correct colors: Left=#E11D48 (Rose), Center-Left=#F472B6 (Pink), Center=#94A3B8 (Slate), Center-Right=#60A5FA (Blue), Right=#3B82F6 (Blue)",
-        "Displays as pill badge with background color and text",
-        "Accessible: includes title attribute with full label",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /components/explore/brief-card.tsx",
+        "Card shows: question (title), clarity score badge, tags (max 3), read time, excerpt (truncated to 2 lines)",
+        "Card links to /brief/[id]",
+        "Hover state with elevation/border change",
+        "Uses design system colors and typography",
+        "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Component created at components/sources/political-lean-badge.tsx with non-partisan muted rose→grey→blue spectrum per skills/frontend/components/SKILL.md. Includes sm/md size variants, title attribute for accessibility, and proper typing with PoliticalLean type from lib/types/brief.ts."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Implement CredibilityBadge component",
-      "description": "As a user, I want to see source credibility scores with clear visual indicators.",
+      "title": "Display briefs grid on Explore page",
+      "description": "As a user, I want to see briefs in a responsive grid layout.",
       "acceptanceCriteria": [
-        "Component exists at /components/sources/credibility-badge.tsx",
-        "Score 8+: ShieldCheck icon, green, 'Highly Credible'",
-        "Score 5-7: Shield icon, amber, 'Moderately Credible'",
-        "Score <5: ShieldAlert icon, rose, 'Lower Credibility'",
-        "Shows score as X/10",
-        "Accessible: includes title attribute",
+        "Fetch briefs from /api/briefs on page load",
+        "Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop",
+        "Show loading skeleton while fetching",
+        "Show empty state if no briefs",
+        "Display total count: 'Showing X of Y briefs'",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Component created at components/sources/credibility-badge.tsx with three tiers (8+=highly credible/green, 5-7=moderately credible/amber, <5=lower credibility/rose), Shield icons from lucide-react, X/10 score display, title attribute for accessibility, size variants (sm/md)."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-008",
-      "title": "Implement SourceCitation component",
-      "description": "As a user, I want inline citations colored by political lean for transparency.",
+      "title": "Add search input to Explore page",
+      "description": "As a user, I want to search briefs by keyword.",
       "acceptanceCriteria": [
-        "Component exists at /components/sources/source-citation.tsx",
-        "Renders as superscript link [1], [2], etc.",
-        "Color matches political lean (rose for left, blue for right, etc.)",
-        "Links to source section anchor",
-        "Hover shows underline",
-        "Accessible: aria-label with source title",
-        "Typecheck passes"
+        "Search input at top of page with Search icon",
+        "Debounced input (300ms) triggers API call with q param",
+        "Search term persisted in URL: ?q=searchterm",
+        "Clear button to reset search",
+        "Empty state when no results match",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Component created at components/sources/source-citation.tsx. Renders superscript [n] link with political lean color (muted rose→grey→blue spectrum), hover underline, aria-label with source title, links to #source-{id} anchor."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-009",
-      "title": "Implement or fix BriefGenerationProgress component",
-      "description": "As a user, I want to see clear progress while my brief generates (30-60s).",
+      "title": "Add tag filter to Explore page",
+      "description": "As a user, I want to filter briefs by tags.",
       "acceptanceCriteria": [
-        "Component exists at /components/generation/generation-progress.tsx",
-        "Shows 5 stages: Researching, Extracting, Summaries, Narrative, Scoring",
-        "Progress bar fills as generation proceeds",
-        "Current stage highlighted with spinner",
-        "Completed stages show green checkmark",
-        "Shows estimated time remaining",
-        "Smooth animations using transition-all",
+        "Tag filter section shows all available tags",
+        "Tags displayed as clickable pills with count",
+        "Multi-select: clicking adds/removes tag from filter",
+        "Active tags highlighted with sage-500 bg",
+        "Tags persisted in URL: ?tags=Climate,Healthcare",
+        "Clicking tag on brief card adds it to filter",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": true,
-      "notes": "Component created at components/generation/generation-progress.tsx with 5 stages (research, structure, summary, narrative, scoring), progress bar with smooth transitions, Loader2 spinner for active stage, CheckCircle2 for completed stages, ~Xs remaining display. Types added to lib/types/brief.ts (GenerationStage, GenerationProgress). Uses warm editorial palette (sage/ivory/ink)."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-010",
-      "title": "Standardize navigation header",
-      "description": "As a user, I want consistent navigation across all pages.",
+      "title": "Add clarity score filter to Explore page",
+      "description": "As a user, I want to filter by minimum clarity score.",
       "acceptanceCriteria": [
-        "Header component exists at /components/layout/header.tsx",
-        "Logo links to homepage",
-        "Navigation links: Ask Anything, About (if exists)",
-        "Auth state: Show Sign In/Sign Up or user avatar with dropdown",
-        "Mobile: hamburger menu with slide-out nav",
-        "Uses sticky positioning",
-        "Uses Clarity Blue for logo/brand",
+        "Score filter dropdown: All, 7+, 8+, 9+",
+        "Default: All",
+        "Filter updates results in real-time",
+        "Persisted in URL: ?minScore=8",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": true,
-      "notes": "Header added to global layout with design system colors."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-011",
-      "title": "Create footer with legal links",
-      "description": "As a user, I want a footer with links to privacy policy, terms, and contact.",
+      "title": "Add sort dropdown to Explore page",
+      "description": "As a user, I want to sort briefs by different criteria.",
       "acceptanceCriteria": [
-        "Footer component exists at /components/layout/footer.tsx",
-        "Links: Privacy Policy (/privacy), Terms of Service (/terms), About (optional)",
-        "Copyright: © 2026 State of Clarity",
-        "Social links if applicable",
-        "Uses slate background, subtle styling",
-        "Footer appears on all pages via layout.tsx",
+        "Sort dropdown: Newest, Oldest, Highest Score, Most Read",
+        "Default: Newest",
+        "Sort updates results in real-time",
+        "Persisted in URL: ?sort=score",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": true,
-      "notes": "Footer component created at components/layout/footer.tsx with legal links (Privacy Policy, Terms of Service), navigation links (About, Ask Anything), © 2026 copyright, using design system ivory-300 background. Added to global layout.tsx with flex layout for sticky footer."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-012",
-      "title": "Polish homepage to match brand",
-      "description": "As a visitor, I want the homepage to clearly communicate what State of Clarity offers.",
+      "title": "Add date range filter to Explore page",
+      "description": "As a user, I want to filter by when briefs were created.",
       "acceptanceCriteria": [
-        "Hero section with headline: 'See politics clearly. Decide wisely.'",
-        "Subheadline explains AI-powered policy briefs",
-        "Primary CTA: 'Ask Anything' button using bg-clarity-500",
-        "Showcase briefs section with 3 featured brief cards",
-        "Brief cards show: question, clarity score badge, topics, read time",
-        "Responsive layout (mobile-first)",
-        "Uses design system colors, typography, spacing",
+        "Date filter: All Time, Past Week, Past Month, Past Year",
+        "Default: All Time",
+        "Filter updates results in real-time",
+        "Persisted in URL: ?date=month",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": true,
-      "notes": "Homepage already polished with warm editorial palette (sage/ivory/ink), proper headline 'See politics clearly. Decide wisely.', subheadline explaining evidence-based policy analysis, Get Brief CTA with bg-sage-500, showcase briefs section with 3 cards showing question/clarity score/tags/read time, responsive mobile-first layout, feature cards for Progressive Summaries, Transparent Sources, and Clarity Score."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-013",
-      "title": "Polish brief viewer page",
-      "description": "As a reader, I want the brief viewer to be clean, readable, and match the design system.",
+      "title": "Add Load More pagination to Explore page",
+      "description": "As a user, I want to load more briefs without page refresh.",
       "acceptanceCriteria": [
-        "Uses max-w-prose (65ch) for optimal reading width",
-        "Reading level selector is sticky and accessible",
-        "Summary adapts typography to selected level",
-        "Sources section shows all sources with PoliticalLeanBadge and CredibilityBadge",
-        "Inline citations link to sources section",
-        "Clarity score badge with expandable breakdown",
-        "Share and Save buttons visible",
-        "Uses prose prose-slate for narrative",
+        "Initial load shows 12 briefs",
+        "'Load More' button appears if hasMore is true",
+        "Clicking loads next 12 briefs and appends to grid",
+        "Loading state on button while fetching",
+        "Button hidden when no more briefs",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": true,
-      "notes": "Complete polish of brief viewer page: design system colors (ivory/ink/sage), max-w-prose for reading width, expandable Clarity Score badge with breakdown, Sources section with PoliticalLeanBadge and CredibilityBadge, Share/Save buttons with proper styling, accessible focus rings throughout."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-014",
-      "title": "Polish Ask Anything page",
-      "description": "As a user, I want a clean, inviting interface to submit my question.",
+      "title": "Add Explore link to main navigation",
+      "description": "As a user, I want to access Explore from the navbar.",
       "acceptanceCriteria": [
-        "Clear headline explaining the feature",
-        "Large text input for question",
-        "Character count or hint about question length",
-        "Submit button with loading state",
-        "Shows generation progress after submission",
-        "Error handling with clear messages",
-        "Uses design system colors and spacing",
+        "Add 'Explore' link to header nav (after Home or Ask)",
+        "Active state when on /explore route",
+        "Works in mobile menu as well",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 14,
-      "passes": true,
-      "notes": "Homepage Ask Anything interface polished with: character count (10-500 chars), hint about optimal length (20-200), validation feedback, BriefGenerationProgress overlay during generation with 5-stage progress simulation (~50s total), design system colors (ivory/ink/sage), accessible aria-describedby on input."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-015",
-      "title": "Polish authentication pages",
-      "description": "As a user, I want clean, trustworthy sign in/sign up pages.",
+      "title": "Add See All button to homepage showcase section",
+      "description": "As a user, I want to see more briefs from the homepage.",
       "acceptanceCriteria": [
-        "Sign in page with email/password or magic link option",
-        "Sign up page with email, password, age verification checkbox",
-        "Links between sign in and sign up",
-        "Error states clearly shown",
-        "Loading states on buttons",
-        "Uses design system colors, centered layout",
-        "Links to privacy policy and terms",
+        "Add 'See All Briefs →' button below showcase grid on homepage",
+        "Button links to /explore",
+        "Styled as secondary CTA (sage-100 bg, sage-600 text, hover:sage-200)",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": true,
-      "notes": "All 4 auth pages polished with design system: sign-in, sign-up, error, and deleted-account. Uses ivory/ink/sage palette, font-heading/font-ui typography, focus-visible:ring-2 rings, Loader2 spinners for loading states, success-light/error-light semantic colors for messages. Sign-up includes age verification checkbox (13+) with accessible checkbox role. All pages link to privacy/terms."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-016",
-      "title": "Polish profile/settings page",
-      "description": "As a user, I want a clean settings page to manage my account.",
+      "title": "Fetch available tags for filter sidebar",
+      "description": "As a developer, I need to get all unique tags with counts.",
       "acceptanceCriteria": [
-        "Profile section: avatar, name, email",
-        "Preferences: default reading level, notification settings",
-        "Data section: Export my data button, Delete account button",
-        "Clear section headings and spacing",
-        "Uses design system cards and buttons",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create /api/briefs/tags endpoint or include in /api/briefs response",
+        "Return array of { tag: string, count: number }",
+        "Only count tags from public briefs",
+        "Sort by count descending",
+        "Typecheck passes"
       ],
       "priority": 16,
-      "passes": true,
-      "notes": "Profile page already well-polished with design system (ivory/ink/sage). Added email display to profile section. Settings page has: Profile section (avatar, display name), Reading Preferences (default level, topics), Privacy & Notifications (anonymous posting, email/push toggles), Data section (Export, Delete account). All sections use font-heading, focus-visible:ring-2 ring-sage-500."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-017",
-      "title": "Review and update homepage copy",
-      "description": "As a visitor, I want copy that sounds rigorous but approachable, matching brand voice.",
+      "title": "Mobile-friendly filter UI",
+      "description": "As a mobile user, I want filters to be accessible on small screens.",
       "acceptanceCriteria": [
-        "Review all homepage text against brand/SKILL.md voice guidelines",
-        "Headline uses active voice, leads with evidence",
-        "Avoid partisan language or dog whistles",
-        "Explain what we do clearly without jargon",
-        "CTAs are action-oriented",
-        "Update any copy that doesn't match brand voice",
-        "Typecheck passes"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": "Homepage copy updated to match brand voice: removed 'AI-powered' from Clarity Score card, added active voice ('We link every claim', 'We meet you where you are'), improved hint text with concrete example, updated showcase section to emphasize first-principles reasoning and source transparency."
-    },
-    {
-      "id": "US-018",
-      "title": "Review and update brief viewer copy",
-      "description": "As a reader, I want UI copy that's clear and helpful without being patronizing.",
-      "acceptanceCriteria": [
-        "Review all labels, headings, tooltips",
-        "Reading level labels match spec (Ages 8-12, Ages 13-17, etc.)",
-        "Source transparency copy is clear",
-        "Clarity score explanation is understandable",
-        "Avoid 'unbiased' - use 'transparent' instead",
-        "Update any copy that doesn't match brand voice",
-        "Typecheck passes"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": "Updated brief viewer copy: Clarity Score explanation uses active voice ('We score each brief...'), Sources section adds transparency tagline ('verify for yourself'), reading level labels use en-dash and 'Graduate researchers' for postdoc, Progressive Summaries section renamed to 'Choose Your Reading Level' with supportive tagline, Feedback section uses active voice ('Help Us Improve' with collaborative truth-seeking language), removed 'unbiased' from terms page."
-    },
-    {
-      "id": "US-019",
-      "title": "Review and update all other page copy",
-      "description": "As a user, I want consistent brand voice across all pages.",
-      "acceptanceCriteria": [
-        "Review Ask Anything page copy",
-        "Review auth pages copy",
-        "Review settings/profile page copy",
-        "Review error messages and empty states",
-        "Review loading state messages",
-        "All copy uses active voice, acknowledges uncertainty where appropriate",
-        "Typecheck passes"
-      ],
-      "priority": 19,
-      "passes": true,
-      "notes": "Updated all pages to match brand voice: not-found.tsx (design system + active voice), error.tsx (helpful guidance + design system), loading.tsx and brief/loading.tsx (ivory/ink/sage design system), settings.tsx (en-dashes + Graduate researchers), generation-progress.tsx (active voice labels), auth/error messages (active voice)."
-    },
-    {
-      "id": "US-020",
-      "title": "Add focus states to all interactive elements",
-      "description": "As a keyboard user, I need visible focus indicators on all interactive elements.",
-      "acceptanceCriteria": [
-        "All buttons have focus-visible:ring-2 focus-visible:ring-clarity-500",
-        "All links have visible focus state",
-        "All form inputs have focus ring",
-        "No element uses outline-none without custom ring replacement",
-        "Tab through all pages to verify focus visibility",
-        "Typecheck passes"
-      ],
-      "priority": 20,
-      "passes": true,
-      "notes": "Updated 9 components with consistent focus states: SpotErrorModal, ProposeEditModal, SuggestSourceModal, FeedbackForm, GenerationFailed, QuestionInput, EmailPasswordForm, AuthModal, CookieConsentBanner. All use focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 pattern. Also updated colors to design system (ivory/ink/sage) where needed."
-    },
-    {
-      "id": "US-021",
-      "title": "Verify WCAG AAA contrast on reading content",
-      "description": "As a user with visual impairments, I need text to have high contrast.",
-      "acceptanceCriteria": [
-        "Body text: slate-600 on white/slate-50 (8.7:1 ratio)",
-        "Headings: slate-800 on white/slate-50 (13.3:1 ratio)",
-        "Run Lighthouse accessibility audit on brief viewer",
-        "Fix any contrast issues found",
-        "Typecheck passes"
-      ],
-      "priority": 21,
-      "passes": true,
-      "notes": "Verified brief viewer uses ink-800 (#1F2328) on ivory-100 (#F7F4EF) for body text and headings – contrast ratio 11.8:1 exceeds WCAG AAA (7:1). Updated Privacy Policy and Terms of Service pages from old gray/muted-foreground classes to design system ink-800/ink-500 text colors with ivory-100 background, sage-600 links, proper focus rings, and font-heading/font-body/font-ui typography."
-    },
-    {
-      "id": "US-022",
-      "title": "Final visual QA across all breakpoints",
-      "description": "As a user on any device, I want the UI to look polished and work correctly.",
-      "acceptanceCriteria": [
-        "Test all pages at mobile (375px), tablet (768px), desktop (1440px)",
-        "No horizontal scrolling on mobile",
-        "Touch targets minimum 44px on mobile",
-        "Text readable at all sizes",
-        "Images/icons scale appropriately",
-        "Fix any responsive issues found",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill at multiple widths"
-      ],
-      "priority": 22,
-      "passes": true,
-      "notes": "Responsive QA completed. Fixed: (1) Mobile search input now stacks vertically with full-width button, (2) Get Brief button has min-h-[48px] touch target, (3) Footer links have min-h-[44px] touch targets, (4) Mobile menu uses invisible class to prevent horizontal scroll when closed. All breakpoints (375px, 768px, 1440px) verified with no horizontal scrolling."
-    },
-    {
-      "id": "US-023",
-      "title": "Create first-time user welcome modal with mission disclaimer",
-      "description": "As a new user, I want to understand the platform's mission and approach before I start using it.",
-      "acceptanceCriteria": [
-        "Create /components/onboarding/welcome-modal.tsx",
-        "Modal appears on first visit (check localStorage for 'has-seen-welcome')",
-        "Modal includes mission disclaimer with key points:",
-        "  - State of Clarity is laser-focused on pursuing informed truth",
-        "  - We provide detailed, thoughtful analysis - not lazy quick takes",
-        "  - Every question gets digestible, evidence-based answers",
-        "  - We are non-partisan and do not pick sides",
-        "  - We show our sources transparently so you can verify",
-        "Headline: 'Welcome to State of Clarity'",
-        "Primary CTA: 'Get Started' button closes modal and saves preference",
-        "Optional: 'Learn More' link to About page",
-        "Modal uses design system styling (Clarity Blue, proper spacing)",
-        "Accessible: focus trap, ESC to close, aria-modal",
-        "Set localStorage 'has-seen-welcome' = true on close",
+        "Filters collapse into a 'Filters' button on mobile",
+        "Clicking opens a slide-up drawer or modal",
+        "All filters accessible in drawer",
+        "Apply/Clear buttons in drawer",
+        "Active filter count shown on button badge",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 23,
-      "passes": true,
-      "notes": "Welcome modal created with Radix Dialog, localStorage check for 'has-seen-welcome', 4 mission points (pursuing informed truth, thoughtful depth, non-partisan, source transparency), design system colors (ivory/ink/sage), accessible with aria-modal, ESC to close, focus trap. Integrated in layout.tsx via WelcomeModalWrapper."
+      "priority": 17,
+      "passes": false,
+      "notes": ""
     }
   ]
 }
