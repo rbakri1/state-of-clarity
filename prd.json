@@ -344,8 +344,8 @@
         "Typecheck passes"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated all pages to match brand voice: not-found.tsx (design system + active voice), error.tsx (helpful guidance + design system), loading.tsx and brief/loading.tsx (ivory/ink/sage design system), settings.tsx (en-dashes + Graduate researchers), generation-progress.tsx (active voice labels), auth/error messages (active voice)."
     },
     {
       "id": "US-020",

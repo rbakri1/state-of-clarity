@@ -204,14 +204,14 @@ const QuestionInput = forwardRef<QuestionInputHandle, QuestionInputProps>(functi
             }
           }}
           placeholder="Ask any policy question..."
-          className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition text-base"
+          className="w-full pl-12 pr-32 py-4 rounded-xl border-2 border-ivory-600 dark:border-gray-700 bg-ivory-50 dark:bg-gray-800 text-ink-800 focus-visible:outline-none focus-visible:border-sage-500 focus-visible:ring-2 focus-visible:ring-sage-500/20 transition text-base"
           disabled={isSubmitting}
         />
         <button
           ref={submitButtonRef}
           type="submit"
           disabled={isSubmitting || !value.trim()}
-          className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium flex items-center gap-2"
+          className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-lg bg-sage-500 text-white hover:bg-sage-600 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
         >
           {isSubmitting ? (
             <>

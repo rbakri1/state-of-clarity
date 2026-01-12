@@ -75,7 +75,7 @@ export function CookieConsentBanner() {
           <p>
             We use cookies to enhance your experience. Essential cookies keep you logged in and
             remember your preferences. Analytics cookies help us improve State of Clarity.{" "}
-            <Link href="/privacy" className="text-primary hover:underline">
+            <Link href="/privacy" className="text-sage-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded">
               Learn more in our Privacy Policy
             </Link>
             .
@@ -84,13 +84,13 @@ export function CookieConsentBanner() {
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={handleDecline}
-            className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-gray-300 dark:border-gray-700 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-ink-600 hover:text-ink-800 border border-ivory-600 dark:border-gray-700 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
           >
             Decline
           </button>
           <button
             onClick={handleAccept}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-sage-500 hover:bg-sage-600 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
           >
             Accept
           </button>

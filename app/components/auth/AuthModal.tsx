@@ -92,7 +92,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
             <Dialog.Close asChild>
               <button
-                className="absolute right-4 top-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                className="absolute right-4 top-4 p-2 rounded-lg hover:bg-ivory-200 dark:hover:bg-gray-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -117,13 +117,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                 )}
 
                 {/* Auth Method Tabs */}
-                <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                <div className="flex border-b border-ivory-600 dark:border-gray-700 mb-4">
                   <button
                     type="button"
                     onClick={() => setAuthMethod("password")}
-                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition ${
+                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                       authMethod === "password"
-                        ? "border-primary text-primary"
+                        ? "border-sage-500 text-sage-600"
                         : "border-transparent text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -133,9 +133,9 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                   <button
                     type="button"
                     onClick={() => setAuthMethod("magic-link")}
-                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition ${
+                    className={`flex-1 py-2 px-4 text-sm font-medium border-b-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                       authMethod === "magic-link"
-                        ? "border-primary text-primary"
+                        ? "border-sage-500 text-sage-600"
                         : "border-transparent text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -171,7 +171,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="you@example.com"
-                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-ivory-600 dark:border-gray-700 bg-ivory-50 dark:bg-gray-800 text-ink-800 focus-visible:outline-none focus-visible:border-sage-500 focus-visible:ring-2 focus-visible:ring-sage-500/20 transition"
                             disabled={isLoading}
                             autoComplete="email"
                           />
@@ -181,7 +181,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                       <button
                         type="submit"
                         disabled={isLoading || !email.trim()}
-                        className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-lg bg-sage-500 text-white font-medium hover:bg-sage-600 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                       >
                         {isLoading ? (
                           <>
@@ -200,7 +200,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                           Don&apos;t have an account?{" "}
                           <button
                             onClick={toggleMode}
-                            className="text-primary hover:underline font-medium"
+                            className="text-sage-600 hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
                           >
                             Sign up
                           </button>
@@ -210,7 +210,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                           Already have an account?{" "}
                           <button
                             onClick={toggleMode}
-                            className="text-primary hover:underline font-medium"
+                            className="text-sage-600 hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
                           >
                             Sign in
                           </button>
@@ -253,7 +253,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
                     Can&apos;t find the email? Check your spam folder or{" "}
                     <button
                       onClick={() => setStep("initial")}
-                      className="text-primary hover:underline"
+                      className="text-sage-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
                     >
                       try again
                     </button>

@@ -146,7 +146,7 @@ export default function SuggestSourceModal({
                 </Dialog.Title>
                 <Dialog.Close asChild>
                   <button
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     aria-label="Close"
                   >
                     <X className="w-5 h-5" />
@@ -161,7 +161,7 @@ export default function SuggestSourceModal({
                   </p>
                   <a
                     href="/auth/signin"
-                    className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+                    className="inline-block px-4 py-2 bg-sage-500 text-white rounded-lg hover:bg-sage-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                   >
                     Sign In
                   </a>
@@ -185,10 +185,10 @@ export default function SuggestSourceModal({
                       }}
                       onBlur={handleUrlBlur}
                       placeholder="https://example.com/article"
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white ${
+                      className={`w-full px-3 py-2 border rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
                         urlError
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-error focus-visible:ring-error"
+                          : "border-ivory-600 dark:border-gray-600 focus-visible:ring-sage-500"
                       }`}
                     />
                     {urlError && (
@@ -209,7 +209,7 @@ export default function SuggestSourceModal({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Article title"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -226,7 +226,7 @@ export default function SuggestSourceModal({
                       value={publisher}
                       onChange={(e) => setPublisher(e.target.value)}
                       placeholder="e.g., New York Times"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
@@ -241,7 +241,7 @@ export default function SuggestSourceModal({
                       id="politicalLean"
                       value={politicalLean}
                       onChange={(e) => setPoliticalLean(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     >
                       {POLITICAL_LEAN_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -264,17 +264,17 @@ export default function SuggestSourceModal({
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Why is this source relevant?"
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white resize-none"
+                      className="w-full px-3 py-2 border border-ivory-600 dark:border-gray-600 rounded-lg bg-ivory-50 dark:bg-gray-800 text-ink-800 dark:text-white resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={!isUrlValid || isSubmitting}
-                    className={`w-full py-2.5 rounded-lg font-medium transition ${
+                    className={`w-full py-2.5 rounded-lg font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
                       isUrlValid && !isSubmitting
-                        ? "bg-primary text-white hover:bg-primary/90"
-                        : "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+                        ? "bg-sage-500 text-white hover:bg-sage-600"
+                        : "bg-ivory-400 dark:bg-gray-700 text-ink-400 cursor-not-allowed"
                     }`}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Suggestion"}

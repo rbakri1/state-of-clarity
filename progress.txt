@@ -381,3 +381,29 @@ Thread: https://ampcode.com/threads/T-019bb0a6-6c01-7245-9484-ceafd8b4ebe1
   - Terms of service can avoid banned words with equivalent legal language
   - En-dashes (–) for ranges, not hyphens (-) per typography standards
 ---
+
+## 2026-01-12 26:00 - US-019 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0a9-3a80-707c-9c6e-8a60b258c9ba
+- **What was implemented:** Reviewed and updated all page copy for brand voice consistency
+- **Files changed:**
+  - app/not-found.tsx (complete rewrite with design system + active voice)
+  - app/error.tsx (complete rewrite with helpful guidance + design system)
+  - app/loading.tsx (updated to ivory/ink/sage design system)
+  - app/brief/[id]/loading.tsx (updated to design system)
+  - app/settings/page.tsx (reading level labels: en-dashes, "Graduate researchers")
+  - components/generation/generation-progress.tsx (active voice stage labels)
+  - app/auth/error/page.tsx (active voice error messages)
+- **Changes:**
+  - Not Found: "We couldn't find that page" (active voice), uses ivory/ink/sage, helpful CTAs
+  - Error: "We hit an unexpected error" with support link and helpful guidance
+  - Loading states: All skeleton colors now use ivory-300, sage-100, success-light (design system)
+  - Settings reading levels: Changed hyphens to en-dashes (8–12), "Graduate researchers" not "Graduate+"
+  - Generation progress: "Finding credible sources", "Building the full analysis", "Scoring for clarity and transparency"
+  - Auth errors: "We didn't receive...", "We couldn't complete...", "We hit an issue..." (all active voice)
+- **Learnings for future iterations:**
+  - All error messages should start with "We [verb]..." for active voice
+  - Loading states use same ivory/ink/sage palette as rest of app
+  - Reading level age ranges use en-dashes (–) not hyphens (-)
+  - Generation progress labels should describe the work being done, not technical processes
+  - Support contact (mailto:support@stateofclarity.com) for persistent errors
+---
