@@ -3,6 +3,7 @@
 import { Clock, GraduationCap, BookOpen, Baby, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReadingLevel } from "@/lib/types/brief";
+import ReactMarkdown from "react-markdown";
 
 interface SummaryCardProps {
   level: ReadingLevel;
@@ -131,10 +132,13 @@ export function SummaryCard({
         className={cn(
           config.text,
           config.lineHeight,
-          "text-ink-800 font-body whitespace-pre-wrap"
+          "text-ink-800 font-body prose prose-sage max-w-none",
+          "prose-headings:font-heading prose-headings:text-ink-800",
+          "prose-p:text-ink-700 prose-strong:text-ink-800",
+          "prose-ul:text-ink-700 prose-li:text-ink-700"
         )}
       >
-        {content}
+        <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     </div>
   );

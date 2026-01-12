@@ -22,6 +22,7 @@ import { PoliticalLeanBadge } from "@/components/sources/political-lean-badge";
 import { CredibilityBadge } from "@/components/sources/credibility-badge";
 import type { ReadingLevel, PoliticalLean } from "@/lib/types/brief";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 import briefUK4Day from "@/sample-briefs/uk-four-day-week.json";
 import briefWhatIsState from "@/sample-briefs/what-is-a-state.json";
@@ -490,17 +491,8 @@ export default function BriefPage() {
                 <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
                   Narrative Analysis
                 </h2>
-                <div className="prose prose-custom max-w-prose">
-                  {brief.narrative
-                    .split("\n\n")
-                    .map((paragraph: string, i: number) => (
-                      <p
-                        key={i}
-                        className="mb-4 text-base leading-relaxed text-ink-800 font-body"
-                      >
-                        {paragraph}
-                      </p>
-                    ))}
+                <div className="prose prose-sage max-w-prose prose-headings:font-heading prose-headings:text-ink-800 prose-p:text-ink-700 prose-strong:text-ink-800 prose-ul:text-ink-700 prose-li:text-ink-700">
+                  <ReactMarkdown>{brief.narrative}</ReactMarkdown>
                 </div>
               </section>
             )}
@@ -530,27 +522,33 @@ export default function BriefPage() {
 
                 {expandedSections.definitions && (
                   <div className="space-y-3">
-                    {(brief.structured_data.definitions || []).map(
-                      (def: any, i: number) => (
-                        <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                          <dt className="font-semibold text-sage-600 mb-2 font-ui">
-                            {def.term}
-                          </dt>
-                          <dd className="text-sm mb-2 text-ink-700 font-body">
-                            {def.definition}
-                          </dd>
-                          {def.source && (
-                            <dd className="text-xs text-ink-500 mb-2 font-ui">
-                              <strong>Source:</strong> {def.source}
+                    {(brief.structured_data.definitions || []).length === 0 ? (
+                      <div className="p-6 text-center border-2 border-dashed border-ivory-400 rounded-lg bg-ivory-50">
+                        <p className="text-ink-500 font-body">No key definitions identified for this topic.</p>
+                      </div>
+                    ) : (
+                      (brief.structured_data.definitions || []).map(
+                        (def: any, i: number) => (
+                          <div key={i} className="p-4 bg-ivory-100 rounded-lg">
+                            <dt className="font-semibold text-sage-600 mb-2 font-ui">
+                              {def.term}
+                            </dt>
+                            <dd className="text-sm mb-2 text-ink-700 font-body">
+                              {def.definition}
                             </dd>
-                          )}
-                          {def.points_of_contention && (
-                            <dd className="text-xs text-rust-600 font-ui">
-                              <strong>⚠ Points of Contention:</strong>{" "}
-                              {def.points_of_contention}
-                            </dd>
-                          )}
-                        </div>
+                            {def.source && (
+                              <dd className="text-xs text-ink-500 mb-2 font-ui">
+                                <strong>Source:</strong> {def.source}
+                              </dd>
+                            )}
+                            {def.points_of_contention && (
+                              <dd className="text-xs text-rust-600 font-ui">
+                                <strong>⚠ Points of Contention:</strong>{" "}
+                                {def.points_of_contention}
+                              </dd>
+                            )}
+                          </div>
+                        )
                       )
                     )}
                   </div>
@@ -575,28 +573,49 @@ export default function BriefPage() {
 
                 {expandedSections.factors && (
                   <div className="space-y-4">
-                    {(brief.structured_data.factors || []).map(
-                      (factor: any, i: number) => (
-                        <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="font-semibold font-ui text-ink-800">
+                    {(brief.structured_data.factors || []).length === 0 ? (
+                      <div className="p-6 text-center border-2 border-dashed border-ivory-400 rounded-lg bg-ivory-50">
+                        <p className="text-ink-500 font-body">No key factors identified for this topic.</p>
+                      </div>
+                    ) : (
+                      (brief.structured_data.factors || []).map(
+                        (factor: any, i: number) => (
+                          <div key={i} className="p-4 bg-ivory-100 rounded-lg">
+                            <h4 className="font-semibold font-ui text-ink-800 mb-2">
                               {factor.name}
                             </h4>
-                            <span className="text-xs px-2 py-1 rounded-full bg-sage-100 text-sage-700 font-ui">
-                              {factor.impact}
-                            </span>
-                          </div>
-                          {factor.evidence && factor.evidence.length > 0 && (
-                            <div className="text-sm text-ink-600 mb-2 font-body">
-                              <strong className="font-ui">Evidence:</strong>
-                              <ul className="list-disc list-inside mt-1 space-y-1">
-                                {factor.evidence.map((ev: any, j: number) => (
-                                  <li key={j}>{ev}</li>
+                            {factor.description && (
+                              <p className="text-sm text-ink-600 mb-3 font-body">
+                                {factor.description}
+                              </p>
+                            )}
+                            {factor.impact && (
+                              <div className="text-sm text-ink-700 mb-2 font-body">
+                                <strong className="font-ui text-sage-700">Impact:</strong>{" "}
+                                {factor.impact}
+                              </div>
+                            )}
+                            {factor.stakeholders && factor.stakeholders.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {factor.stakeholders.map((sh: string, j: number) => (
+                                  <span key={j} className="text-xs px-2 py-1 rounded-full bg-sage-100 text-sage-700 font-ui">
+                                    {sh}
+                                  </span>
                                 ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
+                              </div>
+                            )}
+                            {factor.evidence && factor.evidence.length > 0 && (
+                              <div className="text-sm text-ink-600 mt-3 font-body">
+                                <strong className="font-ui">Evidence:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                  {factor.evidence.map((ev: any, j: number) => (
+                                    <li key={j}>{ev}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )
                       )
                     )}
                   </div>
@@ -621,39 +640,80 @@ export default function BriefPage() {
 
                 {expandedSections.policies && (
                   <div className="space-y-4">
-                    {(brief.structured_data.policies || []).map(
-                      (policy: any, i: number) => (
-                        <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                          <h4 className="font-semibold mb-3 font-ui text-ink-800">
-                            {policy.name}
-                          </h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-body">
-                            {policy.pros && policy.pros.length > 0 && (
-                              <div>
-                                <div className="font-medium text-success-dark mb-2 font-ui">
-                                  Pros:
-                                </div>
-                                <ul className="list-disc list-inside space-y-1 text-ink-600">
-                                  {policy.pros.map((pro: any, j: number) => (
-                                    <li key={j}>{pro}</li>
-                                  ))}
-                                </ul>
+                    {(brief.structured_data.policies || []).length === 0 ? (
+                      <div className="p-6 text-center border-2 border-dashed border-ivory-400 rounded-lg bg-ivory-50">
+                        <p className="text-ink-500 font-body">No policy options identified for this topic.</p>
+                      </div>
+                    ) : (
+                      (brief.structured_data.policies || []).map(
+                        (policy: any, i: number) => (
+                          <div key={i} className="p-4 bg-ivory-100 rounded-lg">
+                            <h4 className="font-semibold mb-2 font-ui text-ink-800">
+                              {policy.name}
+                            </h4>
+                            {policy.description && (
+                              <p className="text-sm text-ink-600 mb-3 font-body">
+                                {policy.description}
+                              </p>
+                            )}
+                            {policy.tradeoffs && (
+                              <div className="text-sm text-ink-700 mb-3 font-body">
+                                <strong className="font-ui text-sage-700">Trade-offs:</strong>{" "}
+                                {policy.tradeoffs}
                               </div>
                             )}
-                            {policy.cons && policy.cons.length > 0 && (
-                              <div>
-                                <div className="font-medium text-error-dark mb-2 font-ui">
-                                  Cons:
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-body">
+                              {policy.proponents && policy.proponents.length > 0 && (
+                                <div>
+                                  <div className="font-medium text-success-dark mb-2 font-ui">
+                                    Proponents:
+                                  </div>
+                                  <ul className="list-disc list-inside space-y-1 text-ink-600">
+                                    {policy.proponents.map((p: any, j: number) => (
+                                      <li key={j}>{p}</li>
+                                    ))}
+                                  </ul>
                                 </div>
-                                <ul className="list-disc list-inside space-y-1 text-ink-600">
-                                  {policy.cons.map((con: any, j: number) => (
-                                    <li key={j}>{con}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                              )}
+                              {policy.opponents && policy.opponents.length > 0 && (
+                                <div>
+                                  <div className="font-medium text-error-dark mb-2 font-ui">
+                                    Opponents:
+                                  </div>
+                                  <ul className="list-disc list-inside space-y-1 text-ink-600">
+                                    {policy.opponents.map((o: any, j: number) => (
+                                      <li key={j}>{o}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {policy.pros && policy.pros.length > 0 && (
+                                <div>
+                                  <div className="font-medium text-success-dark mb-2 font-ui">
+                                    Pros:
+                                  </div>
+                                  <ul className="list-disc list-inside space-y-1 text-ink-600">
+                                    {policy.pros.map((pro: any, j: number) => (
+                                      <li key={j}>{pro}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {policy.cons && policy.cons.length > 0 && (
+                                <div>
+                                  <div className="font-medium text-error-dark mb-2 font-ui">
+                                    Cons:
+                                  </div>
+                                  <ul className="list-disc list-inside space-y-1 text-ink-600">
+                                    {policy.cons.map((con: any, j: number) => (
+                                      <li key={j}>{con}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )
                       )
                     )}
                   </div>
@@ -679,31 +739,37 @@ export default function BriefPage() {
 
                 {expandedSections.consequences && (
                   <div className="space-y-4">
-                    {(brief.structured_data.consequences || []).map(
-                      (consequence: any, i: number) => (
-                        <div key={i} className="p-4 bg-ivory-100 rounded-lg">
-                          <h4 className="font-semibold mb-3 font-ui text-ink-800">
-                            {consequence.action}
-                          </h4>
-                          <div className="space-y-2 text-sm font-body">
-                            <div>
-                              <span className="font-medium font-ui text-ink-700">
-                                First-order:
-                              </span>{" "}
-                              <span className="text-ink-600">
-                                {consequence.first_order}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-medium font-ui text-ink-700">
-                                Second-order:
-                              </span>{" "}
-                              <span className="text-ink-600">
-                                {consequence.second_order}
-                              </span>
+                    {(brief.structured_data.consequences || []).length === 0 ? (
+                      <div className="p-6 text-center border-2 border-dashed border-ivory-400 rounded-lg bg-ivory-50">
+                        <p className="text-ink-500 font-body">No second-order effects analyzed for this topic.</p>
+                      </div>
+                    ) : (
+                      (brief.structured_data.consequences || []).map(
+                        (consequence: any, i: number) => (
+                          <div key={i} className="p-4 bg-ivory-100 rounded-lg">
+                            <h4 className="font-semibold mb-3 font-ui text-ink-800">
+                              {consequence.action}
+                            </h4>
+                            <div className="space-y-2 text-sm font-body">
+                              <div>
+                                <span className="font-medium font-ui text-ink-700">
+                                  First-order:
+                                </span>{" "}
+                                <span className="text-ink-600">
+                                  {consequence.first_order}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="font-medium font-ui text-ink-700">
+                                  Second-order:
+                                </span>{" "}
+                                <span className="text-ink-600">
+                                  {consequence.second_order}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        )
                       )
                     )}
                   </div>
