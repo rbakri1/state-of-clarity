@@ -123,7 +123,7 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <div className="flex-1 pt-2 sm:pt-0 sm:pb-2">
+              <div className="flex-1 pt-6 sm:pt-4 sm:pb-2">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-0.5">
                     <h1 className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{displayName}</h1>
