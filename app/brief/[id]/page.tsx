@@ -736,7 +736,7 @@ export default function BriefPage() {
           {/* Sidebar */}
           <aside className="lg:col-span-1 space-y-6">
             {/* Clarity Score Breakdown (expandable) */}
-            {showClarityBreakdown && (
+            {showClarityBreakdown && brief.clarity_critique && (
               <div className="bg-ivory-200 rounded-xl border border-ivory-600 p-6 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold font-ui text-ink-800">
@@ -752,25 +752,32 @@ export default function BriefPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {Object.entries(brief.clarity_critique.breakdown).map(
-                    ([key, value]) => (
-                      <div key={key}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm capitalize text-ink-600 font-ui">
-                            {key.replace(/_/g, " ")}
-                          </span>
-                          <span className="text-sm font-medium text-ink-800 font-ui">
-                            {((value as number) * 10).toFixed(1)}
-                          </span>
+                  {brief.clarity_critique?.breakdown && Object.entries(brief.clarity_critique.breakdown).map(
+                    ([key, value]) => {
+                      // Normalize value: if > 10, it's on 0-100 scale, convert to 0-10
+                      const numVal = typeof value === 'number' ? value : 0;
+                      const displayVal = numVal > 10 ? numVal / 10 : numVal;
+                      const percentVal = numVal > 10 ? numVal : numVal * 100;
+                      
+                      return (
+                        <div key={key}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm capitalize text-ink-600 font-ui">
+                              {key.replace(/_/g, " ")}
+                            </span>
+                            <span className="text-sm font-medium text-ink-800 font-ui">
+                              {displayVal.toFixed(1)}
+                            </span>
+                          </div>
+                          <div className="w-full bg-ivory-400 rounded-full h-2">
+                            <div
+                              className="bg-sage-500 rounded-full h-2 transition-all"
+                              style={{ width: `${Math.min(percentVal, 100)}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-ivory-400 rounded-full h-2">
-                          <div
-                            className="bg-sage-500 rounded-full h-2 transition-all"
-                            style={{ width: `${(value as number) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
+                      );
+                    }
                   )}
                 </div>
 
