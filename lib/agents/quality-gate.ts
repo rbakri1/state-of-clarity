@@ -152,7 +152,7 @@ Return JSON:
 }`;
 
     const message = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 500,
       messages: [{ role: "user", content: prompt }],
     });
@@ -230,7 +230,7 @@ Or if you cannot improve it:
 }`;
 
   const message = await anthropic.messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-sonnet-4-5-20250929",
     max_tokens: 4000,
     messages: [{ role: "user", content: refinementPrompt }],
   });

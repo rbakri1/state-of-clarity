@@ -406,7 +406,7 @@ async function generateStructure(state: BriefState): Promise<StructureOutput> {
     : 'You are a policy analyst.';
   
   const message = await anthropic.messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-opus-4-5-20251101",
     max_tokens: 4000,
     messages: [{
       role: "user",
@@ -473,7 +473,7 @@ async function generateNarrative(state: BriefState): Promise<NarrativeOutput> {
     : 'You are a policy analyst.';
   
   const message = await anthropic.messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-opus-4-5-20251101",
     max_tokens: 4000,
     messages: [{
       role: "user",
@@ -542,7 +542,7 @@ async function generateSummary(state: BriefState, level: ReadingLevel): Promise<
     : '';
   
   const message = await anthropic.messages.create({
-    model: "claude-3-5-haiku-20241022",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 1000,
     messages: [{
       role: "user",
@@ -576,7 +576,7 @@ async function scoreClarityInternal(state: BriefState): Promise<ClarityScore> {
     : 0;
   
   const message = await anthropic.messages.create({
-    model: "claude-3-5-haiku-20241022",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 500,
     messages: [{
       role: "user",

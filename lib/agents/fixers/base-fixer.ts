@@ -14,7 +14,7 @@ import {
   EditPriority,
 } from "@/lib/types/refinement";
 
-const HAIKU_MODEL = "claude-3-5-haiku-20241022";
+const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
