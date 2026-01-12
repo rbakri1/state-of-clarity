@@ -31,3 +31,15 @@ Thread: https://ampcode.com/threads/T-019bb309-c336-7669-b1cc-bd0c3729851d
   - Used partial index `WHERE is_public = true` for efficient Explore page filtering
   - Follow same pattern as US-001 for adding columns
 ---
+
+## Mon 12 Jan 2026 - US-003
+Thread: https://ampcode.com/threads/T-019bb30b-5ba3-775f-a3ad-93ceceb6032c
+- Created `/api/briefs/[id]/view/route.ts` endpoint to increment view_count
+- Uses httpOnly cookie (`brief_viewed_{id}`) with 24hr expiry to track session views
+- Updated `app/brief/[id]/page.tsx` to call view tracking after successful brief load
+- View tracking fails silently (console.warn only) to not break page load
+- **Learnings for future iterations:**
+  - Use `cookies()` from `next/headers` for cookie access in route handlers
+  - Supabase client pattern: `getSupabaseClient()` function with service role key
+  - Keep view tracking non-blocking with silent failures
+---
