@@ -2,8 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-function createSupabaseClient() {
-  const cookieStore = cookies();
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,7 +25,7 @@ function createSupabaseClient() {
 }
 
 export async function GET() {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const {
     data: { user },

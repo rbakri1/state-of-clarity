@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,10 +59,10 @@ export default function SignUpPage() {
         } else {
           setMessage({ type: "error", text: error.message });
         }
+        setEmailSent(false);
       } else {
         setMessage({ type: "success", text: "Check your email to confirm your account. It may take a minute to arrive." });
-        setEmail("");
-        setFullName("");
+        setEmailSent(true);
       }
     } catch {
       setMessage({ type: "error", text: "Something went wrong. Please try again." });
@@ -159,95 +160,123 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium font-ui text-ink-600 mb-2">
-                  Email address <span className="text-error">*</span>
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui placeholder:text-ink-400 focus:border-sage-500 focus:ring-2 focus:ring-sage-500/20 focus:outline-none transition-colors duration-200"
-                  disabled={isLoading}
-                  autoComplete="email"
-                  autoFocus
-                  aria-required="true"
-                  aria-describedby={message?.type === "error" ? "form-error" : undefined}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium font-ui text-ink-600 mb-2">
-                  Full name <span className="text-ink-400">(optional)</span>
-                </label>
-                <input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-full px-4 py-3 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui placeholder:text-ink-400 focus:border-sage-500 focus:ring-2 focus:ring-sage-500/20 focus:outline-none transition-colors duration-200"
-                  disabled={isLoading}
-                  autoComplete="name"
-                />
-              </div>
-
-              <div className="flex items-start gap-3">
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={ageVerified}
-                  onClick={() => setAgeVerified(!ageVerified)}
-                  className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
-                    ageVerified
-                      ? "bg-sage-500 border-sage-500"
-                      : "border-ivory-700 bg-ivory-100 hover:border-sage-400"
-                  }`}
-                  disabled={isLoading}
-                >
-                  {ageVerified && <Check className="w-3 h-3 text-ivory-100" strokeWidth={3} />}
-                </button>
-                <label
-                  htmlFor="age-verification"
-                  onClick={() => setAgeVerified(!ageVerified)}
-                  className="text-sm font-ui text-ink-600 cursor-pointer select-none"
-                >
-                  I confirm that I am 13 years of age or older <span className="text-error">*</span>
-                </label>
-              </div>
-
-              {message && (
-                <div
-                  id="form-error"
-                  role={message.type === "error" ? "alert" : "status"}
-                  className={`p-4 rounded-lg text-sm font-ui ${
-                    message.type === "success"
-                      ? "bg-success-light text-success-dark border border-success/20"
-                      : "bg-error-light text-error-dark border border-error/20"
-                  }`}
-                >
-                  {message.text}
+            {!emailSent ? (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium font-ui text-ink-600 mb-2">
+                    Email address <span className="text-error">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full px-4 py-3 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui placeholder:text-ink-400 focus:border-sage-500 focus:ring-2 focus:ring-sage-500/20 focus:outline-none transition-colors duration-200"
+                    disabled={isLoading}
+                    autoComplete="email"
+                    autoFocus
+                    aria-required="true"
+                    aria-describedby={message?.type === "error" ? "form-error" : undefined}
+                  />
                 </div>
-              )}
 
-              <button
-                type="submit"
-                disabled={isLoading || isOAuthLoading !== null}
-                className="w-full py-3 rounded-lg bg-sage-500 text-ivory-100 font-medium font-ui hover:bg-sage-600 active:bg-sage-700 disabled:bg-ivory-300 disabled:text-ink-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  "Create account"
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium font-ui text-ink-600 mb-2">
+                    Full name <span className="text-ink-400">(optional)</span>
+                  </label>
+                  <input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui placeholder:text-ink-400 focus:border-sage-500 focus:ring-2 focus:ring-sage-500/20 focus:outline-none transition-colors duration-200"
+                    disabled={isLoading}
+                    autoComplete="name"
+                  />
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={ageVerified}
+                    onClick={() => setAgeVerified(!ageVerified)}
+                    className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
+                      ageVerified
+                        ? "bg-sage-500 border-sage-500"
+                        : "border-ivory-700 bg-ivory-100 hover:border-sage-400"
+                    }`}
+                    disabled={isLoading}
+                  >
+                    {ageVerified && <Check className="w-3 h-3 text-ivory-100" strokeWidth={3} />}
+                  </button>
+                  <label
+                    htmlFor="age-verification"
+                    onClick={() => setAgeVerified(!ageVerified)}
+                    className="text-sm font-ui text-ink-600 cursor-pointer select-none"
+                  >
+                    I confirm that I am 13 years of age or older <span className="text-error">*</span>
+                  </label>
+                </div>
+
+                {message && (
+                  <div
+                    id="form-error"
+                    role={message.type === "error" ? "alert" : "status"}
+                    className={`p-4 rounded-lg text-sm font-ui ${
+                      message.type === "success"
+                        ? "bg-success-light text-success-dark border border-success/20"
+                        : "bg-error-light text-error-dark border border-error/20"
+                    }`}
+                  >
+                    {message.text}
+                  </div>
                 )}
-              </button>
-            </form>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || isOAuthLoading !== null}
+                  className="w-full py-3 rounded-lg bg-sage-500 text-ivory-100 font-medium font-ui hover:bg-sage-600 active:bg-sage-700 disabled:bg-ivory-300 disabled:text-ink-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-5">
+                {message && (
+                  <div
+                    role="status"
+                    className="p-4 rounded-lg text-sm font-ui bg-success-light text-success-dark border border-success/20"
+                  >
+                    {message.text}
+                  </div>
+                )}
+
+                <div className="text-center space-y-3">
+                  <p className="text-sm font-ui text-ink-600">
+                    Didn&apos;t receive the email? Check your spam folder or request a new one.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setEmailSent(false);
+                      setMessage(null);
+                    }}
+                    className="w-full py-3 rounded-lg border border-sage-500 text-sage-600 font-medium font-ui hover:bg-sage-50 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                  >
+                    Resend verification email
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">

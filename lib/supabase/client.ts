@@ -484,7 +484,7 @@ export function createBrowserClient() {
  * Handles cookie-based authentication
  */
 export async function createServerSupabaseClient() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

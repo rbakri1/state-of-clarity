@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { CreditBalance } from "./components/CreditBalance";
 import { LowBalanceWarning } from "./components/LowBalanceWarning";
 import { BriefGenerationProgress } from "@/components/generation/generation-progress";
+import { AuthRequiredModal } from "@/components/auth/auth-required-modal";
 import type { GenerationStage } from "@/lib/types/brief";
 
 const MIN_QUESTION_LENGTH = 10;
@@ -28,7 +29,8 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const [generationStage, setGenerationStage] = useState<GenerationStage>("research");
   const [generationProgress, setGenerationProgress] = useState(0);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(TOTAL_ESTIMATED_TIME / 1000);
@@ -97,6 +99,10 @@ export default function Home() {
       setGenerationProgress(100);
 
       if (!response.ok) {
+        if (response.status === 401) {
+          setShowAuthModal(true);
+          return;
+        }
         if (response.status === 402 && data.creditsLink) {
           setError(`${data.error} `);
           setTimeout(() => {
@@ -192,11 +198,10 @@ export default function Home() {
               {/* Mobile: stacked input and button */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute top-4 left-0 pl-4 flex items-start pointer-events-none">
                     <Search className="h-5 w-5 text-ink-400" />
                   </div>
-                  <input
-                    type="text"
+                  <textarea
                     value={question}
                     onChange={(e) => {
                       if (e.target.value.length <= MAX_QUESTION_LENGTH + 50) {
@@ -204,6 +209,7 @@ export default function Home() {
                       }
                     }}
                     placeholder="Ask a policy question..."
+                    rows={2}
                     className={cn(
                       "w-full pl-12 pr-4 py-4 rounded-xl",
                       "border-2 bg-ivory-50",
@@ -212,6 +218,8 @@ export default function Home() {
                       "focus:ring-2 focus:ring-sage-500/20 outline-none",
                       "transition-all duration-200",
                       "disabled:bg-ivory-200 disabled:cursor-not-allowed",
+                      "resize-none",
+                      "min-h-[56px]",
                       charStatus.status === "too-long" ? "border-error focus:border-error" :
                       charStatus.status === "too-short" && question.length > 0 ? "border-warning focus:border-warning" :
                       "border-ivory-600 focus:border-sage-500"
@@ -219,6 +227,16 @@ export default function Home() {
                     disabled={isLoading}
                     maxLength={MAX_QUESTION_LENGTH + 50}
                     aria-describedby="question-hint"
+                    style={{
+                      height: question.length > 50 ? 'auto' : '56px',
+                      minHeight: '56px',
+                      maxHeight: '200px',
+                    }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = '56px';
+                      target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+                    }}
                   />
                 </div>
                 <button
@@ -274,6 +292,12 @@ export default function Home() {
             </div>
           )}
 
+          {/* Authentication Required Modal */}
+          <AuthRequiredModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+          />
+
           {/* Error Message */}
           {error && !isLoading && (
             <div className={cn(
@@ -283,8 +307,8 @@ export default function Home() {
             )}>
               {error}
               {error.includes("credits") && (
-                <Link 
-                  href="/credits" 
+                <Link
+                  href="/credits"
                   className="ml-1 underline hover:no-underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 rounded"
                 >
                   Buy credits →

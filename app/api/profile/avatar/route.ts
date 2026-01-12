@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-function createSupabaseClient() {
-  const cookieStore = cookies();
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,7 +34,7 @@ const ALLOWED_MIME_TYPES = [
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
 export async function POST(request: NextRequest) {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const {
     data: { user },

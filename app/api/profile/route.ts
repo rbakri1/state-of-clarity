@@ -6,8 +6,8 @@ import { withErrorHandling } from "@/lib/errors/with-error-handling";
 import { ApiError } from "@/lib/errors/api-error";
 import { safeQuery } from "@/lib/supabase/safe-query";
 
-function createSupabaseClient() {
-  const cookieStore = cookies();
+async function createSupabaseClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +31,7 @@ function createSupabaseClient() {
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 
 export const GET = withErrorHandling(async () => {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const {
     data: { user },
@@ -86,7 +86,7 @@ export const GET = withErrorHandling(async () => {
 });
 
 export const PATCH = withErrorHandling(async (request: NextRequest) => {
-  const supabase = createSupabaseClient();
+  const supabase = await createSupabaseClient();
 
   const {
     data: { user },
