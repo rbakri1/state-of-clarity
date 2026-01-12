@@ -308,7 +308,7 @@ export default function BriefPage() {
                     <SummaryCard
                       key={level}
                       level={level}
-                      content={brief.summaries[level] || ""}
+                      content={brief.summaries?.[level] || ""}
                       isActive={activeLevel === level}
                     />
                   )
@@ -485,39 +485,42 @@ export default function BriefPage() {
             )}
 
             {/* Narrative Analysis */}
-            <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
-              <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
-                Narrative Analysis
-              </h2>
-              <div className="prose prose-custom max-w-prose">
-                {brief.narrative
-                  .split("\n\n")
-                  .map((paragraph: string, i: number) => (
-                    <p
-                      key={i}
-                      className="mb-4 text-base leading-relaxed text-ink-800 font-body"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-              </div>
-            </section>
+            {brief.narrative && (
+              <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
+                <h2 className="text-xl font-bold font-heading text-ink-800 mb-4">
+                  Narrative Analysis
+                </h2>
+                <div className="prose prose-custom max-w-prose">
+                  {brief.narrative
+                    .split("\n\n")
+                    .map((paragraph: string, i: number) => (
+                      <p
+                        key={i}
+                        className="mb-4 text-base leading-relaxed text-ink-800 font-body"
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+                </div>
+              </section>
+            )}
 
             {/* Structured Data */}
-            <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
-              <h2 className="text-xl font-bold font-heading text-ink-800 mb-6">
-                Structured Analysis
-              </h2>
+            {brief.structured_data && (
+              <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
+                <h2 className="text-xl font-bold font-heading text-ink-800 mb-6">
+                  Structured Analysis
+                </h2>
 
-              {/* Definitions */}
-              <div className="mb-6">
-                <button
-                  onClick={() => toggleSection("definitions")}
-                  className="flex items-center justify-between w-full text-left mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
-                >
-                  <h3 className="text-lg font-semibold font-ui text-ink-800">
-                    Key Definitions ({brief.structured_data.definitions?.length || 0})
-                  </h3>
+                {/* Definitions */}
+                <div className="mb-6">
+                  <button
+                    onClick={() => toggleSection("definitions")}
+                    className="flex items-center justify-between w-full text-left mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded"
+                  >
+                    <h3 className="text-lg font-semibold font-ui text-ink-800">
+                      Key Definitions ({brief.structured_data.definitions?.length || 0})
+                    </h3>
                   {expandedSections.definitions ? (
                     <ChevronUp className="w-5 h-5 text-ink-600" />
                   ) : (
@@ -583,14 +586,16 @@ export default function BriefPage() {
                               {factor.impact}
                             </span>
                           </div>
-                          <div className="text-sm text-ink-600 mb-2 font-body">
-                            <strong className="font-ui">Evidence:</strong>
-                            <ul className="list-disc list-inside mt-1 space-y-1">
-                              {factor.evidence.map((ev: any, j: number) => (
-                                <li key={j}>{ev}</li>
-                              ))}
-                            </ul>
-                          </div>
+                          {factor.evidence && factor.evidence.length > 0 && (
+                            <div className="text-sm text-ink-600 mb-2 font-body">
+                              <strong className="font-ui">Evidence:</strong>
+                              <ul className="list-disc list-inside mt-1 space-y-1">
+                                {factor.evidence.map((ev: any, j: number) => (
+                                  <li key={j}>{ev}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                       )
                     )}
@@ -623,26 +628,30 @@ export default function BriefPage() {
                             {policy.name}
                           </h4>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-body">
-                            <div>
-                              <div className="font-medium text-success-dark mb-2 font-ui">
-                                Pros:
+                            {policy.pros && policy.pros.length > 0 && (
+                              <div>
+                                <div className="font-medium text-success-dark mb-2 font-ui">
+                                  Pros:
+                                </div>
+                                <ul className="list-disc list-inside space-y-1 text-ink-600">
+                                  {policy.pros.map((pro: any, j: number) => (
+                                    <li key={j}>{pro}</li>
+                                  ))}
+                                </ul>
                               </div>
-                              <ul className="list-disc list-inside space-y-1 text-ink-600">
-                                {policy.pros.map((pro: any, j: number) => (
-                                  <li key={j}>{pro}</li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div>
-                              <div className="font-medium text-error-dark mb-2 font-ui">
-                                Cons:
+                            )}
+                            {policy.cons && policy.cons.length > 0 && (
+                              <div>
+                                <div className="font-medium text-error-dark mb-2 font-ui">
+                                  Cons:
+                                </div>
+                                <ul className="list-disc list-inside space-y-1 text-ink-600">
+                                  {policy.cons.map((con: any, j: number) => (
+                                    <li key={j}>{con}</li>
+                                  ))}
+                                </ul>
                               </div>
-                              <ul className="list-disc list-inside space-y-1 text-ink-600">
-                                {policy.cons.map((con: any, j: number) => (
-                                  <li key={j}>{con}</li>
-                                ))}
-                              </ul>
-                            </div>
+                            )}
                           </div>
                         </div>
                       )
@@ -701,6 +710,7 @@ export default function BriefPage() {
                 )}
               </div>
             </section>
+            )}
 
             {/* Feedback Section */}
             <section className="bg-ivory-200 rounded-xl border border-ivory-600 p-6">
@@ -828,14 +838,14 @@ export default function BriefPage() {
               className="bg-ivory-200 rounded-xl border border-ivory-600 p-6 sticky top-24"
             >
               <h3 className="font-semibold mb-2 font-ui text-ink-800">
-                Sources ({brief.sources.length})
+                Sources ({brief.sources?.length || 0})
               </h3>
               <p className="text-xs text-ink-500 font-ui mb-4">
                 We show credibility scores and political lean – verify for yourself.
               </p>
 
               <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                {brief.sources.map((source: any, index: number) => (
+                {(brief.sources || []).map((source: any, index: number) => (
                   <a
                     key={source.id}
                     id={`source-${source.id}`}
@@ -857,11 +867,13 @@ export default function BriefPage() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 text-xs text-ink-500 mb-2 font-ui pl-6">
-                      <span>{source.author}</span>
-                      <span>•</span>
-                      <span>
-                        {new Date(source.publication_date).getFullYear()}
-                      </span>
+                      {source.author && <span>{source.author}</span>}
+                      {source.author && source.publication_date && <span>•</span>}
+                      {source.publication_date && (
+                        <span>
+                          {new Date(source.publication_date).getFullYear()}
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap gap-2 pl-6">
