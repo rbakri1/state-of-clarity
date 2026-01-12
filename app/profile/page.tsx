@@ -124,13 +124,16 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex-1 sm:pb-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div>
-                    <h1 className="text-2xl font-heading font-bold text-ink-800">{displayName}</h1>
-                    {profile?.username && (
-                      <p className="text-ink-500 font-ui">@{profile.username}</p>
-                    )}
-                  </div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h1 className="text-2xl font-heading font-bold text-ink-800">{displayName}</h1>
+                  {profile?.username && (
+                    <p className="text-ink-500 font-ui">@{profile.username}</p>
+                  )}
+                  {user?.email && (
+                    <p className="text-sm text-ink-500 font-ui">{user.email}</p>
+                  )}
+                </div>
                   <Link
                     href="/profile/edit"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
