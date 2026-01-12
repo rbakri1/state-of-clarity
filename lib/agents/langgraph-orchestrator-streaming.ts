@@ -400,51 +400,53 @@ Return a JSON object with this exact structure:
 {
   "definitions": [
     {
-      "term": "Key term or concept",
-      "definition": "Clear, neutral definition",
-      "source": "Where this definition comes from (optional)",
-      "points_of_contention": "Any contested aspects of this definition (optional)"
+      "term": "Key term or concept (e.g., 'Sovereignty', 'Net Migration', 'Social Contract')",
+      "definition": "Clear, neutral, precise definition (1-2 sentences)",
+      "source": "Academic source with author and year (e.g., 'Max Weber, Politics as a Vocation (1919)')",
+      "points_of_contention": "What is debated or contested about this term? Different interpretations, political disagreements, or evolving meanings"
     }
   ],
   "factors": [
     {
       "name": "Factor name",
-      "description": "Brief description",
-      "stakeholders": ["stakeholder1", "stakeholder2"],
-      "impact": "Description of impact"
+      "description": "What this factor is and why it matters",
+      "stakeholders": ["list", "of", "affected groups or actors"],
+      "impact": "How this factor influences the issue (2-3 sentences with specific evidence)"
     }
   ],
   "policies": [
     {
-      "name": "Policy name",
-      "description": "Brief description",
-      "proponents": ["group1", "group2"],
-      "opponents": ["group3"],
-      "tradeoffs": "Key tradeoffs"
+      "name": "Policy option name",
+      "description": "What this policy involves",
+      "proponents": ["groups or perspectives that support this"],
+      "opponents": ["groups or perspectives that oppose this"],
+      "tradeoffs": "Key tradeoffs and tensions in this approach (2-3 sentences)"
     }
   ],
   "consequences": [
     {
-      "action": "Policy action or decision",
-      "first_order": "Immediate, direct effects",
-      "second_order": "Downstream or unintended effects"
+      "action": "A specific policy action or decision",
+      "first_order": "Immediate, direct effects that follow from this action",
+      "second_order": "Downstream, unintended, or longer-term effects"
     }
   ],
   "timeline": [
     {
-      "date": "YYYY or YYYY-MM",
-      "event": "Event description",
-      "significance": "Why it matters"
+      "date": "Date or period (e.g., '2010-2019', '1648', 'May 2025')",
+      "event": "What happened",
+      "significance": "Why it matters for understanding this issue"
     }
   ]
 }
 
-Include:
-- 3-6 key definitions (terms essential for understanding the topic)
+IMPORTANT - Include:
+- 4-6 key DEFINITIONS: These are essential! Define core terms that readers need to understand the topic. Each must have a source and points_of_contention explaining what's debated about this concept.
 - 3-5 factors (major considerations or forces at play)
-- 2-4 policies (concrete policy options or approaches)
+- 2-4 policies (concrete policy options being debated)
 - 2-4 consequences (second-order effects of major policy choices)
-- 3-6 timeline events (key historical context)`
+- 3-6 timeline events (key historical context)
+
+For definitions, think: What terms would a reader need defined to truly understand this topic? What concepts have contested meanings?`
     }],
   });
 
