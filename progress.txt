@@ -359,3 +359,25 @@ Thread: https://ampcode.com/threads/T-019bb0a4-558b-712a-aa84-996463dcb607
   - Include concrete examples in hints/placeholders
   - "First principles" and "source transparency" are key brand terms
 ---
+
+## 2026-01-12 25:00 - US-018 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0a6-6c01-7245-9484-ceafd8b4ebe1
+- **What was implemented:** Brief viewer copy review and update per brand voice guidelines
+- **Files changed:**
+  - app/brief/[id]/page.tsx (copy updates in 4 locations)
+  - components/brief/reading-level-selector.tsx (updated reading level labels)
+  - app/terms/page.tsx (removed banned word "unbiased")
+- **Changes:**
+  - Clarity Score explanation: "We score each brief on..." (active voice) + "shows how transparent and well-supported" instead of passive description
+  - Sources section: Added transparency tagline "We show credibility scores and political lean – verify for yourself"
+  - Progressive Summaries: Renamed to "Choose Your Reading Level" with tagline "We meet you where you are – same evidence, tailored depth"
+  - Feedback section: "Help Us Improve" with "Collaborative truth-seeking works best when you challenge our work"
+  - Reading level labels: Changed hyphens to en-dashes (8–12), "Graduate researchers" instead of "Graduate+"
+  - Terms page: Changed "unbiased" to "free from limitations" (legal disclaimer context)
+- **Learnings for future iterations:**
+  - Use active voice: "We [verb]..." instead of passive descriptions
+  - Include call-to-action in transparency copy ("verify for yourself")
+  - Reading levels should feel welcoming, not like difficulty settings
+  - Terms of service can avoid banned words with equivalent legal language
+  - En-dashes (–) for ranges, not hyphens (-) per typography standards
+---

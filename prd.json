@@ -327,8 +327,8 @@
         "Typecheck passes"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated brief viewer copy: Clarity Score explanation uses active voice ('We score each brief...'), Sources section adds transparency tagline ('verify for yourself'), reading level labels use en-dash and 'Graduate researchers' for postdoc, Progressive Summaries section renamed to 'Choose Your Reading Level' with supportive tagline, Feedback section uses active voice ('Help Us Improve' with collaborative truth-seeking language), removed 'unbiased' from terms page."
     },
     {
       "id": "US-019",
