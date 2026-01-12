@@ -293,8 +293,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Profile page already well-polished with design system (ivory/ink/sage). Added email display to profile section. Settings page has: Profile section (avatar, display name), Reading Preferences (default level, topics), Privacy & Notifications (anonymous posting, email/push toggles), Data section (Export, Delete account). All sections use font-heading, focus-visible:ring-2 ring-sage-500."
     },
     {
       "id": "US-017",

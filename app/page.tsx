@@ -251,7 +251,7 @@ export default function Home() {
                   charStatus.status === "acceptable" && "text-ink-500",
                   charStatus.status === "empty" && "text-ink-400"
                 )}>
-                  {charStatus.message || (question.length === 0 ? "Be specific about the policy topic you want to understand" : "")}
+                  {charStatus.message || (question.length === 0 ? "Try asking about a specific policy, e.g., 'Should the UK raise the minimum wage?'" : "")}
                 </span>
                 <span className={cn(
                   "tabular-nums transition-colors duration-200",
@@ -311,8 +311,8 @@ export default function Home() {
                 Progressive Summaries
               </h3>
               <p className="text-sm font-body text-ink-500 leading-relaxed">
-                Four reading levels from child to postdoc. Meets you where you are, 
-                without dumbing down.
+                Four reading levels from ages 8 to PhD. We meet you where you are – 
+                no condescension, no gatekeeping.
               </p>
             </div>
 
@@ -329,8 +329,8 @@ export default function Home() {
                 Transparent Sources
               </h3>
               <p className="text-sm font-body text-ink-500 leading-relaxed">
-                Every claim linked to sources. See credibility scores and political 
-                lean for each.
+                We link every claim to its source. You see credibility scores and 
+                political lean – verify for yourself.
               </p>
             </div>
 
@@ -347,8 +347,8 @@ export default function Home() {
                 Clarity Score
               </h3>
               <p className="text-sm font-body text-ink-500 leading-relaxed">
-                AI-powered self-critique for bias, gaps, and coherence. We show 
-                our work.
+                Every brief scores itself for bias, gaps, and coherence. We show 
+                our reasoning.
               </p>
             </div>
           </div>
@@ -359,11 +359,11 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-ivory-500">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-heading font-semibold text-ink-800 mb-3">
-            Explore Showcase Briefs
+            See Evidence-Based Analysis in Action
           </h2>
           <p className="font-body text-ink-500 max-w-xl mx-auto">
-            See what evidence-based policy analysis looks like with these 
-            pre-generated examples.
+            These briefs show how we build reasoning from first principles – 
+            with full source transparency and layered complexity.
           </p>
         </div>
 

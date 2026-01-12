@@ -320,3 +320,23 @@ Thread: https://ampcode.com/threads/T-019baf76-5ffd-7081-b851-c1bbfabf87d8
   - Border colors can use opacity: border-error/20
   - Suspense boundary needed in error page for useSearchParams
 ---
+
+## 2026-01-12 24:00 - US-016 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0a1-d076-7705-8a21-0afc886245d5
+- **What was implemented:** Verified and polished profile/settings pages with design system
+- **Files changed:**
+  - app/profile/page.tsx (added email display to profile section)
+- **Findings:**
+  - Profile and Settings pages already fully polished with design system:
+    - Profile page: avatar, name, username, email, member since, stats grid, quick links (Saved, History, Settings, Export)
+    - Settings page: Profile section (avatar, display name), Reading Preferences (default level, topics), Privacy & Notifications (anonymous, email, push toggles), Data section (Export, Delete account)
+  - All using ivory/ink/sage palette, font-heading/font-ui typography
+  - All buttons/inputs have focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+  - Toggle switches use role="switch" aria-checked pattern
+  - Success/error messages use semantic colors (success-light/error-light)
+- **Learnings for future iterations:**
+  - Profile page at /profile, Settings page at /settings (separate pages)
+  - Profile edit at /profile/edit with avatar upload functionality
+  - Settings includes topics_of_interest with pill-style toggle buttons
+  - Delete account flows to /settings/delete-account
+---
