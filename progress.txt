@@ -485,3 +485,34 @@ Thread: https://ampcode.com/threads/T-019bb0bb-dcb9-76b1-a1e0-365307747ce3
   - Touch targets must be min-h-[44px] on mobile per accessibility guidelines
   - Stack input+button vertically on mobile with `flex-col sm:flex-row`
 ---
+
+## 2026-01-12 30:00 - US-023 (Brand/UI Sweep Epic)
+Thread: https://ampcode.com/threads/T-019bb0d5-80ee-7231-b582-861056fe0ade
+- **What was implemented:** First-time user welcome modal with mission disclaimer
+- **Files created:**
+  - components/onboarding/welcome-modal.tsx (main modal component)
+  - components/onboarding/welcome-modal-wrapper.tsx (client wrapper for SSR compatibility)
+- **Files changed:**
+  - app/layout.tsx (added WelcomeModalWrapper to global layout)
+- **Features:**
+  - Uses Radix Dialog for accessible modal with focus trap
+  - localStorage check for 'has-seen-welcome' key
+  - Shows on first visit, dismisses and saves preference on close
+  - 4 mission points with icons from lucide-react:
+    - "We pursue informed truth" (Search icon)
+    - "We provide thoughtful depth" (BookOpen icon)
+    - "We don't pick sides" (Shield icon)
+    - "We show our sources" (Users icon)
+  - Headline: "Welcome to State of Clarity"
+  - Primary CTA: "Get Started" button closes modal
+  - Secondary: "Learn More About Us" links to /about
+  - Design system: ivory-100/ink-800/sage-500 colors, font-heading/font-ui/font-body
+  - Accessible: aria-modal, ESC to close, focus management (focuses Get Started on open)
+  - Animations: fade-in, slide-in-from-bottom-4
+  - Focus rings: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
+- **Learnings for future iterations:**
+  - Use WelcomeModalWrapper pattern for client components in SSR layouts
+  - Radix Dialog provides built-in focus trap and ESC handling
+  - Use localStorage.getItem/setItem for persistent preferences
+  - Mount check (useState + useEffect) prevents SSR hydration issues
+---

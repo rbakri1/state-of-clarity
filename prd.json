@@ -419,8 +419,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 23,
-      "passes": false,
-      "notes": "Critical for setting user expectations about non-partisan, evidence-based approach"
+      "passes": true,
+      "notes": "Welcome modal created with Radix Dialog, localStorage check for 'has-seen-welcome', 4 mission points (pursuing informed truth, thoughtful depth, non-partisan, source transparency), design system colors (ivory/ink/sage), accessible with aria-modal, ESC to close, focus trap. Integrated in layout.tsx via WelcomeModalWrapper."
     }
   ]
 }
