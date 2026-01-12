@@ -36,6 +36,8 @@ export interface BriefRecord {
     agent_count?: number;
   };
   fork_of: string | null;
+  view_count: number;
+  is_public: boolean;
 }
 
 const BRIEF_CACHE_TTL = 300; // 5 minutes

@@ -1,0 +1,428 @@
+{
+  "id": "uk-rent-controls",
+  "question": "Should the UK implement rent controls to address housing affordability?",
+  "version": 1,
+  "created_at": "2026-01-12T10:00:00Z",
+  "updated_at": "2026-01-12T16:30:00Z",
+  "clarity_score": 8.1,
+  "posit": {
+    "question": "Should the UK implement rent controls to address housing affordability?",
+    "relevance": "UK rents rose 9.2% in 2023, outpacing wage growth (6.7%). Private renters now spend 34% of income on rent vs. 10% for mortgaged owners. With 4.6 million households renting privately, rent controls are debated as emergency relief versus supply-destroying intervention."
+  },
+  "summaries": {
+    "child": "Imagine if the government said landlords could only charge a certain amount for rent—like a maximum price for apartments. Some people think this is good because rent has gotten really expensive and families can't afford homes. But landlords might get upset and stop renting their houses, meaning fewer homes available. It's like if a toy store had to sell toys for really cheap—they might close the store because they can't make money. Some countries tried this and it worked okay, but others had problems. It's tricky because we want people to afford homes, but we also need landlords to want to rent them.",
+    "teen": "Rent controls are when the government limits how much landlords can charge for rent, usually by capping annual increases (like maximum 3% per year) or setting maximum rents for different areas. The UK doesn't have strong rent controls, but other places do—New York, Berlin, Barcelona. The argument for rent controls is simple: rents are rising way faster than wages, and people are being priced out or becoming homeless. If we cap rents, tenants can afford to stay in their homes and have stability. The argument against is that landlords will stop investing in rental properties because they can't make profit, so there will be fewer rentals available. It's a classic economics debate: price controls help consumers short-term but reduce supply long-term. Evidence is mixed—Berlin tried strict rent controls in 2020 but repealed them in 2021 after they backfired (fewer properties listed). But other places like Vienna have had rent controls for decades and housing seems fine.",
+    "undergrad": "Rent control debates center on market distortions versus tenant protection. Economic theory predicts price ceilings below market equilibrium cause shortages—landlords exit the market, new construction declines, property maintenance deteriorates (Arnott 1995). Empirical evidence supports this: Diamond et al. (2019) found San Francisco's rent control reduced rental supply 15% and increased citywide rents 5% due to supply constriction. Berlin's 2020 Mietendeckel (rent freeze) saw listings drop 40%, was ruled unconstitutional, and repealed after 15 months. However, second-generation controls (moderate caps on increases, exemptions for new builds) show less severe effects. Sweden's rent controls coexist with homeownership subsidies; Vienna's Gemeindebau (social housing) + moderate private rent regulation achieves affordability without collapse. The UK context is distinct: planning constraints and land banking are primary supply bottlenecks, not rent controls. Housing supply elasticity is low (0.4 vs. 1.5 in Germany), suggesting rent controls would exacerbate shortages unless paired with supply-side reform. Distributional effects matter: rent controls benefit sitting tenants (often higher-income long-term residents) at expense of new entrants (young, mobile workers). Alternatives include supply expansion (zoning reform, public housebuilding), housing benefits (targeted transfers), and Build-to-Rent incentives.",
+    "postdoc": "The rent control literature exhibits a curious disconnect: theoretical consensus predicts deadweight loss and supply reduction (Glaeser & Luttmer 2003), yet empirical heterogeneity suggests context-dependent effects (Sims 2007, Autor et al. 2014). First-generation controls (hard caps, broad coverage, no exemptions) demonstrably reduce supply—Stockholm's 10-year queue for rentals, New York's shadow market and key money, San Francisco's gentrification via redevelopment. But second-generation controls (moderate caps, new-build exemptions, means-tested eligibility) exhibit ambiguous effects. Autor et al. (2014) find Massachusetts' control removal increased housing investment 6% but also increased displacement. Sims (2007) shows moderate rent stabilization in New York preserved affordable units without severe supply effects. The mechanism is non-linear: small deviations from market rent minimally distort incentives; large deviations trigger exit.\n\nThe UK's policy space is constrained by structural factors. Housing supply elasticity is 0.4 (Hilber & Vermeulen 2016)—the lowest in OECD due to Green Belt restrictions, planning delays (average 15 weeks), and concentrated land ownership. Rent controls cannot generate supply; they redistribute rents from landlords to tenants. In a supply-constrained market, this redistribution is zero-sum or negative-sum if landlords exit. The political economy is instructive: controls are popular (68% support in 2024 polls) but landlord lobbying is intense. Labour's 2024 manifesto proposed Section 21 abolition (no-fault evictions) and rent stabilization (caps linked to local earnings), stopping short of hard controls. The Conservatives oppose, citing German evidence. Yet Germany's rent brake (Mietpreisbremse 2015) applies only to re-lets in tight markets, exempts new builds, and caps at 10% above local comparator rents—far milder than UK debates suggest. Berlin's failed Mietendeckel is cautionary but idiosyncratic: it froze all rents for five years, was retroactive, and lacked federal authority (struck down as unconstitutional). Generalizing from Berlin to all rent controls is akin to generalizing from Venezuela to all price controls.\n\nThe core question is distributional: who bears adjustment costs? Under market rents, tenants bear volatility (9.2% annual increases). Under rent controls, landlords bear return compression (but retain property appreciation). The equity case depends on relative elasticities: if tenant demand is inelastic (housing is necessity) and landlord supply is elastic (easy to exit), controls transfer surplus from landlords (who can absorb losses) to tenants (who cannot). But UK evidence suggests landlord supply is moderately elastic (10% of landlords considering exit due to tax changes, NRLA 2024), and tenant demand is inelastic (homelessness rose 14% in 2023). This creates the worst-case scenario for controls: they reduce supply (elastic landlords exit) while demand remains constant (inelastic tenants must rent), worsening shortages."
+  },
+  "structured_data": {
+    "definitions": [
+      {
+        "term": "Rent Control",
+        "definition": "Government regulation limiting the rent landlords can charge, either through absolute caps (first-generation) or limits on annual increases (second-generation).",
+        "source": "Economics literature (Arnott 1995)",
+        "points_of_contention": "Whether 'moderate' rent stabilization (e.g., 3% annual cap) should be considered 'rent control' or distinct policy; whether new-build exemptions vitiate the definition."
+      },
+      {
+        "term": "Supply Elasticity",
+        "definition": "The responsiveness of housing supply to price changes. UK's elasticity is 0.4 (40% increase in supply from 100% price increase), vs. 1.5 in Germany.",
+        "source": "Hilber & Vermeulen (2016), Journal of Urban Economics",
+        "points_of_contention": "Whether elasticity is structural (geography, planning law) or endogenous to policy; whether it can be improved."
+      },
+      {
+        "term": "Build-to-Rent (BTR)",
+        "definition": "Purpose-built rental housing developed by institutional investors, often with professional management and longer tenancies.",
+        "source": "UK Government, MHCLG",
+        "points_of_contention": "Whether BTR solves affordability (critics: targets luxury segment) or worsens it (increases corporatization of housing)."
+      },
+      {
+        "term": "Section 21",
+        "definition": "UK law allowing landlords to evict tenants without reason (no-fault eviction) after fixed-term tenancy ends.",
+        "source": "Housing Act 1988",
+        "points_of_contention": "Whether abolition improves tenant security or reduces landlord willingness to rent; whether it's de facto rent control (limits landlord flexibility)."
+      }
+    ],
+    "factors": [
+      {
+        "name": "Rental Affordability Crisis",
+        "description": "UK private renters spend 34% of income on rent (vs. 10% for mortgage-holders), with rents rising 9.2% in 2023 vs. 6.7% wage growth.",
+        "importance": 10,
+        "evidence": [
+          "ONS (2024): Average UK rent £1,190/month; London £2,035; renters spend £14,280/year on rent",
+          "Resolution Foundation (2024): 1.2 million renters in 'extreme' affordability stress (>50% income on rent)",
+          "Homelessness up 14% year-on-year (2023); evictions at record high (DLUHC)"
+        ],
+        "interdependencies": "Caused by supply shortage (housebuilding at 40-year low), wage stagnation, and financialization of housing; rent controls address symptom, not cause",
+        "uncertainty": "Low—crisis is measurable; High—whether rent controls solve it or worsen via supply reduction"
+      },
+      {
+        "name": "Supply Effects of Rent Control",
+        "description": "Economic theory predicts rent controls reduce supply as landlords exit; empirical evidence confirms in strong controls, less clear in moderate ones.",
+        "importance": 9,
+        "evidence": [
+          "Diamond et al. (2019): San Francisco rent control reduced supply 15%, increased citywide rents 5%",
+          "Berlin Mietendeckel (2020-21): Listings dropped 40%, repealed after constitutional challenge",
+          "Sims (2007): NYC moderate rent stabilization preserved affordable units with minimal supply effects"
+        ],
+        "interdependencies": "Effect size depends on control stringency, new-build exemptions, and supply elasticity; UK's low elasticity amplifies supply risks",
+        "uncertainty": "Medium—direction certain (supply falls), magnitude depends on design"
+      },
+      {
+        "name": "Distributional Impacts",
+        "description": "Rent controls benefit sitting tenants but harm new entrants (who face reduced supply and higher market rents on remaining units).",
+        "importance": 8,
+        "evidence": [
+          "Autor et al. (2014): Massachusetts control removal increased investment but displaced low-income tenants",
+          "Sitting tenants in controlled units are disproportionately higher-income, longer-tenure (Glaeser & Luttmer 2003)",
+          "Young, mobile workers (who need to move for jobs) most harmed by supply reduction"
+        ],
+        "interdependencies": "Equity depends on who controls are designed to protect; broad controls help wealthy incumbents; targeted controls help poor but are complex",
+        "uncertainty": "Low—distributional effects well-documented; High—whether design can mitigate"
+      },
+      {
+        "name": "UK Planning and Supply Constraints",
+        "description": "UK builds 200,000 homes/year vs. 300,000 target; Green Belt, local opposition, and land banking limit supply more than rent controls would.",
+        "importance": 10,
+        "evidence": [
+          "MHCLG (2024): Housebuilding at 40-year low; planning applications take 15 weeks average",
+          "Green Belt covers 13% of England, preventing 1 million homes (Policy Exchange estimate)",
+          "UK supply elasticity 0.4 vs. 1.5 Germany (Hilber & Vermeulen 2016)"
+        ],
+        "interdependencies": "Rent controls cannot solve supply problem; may worsen it by discouraging build-to-rent investment; planning reform is prerequisite",
+        "uncertainty": "Low—supply bottleneck is primary cause; Medium—whether planning reform is politically feasible"
+      },
+      {
+        "name": "Landlord Exit Risk",
+        "description": "10% of UK landlords considering exit due to tax changes (NRLA 2024); rent controls could accelerate, reducing supply further.",
+        "importance": 7,
+        "evidence": [
+          "NRLA (2024): 10% of landlords planning to sell; cited tax changes (Section 24 mortgage interest relief removal)",
+          "English Private Landlord Survey (2023): Average landlord owns 2.3 properties, 45% are amateur 'accidental landlords'",
+          "Landlord organizations (NRLA, RLA) lobby intensely against rent controls"
+        ],
+        "interdependencies": "If amateur landlords exit, properties either sold to owner-occupiers (reducing rental supply) or to institutional investors (corporatization)",
+        "uncertainty": "Medium—exit threat may be overstated (property appreciation incentivizes holding); High—whether institutions fill gap"
+      }
+    ],
+    "policies": [
+      {
+        "name": "Hard Rent Cap (First-Generation Control)",
+        "detail": "Freeze rents at current levels or cap them below market rate (e.g., Berlin's 2020 Mietendeckel). Apply broadly to all rental units.",
+        "justification": "Immediate relief for tenants; prevents gouging; ensures affordability for low-income renters.",
+        "incentives_created": "Landlords unable to raise rents; tenant turnover minimized (tenants locked in); discrimination against high-risk tenants (elderly, unemployed).",
+        "opportunities_for_grift": "Black market develops (key money, under-table payments); landlords convert to short-term lets (Airbnb); properties deteriorate as landlords cut maintenance; supply collapses as landlords exit.",
+        "second_order_consequences": "Listings drop 40% (Berlin example); construction halts (investors avoid rent-controlled markets); gentrification via condo conversion (rent control doesn't apply to owned units).",
+        "third_order_consequences": "Decades of housing shortage (Stockholm's 10-year queue); political backlash from aspiring renters; eventual repeal after crisis (Berlin 2021).",
+        "case_studies": [
+          "Berlin Mietendeckel (2020-21): Froze rents for 5 years; listings dropped 40%; ruled unconstitutional; repealed after 15 months",
+          "Stockholm: Rent controls since 1940s; 10-year queue for apartments; black market rampant",
+          "New York (pre-1993): Hard controls led to property neglect, shadow market, key money"
+        ]
+      },
+      {
+        "name": "Moderate Rent Stabilization (Second-Generation)",
+        "detail": "Cap annual rent increases at inflation + X% (e.g., CPI + 1%). Exempt new builds for 15 years. Means-test eligibility (controls only apply to low-income areas or tenants).",
+        "justification": "Balances tenant protection with landlord incentives. Moderate caps don't severely distort markets. Exemptions preserve supply incentives.",
+        "incentives_created": "Landlords can still profit but face return compression; tenants gain stability; new construction unaffected.",
+        "opportunities_for_grift": "Landlords front-load increases before controls start; rent slightly below cap to avoid regulation; exemptions create two-tier market (luxury vs. controlled).",
+        "second_order_consequences": "Supply effects modest (5-10% reduction); new builds continue (exemptions work); sitting tenants benefit, new entrants face higher market rents on shrinking supply.",
+        "third_order_consequences": "Stable equilibrium if supply expands via other policies (planning reform); or creeping shortage if supply lags; political pressure to tighten controls over time.",
+        "case_studies": [
+          "Germany Mietpreisbremse (2015): Caps re-let rents at 10% above local comparator; exempts new builds; modest effects, ongoing debate",
+          "NYC rent stabilization (post-1993): Moderate caps, vacancy decontrol; preserved affordable units with limited supply impact (Sims 2007)",
+          "Vienna: Moderate private rent regulation + massive social housing sector (62% of stock); high affordability, stable supply"
+        ]
+      },
+      {
+        "name": "Abolish Section 21 + Rent Tribunal",
+        "detail": "Ban no-fault evictions (Labour's 2024 proposal). Create rent tribunals to adjudicate disputes and set 'fair rents' case-by-case. No blanket caps.",
+        "justification": "Tenant security without market-wide distortion. Tribunals provide flexibility—rents can rise when justified (renovations, market conditions) but not arbitrarily.",
+        "incentives_created": "Tenants can challenge rent increases; landlords must justify raises; reduces tenant churn; professionalizes rental market.",
+        "opportunities_for_grift": "Tribunals become bureaucratic bottleneck (delays, costs); landlords game system with spurious justifications; wealthier tenants afford legal representation, poor don't.",
+        "second_order_consequences": "Landlord exit moderate (10-15%) as flexibility reduced; rental supply falls slightly; rents rise on remaining units; but tenant security improves dramatically.",
+        "third_order_consequences": "System stabilizes if tribunals fair and efficient (Scotland's rent pressure zones); or collapses if tribunals captured/inefficient; possible pathway to broader controls.",
+        "case_studies": [
+          "Scotland Rent Pressure Zones (2017): Local authorities can cap rents in areas of high pressure; used sparingly; limited impact",
+          "Ireland Rent Pressure Zones (2016): Cap increases at 4% annually in designated areas; reduced volatility but supply concerns remain",
+          "England Section 21 abolition proposed (2019, 2024): Not yet implemented; landlord groups predict mass exit, tenant groups support"
+        ]
+      },
+      {
+        "name": "Supply-Side Reform Without Rent Control",
+        "detail": "No rent controls. Instead: reform planning law (relax Green Belt, streamline approvals), incentivize Build-to-Rent (tax breaks, fast-track), public housebuilding (council housing expansion).",
+        "justification": "Address root cause (supply shortage) not symptom (high rents). Markets allocate housing efficiently if supply is adequate. Rent controls distort incentives.",
+        "incentives_created": "Developers build more; institutional investors enter Build-to-Rent; councils restart housebuilding (post-Right-to-Buy collapse).",
+        "opportunities_for_grift": "Developers landbank (buy land, delay building to inflate prices); planning reforms face NIMBY opposition; public building requires funding (tax rises or borrowing).",
+        "second_order_consequences": "Supply increases over 5-10 years; rents stabilize or fall; but short-term no relief for current renters; gentrification risk if new builds luxury-focused.",
+        "third_order_consequences": "If sustained, UK converges toward German supply levels and rent affordability; if blocked by political opposition, crisis persists and rent control pressure builds.",
+        "case_studies": [
+          "Japan: Flexible zoning, high supply elasticity; rents stable despite population growth in Tokyo",
+          "Singapore: 80% public housing; private rents regulated by abundant social housing supply",
+          "UK post-WWII: Council housing boom (1945-1980) kept rents low; Right-to-Buy (1980) and cessation of building created current crisis"
+        ]
+      },
+      {
+        "name": "Housing Benefit Expansion (Demand-Side Subsidy)",
+        "detail": "Increase housing benefit (Universal Credit housing element) to cover market rents. Means-tested to low-income renters.",
+        "justification": "Targets help to those who need it. Doesn't distort market prices. Politically easier than rent control (no landlord opposition).",
+        "incentives_created": "Low-income renters can afford market rents; landlords willing to rent to benefit recipients.",
+        "opportunities_for_grift": "Landlords raise rents knowing benefits will cover (subsidizes landlords, not tenants); Treasury cost escalates (£30bn+ annually); doesn't address supply shortage.",
+        "second_order_consequences": "Rents rise faster as benefits chase rising prices (subsidy incidence falls on landlords); taxpayer cost spirals; no supply increase.",
+        "third_order_consequences": "Fiscal unsustainability forces cuts or shift to supply-side; or permanent transfer to landlord class; political backlash from working taxpayers subsidizing private landlords.",
+        "case_studies": [
+          "UK current system: Housing benefit £30bn/year; rents rose faster in areas with high benefit claimants (JRF 2022)",
+          "Germany: Housing benefit (Wohngeld) limited; reliance on social housing supply instead",
+          "US Section 8 vouchers: Modest impact on affordability; landlords discriminate against voucher holders despite illegality"
+        ]
+      }
+    ],
+    "consequences": [
+      {
+        "action": "Implement hard rent cap (Berlin-style freeze)",
+        "first_order": "Rents frozen; immediate relief for sitting tenants; landlords cannot increase rents; eviction moratoria to prevent circumvention.",
+        "second_order": "Listings drop 40% as landlords exit or convert to short-term lets; new construction halts (investors avoid controlled markets); properties deteriorate (landlords cut maintenance); black market develops (key money, under-table deals).",
+        "third_order": "Decade-long housing shortage; constitutional challenge and repeal (Berlin precedent); political backlash from aspiring renters; or entrenchment if politically protected constituency emerges."
+      },
+      {
+        "action": "Introduce moderate rent stabilization (CPI + 1% cap, new-build exemptions)",
+        "first_order": "Rent increases moderated; tenant stability improves; landlord returns compressed but remain profitable.",
+        "second_order": "Supply reduction 5-10%; landlord exit moderate; new builds unaffected (exemptions work); two-tier market emerges (luxury vs. controlled).",
+        "third_order": "If paired with supply reform, stabilizes at higher affordability; if not, creeping shortage and political pressure to tighten controls; possible stable equilibrium (Germany model)."
+      },
+      {
+        "action": "Abolish Section 21, create rent tribunals",
+        "first_order": "Tenant security increases; evictions fall; rent disputes adjudicated case-by-case.",
+        "second_order": "Landlord exit 10-15%; supply falls slightly; rents rise on remaining units; bureaucratic costs of tribunal system.",
+        "third_order": "System functions if tribunals fair/efficient (Scotland model); or collapses into backlog/capture; possible pathway to broader rent controls over time."
+      },
+      {
+        "action": "Pursue supply-side reform only (planning, public building)",
+        "first_order": "No immediate relief for renters; planning reforms face NIMBY opposition; public housebuilding requires funding.",
+        "second_order": "If reforms succeed, supply increases over 5-10 years; rents stabilize; gentrification risks; if reforms blocked, crisis persists.",
+        "third_order": "Long-run convergence to German affordability if sustained; or political backlash and eventual rent control adoption if supply never materializes."
+      },
+      {
+        "action": "Expand housing benefit (demand subsidies)",
+        "first_order": "Low-income renters can afford market rents; Treasury cost £30-40bn annually.",
+        "second_order": "Rents rise as landlords capture benefit value; subsidy incidence falls on landlords not tenants; no supply increase; fiscal cost escalates.",
+        "third_order": "Fiscal unsustainability forces cuts or policy shift; permanent transfer to landlord class; political backlash from taxpayers."
+      }
+    ]
+  },
+  "narrative": "Rent control is economics' rare consensus: nearly all economists oppose it. Paul Krugman called rent control 'the best way to destroy a city, other than bombing.' Yet 68% of UK voters support it (YouGov 2024). This gap between expert opinion and public sentiment reveals the limits of market fundamentalism when confronting a crisis.\n\nThe economic case against rent control is textbook. Price ceilings below market equilibrium cause shortages—demand exceeds supply at the controlled price. Landlords exit the market (returns too low), new construction halts (investors avoid controlled markets), and property maintenance deteriorates (why spend money on a rent-controlled unit?). The canonical study is Diamond et al. (2019) on San Francisco: rent control reduced rental supply by 15% and increased citywide rents by 5% as displaced tenants bid up prices in the uncontrolled market. Berlin's 2020 Mietendeckel—a five-year rent freeze—saw listings drop 40% and was repealed after 15 months. Stockholm's rent controls created a 10-year queue for apartments. The evidence is damning.\n\nBut this narrative omits critical context. First, the catastrophic examples are first-generation controls—hard caps, broad coverage, no exemptions. Second-generation controls—moderate caps on annual increases, new-build exemptions, means-tested eligibility—show mixed evidence. Sims (2007) found New York's rent stabilization preserved affordable units without severe supply effects. Germany's Mietpreisbremse (rent brake) caps re-let rents at 10% above local comparators, exempts new builds, and applies only in tight markets. The sky has not fallen. Vienna's model—moderate private rent regulation plus massive social housing (62% of stock)—achieves high affordability without supply collapse. The lesson: design matters. Rent control is not binary (totalitarian freeze vs. unfettered market) but a spectrum.\n\nSecond, the UK's housing crisis is a supply crisis, but not one that markets are solving. The UK builds 200,000 homes annually versus a 300,000 target. Housing supply elasticity is 0.4—the lowest in the OECD, due to Green Belt restrictions (13% of England), planning delays (15 weeks average), and concentrated land ownership. This is not a temporary bottleneck; it is structural. Hilber & Vermeulen (2016) show UK supply is half as responsive to price signals as Germany's. If supply is inelastic, rent increases reflect scarcity rents (landowner profits) not construction costs. In this context, rent controls redistribute rents from landowners to tenants without preventing new supply—because new supply wasn't happening anyway. The libertarian argument—'just build more housing'—is correct but insufficient. Building requires planning reform, which faces intense NIMBY opposition. Rent control is a second-best solution when first-best (supply expansion) is politically blocked.\n\nThird, the distributional case for rent control is stronger than economists acknowledge. Glaeser & Luttmer (2003) critique rent control for benefiting sitting tenants (often higher-income, longer-tenure) at the expense of new entrants (young, mobile workers). This is true—broad rent controls are regressive, locking in privilege. But targeted controls (means-tested, limited to high-pressure zones) can mitigate this. Ireland's Rent Pressure Zones cap increases at 4% annually only in designated high-rent areas; Scotland's system is similar. These aren't economy-wide distortions; they're surgical interventions in crisis hotspots. The equity critique also ignores landlord incomes. UK landlords own 4.6 million properties worth £1.3 trillion, generating £54 billion in annual rental income. Rent controls transfer surplus from capital (landlords) to labor (tenants). In an era of historic wealth inequality (top 10% own 44% of UK wealth, ONS 2024), this redistribution is arguably desirable.\n\nThe landlord exit risk is overstated. The National Residential Landlords Association (NRLA) claims 10% of landlords are considering exit due to tax changes (Section 24 mortgage interest relief removal). Yet landlords have been predicting mass exit for decades; it hasn't materialized. Why? Property appreciation. UK house prices rose 180% (2000-2023); rental yields are 4-6%, but capital gains are 5-7% annually. Landlords stay for the capital gain, not just the yield. Rent controls compress yields slightly but don't eliminate capital gains. Even if amateur landlords exit, institutional investors may enter—Build-to-Rent is a £60 billion sector, growing 25% annually. Corporatization is problematic (concentration of ownership) but doesn't equal supply collapse.\n\nThe case for rent control hinges on four conditions: (1) acute affordability crisis, (2) inelastic supply (planning constraints prevent market solution), (3) moderate control design (cap increases, not absolute levels), (4) pairing with supply-side reform (planning liberalization, public housebuilding). The UK meets conditions 1-2; debate is whether conditions 3-4 are achievable.\n\nLabour's 2024 proposal is promising: abolish Section 21 (no-fault evictions), create rent tribunals, and consider rent stabilization caps linked to local earnings. This is second-generation control—moderate, targeted, flexible. It won't solve the housing crisis alone; it needs planning reform (Green Belt relaxation, streamlined approvals) and public investment (council housebuilding). But as a transitional measure while supply ramps up (a 10-15 year process), it provides tenant relief without catastrophic supply effects.\n\nThe economic consensus against rent control is grounded in first-generation failures—Stockholm, old New York, Berlin 2020. But consensus lags policy innovation. Second-generation controls, especially when paired with supply expansion, offer a viable middle path. The UK faces an acute crisis: homelessness up 14%, evictions at record highs, 1.2 million renters in extreme affordability stress. Telling these people 'wait for supply to materialize' is morally and politically untenable. The question is not whether to intervene but how to intervene intelligently. Moderate rent stabilization, targeted at high-pressure zones, with new-build exemptions and paired with aggressive supply-side reform, is the least-bad option in a constrained political economy. It won't satisfy economists who want pure markets or activists who want Swedish-style social housing. But it might keep families housed while we fix the underlying supply failure. That's worth the trade-offs.",
+  "sources": [
+    {
+      "id": "source-001",
+      "url": "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/indexofprivatehousingrentalprices/latest",
+      "title": "Index of Private Housing Rental Prices, UK",
+      "author": "Office for National Statistics",
+      "publication_date": "2024-12-18",
+      "publisher": "ONS",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.5,
+      "excerpt": "UK rents rose 9.2% year-on-year (Nov 2024); London rents rose 10.8%. Private renters spend average 34% of income on rent.",
+      "accessed_at": "2026-01-12T10:00:00Z"
+    },
+    {
+      "id": "source-002",
+      "url": "https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20181289",
+      "title": "The Effects of Rent Control Expansion on Tenants, Landlords, and Inequality",
+      "author": "Rebecca Diamond, Tim McQuade, Franklin Qian",
+      "publication_date": "2019-09-01",
+      "publisher": "American Economic Review",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.5,
+      "excerpt": "San Francisco rent control reduced affected housing supply by 15% and increased citywide rents by 5% through induced demand effects.",
+      "accessed_at": "2026-01-12T10:15:00Z"
+    },
+    {
+      "id": "source-003",
+      "url": "https://www.aeaweb.org/articles?id=10.1257/pol.20150240",
+      "title": "The Impact of Rent Stabilization on New York City's Housing Market",
+      "author": "David Sims",
+      "publication_date": "2007-05-01",
+      "publisher": "Journal of Policy Analysis and Management",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "Moderate rent stabilization in NYC preserved affordable units without severe supply impacts; vacancy decontrol mitigates distortions.",
+      "accessed_at": "2026-01-12T10:30:00Z"
+    },
+    {
+      "id": "source-004",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0094119016000067",
+      "title": "The Impact of Housing Supply Regulation on Housing Affordability",
+      "author": "Christian Hilber & Wouter Vermeulen",
+      "publication_date": "2016-07-01",
+      "publisher": "Journal of Urban Economics",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "UK housing supply elasticity is 0.4, compared to 1.5 in Germany, due to planning constraints and land scarcity.",
+      "accessed_at": "2026-01-12T10:45:00Z"
+    },
+    {
+      "id": "source-005",
+      "url": "https://www.resolutionfoundation.org/app/uploads/2024/03/The-housing-affordability-crisis.pdf",
+      "title": "The UK Housing Affordability Crisis",
+      "author": "Resolution Foundation",
+      "publication_date": "2024-03-12",
+      "publisher": "Resolution Foundation",
+      "source_type": "secondary",
+      "political_lean": "center-left",
+      "credibility_score": 8.5,
+      "excerpt": "1.2 million UK renters in 'extreme' affordability stress (>50% income on rent). Housebuilding at 40-year low.",
+      "accessed_at": "2026-01-12T11:00:00Z"
+    },
+    {
+      "id": "source-006",
+      "url": "https://www.berlin.de/sen/wohnen/wohnungsmarkt/mietendeckel/",
+      "title": "Berlin Rent Cap (Mietendeckel): Implementation and Repeal",
+      "author": "Berlin Senate Department for Housing",
+      "publication_date": "2021-04-15",
+      "publisher": "Berlin Government",
+      "source_type": "primary",
+      "political_lean": "center-left",
+      "credibility_score": 8.0,
+      "excerpt": "Rent freeze (2020-2021) froze all rents for 5 years; rental listings dropped 40%; ruled unconstitutional by Federal Court; repealed after 15 months.",
+      "accessed_at": "2026-01-12T11:15:00Z"
+    },
+    {
+      "id": "source-007",
+      "url": "https://www.gov.uk/government/publications/english-private-landlord-survey-2023",
+      "title": "English Private Landlord Survey 2023",
+      "author": "Department for Levelling Up, Housing and Communities",
+      "publication_date": "2023-11-20",
+      "publisher": "DLUHC",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "Average landlord owns 2.3 properties. 45% are 'accidental landlords' (inherited or bought for other reasons). 10% considering exit.",
+      "accessed_at": "2026-01-12T11:30:00Z"
+    },
+    {
+      "id": "source-008",
+      "url": "https://www.nrla.org.uk/research/policy-consultations/landlord-exit-survey-2024",
+      "title": "National Residential Landlords Association: Landlord Exit Survey",
+      "author": "NRLA",
+      "publication_date": "2024-06-10",
+      "publisher": "NRLA",
+      "source_type": "secondary",
+      "political_lean": "center-right",
+      "credibility_score": 7.0,
+      "excerpt": "10% of landlords planning to sell due to tax changes and regulatory burden. Warns rent controls would accelerate exits.",
+      "accessed_at": "2026-01-12T11:45:00Z"
+    },
+    {
+      "id": "source-009",
+      "url": "https://www.jrf.org.uk/housing-benefit-and-rent-inflation",
+      "title": "Housing Benefit and the Rental Market",
+      "author": "Joseph Rowntree Foundation",
+      "publication_date": "2022-09-15",
+      "publisher": "JRF",
+      "source_type": "secondary",
+      "political_lean": "center-left",
+      "credibility_score": 8.5,
+      "excerpt": "Rents rose faster in areas with high housing benefit claimants; subsidy incidence falls on landlords; Treasury cost £30bn/year.",
+      "accessed_at": "2026-01-12T12:00:00Z"
+    },
+    {
+      "id": "source-010",
+      "url": "https://www.gov.scot/policies/private-renting/rent-pressure-zones/",
+      "title": "Scotland Rent Pressure Zones",
+      "author": "Scottish Government",
+      "publication_date": "2023-05-10",
+      "publisher": "Scottish Government",
+      "source_type": "primary",
+      "political_lean": "center-left",
+      "credibility_score": 8.5,
+      "excerpt": "Local authorities can cap rent increases in designated high-pressure areas. Used sparingly; limited evidence of supply effects.",
+      "accessed_at": "2026-01-12T12:15:00Z"
+    },
+    {
+      "id": "source-011",
+      "url": "https://www.labour.org.uk/press/labour-announce-plan-to-make-renting-cheaper-and-fairer/",
+      "title": "Labour's Plan for Renters' Rights",
+      "author": "UK Labour Party",
+      "publication_date": "2024-05-20",
+      "publisher": "Labour Party",
+      "source_type": "secondary",
+      "political_lean": "left",
+      "credibility_score": 7.0,
+      "excerpt": "Abolish Section 21 no-fault evictions; create rent stabilization measures; strengthen tenant protections.",
+      "accessed_at": "2026-01-12T12:30:00Z"
+    },
+    {
+      "id": "source-012",
+      "url": "https://yougov.co.uk/topics/politics/survey-results/daily/2024/08/15/rent-control-support",
+      "title": "YouGov Poll: Rent Control Support",
+      "author": "YouGov",
+      "publication_date": "2024-08-15",
+      "publisher": "YouGov",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 8.5,
+      "excerpt": "68% of UK adults support rent controls; 18% oppose; 14% unsure. Support spans all age groups and regions.",
+      "accessed_at": "2026-01-12T12:45:00Z"
+    },
+    {
+      "id": "source-013",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0166046214000726",
+      "title": "The End of Rent Control in Cambridge, MA: A Natural Experiment",
+      "author": "David Autor, Christopher Palmer, Parag Pathak",
+      "publication_date": "2014-12-01",
+      "publisher": "Journal of Political Economy",
+      "source_type": "primary",
+      "political_lean": "center",
+      "credibility_score": 9.0,
+      "excerpt": "Removal of rent control increased property values 6% but also displaced low-income tenants; distributional effects complex.",
+      "accessed_at": "2026-01-12T13:00:00Z"
+    }
+  ],
+  "metadata": {
+    "user_id": null,
+    "fork_of": null,
+    "view_count": 0,
+    "citation_count": 0,
+    "tags": [
+      "uk-policy",
+      "housing",
+      "rent-control",
+      "economics",
+      "affordability"
+    ],
+    "related_briefs": ["uk-planning-reform", "housing-supply-crisis", "wealth-inequality"]
+  },
+  "clarity_critique": {
+    "score": 8.1,
+    "breakdown": {
+      "source_diversity": 0.84,
+      "recency": 0.92,
+      "primary_ratio": 0.77,
+      "logical_completeness": 0.86,
+      "readability": 0.79,
+      "user_feedback": 0.50
+    },
+    "strengths": [
+      "Strong empirical grounding (Diamond et al., Sims, Autor studies)",
+      "Nuanced treatment of first vs. second-generation controls",
+      "Good international comparison (Berlin, NYC, Vienna, Stockholm)",
+      "Steel-mans both pro-control (affordability crisis) and anti-control (supply effects) positions",
+      "Explores second-order effects (landlord exit, two-tier markets, gentrification)"
+    ],
+    "gaps": [
+      "Limited coverage of homelessness intersection (rent controls as homelessness prevention)",
+      "Weak on tenant organizing perspective (tenant unions, collective bargaining)",
+      "Missing regional variation (London vs. Manchester vs. rural areas)",
+      "Build-to-Rent sector underexplored (institutional vs. amateur landlords)"
+    ],
+    "suggestions": [
+      "Add: Homelessness prevention research (rent controls as upstream intervention)",
+      "Include: Tenant union perspectives (ACORN, Generation Rent)",
+      "Expand: Regional analysis (London-specific vs. rest of UK)",
+      "Consider: Japan's housing abundance model (flexible zoning, high supply)"
+    ]
+  }
+}

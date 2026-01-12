@@ -14,8 +14,8 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": true,
-      "notes": "Migration: lib/supabase/migrations/011_add_view_count_column.sql"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-002",
@@ -28,8 +28,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Migration: lib/supabase/migrations/012_add_is_public_column.sql"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-003",
@@ -42,8 +42,8 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "API: /api/briefs/[id]/view - uses httpOnly cookie (24hr) to track session views"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-004",
@@ -59,8 +59,8 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "API: /api/briefs/route.ts with zod validation in lib/validation/brief-schemas.ts"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-005",
@@ -75,8 +75,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Created app/explore/page.tsx with hero section using Compass icon badge, proper design system colors and typography"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-006",
@@ -91,8 +91,8 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Component: components/explore/brief-card.tsx - uses Brief type, supports onTagClick callback for filter integration"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-007",

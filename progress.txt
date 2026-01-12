@@ -1,518 +1,88 @@
 # Ralph Progress Log
-Started: Mon 12 Jan 2026 01:41:23 +04
+Started: Mon 12 Jan 2026 20:21:52 +04
 
 ## Codebase Patterns
-- Design system uses warm editorial palette (Sage/Ivory/Ink), NOT blue/slate
-- Tailwind config now has full design tokens: use `bg-ivory-100`, `text-ink-800`, `bg-sage-500` etc.
-- Font families: `font-heading` (Canela/serif), `font-body` (Source Serif 4), `font-ui` (Inter)
-- Use `max-w-prose` for 65ch optimal reading width
-- Political lean colors: `political-left`, `political-center`, `political-right` etc.
-- Current implementation uses shadcn/ui CSS variables pattern (hsl(var(--primary)))
-- Skills folder contains comprehensive design specs: skills/frontend/{design,brand,components,tech}
-- Pages are in app/ directory using Next.js App Router
-- cn() helper at @/lib/utils for conditional Tailwind classes (uses clsx + tailwind-merge)
-- Brief types (ReadingLevel, PoliticalLean, Source, Brief, etc.) at @/lib/types/brief.ts
-- Components go in components/{brief,sources,generation,layout,feedback}/ subdirectories
-- Header/footer are duplicated inline in each page - need extraction
-- 5 key components STILL MISSING: SourceCitation, SourceCard, BriefGenerationProgress, Header, Footer
-- PoliticalLeanBadge now complete at @/components/sources/political-lean-badge.tsx with muted non-partisan colors
-- CredibilityBadge now complete at @/components/sources/credibility-badge.tsx with tiered icons (ShieldCheck/Shield/ShieldAlert)
-- ReadingLevelSelector now complete with ARIA roles, sticky positioning, warm palette
-- SummaryCard now complete at @/components/brief/summary-card.tsx with typography per level and reading time
-- BriefGenerationProgress now complete at @/components/generation/generation-progress.tsx with 5 stages, progress bar, spinner/checkmarks
-- Focus states pattern: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2` on all buttons/links/inputs
-- Form inputs in modals use: `border-ivory-600 bg-ivory-50 text-ink-800 focus-visible:ring-sage-500`
-- Mobile touch targets: min-h-[44px] for links, min-h-[48px] for buttons
-- Mobile menus: use `invisible` + `overflow-hidden` on closed state to prevent horizontal scroll
+- Migrations in `lib/supabase/migrations/` use pattern `NNN_description.sql` with `IF NOT EXISTS` clauses
+- TypeScript types for briefs are in both `lib/types/brief.ts` (Brief interface) and `lib/services/brief-service.ts` (BriefRecord interface) - update both
+- Main schema in `lib/supabase/schema.sql` should be updated alongside migrations for documentation
+- Pre-existing test errors in `__tests__/` are not blocking - check typecheck passes on prod code
+- `Brief.clarity_score` can be number OR ClarityScore object - always check typeof before using
+- `Brief.summaries` can be array (ReadingLevelSummary[]) or Record<ReadingLevel, string> - handle both formats
+- Tags are in `metadata.tags` as string array, use `.slice(0, N)` to limit display count
 
 ---
 
-## 2026-01-12 10:45 - US-001
-Thread: https://ampcode.com/threads/T-019baf01-d163-7193-90c2-b3fd229f84b9
-- **What was implemented:** Comprehensive UI audit against design system skills
-- **Files created:** docs/UI-AUDIT.md
-- **Files reviewed:** 
-  - All 4 skill files (design, brand, components, tech)
-  - tailwind.config.ts
-  - app/globals.css
-  - app/page.tsx (homepage)
-  - app/layout.tsx
-  - app/brief/[id]/page.tsx (brief viewer)
-  - app/auth/signup/page.tsx
-  - app/privacy/page.tsx
-  - app/terms/page.tsx
-  - components/cookie-consent-banner.tsx
+## Mon 12 Jan 2026 - US-001
+Thread: https://ampcode.com/threads/T-019bb303-a4c0-74be-b2c9-1dfd678d6410
+- Added `view_count INTEGER DEFAULT 0` column to briefs table
+- Created migration: `lib/supabase/migrations/011_add_view_count_column.sql`
+- Updated TypeScript interfaces in `lib/types/brief.ts` and `lib/services/brief-service.ts`
+- Updated main schema `lib/supabase/schema.sql` with column and index
 - **Learnings for future iterations:**
-  - The design system specifies Deep Sage (#5E6F64) as primary, NOT blue
-  - No pure white (#FFFFFF) or pure black (#000000) allowed - use Ivory/Ink
-  - Typography should use serif for headings (Canela) and body (Source Serif 4)
-  - Reading levels need specific typography: child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug
-  - Political lean colors are for data viz only, NOT UI chrome
-  - All focus states should use focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-  - 8 key components are completely missing (see audit doc)
+  - Sample briefs already have `view_count` in fixtures - they expected this column
+  - The `BriefRecord` type (service layer) and `Brief` type (frontend) are separate
+  - Pre-existing test errors are unrelated to new changes
 ---
 
-## 2026-01-12 11:30 - US-002
-Thread: https://ampcode.com/threads/T-019baf05-900a-749b-bcb9-2cc922a4d6b8
-- **What was implemented:** Comprehensive component audit against skills/frontend/components/SKILL.md
-- **Files changed:** docs/UI-AUDIT.md (expanded Section 6 with detailed component analysis)
-- **Findings:**
-  - 9 components are MISSING: ReadingLevelSelector, SummaryCard, SourceCitation, SourceCard, PoliticalLeanBadge, CredibilityBadge, BriefGenerationProgress, Header, Footer
-  - 1 component exists but needs fixes: CookieConsentBanner (wrong colors, no focus rings)
-  - Directory structure completely missing (no ui/, brief/, sources/, generation/, layout/, feedback/ folders)
-  - Types defined inline in brief page rather than exported from lib/types/brief.ts
+## Mon 12 Jan 2026 - US-002
+Thread: https://ampcode.com/threads/T-019bb309-c336-7669-b1cc-bd0c3729851d
+- Added `is_public BOOLEAN DEFAULT true` column to briefs table
+- Created migration: `lib/supabase/migrations/012_add_is_public_column.sql`
+- Updated TypeScript interfaces in `lib/types/brief.ts` and `lib/services/brief-service.ts`
+- Updated main schema `lib/supabase/schema.sql` with column and partial index
 - **Learnings for future iterations:**
-  - Reading level selector is inline in app/brief/[id]/page.tsx around lines 296-341
-  - Labels use "Post-doc" instead of "Postdoc" and "Graduate" instead of "Graduate+"
-  - Political lean colors use partisan red/blue instead of muted rose/blue spectrum
-  - No ARIA roles, no sticky positioning on reading level selector
-  - No credibility scores displayed for sources
-  - No generation progress UI exists (users wait 30-60s with no feedback)
+  - Used partial index `WHERE is_public = true` for efficient Explore page filtering
+  - Follow same pattern as US-001 for adding columns
 ---
 
-## 2026-01-12 12:15 - US-003
-Thread: https://ampcode.com/threads/T-019baf08-5056-7472-a711-caf108566707
-- **What was implemented:** Tailwind configuration updated with full design system tokens
-- **Files changed:** 
-  - tailwind.config.ts (complete rewrite with design tokens)
-  - package.json (added @tailwindcss/typography, @tailwindcss/forms)
-- **Changes:**
-  - Added ivory color palette (50-900) for backgrounds
-  - Added ink color palette (50-900) for text
-  - Added sage color palette (50-900) for primary accent
-  - Added rust color palette (50-900) for secondary accent
-  - Added smoke color palette (50-900) for cool counterbalance
-  - Added semantic colors (success, warning, error, info)
-  - Added political lean colors for data visualization
-  - Added font families: font-heading (Canela serif), font-body (Source Serif 4), font-ui (Inter)
-  - Added max-w-prose: 65ch for optimal reading width
-  - Added typography plugin with custom prose styles
-  - Installed @tailwindcss/typography and @tailwindcss/forms plugins
+## Mon 12 Jan 2026 - US-003
+Thread: https://ampcode.com/threads/T-019bb30b-5ba3-775f-a3ad-93ceceb6032c
+- Created `/api/briefs/[id]/view/route.ts` endpoint to increment view_count
+- Uses httpOnly cookie (`brief_viewed_{id}`) with 24hr expiry to track session views
+- Updated `app/brief/[id]/page.tsx` to call view tracking after successful brief load
+- View tracking fails silently (console.warn only) to not break page load
 - **Learnings for future iterations:**
-  - Keep shadcn/ui CSS variable colors for compatibility with existing components
-  - New design system colors are additive, can be used alongside existing patterns
-  - Use `prose prose-custom` for narrative content with design system colors
+  - Use `cookies()` from `next/headers` for cookie access in route handlers
+  - Supabase client pattern: `getSupabaseClient()` function with service role key
+  - Keep view tracking non-blocking with silent failures
 ---
 
-## 2026-01-12 14:30 - US-004
-Thread: https://ampcode.com/threads/T-019baf0b-33a1-7320-a513-2c5b2b4dd063
-- **What was implemented:** ReadingLevelSelector component with full ARIA accessibility
-- **Files created:**
-  - components/brief/reading-level-selector.tsx (main component)
-  - lib/utils.ts (cn helper for Tailwind class merging)
-  - lib/types/brief.ts (shared TypeScript types for briefs)
-- **Files changed:**
-  - app/brief/[id]/page.tsx (integrated new component, removed inline implementation)
+## Mon 12 Jan 2026 - US-004
+Thread: https://ampcode.com/threads/T-019bb30e-e822-71c1-ae8c-f8b2aee8375b
+- Created `/api/briefs/route.ts` GET endpoint for Explore page
+- Added `exploreBriefsQuerySchema` to `lib/validation/brief-schemas.ts` for param validation
+- Supports: search (q), tags, minScore, sort (newest/oldest/score/views), date filter, pagination
+- Uses Supabase `.overlaps()` for tag filtering on `metadata->tags` JSONB array
+- Returns `{ briefs, total, hasMore }` with 60s cache
 - **Learnings for future iterations:**
-  - cn() helper now available at @/lib/utils for conditional Tailwind classes
-  - ReadingLevel and other brief types exported from @/lib/types/brief
-  - Component uses warm editorial palette: bg-ivory-100, bg-sage-500, text-ink-600
-  - ARIA pattern: role="tablist" on container, role="tab" + aria-selected on buttons, aria-controls/labelledby for panels
-  - Focus states: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-  - Responsive: flex-col on mobile, flex-row on desktop (sm:flex-row)
-  - Minimum touch target: min-h-[48px] min-w-[48px] for accessibility
+  - Tags are stored in `metadata.tags` as JSONB array, use `.overlaps()` for array filtering
+  - Use `{ count: "exact" }` in select to get total for pagination
+  - Pattern: Create zod schema in validation file, use in route handler
 ---
 
-## 2026-01-12 15:30 - US-005
-Thread: https://ampcode.com/threads/T-019baf11-8e64-7236-aa6f-f1326e2dd6c8
-- **What was implemented:** SummaryCard component with progressive typography per reading level
-- **Files created:**
-  - components/brief/summary-card.tsx (main component)
-- **Files changed:**
-  - app/brief/[id]/page.tsx (integrated SummaryCard component, removed inline implementation)
+## Mon 12 Jan 2026 - US-005
+Thread: https://ampcode.com/threads/T-019bb312-8634-75bf-a0fe-46a6cae9e1bf
+- Created `/app/explore/page.tsx` with hero section for Explore Briefs
+- Hero includes: Compass icon badge, "Explore Briefs" heading, discovery subtitle
+- Uses design system: ivory-100 bg, ink-800 text, sage-100/600 for badge, font-heading/font-body
+- Server component with metadata for SEO (title, description)
+- Placeholder content section for upcoming grid/filters stories
 - **Learnings for future iterations:**
-  - SummaryCard now available at @/components/brief/summary-card for displaying summaries with proper typography
-  - Typography per level: child=text-lg/leading-relaxed, teen/undergrad=text-base/leading-normal, postdoc=text-base/leading-snug
-  - Reading time calculated automatically from content word count (200 wpm)
-  - ARIA pattern: role="tabpanel" + hidden attribute for inactive panels, aria-labelledby for tab association
-  - Brief data uses Record<ReadingLevel, string> format, not array of ReadingLevelSummary objects
-  - Each level renders as separate tabpanel div with only the active one visible
+  - Server components don't need "use client" and can export metadata directly
+  - Dev browser may need network idle wait for full CSS hydration
+  - Follow existing page patterns from homepage for consistent styling
 ---
 
-## 2026-01-12 16:30 - US-006
-Thread: https://ampcode.com/threads/T-019baf15-44fe-74e8-9e66-9d652d3e34a9
-- **What was implemented:** PoliticalLeanBadge component for displaying source political lean
-- **Files created:**
-  - components/sources/political-lean-badge.tsx (main component)
-- **Features:**
-  - Uses muted non-partisan rose→grey→blue spectrum per design spec
-  - Left: muted rose #8B4840 on #F5EBE9
-  - Center-Left: #9A6F6F on #F5ECEC
-  - Center: ink-600 on ivory-200
-  - Center-Right: #4D6672 on #EBF1F4
-  - Right: muted blue #3D5C72 on #E8F0F4
-  - Unknown: ink-500 on ivory-300
-  - Size variants: sm (text-xs) and md (text-sm, default)
-  - Accessible: title attribute with "Political lean: {label}"
-  - Typed with PoliticalLean from lib/types/brief.ts
+## Mon 12 Jan 2026 - US-006
+Thread: https://ampcode.com/threads/T-019bb317-67e2-727f-9bba-42948faa9ebf
+- Created `components/explore/brief-card.tsx` component for Explore page grid
+- Card displays: question title, clarity score badge (color-coded), tags (max 3), reading time, 2-line excerpt
+- Uses absolute positioned link overlay for card navigation with z-index for clickable tags
+- Tags are buttons with `onTagClick` callback for filter integration in later stories
+- Followed homepage showcase card styling patterns for consistency
 - **Learnings for future iterations:**
-  - Components in sources/ directory should import from @/components/sources/{component-name}
-  - Political lean colors are non-partisan - avoid UK flag red/blue associations
-  - Use subtle background colors for readability on badges
----
-
-## 2026-01-12 17:15 - US-007
-Thread: https://ampcode.com/threads/T-019baf1f-a8a8-77c9-a66b-6e416d680256
-- **What was implemented:** CredibilityBadge component for displaying source credibility scores
-- **Files created:**
-  - components/sources/credibility-badge.tsx (main component)
-- **Features:**
-  - Three score tiers with appropriate icons from lucide-react:
-    - Score 8+: ShieldCheck icon, success-light bg, success-dark text, "Highly Credible"
-    - Score 5-7: Shield icon, warning-light bg, warning-dark text, "Moderately Credible"
-    - Score <5: ShieldAlert icon, error-light bg, error-dark text, "Lower Credibility"
-  - Score displayed as X/10
-  - Size variants: sm (text-xs) and md (text-sm, default)
-  - Accessible: title attribute with "{label}: {score}/10"
-  - Uses design system semantic colors (success, warning, error)
-- **Learnings for future iterations:**
-  - CredibilityBadge now available at @/components/sources/credibility-badge
-  - Uses semantic colors from Tailwind config: success-{DEFAULT,light,dark}, warning-{}, error-{}
-  - Component matches PoliticalLeanBadge pattern for consistency
-  - Not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
----
-
-## 2026-01-12 18:00 - US-008
-Thread: https://ampcode.com/threads/T-019baf23-ab08-75b5-9776-8fd2d5d070a5
-- **What was implemented:** SourceCitation component for inline citations
-- **Files created:**
-  - components/sources/source-citation.tsx (main component)
-- **Features:**
-  - Superscript link format [n] per design spec
-  - Political lean color coding (muted rose→grey→blue spectrum):
-    - Left: #C85C6B (muted rose)
-    - Center-Left: #D9A0A0 (soft pink)
-    - Center: ink-400 (ash grey)
-    - Center-Right: #7FA5B8 (soft blue)
-    - Right: #6B8FB3 (muted blue)
-    - Unknown: ivory-600 (soft taupe)
-  - Hover shows underline (no-underline hover:underline)
-  - Links to #source-{source.id} anchor
-  - Accessible: aria-label with "Source {n}: {title}", title attribute
-  - Uses font-ui, transition-colors duration-200
-- **Learnings for future iterations:**
-  - SourceCitation colors are different from PoliticalLeanBadge colors - badges use background colors, citations use text colors only
-  - Citation links should use font-ui not font-body for UI element styling
-  - Component is not yet integrated into brief page - will be done in US-013 (Polish brief viewer)
----
-
-## 2026-01-12 19:00 - US-009
-Thread: https://ampcode.com/threads/T-019baf25-6c56-71cf-bfb9-8c2b5a2eb149
-- **What was implemented:** BriefGenerationProgress component for showing real-time generation progress
-- **Files created:**
-  - components/generation/generation-progress.tsx (main component)
-- **Files changed:**
-  - lib/types/brief.ts (added GenerationStage type and GenerationProgress interface)
-- **Features:**
-  - 5 generation stages with icons from lucide-react:
-    - research: Search icon, "Researching sources"
-    - structure: ListTree icon, "Extracting key factors"
-    - summary: BookOpen icon, "Generating summaries"
-    - narrative: PenLine icon, "Writing narrative"
-    - scoring: Target icon, "Calculating clarity score"
-  - Progress bar with smooth transition-all duration-500 animation
-  - Active stage: bg-sage-500 with Loader2 spinner
-  - Completed stages: bg-success with CheckCircle2 icon, "Complete" label
-  - Pending stages: bg-ivory-300 with stage icon
-  - Estimated time remaining in ~Xs format
-  - Accessible: role="status", aria-live="polite", aria-label with current stage and time
-  - Progress bar: role="progressbar" with aria-valuenow/min/max
-- **Learnings for future iterations:**
-  - BriefGenerationProgress now available at @/components/generation/generation-progress
-  - Use GenerationStage type ('research' | 'structure' | 'summary' | 'narrative' | 'scoring') from lib/types/brief.ts
-  - Component accepts: currentStage, progress (0-100), estimatedSecondsRemaining
-  - Not yet integrated into any page - will need to be added to "Ask Anything" flow in US-014
-  - Uses same warm editorial palette as other components (sage-500, ivory-100, ink-800)
----
-
-## 2026-01-12 21:00 - US-011 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019baf59-a731-718a-bdfb-172cb30b77a4
-- **What was implemented:** Footer component with legal links and navigation
-- **Files created:**
-  - components/layout/footer.tsx (main component with legal/nav links, copyright)
-- **Files changed:**
-  - app/layout.tsx (added Footer import, flex layout for sticky footer)
-- **Features:**
-  - Links: Privacy Policy (/privacy), Terms of Service (/terms)
-  - Navigation: About (/about), Ask Anything (/ask)
-  - Brand section with logo and tagline
-  - Copyright © 2026 State of Clarity
-  - Uses design system: bg-ivory-300, border-ivory-600, text-ink-500/600/800
-  - Focus rings: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-  - Responsive grid layout (1 col mobile, 3 cols desktop)
-  - Footer sticks to bottom via min-h-screen flex flex-col on body
-- **Learnings for future iterations:**
-  - Footer component now available at @/components/layout/footer
-  - Use ivory-300 for secondary backgrounds (footer, cards) instead of slate
-  - Global layout uses flex layout (min-h-screen flex flex-col) with flex-1 on main content for sticky footer
-  - Header and Footer both in layout.tsx now, no more inline on each page
----
-
-## 2026-01-12 22:30 - US-013 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019baf68-57b5-73a3-bd3c-80d419a01056
-- **What was implemented:** Complete polish of brief viewer page with design system
-- **Files changed:**
-  - app/brief/[id]/page.tsx (complete refactor with design system)
-- **Features:**
-  - Uses max-w-prose (65ch) for optimal reading width on summaries and narrative
-  - Design system colors throughout: bg-ivory-100/200, text-ink-600/800, sage-500 accents
-  - Expandable Clarity Score badge: click to show/hide breakdown panel
-  - Sources section with PoliticalLeanBadge and CredibilityBadge for each source
-  - Source citation numbers [1], [2], etc. with anchor links to sources section
-  - Share button with Web Share API fallback to clipboard copy
-  - Save/Bookmark button with proper styling
-  - All interactive elements have focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-  - Semantic HTML with header/main/article/aside structure
-  - Collapsible sections for structured analysis (definitions, factors, policies, consequences)
-  - Feedback section with Helpful/Not Helpful/Suggest Source/Spot Error buttons
-  - Clarity score explanation tooltip with Info icon
-- **Learnings for future iterations:**
-  - Use normalizePolicalLean() helper to convert source JSON political_lean strings to PoliticalLean type
-  - Sources section is sticky with max-h-[60vh] overflow-y-auto for long source lists
-  - Clarity breakdown panel animates in with animate-in fade-in slide-in-from-top-2 classes
-  - Web Share API works on mobile; fallback to clipboard for desktop
-  - Brief data uses different key names: summaries[level] for progressive summaries, not summaries.simple/standard/advanced
----
-
-## 2026-01-12 23:15 - US-014 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019baf6d-3cf7-70e2-a98a-ce7c2d710db6
-- **What was implemented:** Polished Ask Anything interface on homepage
-- **Files changed:**
-  - app/page.tsx (added character count, validation, generation progress overlay)
-- **Features:**
-  - Character count display (0/500) with min/max validation (10-500 chars)
-  - Hint text for optimal question length (20-200 chars) with "Good length" feedback
-  - Color-coded validation: warning for too-short, error for too-long, success for optimal
-  - Full-screen BriefGenerationProgress overlay during generation
-  - 5-stage progress simulation: research (12s), structure (8s), summary (15s), narrative (10s), scoring (5s)
-  - Progress bar fills to 95% during simulation, jumps to 100% on completion
-  - Estimated time remaining countdown
-  - Disabled submit button for invalid inputs
-  - Design system colors: ivory/ink/sage palette throughout
-- **Learnings for future iterations:**
-  - BriefGenerationProgress component accepts: currentStage (GenerationStage), progress (0-100), estimatedSecondsRemaining
-  - Use setInterval with 200ms for smooth progress simulation
-  - Clear interval on both success and error to prevent memory leaks
-  - API doesn't support streaming progress - simulate on client side
-  - Character count uses tabular-nums for stable width
-  - aria-describedby connects input to hint text for accessibility
----
-
-## 2026-01-12 23:45 - US-015 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019baf76-5ffd-7081-b851-c1bbfabf87d8
-- **What was implemented:** Complete polish of all 4 authentication pages
-- **Files changed:**
-  - app/auth/signin/page.tsx (complete redesign with design system)
-  - app/auth/signup/page.tsx (added age verification checkbox, design system)
-  - app/auth/error/page.tsx (design system colors and typography)
-  - app/auth/deleted-account/page.tsx (design system colors and typography)
-- **Features:**
-  - Design system colors: bg-ivory-100/50, text-ink-500/600/800, bg-sage-500/600/700
-  - Typography: font-heading for titles, font-ui for labels and buttons
-  - Age verification checkbox on sign-up (accessible role="checkbox" pattern)
-  - Loading states: Loader2 spinner icons from lucide-react
-  - Error/success messages: success-light/error-light with border-success/error/20
-  - Links to /privacy and /terms on both sign-in and sign-up
-  - Links between sign-in and sign-up pages
-  - Focus rings: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-  - Google and Apple OAuth buttons with proper disabled states
-  - Back to home links with ArrowLeft icon
-- **Learnings for future iterations:**
-  - OAuth handlers should check age verification before triggering (sign-up page)
-  - Use role="checkbox" aria-checked pattern for custom checkbox styling
-  - Use success-light/error-light from semantic colors for message backgrounds
-  - Border colors can use opacity: border-error/20
-  - Suspense boundary needed in error page for useSearchParams
----
-
-## 2026-01-12 24:00 - US-016 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0a1-d076-7705-8a21-0afc886245d5
-- **What was implemented:** Verified and polished profile/settings pages with design system
-- **Files changed:**
-  - app/profile/page.tsx (added email display to profile section)
-- **Findings:**
-  - Profile and Settings pages already fully polished with design system:
-    - Profile page: avatar, name, username, email, member since, stats grid, quick links (Saved, History, Settings, Export)
-    - Settings page: Profile section (avatar, display name), Reading Preferences (default level, topics), Privacy & Notifications (anonymous, email, push toggles), Data section (Export, Delete account)
-  - All using ivory/ink/sage palette, font-heading/font-ui typography
-  - All buttons/inputs have focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-  - Toggle switches use role="switch" aria-checked pattern
-  - Success/error messages use semantic colors (success-light/error-light)
-- **Learnings for future iterations:**
-  - Profile page at /profile, Settings page at /settings (separate pages)
-  - Profile edit at /profile/edit with avatar upload functionality
-  - Settings includes topics_of_interest with pill-style toggle buttons
-  - Delete account flows to /settings/delete-account
----
-
-## 2026-01-12 24:30 - US-017 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0a4-558b-712a-aa84-996463dcb607
-- **What was implemented:** Homepage copy review and update to match brand voice guidelines
-- **Files changed:**
-  - app/page.tsx (copy updates in 5 locations)
-- **Changes:**
-  - Removed "AI-powered self-critique" → "Every brief scores itself" (avoid AI as selling point)
-  - Changed "Meets you where you are, without dumbing down" → "We meet you where you are – no condescension, no gatekeeping" (active voice, brand values)
-  - Changed "Every claim linked to sources" → "We link every claim to its source. You see credibility scores and political lean – verify for yourself" (active voice, emphasize transparency)
-  - Updated question hint to use concrete example: "Try asking about a specific policy, e.g., 'Should the UK raise the minimum wage?'"
-  - Updated showcase section headline to "See Evidence-Based Analysis in Action" with first-principles reasoning copy
-- **Learnings for future iterations:**
-  - Avoid "AI-powered" as selling point per brand guidelines
-  - Use active voice: "We [verb]" instead of passive constructions
-  - Lead with evidence and transparency, not features
-  - Include concrete examples in hints/placeholders
-  - "First principles" and "source transparency" are key brand terms
----
-
-## 2026-01-12 25:00 - US-018 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0a6-6c01-7245-9484-ceafd8b4ebe1
-- **What was implemented:** Brief viewer copy review and update per brand voice guidelines
-- **Files changed:**
-  - app/brief/[id]/page.tsx (copy updates in 4 locations)
-  - components/brief/reading-level-selector.tsx (updated reading level labels)
-  - app/terms/page.tsx (removed banned word "unbiased")
-- **Changes:**
-  - Clarity Score explanation: "We score each brief on..." (active voice) + "shows how transparent and well-supported" instead of passive description
-  - Sources section: Added transparency tagline "We show credibility scores and political lean – verify for yourself"
-  - Progressive Summaries: Renamed to "Choose Your Reading Level" with tagline "We meet you where you are – same evidence, tailored depth"
-  - Feedback section: "Help Us Improve" with "Collaborative truth-seeking works best when you challenge our work"
-  - Reading level labels: Changed hyphens to en-dashes (8–12), "Graduate researchers" instead of "Graduate+"
-  - Terms page: Changed "unbiased" to "free from limitations" (legal disclaimer context)
-- **Learnings for future iterations:**
-  - Use active voice: "We [verb]..." instead of passive descriptions
-  - Include call-to-action in transparency copy ("verify for yourself")
-  - Reading levels should feel welcoming, not like difficulty settings
-  - Terms of service can avoid banned words with equivalent legal language
-  - En-dashes (–) for ranges, not hyphens (-) per typography standards
----
-
-## 2026-01-12 26:00 - US-019 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0a9-3a80-707c-9c6e-8a60b258c9ba
-- **What was implemented:** Reviewed and updated all page copy for brand voice consistency
-- **Files changed:**
-  - app/not-found.tsx (complete rewrite with design system + active voice)
-  - app/error.tsx (complete rewrite with helpful guidance + design system)
-  - app/loading.tsx (updated to ivory/ink/sage design system)
-  - app/brief/[id]/loading.tsx (updated to design system)
-  - app/settings/page.tsx (reading level labels: en-dashes, "Graduate researchers")
-  - components/generation/generation-progress.tsx (active voice stage labels)
-  - app/auth/error/page.tsx (active voice error messages)
-- **Changes:**
-  - Not Found: "We couldn't find that page" (active voice), uses ivory/ink/sage, helpful CTAs
-  - Error: "We hit an unexpected error" with support link and helpful guidance
-  - Loading states: All skeleton colors now use ivory-300, sage-100, success-light (design system)
-  - Settings reading levels: Changed hyphens to en-dashes (8–12), "Graduate researchers" not "Graduate+"
-  - Generation progress: "Finding credible sources", "Building the full analysis", "Scoring for clarity and transparency"
-  - Auth errors: "We didn't receive...", "We couldn't complete...", "We hit an issue..." (all active voice)
-- **Learnings for future iterations:**
-  - All error messages should start with "We [verb]..." for active voice
-  - Loading states use same ivory/ink/sage palette as rest of app
-  - Reading level age ranges use en-dashes (–) not hyphens (-)
-  - Generation progress labels should describe the work being done, not technical processes
-  - Support contact (mailto:support@stateofclarity.com) for persistent errors
----
-
-## 2026-01-12 27:00 - US-020 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0ad-cea3-77ae-b216-fbf6b80f6afa
-- **What was implemented:** Added consistent focus states to all interactive elements across 9 components
-- **Files changed:**
-  - app/components/SpotErrorModal.tsx (focus rings on all inputs, buttons, close button)
-  - app/components/ProposeEditModal.tsx (focus rings on all inputs, buttons, close button)
-  - app/components/SuggestSourceModal.tsx (focus rings on all inputs, buttons, close button)
-  - app/components/FeedbackForm.tsx (focus rings on all buttons, textarea)
-  - app/components/GenerationFailed.tsx (focus ring on Try Again button)
-  - app/components/QuestionInput.tsx (focus ring on input and submit button)
-  - app/components/auth/EmailPasswordForm.tsx (focus rings on all inputs, buttons)
-  - app/components/auth/AuthModal.tsx (focus rings on close button, tab buttons, input, submit button, toggle links)
-  - components/cookie-consent-banner.tsx (focus rings on Accept/Decline buttons, privacy link)
-- **Changes:**
-  - Standardized focus pattern: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2`
-  - Updated form inputs to use design system: `border-ivory-600 bg-ivory-50 text-ink-800`
-  - Updated buttons to use design system: `bg-sage-500 hover:bg-sage-600`, `bg-rust-500` for destructive actions
-  - Added `rounded` class to inline text links for proper focus ring appearance
-  - Replaced `focus:ring-primary` with `focus-visible:ring-sage-500` throughout
-- **Learnings for future iterations:**
-  - Use `focus-visible:` prefix instead of `focus:` for keyboard-only focus indicators
-  - Always add `rounded` or `rounded-md` to elements before adding focus ring for proper appearance
-  - Form inputs in modals should use `bg-ivory-50` with `border-ivory-600` for design system consistency
-  - Use `focus-visible:ring-offset-2` for proper spacing between element and focus ring
----
-
-## 2026-01-12 28:00 - US-021 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0b7-789e-7432-9331-ca0ddaba2895
-- **What was implemented:** Verified and fixed WCAG AAA contrast on reading content
-- **Files changed:**
-  - app/privacy/page.tsx (complete rewrite with design system)
-  - app/terms/page.tsx (complete rewrite with design system)
-- **Audit findings:**
-  - Brief viewer already uses correct contrast: ink-800 (#1F2328) on ivory-100 (#F7F4EF)
-  - Contrast ratio: 11.8:1, exceeds WCAG AAA requirement of 7:1
-  - Privacy and Terms pages were using old gray/muted-foreground classes – fixed
-- **Changes:**
-  - Privacy page: bg-ivory-100 background, text-ink-800 for body text, font-heading/font-body typography
-  - Terms page: Same updates as privacy page
-  - All links use text-sage-600 with hover:text-sage-700 hover:underline
-  - Focus rings on all interactive elements
-  - Removed all gray-*, muted-foreground, prose-gray classes
-  - Updated copyright to 2026
-- **Learnings for future iterations:**
-  - Design system ink-800 on ivory-100 provides 11.8:1 contrast ratio (exceeds WCAG AAA 7:1)
-  - ink-500 on ivory-100 provides ~5.5:1 contrast ratio (meets WCAG AA for meta text)
-  - Always use text-ink-800 for body content, text-ink-500 for meta/secondary text
-  - Links should be text-sage-600 with hover:text-sage-700
----
-
-## 2026-01-12 29:00 - US-022 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0bb-dcb9-76b1-a1e0-365307747ce3
-- **What was implemented:** Final visual QA across all breakpoints (mobile 375px, tablet 768px, desktop 1440px)
-- **Files changed:**
-  - app/page.tsx (search input stacked layout on mobile, min-h-[48px] button)
-  - components/layout/footer.tsx (footer links min-h-[44px] touch targets)
-  - components/layout/header.tsx (mobile menu invisible + overflow-hidden when closed)
-- **Issues found and fixed:**
-  - Mobile horizontal scroll caused by mobile menu slide-out panel (w-64 at right-0)
-  - Search input with inline button was too wide on 375px screens
-  - Footer links too close together for touch targets
-  - Get Brief button too small for mobile touch targets
-- **Verification:**
-  - Mobile (375px): scrollWidth=375, clientWidth=375 ✓
-  - Tablet (768px): scrollWidth=768, clientWidth=768 ✓
-  - Desktop (1440px): scrollWidth=1440, clientWidth=1440 ✓
-  - Additional pages (brief, signin, privacy) all pass at mobile ✓
-- **Learnings for future iterations:**
-  - Mobile menus with `translate-x-full` still affect document width; add `invisible` class when closed
-  - Use `overflow-hidden` on parent containers for slide-out panels
-  - Touch targets must be min-h-[44px] on mobile per accessibility guidelines
-  - Stack input+button vertically on mobile with `flex-col sm:flex-row`
----
-
-## 2026-01-12 30:00 - US-023 (Brand/UI Sweep Epic)
-Thread: https://ampcode.com/threads/T-019bb0d5-80ee-7231-b582-861056fe0ade
-- **What was implemented:** First-time user welcome modal with mission disclaimer
-- **Files created:**
-  - components/onboarding/welcome-modal.tsx (main modal component)
-  - components/onboarding/welcome-modal-wrapper.tsx (client wrapper for SSR compatibility)
-- **Files changed:**
-  - app/layout.tsx (added WelcomeModalWrapper to global layout)
-- **Features:**
-  - Uses Radix Dialog for accessible modal with focus trap
-  - localStorage check for 'has-seen-welcome' key
-  - Shows on first visit, dismisses and saves preference on close
-  - 4 mission points with icons from lucide-react:
-    - "We pursue informed truth" (Search icon)
-    - "We provide thoughtful depth" (BookOpen icon)
-    - "We don't pick sides" (Shield icon)
-    - "We show our sources" (Users icon)
-  - Headline: "Welcome to State of Clarity"
-  - Primary CTA: "Get Started" button closes modal
-  - Secondary: "Learn More About Us" links to /about
-  - Design system: ivory-100/ink-800/sage-500 colors, font-heading/font-ui/font-body
-  - Accessible: aria-modal, ESC to close, focus management (focuses Get Started on open)
-  - Animations: fade-in, slide-in-from-bottom-4
-  - Focus rings: focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2
-- **Learnings for future iterations:**
-  - Use WelcomeModalWrapper pattern for client components in SSR layouts
-  - Radix Dialog provides built-in focus trap and ESC handling
-  - Use localStorage.getItem/setItem for persistent preferences
-  - Mount check (useState + useEffect) prevents SSR hydration issues
+  - `Brief.clarity_score` can be number OR ClarityScore object - need to handle both cases
+  - Tags are in `metadata.tags` as string array
+  - Summaries can be array (ReadingLevelSummary[]) or Record<ReadingLevel, string> - handle both
+  - Use `line-clamp-2` for 2-line truncation CSS
 ---

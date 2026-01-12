@@ -39,8 +39,22 @@ export const popularBriefsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
+/**
+ * Schema for explore briefs query params
+ */
+export const exploreBriefsQuerySchema = z.object({
+  q: z.string().optional(),
+  tags: z.string().optional(), // comma-separated
+  minScore: z.coerce.number().min(0).max(10).optional(),
+  sort: z.enum(["newest", "oldest", "score", "views"]).default("newest"),
+  date: z.enum(["week", "month", "year", "all"]).default("all"),
+  limit: z.coerce.number().int().min(1).max(100).default(12),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
 // Inferred types from schemas
 export type BriefIdInput = z.infer<typeof briefIdSchema>;
 export type CreateBriefInput = z.infer<typeof createBriefSchema>;
 export type UpdateBriefInput = z.infer<typeof updateBriefSchema>;
 export type PopularBriefsQueryInput = z.infer<typeof popularBriefsQuerySchema>;
+export type ExploreBriefsQueryInput = z.infer<typeof exploreBriefsQuerySchema>;

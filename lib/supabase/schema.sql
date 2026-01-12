@@ -70,6 +70,12 @@ CREATE TABLE public.briefs (
   -- Versioning (for tracking edits)
   fork_of UUID REFERENCES public.briefs(id) ON DELETE SET NULL,
 
+  -- View tracking for Most Read sorting
+  view_count INTEGER DEFAULT 0,
+
+  -- Privacy/visibility for Explore page
+  is_public BOOLEAN DEFAULT true,
+
   -- Full-text search (for future use)
   search_vector tsvector GENERATED ALWAYS AS (
     to_tsvector('english', coalesce(question, '') || ' ' || coalesce(narrative, ''))
@@ -225,6 +231,8 @@ CREATE INDEX idx_briefs_created_at ON public.briefs(created_at DESC);
 CREATE INDEX idx_briefs_clarity_score ON public.briefs(clarity_score DESC);
 CREATE INDEX idx_briefs_user_id ON public.briefs(user_id);
 CREATE INDEX idx_briefs_search_vector ON public.briefs USING GIN(search_vector);
+CREATE INDEX idx_briefs_view_count ON public.briefs(view_count DESC);
+CREATE INDEX idx_briefs_is_public ON public.briefs(is_public) WHERE is_public = true;
 
 -- Sources
 CREATE INDEX idx_sources_political_lean ON public.sources(political_lean);

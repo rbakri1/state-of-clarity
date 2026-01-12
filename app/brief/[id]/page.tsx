@@ -45,6 +45,16 @@ export default function BriefPage() {
     principles: false,
   });
 
+  // Track view (once per session)
+  const trackView = async (id: string) => {
+    try {
+      await fetch(`/api/briefs/${id}/view`, { method: "POST" });
+    } catch (err) {
+      // Silently fail - don't break page load for view tracking
+      console.warn('[Brief Page] View tracking failed:', err);
+    }
+  };
+
   // Fetch brief from API
   useEffect(() => {
     const fetchBrief = async () => {
@@ -75,6 +85,9 @@ export default function BriefPage() {
 
         setBrief(data.brief);
         setIsLoading(false);
+
+        // Track view after successful brief load
+        trackView(id);
       } catch (err) {
         console.error('[Brief Page] Error fetching brief:', err);
         setError("Failed to load brief");

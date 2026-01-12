@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#F7F6F3",
+          backgroundColor: "#F7F6F3", // ivory-100
           padding: "60px",
         }}
       >
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
               style={{
                 width: "48px",
                 height: "48px",
-                backgroundColor: "#5D7052",
+                backgroundColor: "#5D7052", // sage-500
                 borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
               style={{
                 fontSize: "24px",
                 fontWeight: 600,
-                color: "#1C1C1C",
+                color: "#1C1C1C", // ink-800
               }}
             >
               State of Clarity
