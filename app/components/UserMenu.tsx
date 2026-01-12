@@ -88,6 +88,8 @@ export function UserMenu() {
   }, [supabase]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -96,7 +98,7 @@ export function UserMenu() {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
