@@ -105,7 +105,9 @@ export function ExploreContent() {
   const [allBriefs, setAllBriefs] = useState<Brief[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isTagsLoading, setIsTagsLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Compute available tags from all briefs (fetched once without filters)
@@ -293,6 +295,7 @@ export function ExploreContent() {
         const data: BriefsResponse = await response.json();
         setBriefs(data.briefs);
         setTotal(data.total);
+        setHasMore(data.hasMore);
       } catch (err) {
         console.error("Error fetching briefs:", err);
         setError(err instanceof Error ? err.message : "Failed to load briefs");
@@ -310,6 +313,47 @@ export function ExploreContent() {
     },
     [handleTagToggle]
   );
+
+  // Load more briefs (pagination)
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("limit", "12");
+      params.set("offset", String(briefs.length));
+      if (searchQuery) {
+        params.set("q", searchQuery);
+      }
+      if (selectedTags.length > 0) {
+        params.set("tags", selectedTags.join(","));
+      }
+      if (minScore !== null) {
+        params.set("minScore", String(minScore));
+      }
+      if (sort !== "newest") {
+        params.set("sort", sort);
+      }
+      if (dateRange !== "all") {
+        params.set("date", dateRange);
+      }
+
+      const response = await fetch(`/api/briefs?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to load more briefs");
+      }
+
+      const data: BriefsResponse = await response.json();
+      setBriefs((prev) => [...prev, ...data.briefs]);
+      setHasMore(data.hasMore);
+    } catch (err) {
+      console.error("Error loading more briefs:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, briefs.length, searchQuery, selectedTags, minScore, sort, dateRange]);
 
   if (error) {
     return (
@@ -431,6 +475,51 @@ export function ExploreContent() {
           ))
         )}
       </div>
+
+      {/* Load More button */}
+      {!isLoading && hasMore && (
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className={cn(
+              "px-6 py-3 rounded-lg",
+              "bg-sage-100 text-sage-600 font-ui font-medium",
+              "hover:bg-sage-200 transition-colors duration-200",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+          >
+            {isLoadingMore ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Loading...
+              </span>
+            ) : (
+              "Load More"
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
