@@ -159,8 +159,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Component: components/explore/score-filter.tsx - dropdown with All/7+/8+/9+ options, URL sync via ?minScore param"
     },
     {
       "id": "US-011",

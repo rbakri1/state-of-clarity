@@ -132,3 +132,16 @@ Thread: https://ampcode.com/threads/T-019bb35c-29fc-740c-83f8-ed8afc0c0a0f
   - TagFilter returns null when no tags available - won't render empty section
   - useMemo for computing availableTags from allBriefs prevents recomputation
 ---
+
+## Mon 12 Jan 2026 - US-010
+Thread: https://ampcode.com/threads/T-019bb361-9f22-75af-b5c3-0f91fc7f7294
+- Created `components/explore/score-filter.tsx` with Min Score dropdown filter
+- Dropdown options: All Scores (default), 7+ Score, 8+ Score, 9+ Score
+- Integrated into explore-content.tsx with state management and URL persistence
+- Filter syncs with URL via `?minScore=X` parameter and persists on navigation
+- Results count shows "with score X+" when filter is active
+- **Learnings for future iterations:**
+  - Filter components follow pattern: local state + handleChange callback + URL sync
+  - Use `searchParams.toString()` to build new params preserving existing ones
+  - minScore can be null (All) or number (7/8/9) - handle both in onChange
+---
