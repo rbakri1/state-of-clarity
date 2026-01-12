@@ -59,7 +59,7 @@ async function checkAgentLogs() {
   }
 
   // Group by brief and show which summaries were generated
-  const briefLogs = logs.reduce((acc, log) => {
+  const logsByBrief = logs.reduce((acc, log) => {
     if (!log.brief_id) return acc;
     if (!acc[log.brief_id]) acc[log.brief_id] = [];
     acc[log.brief_id].push(log);
@@ -67,8 +67,9 @@ async function checkAgentLogs() {
   }, {} as Record<string, any[]>);
 
   console.log(`\n\n📈 Summary generation by brief:\n`);
-  for (const [briefId, briefLogs] of Object.entries(briefLogs).slice(0, 5)) {
-    const summaryAgents = briefLogs.filter(l => l.agent_name.toLowerCase().includes('summary'));
+  for (const [briefId, logsForBrief] of Object.entries(logsByBrief).slice(0, 5)) {
+    const briefLogsArray = logsForBrief as any[];
+    const summaryAgents = briefLogsArray.filter((l) => l.agent_name.toLowerCase().includes('summary'));
     console.log(`Brief ${briefId.substring(0, 8)}...:`);
     for (const log of summaryAgents) {
       const status = log.status === 'completed' ? '✅' : log.status === 'failed' ? '❌' : '⏳';
