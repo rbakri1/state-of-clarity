@@ -110,7 +110,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
     const creditDeducted = await deductCredits(
       user.id,
       BRIEF_COST,
-      briefId,
+      null,
       `Brief generation: "${question.substring(0, 50)}${question.length > 50 ? "..." : ""}"`
     );
 
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
         await refundCredits(
           user.id,
           BRIEF_COST,
-          briefId,
+          null,
           `Quality gate failed: clarity score ${clarityScore.toFixed(1)} < 6.0`
         );
         creditRefunded = true;
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
       await refundCredits(
         user.id,
         BRIEF_COST,
-        briefId,
+        null,
         `Generation failed: ${generationError instanceof Error ? generationError.message : "Unknown error"}`
       );
 
