@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS credit_transactions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     amount INTEGER NOT NULL, -- positive = purchase/refund, negative = usage/expiry
-    transaction_type VARCHAR(50) NOT NULL CHECK (transaction_type IN ('purchase', 'usage', 'refund', 'expiry', 'bonus')),
+    transaction_type VARCHAR(50) NOT NULL CHECK (transaction_type IN ('purchase', 'usage', 'refund', 'expiry', 'bonus', 'onboarding')),
     description TEXT,
     brief_id UUID REFERENCES briefs(id) ON DELETE SET NULL,
     stripe_payment_id VARCHAR(255),
