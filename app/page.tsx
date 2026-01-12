@@ -196,41 +196,45 @@ export default function Home() {
           {/* Ask Anything Interface */}
           <form onSubmit={handleSubmit} className="mt-8">
             <div className="max-w-2xl mx-auto space-y-3">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-ink-400" />
+              {/* Mobile: stacked input and button */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-ink-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={question}
+                    onChange={(e) => {
+                      if (e.target.value.length <= MAX_QUESTION_LENGTH + 50) {
+                        setQuestion(e.target.value);
+                      }
+                    }}
+                    placeholder="Ask a policy question..."
+                    className={cn(
+                      "w-full pl-12 pr-4 py-4 rounded-xl",
+                      "border-2 bg-ivory-50",
+                      "text-ink-800 font-body text-base",
+                      "placeholder:text-ink-400",
+                      "focus:ring-2 focus:ring-sage-500/20 outline-none",
+                      "transition-all duration-200",
+                      "disabled:bg-ivory-200 disabled:cursor-not-allowed",
+                      charStatus.status === "too-long" ? "border-error focus:border-error" :
+                      charStatus.status === "too-short" && question.length > 0 ? "border-warning focus:border-warning" :
+                      "border-ivory-600 focus:border-sage-500"
+                    )}
+                    disabled={isLoading}
+                    maxLength={MAX_QUESTION_LENGTH + 50}
+                    aria-describedby="question-hint"
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={question}
-                  onChange={(e) => {
-                    if (e.target.value.length <= MAX_QUESTION_LENGTH + 50) {
-                      setQuestion(e.target.value);
-                    }
-                  }}
-                  placeholder="Ask a policy question... (e.g., 'What would a 4-day work week mean for the UK economy?')"
-                  className={cn(
-                    "w-full pl-12 pr-36 py-4 rounded-xl",
-                    "border-2 bg-ivory-50",
-                    "text-ink-800 font-body text-base",
-                    "placeholder:text-ink-400",
-                    "focus:ring-2 focus:ring-sage-500/20 outline-none",
-                    "transition-all duration-200",
-                    "disabled:bg-ivory-200 disabled:cursor-not-allowed",
-                    charStatus.status === "too-long" ? "border-error focus:border-error" :
-                    charStatus.status === "too-short" && question.length > 0 ? "border-warning focus:border-warning" :
-                    "border-ivory-600 focus:border-sage-500"
-                  )}
-                  disabled={isLoading}
-                  maxLength={MAX_QUESTION_LENGTH + 50}
-                  aria-describedby="question-hint"
-                />
                 <button
                   type="submit"
                   disabled={isLoading || !question.trim() || charStatus.status === "too-short" || charStatus.status === "too-long"}
                   className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2",
-                    "px-6 py-2.5 rounded-lg",
+                    "w-full sm:w-auto",
+                    "px-6 py-4 sm:py-2.5 rounded-xl sm:rounded-lg",
+                    "min-h-[48px]",
                     "bg-sage-500 text-ivory-100 font-ui font-medium",
                     "hover:bg-sage-600 transition-all duration-200",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
