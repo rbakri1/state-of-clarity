@@ -76,6 +76,7 @@ export default function TransactionHistoryPage() {
       refund: "Refund",
       expiry: "Expired",
       bonus: "Bonus",
+      onboarding: "Welcome",
     };
     return labels[type] || type;
   };
@@ -87,6 +88,7 @@ export default function TransactionHistoryPage() {
       refund: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
       expiry: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
       bonus: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+      onboarding: "bg-sage-100 text-sage-700 dark:bg-sage-900/30 dark:text-sage-400",
     };
     return styles[type] || "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
   };

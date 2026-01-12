@@ -3,12 +3,16 @@
  *
  * Handles OAuth and magic link callbacks from Supabase Auth.
  * This route exchanges the auth code for a session and creates/updates
- * the user profile on first login.
+ * the user profile on first login. New users receive 3 free onboarding credits.
  */
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { addCredits } from "@/lib/services/credit-service";
+
+const ONBOARDING_CREDITS = 3;
+const ONBOARDING_EXPIRY_DAYS = 30;
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -68,6 +72,25 @@ export async function GET(request: NextRequest) {
           notification_preferences: { email: true, push: false },
           anonymous_posting: false,
         });
+
+        // Grant onboarding credits to new users (3 credits, expires in 30 days)
+        try {
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + ONBOARDING_EXPIRY_DAYS);
+
+          await addCredits(
+            user.id,
+            ONBOARDING_CREDITS,
+            "onboarding",
+            null,
+            expiresAt
+          );
+
+          console.log(`Granted ${ONBOARDING_CREDITS} onboarding credits to new user ${user.id}`);
+        } catch (creditError) {
+          // Log but don't fail the auth flow if credit granting fails
+          console.error("Failed to grant onboarding credits:", creditError);
+        }
       }
     }
   }

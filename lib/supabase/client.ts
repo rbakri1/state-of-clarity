@@ -14,7 +14,7 @@ import { cookies } from "next/headers";
 export type ReadingLevel = "simple" | "standard" | "advanced";
 
 // Credit transaction types
-export type CreditTransactionType = "purchase" | "usage" | "refund" | "expiry" | "bonus";
+export type CreditTransactionType = "purchase" | "usage" | "refund" | "expiry" | "bonus" | "onboarding";
 
 // Payment retry status
 export type PaymentRetryStatus = "pending" | "retrying" | "succeeded" | "failed";
@@ -323,7 +323,7 @@ export interface Database {
           id: string;
           user_id: string;
           amount: number;
-          transaction_type: "purchase" | "usage" | "refund" | "expiry" | "bonus";
+          transaction_type: CreditTransactionType;
           description: string | null;
           brief_id: string | null;
           stripe_payment_id: string | null;
@@ -332,7 +332,7 @@ export interface Database {
         Insert: {
           user_id: string;
           amount: number;
-          transaction_type: "purchase" | "usage" | "refund" | "expiry" | "bonus";
+          transaction_type: CreditTransactionType;
           description?: string | null;
           brief_id?: string | null;
           stripe_payment_id?: string | null;
