@@ -37,6 +37,15 @@ interface GenerateBriefResponse {
 export async function POST(request: NextRequest): Promise<NextResponse<GenerateBriefResponse>> {
   try {
     const cookieStore = await cookies();
+
+    // Debug: Log all cookies
+    const allCookies = cookieStore.getAll();
+    console.log('[Brief Generate] All cookies:', allCookies.map(c => ({ name: c.name, hasValue: !!c.value })));
+
+    // Debug: Check for Supabase auth cookies
+    const authCookies = allCookies.filter(c => c.name.startsWith('sb-'));
+    console.log('[Brief Generate] Auth cookies found:', authCookies.length);
+
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -56,7 +65,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateB
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
+    // Debug: Log auth result
+    console.log('[Brief Generate] Auth check:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email,
+      authError: authError?.message
+    });
+
     if (authError || !user) {
+      console.error('[Brief Generate] Authentication failed:', authError);
       return NextResponse.json(
         { success: false, error: "Authentication required" },
         { status: 401 }
