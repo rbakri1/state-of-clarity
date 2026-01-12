@@ -1,5 +1,5 @@
 import { Compass } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { BriefsGrid } from "@/components/explore/briefs-grid";
 
 export const metadata = {
   title: "Explore Briefs | State of Clarity",
@@ -26,16 +26,9 @@ export default function ExplorePage() {
         </div>
       </section>
 
-      {/* Content Section - Placeholder for future stories */}
+      {/* Briefs Grid Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className={cn(
-          "p-8 rounded-xl text-center",
-          "bg-ivory-50 border border-ivory-500"
-        )}>
-          <p className="font-body text-ink-500">
-            Briefs grid and filters coming soon...
-          </p>
-        </div>
+        <BriefsGrid />
       </section>
     </div>
   );
