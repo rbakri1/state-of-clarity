@@ -44,6 +44,7 @@ export function ReadingLevelSelector({
             "px-4 py-3 rounded-md font-ui transition-all duration-200",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
             "min-h-[48px] min-w-[48px]",
+            "hover:scale-[1.02] active:scale-[0.98]",
             currentLevel === level.value
               ? "bg-sage-500 text-ivory-100 font-semibold shadow-md"
               : "bg-transparent text-ink-600 hover:bg-ivory-300 font-medium"
