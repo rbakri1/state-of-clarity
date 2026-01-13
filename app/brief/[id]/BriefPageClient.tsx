@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import {
   Sparkles,
@@ -52,12 +52,15 @@ export default function BriefPageClient() {
   }, [searchParams]);
 
   const [activeLevel, setActiveLevel] = useState<ReadingLevel>("standard");
+  const [isSticky, setIsSticky] = useState(false);
+  const selectorRef = useRef<HTMLDivElement>(null);
+  const summaryRef = useRef<HTMLElement>(null);
 
   // Sync URL to state on mount
   useEffect(() => {
     const initialLevel = getInitialLevel();
     setActiveLevel(initialLevel);
-    
+
     // Sync URL if it doesn't match the determined level
     const urlLevel = searchParams.get("level");
     if (urlLevel !== initialLevel) {
@@ -65,6 +68,26 @@ export default function BriefPageClient() {
       newParams.set("level", initialLevel);
       router.replace(`?${newParams.toString()}`, { scroll: false });
     }
+  }, []);
+
+  // Handle scroll for sticky selector behavior
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!selectorRef.current || !summaryRef.current) return;
+
+      const selectorTop = selectorRef.current.getBoundingClientRect().top;
+      const summaryTop = summaryRef.current.getBoundingClientRect().top;
+      const summaryBottom = summaryRef.current.getBoundingClientRect().bottom;
+
+      // Make sticky when scrolled past the selector, but only while summary is visible
+      const shouldBeSticky = selectorTop <= 80 && summaryBottom > 150;
+      setIsSticky(shouldBeSticky);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Check initial position
+
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLevelChange = useCallback((level: ReadingLevel) => {
@@ -117,8 +140,9 @@ export default function BriefPageClient() {
                 excerpt={brief.summaries.standard?.slice(0, 100)}
               />
               <BookmarkButton briefId={params.id as string} />
-              <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition">
-                Ask Follow-up
+              <button className="px-3 py-2 sm:px-4 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm sm:text-base">
+                <span className="hidden sm:inline">Ask Follow-up</span>
+                <span className="sm:hidden">Ask</span>
               </button>
             </div>
           </div>
@@ -167,17 +191,26 @@ export default function BriefPageClient() {
         </section>
 
         {/* Reading Level Selector */}
-        <section className="mb-10 print:hidden">
+        <div
+          ref={selectorRef}
+          className={`mb-10 print:hidden transition-all duration-300 ${
+            isSticky
+              ? "fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-700"
+              : ""
+          }`}
+          style={isSticky ? { maxWidth: 'fit-content' } : {}}
+        >
           <ReadingLevelSelector
             level={activeLevel}
             onLevelChange={handleLevelChange}
+            compact={isSticky}
           />
-        </section>
+        </div>
 
         {/* Summary Section */}
-        <section className="mb-12">
+        <section ref={summaryRef} className="mb-12">
           <h2 className="text-xl font-bold mb-4">Summary</h2>
-          <div 
+          <div
             key={activeLevel}
             className="animate-fade-in"
             style={{ maxWidth: '65ch' }}

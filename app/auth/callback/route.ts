@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const type = requestUrl.searchParams.get("type");
+  const redirectPath = requestUrl.searchParams.get("redirect");
 
   if (code) {
     const cookieStore = await cookies();
@@ -99,5 +100,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/settings/password", requestUrl.origin));
   }
 
-  return NextResponse.redirect(new URL("/", requestUrl.origin));
+  // Redirect to the original page if specified, otherwise go to homepage
+  const finalRedirect = redirectPath || "/";
+  return NextResponse.redirect(new URL(finalRedirect, requestUrl.origin));
 }

@@ -16,14 +16,12 @@ import {
 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
-type ReadingLevel = "child" | "teen" | "undergrad" | "postdoc";
-type NotificationPreferences = { email: boolean; push: boolean };
+type ReadingLevel = "simple" | "standard" | "advanced";
 
 const READING_LEVELS: { value: ReadingLevel; label: string; description: string }[] = [
-  { value: "child", label: "Child (Ages 8–12)", description: "Simple language, relatable examples" },
-  { value: "teen", label: "Teen (Ages 13–17)", description: "More context, balanced detail" },
-  { value: "undergrad", label: "Undergrad (Ages 18–22)", description: "Standard depth and terminology" },
-  { value: "postdoc", label: "Postdoc (Graduate researchers)", description: "Full technical depth" },
+  { value: "simple", label: "Simple", description: "Easy-to-understand language, relatable examples" },
+  { value: "standard", label: "Standard", description: "Balanced depth and terminology" },
+  { value: "advanced", label: "Advanced", description: "Full technical depth and detail" },
 ];
 
 const TOPIC_OPTIONS = [
@@ -45,12 +43,12 @@ const TOPIC_OPTIONS = [
 ];
 
 interface ProfileData {
-  display_name: string;
+  full_name: string;
   avatar_url: string;
   preferred_reading_level: ReadingLevel | null;
-  topics_of_interest: string[];
-  notification_preferences: NotificationPreferences;
-  anonymous_posting: boolean;
+  topic_interests: string[];
+  notification_email_digest: boolean;
+  notification_new_features: boolean;
 }
 
 export default function SettingsPage() {
@@ -64,12 +62,12 @@ export default function SettingsPage() {
   const [userId, setUserId] = useState<string | null>(null);
 
   const [profile, setProfile] = useState<ProfileData>({
-    display_name: "",
+    full_name: "",
     avatar_url: "",
     preferred_reading_level: null,
-    topics_of_interest: [],
-    notification_preferences: { email: true, push: false },
-    anonymous_posting: false,
+    topic_interests: [],
+    notification_email_digest: true,
+    notification_new_features: true,
   });
 
   const loadProfile = useCallback(async () => {
@@ -88,7 +86,7 @@ export default function SettingsPage() {
       const { data, error: fetchError } = await supabase
         .from("profiles")
         .select(
-          "display_name, avatar_url, preferred_reading_level, topics_of_interest, notification_preferences, anonymous_posting"
+          "full_name, avatar_url, preferred_reading_level, topic_interests, notification_email_digest, notification_new_features"
         )
         .eq("id", user.id)
         .single();
@@ -99,29 +97,25 @@ export default function SettingsPage() {
 
       if (data) {
         const profileData = data as {
-          display_name: string | null;
+          full_name: string | null;
           avatar_url: string | null;
           preferred_reading_level: string | null;
-          topics_of_interest: string[] | null;
-          notification_preferences: NotificationPreferences | null;
-          anonymous_posting: boolean | null;
+          topic_interests: string[] | null;
+          notification_email_digest: boolean | null;
+          notification_new_features: boolean | null;
         };
         setProfile({
-          display_name:
-            profileData.display_name || user.user_metadata?.full_name || "",
+          full_name:
+            profileData.full_name || user.user_metadata?.full_name || "",
           avatar_url:
             profileData.avatar_url || user.user_metadata?.avatar_url || "",
           preferred_reading_level:
             (profileData.preferred_reading_level as ReadingLevel) || null,
-          topics_of_interest: Array.isArray(profileData.topics_of_interest)
-            ? profileData.topics_of_interest
+          topic_interests: Array.isArray(profileData.topic_interests)
+            ? profileData.topic_interests
             : [],
-          notification_preferences:
-            typeof profileData.notification_preferences === "object" &&
-            profileData.notification_preferences !== null
-              ? profileData.notification_preferences
-              : { email: true, push: false },
-          anonymous_posting: profileData.anonymous_posting || false,
+          notification_email_digest: profileData.notification_email_digest ?? true,
+          notification_new_features: profileData.notification_new_features ?? true,
         });
       }
     } catch (err) {
@@ -143,21 +137,23 @@ export default function SettingsPage() {
     setSuccess(false);
 
     try {
-      const updateData = {
-        display_name: profile.display_name || null,
-        avatar_url: profile.avatar_url || null,
-        preferred_reading_level: profile.preferred_reading_level,
-        topics_of_interest: profile.topics_of_interest,
-        notification_preferences: profile.notification_preferences,
-        anonymous_posting: profile.anonymous_posting,
-      };
+      const response = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: profile.full_name || null,
+          preferred_reading_level: profile.preferred_reading_level,
+          topic_interests: profile.topic_interests,
+          notification_email_digest: profile.notification_email_digest,
+          notification_new_features: profile.notification_new_features,
+        }),
+      });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: updateError } = await (supabase.from("profiles") as any)
-        .update(updateData)
-        .eq("id", userId);
+      const data = await response.json();
 
-      if (updateError) throw updateError;
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save profile");
+      }
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -171,9 +167,9 @@ export default function SettingsPage() {
   const handleTopicToggle = (topic: string) => {
     setProfile((prev) => ({
       ...prev,
-      topics_of_interest: prev.topics_of_interest.includes(topic)
-        ? prev.topics_of_interest.filter((t) => t !== topic)
-        : [...prev.topics_of_interest, topic],
+      topic_interests: prev.topic_interests.includes(topic)
+        ? prev.topic_interests.filter((t) => t !== topic)
+        : [...prev.topic_interests, topic],
     }));
   };
 
@@ -181,22 +177,37 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (!file || !userId) return;
 
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Invalid file type. Allowed: JPG, PNG, GIF, WebP");
+      return;
+    }
+
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setError("File too large. Maximum size is 2MB");
+      return;
+    }
+
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (uploadError) throw uploadError;
+      const data = await response.json();
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to upload avatar");
+      }
 
-      setProfile((prev) => ({ ...prev, avatar_url: publicUrl }));
+      setProfile((prev) => ({ ...prev, avatar_url: data.profile.avatar_url }));
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload avatar");
     }
@@ -270,15 +281,15 @@ export default function SettingsPage() {
               </div>
               <div className="flex-1">
                 <label className="block text-sm font-ui font-medium text-ink-800 mb-2">
-                  Display Name
+                  Full Name
                 </label>
                 <input
                   type="text"
-                  value={profile.display_name}
+                  value={profile.full_name}
                   onChange={(e) =>
-                    setProfile((prev) => ({ ...prev, display_name: e.target.value }))
+                    setProfile((prev) => ({ ...prev, full_name: e.target.value }))
                   }
-                  placeholder="Your display name"
+                  placeholder="Your name"
                   className="w-full px-4 py-2 rounded-lg border border-ivory-600 bg-ivory-100 text-ink-800 font-ui focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 focus:border-sage-500 outline-none transition-colors"
                 />
               </div>
@@ -327,7 +338,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={() => handleTopicToggle(topic)}
                     className={`px-3 py-1.5 rounded-full text-sm font-ui font-medium transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
-                      profile.topics_of_interest.includes(topic)
+                      profile.topic_interests.includes(topic)
                         ? "bg-sage-500 text-ivory-100"
                         : "bg-ivory-200 text-ink-600 hover:bg-ivory-300 border border-ivory-500"
                     }`}
@@ -342,17 +353,17 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* Privacy & Notifications */}
+          {/* Notifications */}
           <section className="bg-ivory-50 rounded-xl border border-ivory-600 p-6">
-            <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Privacy & Notifications</h2>
+            <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Notifications</h2>
 
             <div className="space-y-4">
-              {/* Anonymous Posting */}
+              {/* Email Digest */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-ui font-medium text-ink-800">Anonymous Posting</p>
+                  <p className="font-ui font-medium text-ink-800">Email Digest</p>
                   <p className="text-sm text-ink-500 font-ui">
-                    Your name will be hidden on public feedback and comments.
+                    Receive periodic email summaries of your activity.
                   </p>
                 </div>
                 <button
@@ -360,31 +371,31 @@ export default function SettingsPage() {
                   onClick={() =>
                     setProfile((prev) => ({
                       ...prev,
-                      anonymous_posting: !prev.anonymous_posting,
+                      notification_email_digest: !prev.notification_email_digest,
                     }))
                   }
                   role="switch"
-                  aria-checked={profile.anonymous_posting}
+                  aria-checked={profile.notification_email_digest}
                   className={`relative w-12 h-6 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
-                    profile.anonymous_posting
+                    profile.notification_email_digest
                       ? "bg-sage-500"
                       : "bg-ivory-400"
                   }`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ivory-50 shadow-sm transition-transform ${
-                      profile.anonymous_posting ? "translate-x-6" : ""
+                      profile.notification_email_digest ? "translate-x-6" : ""
                     }`}
                   />
                 </button>
               </div>
 
-              {/* Email Notifications */}
+              {/* New Features */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-ui font-medium text-ink-800">Email Notifications</p>
+                  <p className="font-ui font-medium text-ink-800">New Features</p>
                   <p className="text-sm text-ink-500 font-ui">
-                    Receive updates about your briefs and activity.
+                    Get notified about new features and updates.
                   </p>
                 </div>
                 <button
@@ -392,62 +403,20 @@ export default function SettingsPage() {
                   onClick={() =>
                     setProfile((prev) => ({
                       ...prev,
-                      notification_preferences: {
-                        ...prev.notification_preferences,
-                        email: !prev.notification_preferences.email,
-                      },
+                      notification_new_features: !prev.notification_new_features,
                     }))
                   }
                   role="switch"
-                  aria-checked={profile.notification_preferences.email}
+                  aria-checked={profile.notification_new_features}
                   className={`relative w-12 h-6 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
-                    profile.notification_preferences.email
+                    profile.notification_new_features
                       ? "bg-sage-500"
                       : "bg-ivory-400"
                   }`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ivory-50 shadow-sm transition-transform ${
-                      profile.notification_preferences.email
-                        ? "translate-x-6"
-                        : ""
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Push Notifications */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-ui font-medium text-ink-800">Push Notifications</p>
-                  <p className="text-sm text-ink-500 font-ui">
-                    Get notified in your browser.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setProfile((prev) => ({
-                      ...prev,
-                      notification_preferences: {
-                        ...prev.notification_preferences,
-                        push: !prev.notification_preferences.push,
-                      },
-                    }))
-                  }
-                  role="switch"
-                  aria-checked={profile.notification_preferences.push}
-                  className={`relative w-12 h-6 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 ${
-                    profile.notification_preferences.push
-                      ? "bg-sage-500"
-                      : "bg-ivory-400"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ivory-50 shadow-sm transition-transform ${
-                      profile.notification_preferences.push
-                        ? "translate-x-6"
-                        : ""
+                      profile.notification_new_features ? "translate-x-6" : ""
                     }`}
                   />
                 </button>

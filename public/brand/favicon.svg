@@ -1,9 +1,7 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Favicon: Simplified icon for small sizes -->
+  <!-- Rounded square background -->
   <rect width="32" height="32" rx="7" fill="#5E6F64"/>
 
-  <!-- Simplified clarity symbol -->
-  <circle cx="16" cy="16" r="9" fill="none" stroke="#F7F4EF" stroke-width="2"/>
-  <circle cx="16" cy="16" r="4" fill="none" stroke="#F7F4EF" stroke-width="1.5"/>
-  <circle cx="16" cy="16" r="1.5" fill="#F7F4EF"/>
+  <!-- Simple 5-pointed star -->
+  <path d="M16 5 L18.5 12.5 L26 12.5 L20 17.5 L22.5 25 L16 20.5 L9.5 25 L12 17.5 L6 12.5 L13.5 12.5 Z" fill="#F7F4EF"/>
 </svg>

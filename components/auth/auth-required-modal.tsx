@@ -8,9 +8,12 @@ import { cn } from "@/lib/utils";
 interface AuthRequiredModalProps {
   isOpen: boolean;
   onClose: () => void;
+  redirectPath?: string;
 }
 
-export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
+export function AuthRequiredModal({ isOpen, onClose, redirectPath }: AuthRequiredModalProps) {
+  const signupUrl = redirectPath ? `/auth/signup?redirect=${encodeURIComponent(redirectPath)}` : "/auth/signup";
+  const signinUrl = redirectPath ? `/auth/signin?redirect=${encodeURIComponent(redirectPath)}` : "/auth/signin";
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
@@ -64,7 +67,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
           {/* Actions */}
           <div className="space-y-3">
             <Link
-              href="/auth/signup"
+              href={signupUrl}
               className={cn(
                 "w-full py-3 px-6 rounded-lg",
                 "bg-sage-500 text-ivory-100 font-ui font-semibold text-base",
@@ -78,7 +81,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
               Create Account
             </Link>
             <Link
-              href="/auth/signin"
+              href={signinUrl}
               className={cn(
                 "w-full py-2.5 px-6 rounded-lg text-center",
                 "border border-ivory-600 bg-ivory-100 text-ink-700 font-ui font-medium text-sm",

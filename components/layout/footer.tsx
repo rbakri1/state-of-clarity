@@ -52,7 +52,7 @@ export function Footer({ className }: FooterProps) {
           </div>
 
           {/* Navigation Links */}
-          <nav aria-label="Footer navigation" className="space-y-4">
+          <nav aria-label="Footer navigation" className="space-y-2">
             <h3 className="text-sm font-ui font-semibold text-ink-600 uppercase tracking-wide">
               Navigate
             </h3>
@@ -76,7 +76,7 @@ export function Footer({ className }: FooterProps) {
           </nav>
 
           {/* Legal Links */}
-          <nav aria-label="Legal" className="space-y-4">
+          <nav aria-label="Legal" className="space-y-2">
             <h3 className="text-sm font-ui font-semibold text-ink-600 uppercase tracking-wide">
               Legal
             </h3>

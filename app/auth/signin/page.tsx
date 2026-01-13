@@ -1,15 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Sparkles, Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 export default function SignInPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const redirect = searchParams.get("redirect");
+    if (redirect) {
+      setRedirectPath(redirect);
+    }
+  }, [searchParams]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,10 +44,13 @@ export default function SignInPage() {
 
     try {
       const supabase = createBrowserClient();
+      const callbackUrl = redirectPath
+        ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`
+        : `${window.location.origin}/auth/callback`;
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: callbackUrl,
         },
       });
 
@@ -64,10 +77,13 @@ export default function SignInPage() {
 
     try {
       const supabase = createBrowserClient();
+      const callbackUrl = redirectPath
+        ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`
+        : `${window.location.origin}/auth/callback`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
         },
       });
 
@@ -87,10 +103,13 @@ export default function SignInPage() {
 
     try {
       const supabase = createBrowserClient();
+      const callbackUrl = redirectPath
+        ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`
+        : `${window.location.origin}/auth/callback`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "apple",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
         },
       });
 

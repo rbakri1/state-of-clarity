@@ -15,6 +15,7 @@ import { createServerClient } from "@supabase/ssr";
 import { hasCredits, deductCredits, refundCredits } from "@/lib/services/credit-service";
 import { generateBrief } from "@/lib/agents/langgraph-orchestrator";
 import { createBrief, completeBriefGeneration } from "@/lib/services/brief-service";
+import { formatQuestionTitle } from "@/lib/text-formatting";
 import type { Database } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
@@ -104,7 +105,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const question = body.question.trim();
+  // Format the question: fix spelling, capitalization, and punctuation
+  const question = formatQuestionTitle(body.question);
 
   const hasSufficientCredits = await hasCredits(user.id, BRIEF_COST);
 

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { Search, Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { Search, Sparkles, ArrowLeft, Loader2, Wand2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { formatQuestionTitle, wouldFormatChange } from "@/lib/text-formatting";
 import { BriefGenerationProgress } from "@/components/generation/generation-progress";
+import { AuthRequiredModal } from "@/components/auth/auth-required-modal";
 import type { GenerationStage } from "@/lib/types/brief";
 
 const MIN_QUESTION_LENGTH = 10;
@@ -81,6 +83,7 @@ export default function AskPage() {
   const [question, setQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [generationStage, setGenerationStage] = useState<GenerationStage>("research");
@@ -102,6 +105,126 @@ export default function AskPage() {
 
     return () => clearInterval(rotateInterval);
   }, []);
+
+  // Check for pending question after auth and auto-submit
+  useEffect(() => {
+    const pendingQuestion = localStorage.getItem('pendingQuestion');
+    const pendingQuestionPath = localStorage.getItem('pendingQuestionPath');
+
+    if (pendingQuestion && pendingQuestionPath === window.location.pathname) {
+      // Clear localStorage immediately
+      localStorage.removeItem('pendingQuestion');
+      localStorage.removeItem('pendingQuestionPath');
+
+      // Set question and auto-submit
+      setQuestion(pendingQuestion);
+
+      // Trigger submission automatically
+      const autoSubmit = async () => {
+        if (pendingQuestion.trim().length < MIN_QUESTION_LENGTH || pendingQuestion.trim().length > MAX_QUESTION_LENGTH) {
+          setError(`Question must be between ${MIN_QUESTION_LENGTH} and ${MAX_QUESTION_LENGTH} characters.`);
+          return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+        setGenerationStage("research");
+        setGenerationProgress(0);
+        setEstimatedTimeRemaining(TOTAL_ESTIMATED_TIME / 1000);
+
+        const progressInterval = startProgressSimulation();
+
+        try {
+          const response = await fetch("/api/briefs/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: pendingQuestion.trim() }),
+          });
+
+          const contentType = response.headers.get("content-type");
+          if (contentType?.includes("application/json")) {
+            const data = await response.json();
+            clearInterval(progressInterval);
+
+            if (!response.ok) {
+              if (response.status === 401) {
+                setShowAuthModal(true);
+                return;
+              }
+              if (response.status === 402 && data.creditsLink) {
+                setError(`${data.error} `);
+                setTimeout(() => {
+                  window.location.href = data.creditsLink;
+                }, 2000);
+                return;
+              }
+              throw new Error(data.error || "Failed to generate brief");
+            }
+            return;
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error("Failed to start generation stream");
+          }
+
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (line.startsWith("event: ")) {
+                continue;
+              }
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+
+                  if (data.stage === "research") {
+                    setGenerationStage("research");
+                  } else if (data.stage === "credits_deducted") {
+                    setGenerationStage("structure");
+                  }
+
+                  if (data.success !== undefined) {
+                    clearInterval(progressInterval);
+                    setGenerationProgress(100);
+
+                    if (data.success && data.briefId) {
+                      window.location.href = `/brief/${data.briefId}`;
+                      return;
+                    } else if (data.creditRefunded) {
+                      setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+                    } else if (data.error) {
+                      setError(data.error);
+                    }
+                  }
+                } catch {
+                  // Ignore parse errors
+                }
+              }
+            }
+          }
+
+          clearInterval(progressInterval);
+        } catch (err) {
+          clearInterval(progressInterval);
+          setError(err instanceof Error ? err.message : "Failed to generate brief");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      autoSubmit();
+    }
+  }, [startProgressSimulation]);
 
   const startProgressSimulation = useCallback(() => {
     let elapsedTime = 0;
@@ -168,6 +291,13 @@ export default function AskPage() {
         clearInterval(progressInterval);
         
         if (!response.ok) {
+          if (response.status === 401) {
+            // Store question and pathname for auto-submit after auth
+            localStorage.setItem('pendingQuestion', question.trim());
+            localStorage.setItem('pendingQuestionPath', window.location.pathname);
+            setShowAuthModal(true);
+            return;
+          }
           if (response.status === 402 && data.creditsLink) {
             setError(`${data.error} `);
             setTimeout(() => {
@@ -254,6 +384,10 @@ export default function AskPage() {
 
   const charStatus = getCharacterCountStatus();
 
+  // Compute formatted question preview
+  const formattedQuestion = useMemo(() => formatQuestionTitle(question), [question]);
+  const willBeFormatted = useMemo(() => wouldFormatChange(question), [question]);
+
   const handleExampleClick = (exampleQuestion: string) => {
     setQuestion(exampleQuestion);
     inputRef.current?.focus();
@@ -338,6 +472,17 @@ export default function AskPage() {
               </span>
             </div>
 
+            {/* Formatting Preview */}
+            {willBeFormatted && question.trim().length >= MIN_QUESTION_LENGTH && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-sage-50 border border-sage-200">
+                <Wand2 className="w-4 h-4 text-sage-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <span className="text-sage-700 font-medium">Auto-formatted: </span>
+                  <span className="text-ink-700">{formattedQuestion}</span>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={isLoading || !question.trim() || charStatus.status === "too-short" || charStatus.status === "too-long"}
@@ -375,6 +520,13 @@ export default function AskPage() {
             />
           </div>
         )}
+
+        {/* Authentication Required Modal */}
+        <AuthRequiredModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          redirectPath="/ask"
+        />
 
         {/* Error Message */}
         {error && !isLoading && (

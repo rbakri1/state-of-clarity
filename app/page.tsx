@@ -72,6 +72,127 @@ export default function Home() {
     setFeaturedBriefs(getRotatingFeaturedBriefs());
   }, []);
 
+  // Check for pending question after auth and auto-submit
+  useEffect(() => {
+    const pendingQuestion = localStorage.getItem('pendingQuestion');
+    const pendingQuestionPath = localStorage.getItem('pendingQuestionPath');
+
+    if (pendingQuestion && pendingQuestionPath === window.location.pathname) {
+      // Clear localStorage immediately
+      localStorage.removeItem('pendingQuestion');
+      localStorage.removeItem('pendingQuestionPath');
+
+      // Set question and auto-submit
+      setQuestion(pendingQuestion);
+
+      // Trigger submission automatically
+      const autoSubmit = async () => {
+        if (pendingQuestion.trim().length < MIN_QUESTION_LENGTH || pendingQuestion.trim().length > MAX_QUESTION_LENGTH) {
+          setError(`Question must be between ${MIN_QUESTION_LENGTH} and ${MAX_QUESTION_LENGTH} characters.`);
+          return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+        setGenerationStage("research");
+        setGenerationProgress(0);
+        setEstimatedTimeRemaining(TOTAL_ESTIMATED_TIME / 1000);
+
+        const progressInterval = startProgressSimulation();
+
+        try {
+          const response = await fetch("/api/briefs/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ question: pendingQuestion.trim() }),
+          });
+
+          const contentType = response.headers.get("content-type");
+          if (contentType?.includes("application/json")) {
+            const data = await response.json();
+            clearInterval(progressInterval);
+
+            if (!response.ok) {
+              if (response.status === 401) {
+                setShowAuthModal(true);
+                return;
+              }
+              if (response.status === 402 && data.creditsLink) {
+                setError(`${data.error} `);
+                setTimeout(() => {
+                  window.location.href = data.creditsLink;
+                }, 2000);
+                return;
+              }
+              throw new Error(data.error || "Failed to generate brief");
+            }
+            return;
+          }
+
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error("Failed to start generation stream");
+          }
+
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (line.startsWith("event: ")) {
+                continue;
+              }
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+
+                  if (data.stage === "research") {
+                    setGenerationStage("research");
+                  } else if (data.stage === "credits_deducted") {
+                    setGenerationStage("structure");
+                  }
+
+                  if (data.success !== undefined) {
+                    clearInterval(progressInterval);
+                    setGenerationProgress(100);
+
+                    if (data.success && data.briefId) {
+                      window.location.href = `/brief/${data.briefId}`;
+                      return;
+                    } else if (data.creditRefunded) {
+                      setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
+                    } else if (data.error) {
+                      setError(data.error);
+                    }
+                  }
+                } catch {
+                  // Ignore parse errors
+                }
+              }
+            }
+          }
+
+          clearInterval(progressInterval);
+        } catch (err) {
+          clearInterval(progressInterval);
+          setError(err instanceof Error ? err.message : "Failed to generate brief");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      autoSubmit();
+    }
+  }, [startProgressSimulation]);
+
   const startProgressSimulation = useCallback(() => {
     let elapsedTime = 0;
     let currentStageIndex = 0;
@@ -139,6 +260,9 @@ export default function Home() {
 
         if (!response.ok) {
           if (response.status === 401) {
+            // Store question and pathname for auto-submit after auth
+            localStorage.setItem('pendingQuestion', question.trim());
+            localStorage.setItem('pendingQuestionPath', window.location.pathname);
             setShowAuthModal(true);
             return;
           }
@@ -382,6 +506,7 @@ export default function Home() {
           <AuthRequiredModal
             isOpen={showAuthModal}
             onClose={() => setShowAuthModal(false)}
+            redirectPath="/"
           />
 
           {/* Error Message */}
