@@ -66,7 +66,10 @@ export async function GET(request: NextRequest) {
     if (tags && tags.trim()) {
       const tagArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
       if (tagArray.length > 0) {
-        query = query.overlaps("metadata->tags", tagArray);
+        // Use OR conditions to match any of the selected tags
+        // PostgREST syntax: metadata->tags.cs.["TagName"] checks if array contains the tag
+        const tagConditions = tagArray.map(tag => `metadata->tags.cs.["${tag}"]`).join(',');
+        query = query.or(tagConditions);
       }
     }
 
