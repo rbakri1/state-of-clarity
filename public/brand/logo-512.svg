@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sage background with rounded corners -->
+  <rect width="512" height="512" rx="102" fill="#5E6F64"/>
+
+  <!-- Sparkles icon (scaled up) -->
+  <g transform="translate(102, 102)" stroke="#F7F4EF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Main large sparkle -->
+    <path d="M154 38 L173 109 L244 128 L173 147 L154 218 L135 147 L64 128 L135 109 Z"/>
+    <!-- Small sparkle top right -->
+    <path d="M244 13 L250 38 L276 45 L250 51 L244 77 L238 51 L212 45 L238 38 Z"/>
+    <!-- Small sparkle bottom left -->
+    <path d="M64 231 L70 256 L96 263 L70 269 L64 295 L58 269 L32 263 L58 256 Z"/>
+  </g>
+</svg>
