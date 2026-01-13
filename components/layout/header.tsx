@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Sparkles, Menu, X, ChevronDown, User } from "lucide-react";
@@ -19,6 +19,33 @@ export function Header({ className }: HeaderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+      setIsUserMenuOpen(false);
+    }
+  }, []);
+
+  // Close user menu on Escape key
+  const handleEscapeKey = useCallback((event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setIsUserMenuOpen(false);
+    }
+  }, []);
+
+  // Add/remove event listeners for click outside and escape key
+  useEffect(() => {
+    if (isUserMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscapeKey);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isUserMenuOpen, handleClickOutside, handleEscapeKey]);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -104,7 +131,7 @@ export function Header({ className }: HeaderProps) {
 
             {/* Auth Section */}
             {isAuthenticated && user ? (
-              <div className="relative">
+              <div className="relative" ref={userMenuRef} data-testid="user-menu-container">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className={cn(
@@ -115,6 +142,7 @@ export function Header({ className }: HeaderProps) {
                   )}
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
+                  data-testid="user-menu-button"
                 >
                   {user.user_metadata?.avatar_url ? (
                     <img
@@ -140,58 +168,53 @@ export function Header({ className }: HeaderProps) {
 
                 {/* User Dropdown */}
                 {isUserMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    />
-                    <div
+                  <div
+                    className={cn(
+                      "absolute right-0 mt-2 w-48 z-50",
+                      "bg-ivory-100 rounded-lg shadow-lg",
+                      "border border-ivory-600",
+                      "py-1"
+                    )}
+                    role="menu"
+                    data-testid="user-menu-dropdown"
+                  >
+                    <Link
+                      href="/profile"
                       className={cn(
-                        "absolute right-0 mt-2 w-48 z-50",
-                        "bg-ivory-100 rounded-lg shadow-lg",
-                        "border border-ivory-600",
-                        "py-1"
+                        "block px-4 py-2 text-sm font-ui text-ink-600",
+                        "hover:bg-ivory-300 transition-colors duration-200",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
                       )}
-                      role="menu"
+                      role="menuitem"
+                      onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Link
-                        href="/profile"
-                        className={cn(
-                          "block px-4 py-2 text-sm font-ui text-ink-600",
-                          "hover:bg-ivory-300 transition-colors duration-200",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
-                        )}
-                        role="menuitem"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Profile
-                      </Link>
-                      <Link
-                        href="/settings"
-                        className={cn(
-                          "block px-4 py-2 text-sm font-ui text-ink-600",
-                          "hover:bg-ivory-300 transition-colors duration-200",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
-                        )}
-                        role="menuitem"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Settings
-                      </Link>
-                      <div className="border-t border-ivory-600 my-1" />
-                      <button
-                        className={cn(
-                          "w-full text-left px-4 py-2 text-sm font-ui text-ink-600",
-                          "hover:bg-ivory-300 transition-colors duration-200",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
-                        )}
-                        role="menuitem"
-                        onClick={handleSignOut}
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  </>
+                      Profile
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className={cn(
+                        "block px-4 py-2 text-sm font-ui text-ink-600",
+                        "hover:bg-ivory-300 transition-colors duration-200",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
+                      )}
+                      role="menuitem"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                    <div className="border-t border-ivory-600 my-1" />
+                    <button
+                      className={cn(
+                        "w-full text-left px-4 py-2 text-sm font-ui text-ink-600",
+                        "hover:bg-ivory-300 transition-colors duration-200",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-500"
+                      )}
+                      role="menuitem"
+                      onClick={handleSignOut}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (
