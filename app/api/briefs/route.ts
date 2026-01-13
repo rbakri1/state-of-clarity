@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabaseClient();
 
     let query = (supabase.from("briefs") as any)
-      .select("id, question, clarity_score, metadata, created_at, view_count, narrative", { count: "exact" })
+      .select("id, question, clarity_score, metadata, created_at, view_count, narrative, summaries, sources", { count: "exact" })
       .eq("is_public", true);
 
     // Search filter (ilike on question)
