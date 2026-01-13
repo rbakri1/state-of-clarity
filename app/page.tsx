@@ -72,6 +72,37 @@ export default function Home() {
     setFeaturedBriefs(getRotatingFeaturedBriefs());
   }, []);
 
+  const startProgressSimulation = useCallback(() => {
+    let elapsedTime = 0;
+    let currentStageIndex = 0;
+    let stageElapsed = 0;
+
+    const interval = setInterval(() => {
+      elapsedTime += 200;
+      stageElapsed += 200;
+
+      const currentStage = STAGE_TIMINGS[currentStageIndex];
+
+      if (currentStage && stageElapsed >= currentStage.duration && currentStageIndex < STAGE_TIMINGS.length - 1) {
+        currentStageIndex++;
+        stageElapsed = 0;
+        setGenerationStage(STAGE_TIMINGS[currentStageIndex].stage);
+      }
+
+      const progress = Math.min(95, (elapsedTime / TOTAL_ESTIMATED_TIME) * 100);
+      setGenerationProgress(progress);
+
+      const remaining = Math.max(5, Math.ceil((TOTAL_ESTIMATED_TIME - elapsedTime) / 1000));
+      setEstimatedTimeRemaining(remaining);
+
+      if (elapsedTime >= TOTAL_ESTIMATED_TIME) {
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return interval;
+  }, []);
+
   // Check for pending question after auth and auto-submit
   useEffect(() => {
     const pendingQuestion = localStorage.getItem('pendingQuestion');
@@ -192,37 +223,6 @@ export default function Home() {
       autoSubmit();
     }
   }, [startProgressSimulation]);
-
-  const startProgressSimulation = useCallback(() => {
-    let elapsedTime = 0;
-    let currentStageIndex = 0;
-    let stageElapsed = 0;
-
-    const interval = setInterval(() => {
-      elapsedTime += 200;
-      stageElapsed += 200;
-
-      const currentStage = STAGE_TIMINGS[currentStageIndex];
-      
-      if (currentStage && stageElapsed >= currentStage.duration && currentStageIndex < STAGE_TIMINGS.length - 1) {
-        currentStageIndex++;
-        stageElapsed = 0;
-        setGenerationStage(STAGE_TIMINGS[currentStageIndex].stage);
-      }
-
-      const progress = Math.min(95, (elapsedTime / TOTAL_ESTIMATED_TIME) * 100);
-      setGenerationProgress(progress);
-      
-      const remaining = Math.max(5, Math.ceil((TOTAL_ESTIMATED_TIME - elapsedTime) / 1000));
-      setEstimatedTimeRemaining(remaining);
-
-      if (elapsedTime >= TOTAL_ESTIMATED_TIME) {
-        clearInterval(interval);
-      }
-    }, 200);
-
-    return interval;
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
