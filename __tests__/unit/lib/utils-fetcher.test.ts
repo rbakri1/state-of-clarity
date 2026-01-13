@@ -203,5 +203,25 @@ describe("utils/fetcher", () => {
       // Retry options should not be passed to fetch
       expect(fetch).toHaveBeenCalledWith("/api/test", { method: "GET" });
     });
+
+    it("logs retryable errors", async () => {
+      const mockResponse = {
+        ok: false,
+        status: 503,
+        statusText: "Service Unavailable",
+        json: vi.fn().mockResolvedValue({}),
+      };
+      vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response);
+
+      try {
+        await fetchWithRetry("/api/error");
+      } catch {
+        // Expected to throw
+      }
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining("Retryable error: 503")
+      );
+    });
   });
 });

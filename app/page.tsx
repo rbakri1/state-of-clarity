@@ -89,15 +89,22 @@ export default function Home() {
         setGenerationStage(STAGE_TIMINGS[currentStageIndex].stage);
       }
 
-      const progress = Math.min(95, (elapsedTime / TOTAL_ESTIMATED_TIME) * 100);
+      // Use asymptotic progress curve that slows down as it approaches max
+      // This prevents the progress bar from appearing stuck
+      const linearProgress = (elapsedTime / TOTAL_ESTIMATED_TIME);
+      const maxProgress = 90; // Cap at 90% to give more buffer
+      // Exponential approach: slows down as we get closer to max
+      const progress = Math.min(maxProgress, maxProgress * (1 - Math.exp(-2.5 * linearProgress)));
       setGenerationProgress(progress);
 
-      const remaining = Math.max(5, Math.ceil((TOTAL_ESTIMATED_TIME - elapsedTime) / 1000));
+      // Keep time remaining conservative - don't go below 15 seconds
+      // This prevents showing "5 seconds" for a minute
+      const baseRemaining = Math.ceil((TOTAL_ESTIMATED_TIME - elapsedTime) / 1000);
+      const remaining = Math.max(15, baseRemaining);
       setEstimatedTimeRemaining(remaining);
 
-      if (elapsedTime >= TOTAL_ESTIMATED_TIME) {
-        clearInterval(interval);
-      }
+      // Don't stop the interval - let it continue until actual completion
+      // This prevents the progress from freezing
     }, 200);
 
     return interval;
