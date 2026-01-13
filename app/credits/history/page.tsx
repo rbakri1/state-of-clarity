@@ -188,15 +188,15 @@ export default function TransactionHistoryPage() {
                           {getAmountDisplay(tx.amount)}
                         </td>
                         <td className="px-6 py-4 text-sm text-ink-600">
-                          <div className="flex items-center gap-2">
-                            <span>{tx.description || "—"}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="flex-1">{tx.description || "—"}</span>
                             {tx.brief_id && (
                               <Link
                                 href={`/brief/${tx.brief_id}`}
-                                className="inline-flex items-center gap-1 text-sage-600 hover:text-sage-700 hover:underline"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-sage-700 bg-sage-50 hover:bg-sage-100 border border-sage-200 rounded-md transition-colors whitespace-nowrap"
                               >
-                                <ExternalLink className="w-3 h-3" />
-                                <span className="text-xs">View brief</span>
+                                <span>View Brief</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
                               </Link>
                             )}
                           </div>
