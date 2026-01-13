@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Coins, Check, Loader2, AlertTriangle } from "lucide-react";
+import { Sparkles, Check, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -130,7 +130,7 @@ export default function CreditsPage() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-ivory-50 border border-ivory-600 shadow-sm">
             <div className="w-12 h-12 rounded-full bg-sage-100 flex items-center justify-center">
-              <Coins className="w-6 h-6 text-sage-600" />
+              <Sparkles className="w-6 h-6 text-sage-600" />
             </div>
             <div className="text-left">
               <p className="text-sm font-ui text-ink-500">Your Balance</p>
