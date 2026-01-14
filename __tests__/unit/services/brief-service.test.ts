@@ -637,5 +637,237 @@ describe('Brief Service', () => {
 
       expect(result.error).toBeNull();
     });
+
+    it('should handle null classification', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: 'Intro',
+          mainBody: 'Body',
+          conclusion: 'Conclusion',
+        },
+        classification: null,
+      };
+
+      const result = await completeBriefGeneration(
+        briefId,
+        state as BriefState,
+        5000
+      );
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle unknown domain gracefully', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: 'Intro',
+          mainBody: 'Body',
+          conclusion: 'Conclusion',
+        },
+        classification: {
+          domain: 'unknown_domain' as any,
+          controversyLevel: 'low',
+          questionType: 'factual',
+          temporalScope: 'current',
+        },
+      };
+
+      const result = await completeBriefGeneration(
+        briefId,
+        state as BriefState,
+        5000
+      );
+
+      expect(result.error).toBeNull();
+    });
+  });
+
+  describe('saveBriefSources - edge cases', () => {
+    it('should handle sources with missing optional fields', async () => {
+      const briefId = 'brief-123';
+      const sources: Source[] = [
+        {
+          id: 'source-1',
+          url: 'https://example.com/minimal',
+          title: 'Minimal Source',
+          content: 'Content here',
+          // No optional fields like author, publisher, etc.
+          source_type: 'secondary',
+          political_lean: 'center',
+          credibility_score: 7.0,
+          relevance_score: 0.8,
+          accessed_at: new Date().toISOString(),
+        },
+      ];
+
+      const result = await saveBriefSources(briefId, sources);
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle sources with null content', async () => {
+      const briefId = 'brief-123';
+      const sources: Source[] = [
+        {
+          id: 'source-null',
+          url: 'https://example.com/no-content',
+          title: 'No Content Source',
+          content: null as any,
+          source_type: 'secondary',
+          political_lean: 'center',
+          credibility_score: 5.0,
+          relevance_score: 0.5,
+          accessed_at: new Date().toISOString(),
+        },
+      ];
+
+      const result = await saveBriefSources(briefId, sources);
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle sources with undefined content', async () => {
+      const briefId = 'brief-123';
+      const sources: Source[] = [
+        {
+          id: 'source-undefined',
+          url: 'https://example.com/undefined-content',
+          title: 'Undefined Content Source',
+          content: undefined as any,
+          source_type: 'primary',
+          political_lean: 'left',
+          credibility_score: 6.0,
+          relevance_score: 0.7,
+          accessed_at: new Date().toISOString(),
+        },
+      ];
+
+      const result = await saveBriefSources(briefId, sources);
+
+      expect(result.error).toBeNull();
+    });
+  });
+
+  describe('updateBriefFromState - edge cases', () => {
+    it('should handle empty summaries object', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        summaries: {},
+      };
+
+      const result = await updateBriefFromState(briefId, state as BriefState);
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle narrative with all empty parts', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: '',
+          mainBody: '',
+          conclusion: '',
+        },
+      };
+
+      const result = await updateBriefFromState(briefId, state as BriefState);
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle narrative with whitespace-only parts', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: '   ',
+          mainBody: '\n\t',
+          conclusion: '  \n  ',
+        },
+      };
+
+      const result = await updateBriefFromState(briefId, state as BriefState);
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle structure with all empty arrays', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        structure: {
+          definitions: [],
+          factors: [],
+          policies: [],
+          consequences: [],
+          timeline: [],
+        },
+      };
+
+      const result = await updateBriefFromState(briefId, state as BriefState);
+
+      expect(result.error).toBeNull();
+    });
+  });
+
+  describe('completeBriefGeneration - edge cases', () => {
+    it('should complete without generation time', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: 'Intro',
+          mainBody: 'Body',
+          conclusion: 'Conclusion',
+        },
+      };
+
+      const result = await completeBriefGeneration(
+        briefId,
+        state as BriefState
+        // No generation time
+      );
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle empty sources array', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: 'Intro',
+          mainBody: 'Body',
+          conclusion: 'Conclusion',
+        },
+        sources: [],
+      };
+
+      const result = await completeBriefGeneration(
+        briefId,
+        state as BriefState,
+        1000
+      );
+
+      expect(result.error).toBeNull();
+    });
+
+    it('should handle undefined sources', async () => {
+      const briefId = 'brief-123';
+      const state: Partial<BriefState> = {
+        narrative: {
+          introduction: 'Intro',
+          mainBody: 'Body',
+          conclusion: 'Conclusion',
+        },
+        sources: undefined,
+      };
+
+      const result = await completeBriefGeneration(
+        briefId,
+        state as BriefState,
+        1000
+      );
+
+      expect(result.error).toBeNull();
+    });
   });
 });

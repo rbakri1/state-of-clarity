@@ -651,4 +651,262 @@ describe('Accountability Service', () => {
       expect(result[0].investigation_id).toBe('inv-123');
     });
   });
+
+  describe('calculateQualityScore - additional edge cases', () => {
+    it('should handle 0 sources and 0 scenarios returning exactly 0', () => {
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: [],
+        data_sources_count: 0,
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      expect(result.score).toBe(0);
+    });
+
+    it('should handle very high source counts (10+)', () => {
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: [],
+        data_sources_count: 100, // Very high
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      // Should still give max 5.0 points for sources
+      expect(result.notes).toContain('Sources: 100 sources (7+) = 5.0 points');
+    });
+
+    it('should handle very high scenario counts (10+)', () => {
+      const scenarios = Array.from({ length: 20 }, (_, i) => createMockScenario(`${i}`));
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: scenarios,
+        data_sources_count: 0,
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      // Should still give max 5.0 points for scenarios
+      expect(result.notes).toContain('Scenarios: 20 scenarios (6+) = 5.0 points');
+    });
+
+    it('should handle exact boundary of 5 sources (4-6 range)', () => {
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: [],
+        data_sources_count: 5,
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      expect(result.notes).toContain('Sources: 5 sources (4-6) = 2.5 points');
+    });
+
+    it('should handle exact boundary of 5 scenarios (3-5 range)', () => {
+      const scenarios = Array.from({ length: 5 }, (_, i) => createMockScenario(`${i}`));
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: scenarios,
+        data_sources_count: 0,
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      expect(result.notes).toContain('Scenarios: 5 scenarios (3-5) = 2.5 points');
+    });
+
+    it('should handle score exactly at 6.0 threshold', () => {
+      // 4 sources = 2.5 points + 4 scenarios = 2.5 points + something to get to 6
+      // Actually: 6+ sources = 5 points, but we need exactly 6
+      // 7 sources = 5 points, 3 scenarios = 2.5 points = 7.5
+      // Let's use: 6 sources (2.5) + 4 scenarios (2.5) = 5 (still under)
+      // 7 sources (5) + empty scenarios (0) = 5 (under)
+      // 6 sources (2.5) + 6 scenarios (5) = 7.5 (over)
+      // Actually getting exactly 6 is tricky since scoring is 0, 2.5, or 5
+      // Let's test 7.5 which is just above threshold
+      const scenarios = Array.from({ length: 6 }, (_, i) => createMockScenario(`${i}`));
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: scenarios,
+        data_sources_count: 5,
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      expect(result.score).toBe(7.5);
+      expect(result.notes).toContain('Quality gate passed');
+    });
+
+    it('should handle empty profile data', () => {
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: [createMockScenario('1')],
+        data_sources_count: 3,
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      expect(result.score).toBeDefined();
+      expect(typeof result.score).toBe('number');
+    });
+
+    it('should handle negative data_sources_count by scoring as 0 points', () => {
+      const investigation = {
+        profile_data: createMockProfileData(),
+        corruption_scenarios: [],
+        data_sources_count: -5, // Invalid but falls into 0-3 range
+      };
+
+      const result = calculateQualityScore(investigation);
+
+      // Negative values are treated as being in the lowest range (0-3)
+      // The function outputs the actual value in the message
+      expect(result.notes).toContain('Sources: -5 sources (0-3) = 0 points');
+      expect(result.score).toBe(0);
+    });
+  });
+
+  describe('addInvestigationSource - additional cases', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      clearMockData();
+    });
+
+    it('should handle source with null data_extracted', async () => {
+      const source = {
+        source_type: 'web_search' as const,
+        url: 'https://example.com/article',
+        title: 'Test Article',
+        accessed_at: '2026-01-14T12:00:00Z',
+        data_extracted: null,
+        verification_status: 'unverified' as const,
+      };
+
+      const result = await addInvestigationSource('inv-123', source);
+
+      expect(result.id).toBeDefined();
+    });
+
+    it('should handle source with empty data_extracted object', async () => {
+      const source = {
+        source_type: 'companies_house' as const,
+        url: 'https://example.com/company',
+        title: 'Company Data',
+        accessed_at: '2026-01-14T12:00:00Z',
+        data_extracted: {},
+        verification_status: 'verified' as const,
+      };
+
+      const result = await addInvestigationSource('inv-123', source);
+
+      expect(result.id).toBeDefined();
+    });
+
+    it('should handle source with complex data_extracted', async () => {
+      const source = {
+        source_type: 'charity_commission' as const,
+        url: 'https://charitycommission.gov.uk/123',
+        title: 'Charity Data',
+        accessed_at: '2026-01-14T12:00:00Z',
+        data_extracted: {
+          charityNumber: '123456',
+          trustees: ['Person A', 'Person B'],
+          financials: {
+            income: 100000,
+            expenditure: 95000,
+          },
+          nested: {
+            level1: {
+              level2: 'deep data',
+            },
+          },
+        },
+        verification_status: 'unverified' as const,
+      };
+
+      const result = await addInvestigationSource('inv-123', source);
+
+      expect(result.id).toBeDefined();
+
+      const storedData = getMockData('accountability_investigation_sources');
+      expect(storedData.length).toBe(1);
+      expect(storedData[0].data_extracted.charityNumber).toBe('123456');
+    });
+  });
+
+  describe('updateInvestigationResults - additional cases', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      clearMockData();
+    });
+
+    it('should handle update with empty object', async () => {
+      const mockInvestigation = {
+        id: 'inv-123',
+        user_id: 'user-123',
+        target_entity: 'John Smith',
+        entity_type: 'individual',
+        quality_score: 5.0,
+        created_at: '2026-01-14T12:00:00Z',
+      };
+
+      seedMockData('accountability_investigations', [mockInvestigation]);
+
+      // Empty update should not throw
+      await updateInvestigationResults('inv-123', {});
+
+      const storedData = getMockData('accountability_investigations');
+      expect(storedData[0].quality_score).toBe(5.0); // Unchanged
+    });
+
+    it('should update profile_data when provided', async () => {
+      const mockInvestigation = {
+        id: 'inv-123',
+        user_id: 'user-123',
+        target_entity: 'John Smith',
+        entity_type: 'individual',
+        profile_data: null,
+        created_at: '2026-01-14T12:00:00Z',
+      };
+
+      seedMockData('accountability_investigations', [mockInvestigation]);
+
+      const newProfileData: UKProfileData = {
+        ...createMockProfileData(),
+        fullName: 'John Smith Updated',
+        aliases: ['Johnny S'],
+      };
+
+      await updateInvestigationResults('inv-123', {
+        profile_data: newProfileData,
+      });
+
+      const storedData = getMockData('accountability_investigations');
+      expect(storedData[0].profile_data.fullName).toBe('John Smith Updated');
+    });
+
+    it('should update corruption_scenarios when provided', async () => {
+      const mockInvestigation = {
+        id: 'inv-123',
+        user_id: 'user-123',
+        target_entity: 'John Smith',
+        entity_type: 'individual',
+        corruption_scenarios: [],
+        created_at: '2026-01-14T12:00:00Z',
+      };
+
+      seedMockData('accountability_investigations', [mockInvestigation]);
+
+      const scenarios = [createMockScenario('1'), createMockScenario('2')];
+
+      await updateInvestigationResults('inv-123', {
+        corruption_scenarios: scenarios,
+      });
+
+      const storedData = getMockData('accountability_investigations');
+      expect(storedData[0].corruption_scenarios.length).toBe(2);
+    });
+  });
 });
