@@ -5,6 +5,8 @@
  * and aggregates results into a single profile object.
  */
 
+import * as Sentry from "@sentry/nextjs";
+
 import type {
   EntityType,
   InvestigationSource,
@@ -106,21 +108,50 @@ function isRecoverableError(message: string): boolean {
 }
 
 /**
+ * Determine the error type for Sentry logging.
+ * Transient errors may succeed on retry, permanent errors will not.
+ */
+function getErrorType(message: string): "transient" | "permanent" {
+  return isRecoverableError(message) ? "transient" : "permanent";
+}
+
+/**
  * Wrap a data source call in try-catch for graceful degradation.
+ * Logs errors to Sentry with proper context tags.
  */
 async function safeDataSourceCall<T>(
   sourceName: string,
   fetcher: () => Promise<T>,
-  errors: DataSourceError[]
+  errors: DataSourceError[],
+  entityName: string,
+  entityType: EntityType
 ): Promise<T | null> {
   try {
     return await fetcher();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const recoverable = isRecoverableError(message);
+    const normalizedName = normalizeCacheKey(entityName);
+
+    // Log to Sentry with context tags
+    Sentry.captureException(error, {
+      tags: {
+        component: "uk-public-data",
+        source: sourceName,
+        entity: normalizedName,
+      },
+      extra: {
+        entityType,
+        errorType: getErrorType(message),
+        entityName,
+        recoverable,
+      },
+    });
+
     errors.push({
       source: sourceName,
       message,
-      recoverable: isRecoverableError(message),
+      recoverable,
     });
     return null;
   }
@@ -153,7 +184,9 @@ export async function fetchUKPublicData(
         () => fetchCompaniesHouseProfile(targetEntity),
         CACHE_TTLS.companies_house
       ),
-    errors
+    errors,
+    targetEntity,
+    entityType
   );
 
   const charityPromise = safeDataSourceCall(
@@ -164,7 +197,9 @@ export async function fetchUKPublicData(
         () => fetchCharityCommissionData(targetEntity),
         CACHE_TTLS.charity_commission
       ),
-    errors
+    errors,
+    targetEntity,
+    entityType
   );
 
   const parliamentPromise = safeDataSourceCall(
@@ -175,7 +210,9 @@ export async function fetchUKPublicData(
         () => fetchRegisterOfInterests(targetEntity),
         CACHE_TTLS.register_of_interests
       ),
-    errors
+    errors,
+    targetEntity,
+    entityType
   );
 
   const electoralPromise = safeDataSourceCall(
@@ -186,7 +223,9 @@ export async function fetchUKPublicData(
         () => fetchElectoralCommissionData(targetEntity),
         CACHE_TTLS.electoral_commission
       ),
-    errors
+    errors,
+    targetEntity,
+    entityType
   );
 
   // Only fetch contracts for organizations
@@ -200,7 +239,9 @@ export async function fetchUKPublicData(
               () => fetchGovernmentContracts(targetEntity),
               CACHE_TTLS.contracts_finder
             ),
-          errors
+          errors,
+          targetEntity,
+          entityType
         )
       : Promise.resolve(null);
 
