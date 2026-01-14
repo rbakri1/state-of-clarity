@@ -1,12 +1,63 @@
 # Ralph Progress Log
 Started: Thu 15 Jan 2026 00:35:00 +04
 
+## Frontend Skills Reference
+**IMPORTANT:** Follow these Claude skills for consistency:
+- `.claude/skills/frontend-excellence.md` - Component architecture, Radix/shadcn patterns, accessibility
+- `.claude/skills/brand-guidelines.md` - Colors, typography, component styling
+
 ## Codebase Patterns
 - Use Radix UI components from `@radix-ui/react-*` for modals/dialogs
 - Use Lucide React icons from `lucide-react`
-- Tailwind CSS with State of Clarity theme (Sage primary, Ivory backgrounds, Ink text)
+- Use shadcn/ui components where available (`components/ui/`)
+- Tailwind CSS with State of Clarity theme:
+  - Primary: Sage (green) for actions
+  - Backgrounds: Ivory (off-white)
+  - Text: Ink (dark gray/black)
+  - Warning: Yellow for ethics notices
 - Next.js 14 App Router with `use client` for client components
 - SSE via fetch with ReadableStream parsing (not EventSource for POST requests)
 - Types from `@/lib/types/accountability`
+- Use `cn()` from `@/lib/utils` for conditional class merging
+- forwardRef for composable components
+- Handle all states: loading, error, empty, success
 
+## Accessibility Requirements (from frontend-excellence.md)
+- Keyboard navigation (Tab, Enter, Escape)
+- Visible focus indicators
+- ARIA labels on icons and non-text elements
+- Use Radix primitives for interactive elements (built-in a11y)
+
+---
+
+## 2026-01-15 - US-001, US-002, US-003, US-004
+Thread: https://ampcode.com/threads/T-019bbe2e-86e6-7214-838c-cd69f26d6d99
+- US-001: Landing page already existed, verified complete
+- US-002: Updated ethics modal with checkbox, 5 ethical principles, navigation to generate page
+- US-003: Created useInvestigationGeneration SSE hook with agent status tracking
+- US-004: Created generation progress page with 5 stages, progress bar, error handling
+- Files changed: 
+  - components/accountability/ethics-modal.tsx (updated)
+  - lib/hooks/useInvestigationGeneration.ts (new)
+  - app/accountability/generate/page.tsx (new)
+- **Learnings for future iterations:**
+  - Use Suspense wrapper for pages with useSearchParams
+  - SSE parsing requires buffer handling for chunked responses
+  - Follow patterns from existing components (brief-card.tsx) for styling consistency
+---
+
+## 2026-01-15 - US-005
+Thread: https://ampcode.com/threads/T-019bbe4c-f08c-77f8-8055-033f51ca7066
+- Created profile-section.tsx with expandable cards for UK public records
+- Implemented DataCompletenessIndicator showing coverage for 5 data sources
+- Each expandable card (ExpandableCard) supports expand/collapse with ChevronDown rotation
+- Displays Companies House, Charity Commission, Register of Interests, Electoral Commission, Contracts Finder
+- Empty state shows "No data found for this source" with AlertCircle icon
+- Source URLs shown as external links
+- Files changed:
+  - components/accountability/profile-section.tsx (new)
+- **Learnings for future iterations:**
+  - Use local useState for expand/collapse since no global state needed
+  - Color-code data completeness percentage (green >70%, yellow 40-70%, red <40%)
+  - Follow existing typing from lib/types/accountability.ts
 ---

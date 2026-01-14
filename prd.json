@@ -2,6 +2,17 @@
   "project": "State of Clarity",
   "branchName": "ralph/accountability-tracker-frontend",
   "description": "Accountability Tracker Frontend - UI Components & Pages with SSE progress tracking, ethics modal, results display, and print layout. PRD 5 of 6 (see tasks/prd-accountability-tracker-overview.md).",
+  "frontendSkills": [
+    ".claude/skills/frontend-excellence.md - Component architecture, Radix/shadcn, accessibility",
+    ".claude/skills/brand-guidelines.md - Colors (Sage/Ivory/Ink), typography, styling"
+  ],
+  "styleGuide": {
+    "colors": "Use Tailwind theme: bg-sage-*, bg-ivory-*, text-ink-*, bg-warning-light, bg-success-light, bg-error-light",
+    "components": "Use Radix UI primitives for interactive elements (Dialog, Accordion, etc.)",
+    "icons": "Use Lucide React exclusively",
+    "utilities": "Use cn() from @/lib/utils for conditional classes",
+    "accessibility": "All interactive elements need: keyboard nav, focus indicators, ARIA labels"
+  },
   "userStories": [
     {
       "id": "US-001",
@@ -19,7 +30,7 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -38,8 +49,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Updated with checkbox, navigation to generate page, 5 ethical principles"
     },
     {
       "id": "US-003",
@@ -57,8 +68,8 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created with all agent statuses, progress tracking, cleanup on unmount"
     },
     {
       "id": "US-004",
@@ -77,8 +88,8 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created with 5 stages, progress bar, error/quality failed states, ethics reminder"
     },
     {
       "id": "US-005",
@@ -95,8 +106,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created with expandable cards, data completeness indicators, source links, empty states"
     },
     {
       "id": "US-006",
