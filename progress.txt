@@ -106,3 +106,17 @@ Thread: https://ampcode.com/threads/T-019bbd60-4336-750e-9032-a8bd76a5acd5
   - Pattern: Use Date type in input interfaces, string type in DB row interfaces (Supabase returns ISO strings)
   - Pattern: Use Record<string, unknown> for JSONB columns with unstructured data (e.g., data_extracted)
 ---
+
+## 2026-01-14 22:00 - US-008
+Thread: https://ampcode.com/threads/T-019bbd61-eeea-71ba-aef3-38b451dd9285
+- Created /lib/services/accountability-service.ts with createInvestigation function
+- Function accepts targetEntity, userId, entityType, ethicsAcknowledgedAt parameters
+- Returns { id: string } with the new investigation ID
+- Uses getSupabaseClient() pattern from brief-service.ts
+- Includes JSDoc comment with @param and @returns
+- Files changed: lib/services/accountability-service.ts
+- **Learnings for future iterations:**
+  - Pattern: Follow brief-service.ts for service function conventions
+  - Pattern: Use `(supabase.from("table") as any)` to avoid strict typing issues
+  - Pattern: Convert Date to ISO string with .toISOString() for DB insert
+---

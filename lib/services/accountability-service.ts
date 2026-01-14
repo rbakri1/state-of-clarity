@@ -62,3 +62,30 @@ export async function createInvestigation(
     throw err instanceof Error ? err : new Error(String(err));
   }
 }
+
+/**
+ * Fetch an accountability investigation by its ID.
+ *
+ * @param investigationId - The UUID of the investigation to fetch
+ * @returns The investigation record if found, or null if not found
+ */
+export async function getInvestigation(
+  investigationId: string
+): Promise<AccountabilityInvestigation | null> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await (supabase.from("accountability_investigations") as any)
+    .select("*")
+    .eq("id", investigationId)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    console.error("[AccountabilityService] Error fetching investigation:", error);
+    return null;
+  }
+
+  return data as AccountabilityInvestigation;
+}
