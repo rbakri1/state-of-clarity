@@ -72,3 +72,19 @@ CREATE TABLE IF NOT EXISTS public.accountability_investigation_sources (
 COMMENT ON TABLE public.accountability_investigation_sources IS 'Tracks all data sources used in investigations for audit trail and transparency';
 COMMENT ON COLUMN public.accountability_investigation_sources.source_type IS 'Type of data source: companies_house, charity_commission, etc.';
 COMMENT ON COLUMN public.accountability_investigation_sources.verification_status IS 'Status: verified, unverified, or disputed';
+
+-- ============================================
+-- Indexes for accountability_investigations
+-- ============================================
+
+CREATE INDEX IF NOT EXISTS idx_investigations_user_id ON public.accountability_investigations(user_id);
+CREATE INDEX IF NOT EXISTS idx_investigations_created_at ON public.accountability_investigations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_investigations_target ON public.accountability_investigations(target_entity);
+CREATE INDEX IF NOT EXISTS idx_investigations_quality_score ON public.accountability_investigations(quality_score) WHERE quality_score IS NOT NULL;
+
+-- ============================================
+-- Indexes for accountability_investigation_sources
+-- ============================================
+
+CREATE INDEX IF NOT EXISTS idx_investigation_sources_investigation_id ON public.accountability_investigation_sources(investigation_id);
+CREATE INDEX IF NOT EXISTS idx_investigation_sources_source_type ON public.accountability_investigation_sources(source_type);
