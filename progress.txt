@@ -186,3 +186,16 @@ Thread: https://ampcode.com/threads/T-019bbd78-86cc-720e-bea8-750a7e41e281
   - Pattern: Use optional chaining (?.length ?? 0) for arrays that may be undefined/null
   - Pre-existing typecheck errors in test files - not blocking for service code changes
 ---
+
+## 2026-01-14 21:09 - US-014
+Thread: https://ampcode.com/threads/T-019bbd79-e86d-7252-b9c1-28e875ed41e3
+- Created __tests__/unit/services/accountability-service.test.ts
+- Added 14 unit tests for calculateQualityScore function
+- Tests cover: zero inputs, mid-range (5/4), max (10/7), quality gate pass/fail notes
+- Tests cover: null/undefined edge cases, boundary conditions (3, 4, 6, 7 sources; 3, 6 scenarios)
+- Files changed: __tests__/unit/services/accountability-service.test.ts
+- **Learnings for future iterations:**
+  - Pattern: Use `createMockProfileData()` and `createMockScenario()` helper functions for test data
+  - Pattern: DataCompleteness uses `hasCompaniesHouse`, `hasRegisterOfInterests`, etc. (not shorthand names)
+  - Pre-existing typecheck errors in other test files are not blocking for new tests
+---
