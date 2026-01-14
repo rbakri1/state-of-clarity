@@ -170,3 +170,19 @@ Thread: https://ampcode.com/threads/T-019bbd77-1c46-76f9-b4e7-18104fe991cd
   - Pattern: Use `Omit<Type, 'fields'>` for function params that exclude auto-generated DB fields
   - Pattern: For child record inserts, explicitly include the parent foreign key (investigation_id)
 ---
+
+## 2026-01-14 - US-013
+Thread: https://ampcode.com/threads/T-019bbd78-86cc-720e-bea8-750a7e41e281
+- Added calculateQualityScore function to /lib/services/accountability-service.ts
+- Calculates quality score (0-10) based on sources count and scenarios count
+- Sources scoring: 0-3 = 0pts, 4-6 = 2.5pts, 7+ = 5pts
+- Scenarios scoring: <3 = 0pts, 3-5 = 2.5pts, 6+ = 5pts
+- Returns score rounded to 1 decimal place and notes array explaining breakdown
+- Adds "QUALITY GATE FAILED" note if score < 6.0, "Quality gate passed" otherwise
+- Includes comprehensive JSDoc with scoring rubric
+- Files changed: lib/services/accountability-service.ts
+- **Learnings for future iterations:**
+  - Pattern: Use nullish coalescing (?? 0) for numeric fields that may be undefined
+  - Pattern: Use optional chaining (?.length ?? 0) for arrays that may be undefined/null
+  - Pre-existing typecheck errors in test files - not blocking for service code changes
+---
