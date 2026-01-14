@@ -88,3 +88,63 @@ CREATE INDEX IF NOT EXISTS idx_investigations_quality_score ON public.accountabi
 
 CREATE INDEX IF NOT EXISTS idx_investigation_sources_investigation_id ON public.accountability_investigation_sources(investigation_id);
 CREATE INDEX IF NOT EXISTS idx_investigation_sources_source_type ON public.accountability_investigation_sources(source_type);
+
+-- ============================================
+-- Row Level Security (RLS)
+-- ============================================
+
+-- Enable RLS on accountability_investigations
+ALTER TABLE public.accountability_investigations ENABLE ROW LEVEL SECURITY;
+
+-- Enable RLS on accountability_investigation_sources
+ALTER TABLE public.accountability_investigation_sources ENABLE ROW LEVEL SECURITY;
+
+-- ============================================
+-- RLS Policies for accountability_investigations
+-- ============================================
+
+-- Users can SELECT their own investigations
+DROP POLICY IF EXISTS "Users can view own investigations" ON public.accountability_investigations;
+CREATE POLICY "Users can view own investigations" ON public.accountability_investigations
+    FOR SELECT
+    USING (auth.uid() = user_id);
+
+-- Users can INSERT investigations (only for themselves)
+DROP POLICY IF EXISTS "Users can create investigations" ON public.accountability_investigations;
+CREATE POLICY "Users can create investigations" ON public.accountability_investigations
+    FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+-- Users can UPDATE their own investigations
+DROP POLICY IF EXISTS "Users can update own investigations" ON public.accountability_investigations;
+CREATE POLICY "Users can update own investigations" ON public.accountability_investigations
+    FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- Service role has full access to investigations
+DROP POLICY IF EXISTS "Service role has full access to investigations" ON public.accountability_investigations;
+CREATE POLICY "Service role has full access to investigations" ON public.accountability_investigations
+    FOR ALL
+    USING (auth.jwt() ->> 'role' = 'service_role');
+
+-- ============================================
+-- RLS Policies for accountability_investigation_sources
+-- ============================================
+
+-- Users can SELECT sources for their own investigations
+DROP POLICY IF EXISTS "Users can view sources for own investigations" ON public.accountability_investigation_sources;
+CREATE POLICY "Users can view sources for own investigations" ON public.accountability_investigation_sources
+    FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.accountability_investigations
+            WHERE id = investigation_id AND user_id = auth.uid()
+        )
+    );
+
+-- Service role has full access to sources
+DROP POLICY IF EXISTS "Service role has full access to sources" ON public.accountability_investigation_sources;
+CREATE POLICY "Service role has full access to sources" ON public.accountability_investigation_sources
+    FOR ALL
+    USING (auth.jwt() ->> 'role' = 'service_role');
