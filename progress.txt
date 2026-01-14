@@ -218,3 +218,25 @@ Thread: https://ampcode.com/threads/T-019bbdf5-11d8-7449-ab4d-60e199fe2299
   - Create createValidScenarios() helper to generate properly-typed CorruptionScenario[]
   - Test conditional language by checking for keywords like 'could', 'might', 'potential'
 ---
+
+## 2026-01-14 - US-014
+Thread: https://ampcode.com/threads/T-019bbdf7-dce6-743b-b559-f813dbb159e7
+- Created unit tests for action list agent validation
+- File created: __tests__/unit/agents/action-list-agent.test.ts
+- Tests return of 8-15 ActionItem objects with profile data
+- Tests 10 default items for sparse/null profile data
+- Tests priority balance (items across priorities 1, 2, and 3)
+- Tests banned words (hack, bribe, stalk, harass, threaten) are filtered out
+- Tests each item has relatedScenarios field
+- Tests default relatedScenarios added when LLM omits them
+- Tests completedSteps includes 'action_list_generation'
+- Tests callback invocations (onAgentStarted, onAgentCompleted, onStageChanged)
+- Tests graceful fallback to defaults on JSON parse failure
+- Tests supplementation with defaults when fewer than 8 valid items
+- All 19 tests pass
+- **Learnings for future iterations:**
+  - Follow corruption-analysis-agent.test.ts pattern for test structure
+  - Create createValidActionItems() helper to generate properly-typed ActionItem[]
+  - Create createMockScenarios() helper for test scenario data
+  - Pre-existing test file type errors in other files don't block new test creation
+---
