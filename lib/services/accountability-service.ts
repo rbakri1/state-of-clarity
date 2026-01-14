@@ -89,3 +89,62 @@ export async function getInvestigation(
 
   return data as AccountabilityInvestigation;
 }
+
+/**
+ * Update an investigation with results after AI generation completes.
+ *
+ * @param investigationId - The UUID of the investigation to update
+ * @param data - Partial update object with optional fields:
+ *   - profileData: The generated UK profile data
+ *   - corruptionScenarios: Array of corruption scenarios
+ *   - actionItems: Array of action items
+ *   - qualityScore: Quality score (0-10)
+ *   - qualityNotes: Array of quality notes
+ *   - generationTimeMs: Time taken to generate results
+ *   - dataSourcesCount: Number of data sources used
+ */
+export async function updateInvestigationResults(
+  investigationId: string,
+  data: UpdateInvestigationInput
+): Promise<void> {
+  const supabase = getSupabaseClient();
+
+  const updateData: Record<string, unknown> = {};
+
+  if (data.profile_data !== undefined) {
+    updateData.profile_data = data.profile_data;
+  }
+  if (data.corruption_scenarios !== undefined) {
+    updateData.corruption_scenarios = data.corruption_scenarios;
+  }
+  if (data.action_items !== undefined) {
+    updateData.action_items = data.action_items;
+  }
+  if (data.quality_score !== undefined) {
+    updateData.quality_score = data.quality_score;
+  }
+  if (data.quality_notes !== undefined) {
+    updateData.quality_notes = data.quality_notes;
+  }
+  if (data.generation_time_ms !== undefined) {
+    updateData.generation_time_ms = data.generation_time_ms;
+  }
+  if (data.data_sources_count !== undefined) {
+    updateData.data_sources_count = data.data_sources_count;
+  }
+
+  try {
+    const { error } = await (supabase.from("accountability_investigations") as any)
+      .update(updateData)
+      .eq("id", investigationId);
+
+    if (error) {
+      throw new Error(`Failed to update investigation results: ${error.message}`);
+    }
+
+    console.log(`[AccountabilityService] Updated investigation ${investigationId} with results`);
+  } catch (err) {
+    console.error("[AccountabilityService] Error updating investigation results:", err);
+    throw err instanceof Error ? err : new Error(String(err));
+  }
+}
