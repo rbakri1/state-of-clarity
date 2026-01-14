@@ -61,3 +61,18 @@ Thread: https://ampcode.com/threads/T-019bbe4c-f08c-77f8-8055-033f51ca7066
   - Color-code data completeness percentage (green >70%, yellow 40-70%, red <40%)
   - Follow existing typing from lib/types/accountability.ts
 ---
+
+## 2026-01-15 - US-006
+Thread: https://ampcode.com/threads/T-019bbe50-0bd0-77f6-96ca-5834ce3fe6be
+- Created scenarios-section.tsx with expandable ScenarioCards
+- Risk level badges: color-coded (red=high/critical, yellow=medium, gray=low)
+- Ethics reminder banner about hypothetical scenarios
+- Each scenario shows: title, risk badge, description, enabling positions, red flags, innocent explanations (highlighted in green box), mechanism, detection difficulty
+- Empty state with "No scenarios identified" message
+- Files changed:
+  - components/accountability/scenarios-section.tsx (new)
+- **Learnings for future iterations:**
+  - Use getRiskBadgeStyles() pattern for consistent risk level coloring
+  - Highlight innocent explanations prominently (green bg) to balance red flags
+  - Follow CorruptionScenario type from lib/types/accountability.ts
+---
