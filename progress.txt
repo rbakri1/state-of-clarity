@@ -1,218 +1,28 @@
 # Ralph Progress Log
-Started: Wed 14 Jan 2026 20:29:18 +04
+Started: Wed 14 Jan 2026 21:28:27 +04
 
 ## Codebase Patterns
-- Use `npm run type-check` (not `typecheck`) for TypeScript checking
-- Migrations go in `/lib/supabase/migrations/` with sequential numbering (001, 002, etc.)
-- Use `IF NOT EXISTS` for CREATE TABLE to ensure idempotency
-- Use `DROP TRIGGER IF EXISTS` before CREATE TRIGGER for idempotency
-- Use `CREATE INDEX IF NOT EXISTS` for idempotent index creation
-- Use `DROP POLICY IF EXISTS` before CREATE POLICY for idempotent RLS policies
-- RLS on child tables: use `EXISTS (SELECT 1 FROM parent WHERE parent.user_id = auth.uid())`
-- Service role access: `auth.jwt() ->> 'role' = 'service_role'`
-- Pre-existing typecheck errors in test files - not blocking for SQL migrations
+- Services go in `/lib/services/` with JSDoc comments on all exported functions
+- Use types from `/lib/types/accountability.ts` for accountability features
+- Handle 404 responses gracefully by returning empty arrays (not throwing)
+- Implement retry logic with exponential backoff (1s/2s/4s delays, 3 attempts)
+- Use `verificationStatus: "verified"` for official API sources, `"unverified"` for web scraped data
+
 ---
 
-## 2026-01-14 16:30 - US-001
-Thread: https://ampcode.com/threads/T-019bbd57-1602-765b-bd13-f12132dba7f4
-- Created accountability_investigations table in migration 013
-- Includes all columns: id, user_id, target_entity, entity_type, ethics_acknowledged_at, profile_data, corruption_scenarios, action_items, quality_score, quality_notes, generation_time_ms, data_sources_count, is_public, created_at, updated_at
-- Added CHECK constraint for entity_type (individual/organization)
-- Added CHECK constraint for quality_score (0-10)
-- Created updated_at trigger function
-- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
+## 2026-01-14 21:30 - US-001
+Thread: https://ampcode.com/threads/T-019bbd8d-3be0-707c-bf81-b961cf91c967
+- Created Companies House API service file at `/lib/services/companies-house-api.ts`
+- Added COMPANIES_HOUSE_API_KEY to .env.example
+- Implemented:
+  - `getCompaniesHouseAuthHeader()` - Basic Auth header generation
+  - `searchOfficers(name)` - Search officers endpoint
+  - `getOfficerAppointments(officerId)` - Get appointments for an officer
+  - `fetchCompaniesHouseProfile(entityName)` - Full profile with retry logic
+- All functions have JSDoc comments
+- 404 responses return empty arrays (graceful handling)
 - **Learnings for future iterations:**
-  - Pre-existing typecheck errors in test files - not blocking for SQL migrations
-  - Pattern: Use `gen_random_uuid()` for UUID primary keys
-  - Pattern: Use `TIMESTAMPTZ` for all timestamp columns (not TIMESTAMP)
----
-
-## 2026-01-14 16:45 - US-002
-Thread: https://ampcode.com/threads/T-019bbd58-ab5b-74b9-a746-970d47d81810
-- Created accountability_investigation_sources table in migration 013
-- Includes all columns: id, investigation_id (FK with CASCADE), source_type, url, title, accessed_at, data_extracted, verification_status, created_at
-- Added CHECK constraint for source_type (companies_house, charity_commission, register_of_interests, electoral_commission, contracts_finder, web_search, gov_uk, other)
-- Added CHECK constraint for verification_status (verified, unverified, disputed)
-- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
-- **Learnings for future iterations:**
-  - Pattern: Use foreign key with `ON DELETE CASCADE` for child tables referencing parent tables
----
-
-## 2026-01-14 17:00 - US-003
-Thread: https://ampcode.com/threads/T-019bbd5a-1ced-7258-9365-9716e6c1d26d
-- Added 6 indexes to accountability tables in migration 013
-- accountability_investigations: user_id, created_at DESC, target_entity, quality_score (partial WHERE NOT NULL)
-- accountability_investigation_sources: investigation_id, source_type
-- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
-- **Learnings for future iterations:**
-  - Pattern: Use `CREATE INDEX IF NOT EXISTS` for idempotency
-  - Pattern: Use partial indexes (`WHERE column IS NOT NULL`) for nullable columns to save space
-  - Pattern: Use DESC for timestamp columns commonly sorted newest-first
----
-
-## 2026-01-14 17:15 - US-004
-Thread: https://ampcode.com/threads/T-019bbd5b-bd6d-71d0-ac04-102c77d9cfcb
-- Added Row Level Security policies to accountability tables
-- Enabled RLS on both accountability_investigations and accountability_investigation_sources
-- Users can SELECT/INSERT/UPDATE their own investigations (auth.uid() = user_id)
-- Service role has full access to both tables (auth.jwt() ->> 'role' = 'service_role')
-- Sources access controlled via subquery on parent investigation
-- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
-- **Learnings for future iterations:**
-  - Pattern: Use `DROP POLICY IF EXISTS` before CREATE POLICY for idempotency
-  - Pattern: Use subquery EXISTS for RLS on child tables (e.g., sources checking parent investigation ownership)
-  - Pattern: Service role access uses `auth.jwt() ->> 'role' = 'service_role'`
----
-
-## 2026-01-14 20:30 - US-005
-Thread: https://ampcode.com/threads/T-019bbd5d-3f06-72eb-b72d-f2c3362fb22e
-- Created /lib/types/accountability.ts with core TypeScript types
-- Exported EntityType union type for individual/organization
-- Exported Position, CompanyRecord, InterestDeclaration, CharityRecord, Donation, Contract interfaces
-- All interfaces include required sourceUrl field for audit trail
-- Files changed: lib/types/accountability.ts
-- **Learnings for future iterations:**
-  - Pattern: Follow existing types file conventions (see lib/types/brief.ts for examples)
-  - Pattern: Use string for dates in interfaces (ISO format), number for monetary values
-  - Pattern: Include sourceUrl on all record types for traceability
----
-
-## 2026-01-14 21:00 - US-006
-Thread: https://ampcode.com/threads/T-019bbd5e-e7bb-74d9-b564-e06919e9b49f
-- Added UKProfileData and scenario types to /lib/types/accountability.ts
-- Exported ConflictOfInterest with conflictType (financial/regulatory/oversight/personal)
-- Exported HistoricalCase with name, year, description, outcome, sourceUrl
-- Exported SourceType union and VerificationStatus type
-- Exported InvestigationSource interface for tracking data sources
-- Exported UKProfileData with all profile fields and dataCompleteness object
-- Exported CorruptionScenario with riskLevel, detectionDifficulty, historicalPrecedents
-- Exported ActionItem with priority (1|2|3) and relatedScenarios array
-- Files changed: lib/types/accountability.ts
-- **Learnings for future iterations:**
-  - Pattern: Use helper types (e.g., ConflictType, RiskLevel) before using in interfaces for reusability
-  - Pattern: Use numeric year for HistoricalCase (more precise than date string)
----
-
-## 2026-01-14 21:30 - US-007
-Thread: https://ampcode.com/threads/T-019bbd60-4336-750e-9032-a8bd76a5acd5
-- Added database row types to /lib/types/accountability.ts
-- Exported AccountabilityInvestigation interface matching all DB columns
-- Exported AccountabilityInvestigationSource interface for sources table
-- Exported CreateInvestigationInput type for service function input
-- Exported UpdateInvestigationInput type for partial updates (profile_data, corruption_scenarios, action_items, quality_score, quality_notes, generation_time_ms, data_sources_count)
-- Files changed: lib/types/accountability.ts
-- **Learnings for future iterations:**
-  - Pattern: Use `| null` for nullable DB columns (e.g., quality_score, quality_notes)
-  - Pattern: Use Date type in input interfaces, string type in DB row interfaces (Supabase returns ISO strings)
-  - Pattern: Use Record<string, unknown> for JSONB columns with unstructured data (e.g., data_extracted)
----
-
-## 2026-01-14 22:00 - US-008
-Thread: https://ampcode.com/threads/T-019bbd61-eeea-71ba-aef3-38b451dd9285
-- Created /lib/services/accountability-service.ts with createInvestigation function
-- Function accepts targetEntity, userId, entityType, ethicsAcknowledgedAt parameters
-- Returns { id: string } with the new investigation ID
-- Uses getSupabaseClient() pattern from brief-service.ts
-- Includes JSDoc comment with @param and @returns
-- Files changed: lib/services/accountability-service.ts
-- **Learnings for future iterations:**
-  - Pattern: Follow brief-service.ts for service function conventions
-  - Pattern: Use `(supabase.from("table") as any)` to avoid strict typing issues
-  - Pattern: Convert Date to ISO string with .toISOString() for DB insert
----
-
-## 2026-01-14 22:30 - US-009
-Thread: https://ampcode.com/threads/T-019bbd63-5dc6-706f-97f8-ec9b5ac835b5
-- Added getInvestigation function to /lib/services/accountability-service.ts
-- Function accepts investigationId and returns AccountabilityInvestigation | null
-- Returns null if not found (using PGRST116 error code check)
-- Includes JSDoc comment with @param and @returns
-- Files changed: lib/services/accountability-service.ts
-- **Learnings for future iterations:**
-  - Pattern: Supabase returns error code "PGRST116" when .single() finds no rows
-  - Pattern: Return null for "not found" cases instead of throwing errors
----
-
-## 2026-01-14 23:00 - US-010
-Thread: https://ampcode.com/threads/T-019bbd64-ce69-7469-b4d2-efae884b63d8
-- Added updateInvestigationResults function to /lib/services/accountability-service.ts
-- Function accepts investigationId and UpdateInvestigationInput partial object
-- Updates only provided fields (profile_data, corruption_scenarios, action_items, quality_score, quality_notes, generation_time_ms, data_sources_count)
-- Includes error handling with try-catch and descriptive error messages
-- Includes JSDoc comment with @param documentation
-- Files changed: lib/services/accountability-service.ts
-- **Learnings for future iterations:**
-  - Pattern: Use `Record<string, unknown>` for building dynamic update objects
-  - Pattern: Check `!== undefined` (not just truthy) to allow setting fields to 0 or empty arrays
----
-
-## 2026-01-14 23:30 - US-011
-Thread: https://ampcode.com/threads/T-019bbd75-54c8-766f-b460-6741eddb7a26
-- Added listUserInvestigations function to /lib/services/accountability-service.ts
-- Function accepts userId and optional limit parameter (default 50)
-- Returns investigations ordered by created_at DESC (newest first)
-- Returns empty array if none found or on error
-- Includes JSDoc comment with @param and @returns documentation
-- Files changed: lib/services/accountability-service.ts
-- **Learnings for future iterations:**
-  - Pattern: Use `.order("column", { ascending: false })` for DESC ordering in Supabase
-  - Pattern: Return empty array on error for list functions (graceful degradation)
----
-
-## 2026-01-14 - US-012
-Thread: https://ampcode.com/threads/T-019bbd77-1c46-76f9-b4e7-18104fe991cd
-- Added addInvestigationSource and getInvestigationSources functions to /lib/services/accountability-service.ts
-- addInvestigationSource inserts a new source record with all provided fields and returns the new ID
-- getInvestigationSources fetches all sources for an investigation, ordered by accessed_at DESC
-- Both functions include JSDoc comments with @param and @returns
-- Files changed: lib/services/accountability-service.ts
-- **Learnings for future iterations:**
-  - Pattern: Use `Omit<Type, 'fields'>` for function params that exclude auto-generated DB fields
-  - Pattern: For child record inserts, explicitly include the parent foreign key (investigation_id)
----
-
-## 2026-01-14 - US-013
-Thread: https://ampcode.com/threads/T-019bbd78-86cc-720e-bea8-750a7e41e281
-- Added calculateQualityScore function to /lib/services/accountability-service.ts
-- Calculates quality score (0-10) based on sources count and scenarios count
-- Sources scoring: 0-3 = 0pts, 4-6 = 2.5pts, 7+ = 5pts
-- Scenarios scoring: <3 = 0pts, 3-5 = 2.5pts, 6+ = 5pts
-- Returns score rounded to 1 decimal place and notes array explaining breakdown
-- Adds "QUALITY GATE FAILED" note if score < 6.0, "Quality gate passed" otherwise
-- Includes comprehensive JSDoc with scoring rubric
-- Files changed: lib/services/accountability-service.ts
-- **Learnings for future iterations:**
-  - Pattern: Use nullish coalescing (?? 0) for numeric fields that may be undefined
-  - Pattern: Use optional chaining (?.length ?? 0) for arrays that may be undefined/null
-  - Pre-existing typecheck errors in test files - not blocking for service code changes
----
-
-## 2026-01-14 21:09 - US-014
-Thread: https://ampcode.com/threads/T-019bbd79-e86d-7252-b9c1-28e875ed41e3
-- Created __tests__/unit/services/accountability-service.test.ts
-- Added 14 unit tests for calculateQualityScore function
-- Tests cover: zero inputs, mid-range (5/4), max (10/7), quality gate pass/fail notes
-- Tests cover: null/undefined edge cases, boundary conditions (3, 4, 6, 7 sources; 3, 6 scenarios)
-- Files changed: __tests__/unit/services/accountability-service.test.ts
-- **Learnings for future iterations:**
-  - Pattern: Use `createMockProfileData()` and `createMockScenario()` helper functions for test data
-  - Pattern: DataCompleteness uses `hasCompaniesHouse`, `hasRegisterOfInterests`, etc. (not shorthand names)
-  - Pre-existing typecheck errors in other test files are not blocking for new tests
----
-
-## 2026-01-14 21:13 - US-015
-Thread: https://ampcode.com/threads/T-019bbd7c-cc77-7058-a459-182aa6c03632
-- Added unit tests for CRUD service functions to __tests__/unit/services/accountability-service.test.ts
-- Tests for createInvestigation: success case returns id, stores data correctly, error case throws descriptive error
-- Tests for getInvestigation: found case returns investigation, not found case returns null
-- Tests for updateInvestigationResults: partial update works, only updates provided fields
-- Tests for listUserInvestigations: returns ordered array (DESC), empty array when none found, filters by user_id
-- Tests for addInvestigationSource: returns id, stores source with investigation_id
-- Tests for getInvestigationSources: ordered by accessed_at DESC, empty array when none, filters by investigation_id
-- All 29 tests pass with npm run test
-- Files changed: __tests__/unit/services/accountability-service.test.ts
-- **Learnings for future iterations:**
-  - Pattern: Use `(mockSupabaseClient as any).from = ...` for type-safe mock overrides in tests
-  - Pattern: Follow existing supabase mock pattern from brief-service.test.ts
-  - Pattern: Use seedMockData() to pre-populate mock database, getMockData() to verify stored data
+  - Pre-existing test errors in `__tests__/` directory - not blocking commits
+  - Types `CompanyRecord` and `InvestigationSource` already defined in accountability.ts
+  - Companies House API uses Basic Auth with API key as username and empty password
 ---
