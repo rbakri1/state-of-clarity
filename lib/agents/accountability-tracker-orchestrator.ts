@@ -99,3 +99,90 @@ export function createAccountabilityGraph() {
 }
 
 export const accountabilityGraph = createAccountabilityGraph();
+
+/**
+ * Callback interface for SSE streaming progress updates
+ */
+export interface AccountabilityCallbacks {
+  onAgentStarted?: (agentName: string) => void;
+  onAgentCompleted?: (agentName: string, durationMs: number) => void;
+  onStageChanged?: (stage: string) => void;
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Result type for the accountability report generation
+ */
+export interface AccountabilityReportResult {
+  profileData: UKProfileData | null;
+  corruptionScenarios: CorruptionScenario[] | null;
+  actionItems: ActionItem[] | null;
+  qualityScore: number | null;
+  qualityNotes: string[] | null;
+}
+
+/**
+ * Generate an accountability report for a target entity
+ *
+ * Runs the full pipeline: Entity Classification → UK Profile Research →
+ * Corruption Analysis → Action List Generation → Quality Check
+ *
+ * @param targetEntity - The name of the entity to investigate
+ * @param investigationId - The ID of the investigation in the database
+ * @param callbacks - Optional callbacks for SSE streaming progress
+ * @returns The generated accountability report data
+ */
+export async function generateAccountabilityReport(
+  targetEntity: string,
+  investigationId: string,
+  callbacks?: AccountabilityCallbacks
+): Promise<AccountabilityReportResult> {
+  const startTime = Date.now();
+  console.log(
+    `[AccountabilityTracker] Starting report generation for: ${targetEntity}`
+  );
+
+  const initialState = {
+    targetEntity,
+    investigationId,
+    entityType: null,
+    profileData: null,
+    corruptionScenarios: null,
+    actionItems: null,
+    qualityScore: null,
+    qualityNotes: null,
+    error: null,
+    completedSteps: [],
+  };
+
+  try {
+    const result = await accountabilityGraph.invoke(initialState);
+
+    const endTime = Date.now();
+    const durationMs = endTime - startTime;
+    console.log(
+      `[AccountabilityTracker] Report generation completed in ${durationMs}ms`
+    );
+
+    return {
+      profileData: result.profileData,
+      corruptionScenarios: result.corruptionScenarios,
+      actionItems: result.actionItems,
+      qualityScore: result.qualityScore,
+      qualityNotes: result.qualityNotes,
+    };
+  } catch (error) {
+    const endTime = Date.now();
+    const durationMs = endTime - startTime;
+    console.error(
+      `[AccountabilityTracker] Report generation failed after ${durationMs}ms:`,
+      error
+    );
+
+    if (callbacks?.onError && error instanceof Error) {
+      callbacks.onError(error);
+    }
+
+    throw error;
+  }
+}

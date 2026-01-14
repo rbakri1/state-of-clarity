@@ -470,8 +470,8 @@ describe('Discussion Round Agent', () => {
 
       const result = await runDiscussionRound(input);
 
-      // Should indicate the score went up
-      expect(result.discussionSummary).toMatch(/6\.0.*7\.5/);
+      // Should indicate the score went up (accepts both "6" and "6.0" format)
+      expect(result.discussionSummary).toMatch(/6(\.0)?.*7\.5/);
     });
   });
 
