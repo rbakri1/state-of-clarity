@@ -178,3 +178,22 @@ Thread: https://ampcode.com/threads/T-019bbdec-9f65-717a-90af-e3fa3f63cc1c
   - Use extractJson function parameter to handle object ({}) vs array ([]) extraction
   - Each agent can use different max_tokens based on expected response size
 ---
+
+## 2026-01-14 - US-012
+Thread: https://ampcode.com/threads/T-019bbdf2-dc17-770a-811d-72973ba231d8
+- Created unit tests for entity classification agent
+- File created: __tests__/unit/agents/entity-classification-agent.test.ts
+- Tests 'Boris Johnson' returns entityType 'individual'
+- Tests 'Serco Ltd' and 'John Smith PLC' return entityType 'organization' (suffix detection)
+- Tests ambiguous names default to 'individual'
+- Tests JSON parse failure defaults to 'individual'
+- Tests completedSteps includes 'entity_classification'
+- Tests callback invocations (onAgentStarted, onAgentCompleted, onStageChanged)
+- Tests agent works without callbacks (optional)
+- All 15 tests pass
+- **Learnings for future iterations:**
+  - Use queueMockResponse() from __tests__/mocks/anthropic.ts to queue LLM responses
+  - Use resetAnthropicMocks() in beforeEach to clear mock state
+  - Create a createTestState() helper function for creating AccountabilityState objects
+  - Pre-existing test file type errors in other files don't block new test creation
+---
