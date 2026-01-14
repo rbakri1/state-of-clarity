@@ -158,3 +158,15 @@ Thread: https://ampcode.com/threads/T-019bbd75-54c8-766f-b460-6741eddb7a26
   - Pattern: Use `.order("column", { ascending: false })` for DESC ordering in Supabase
   - Pattern: Return empty array on error for list functions (graceful degradation)
 ---
+
+## 2026-01-14 - US-012
+Thread: https://ampcode.com/threads/T-019bbd77-1c46-76f9-b4e7-18104fe991cd
+- Added addInvestigationSource and getInvestigationSources functions to /lib/services/accountability-service.ts
+- addInvestigationSource inserts a new source record with all provided fields and returns the new ID
+- getInvestigationSources fetches all sources for an investigation, ordered by accessed_at DESC
+- Both functions include JSDoc comments with @param and @returns
+- Files changed: lib/services/accountability-service.ts
+- **Learnings for future iterations:**
+  - Pattern: Use `Omit<Type, 'fields'>` for function params that exclude auto-generated DB fields
+  - Pattern: For child record inserts, explicitly include the parent foreign key (investigation_id)
+---
