@@ -80,6 +80,7 @@ export function Header({ className }: HeaderProps) {
   const navLinks = [
     { href: "/ask", label: "Ask Anything" },
     { href: "/explore", label: "Explore" },
+    { href: "/accountability", label: "Accountability" },
     { href: "/about", label: "About" },
   ];
 
@@ -120,7 +121,7 @@ export function Header({ className }: HeaderProps) {
                   "text-sm font-ui font-medium",
                   "hover:text-ink-800 transition-colors duration-200",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-md px-1",
-                  pathname === link.href
+                  pathname === link.href || pathname?.startsWith(link.href + "/")
                     ? "text-sage-600"
                     : "text-ink-600"
                 )}
@@ -300,7 +301,7 @@ export function Header({ className }: HeaderProps) {
                   "text-base font-ui font-medium",
                   "hover:bg-ivory-300 transition-colors duration-200",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
-                  pathname === link.href
+                  pathname === link.href || pathname?.startsWith(link.href + "/")
                     ? "text-sage-600 bg-sage-50"
                     : "text-ink-600"
                 )}

@@ -26,6 +26,7 @@ import {
   refundCredits,
   expireOldCredits,
   getExpiringCreditsWarnings,
+  sendExpiryWarningNotifications,
 } from '@/lib/services/credit-service';
 
 describe('Credit Service', () => {
@@ -572,6 +573,187 @@ describe('Credit Service', () => {
       const warnings = await getExpiringCreditsWarnings();
       expect(warnings.length).toBe(1);
       expect(warnings[0].creditsExpiring).toBe(5); // Only the soon-expiring batch
+    });
+
+    it('should use earliest expiry date when user has multiple expiring batches', async () => {
+      const soon1 = new Date();
+      soon1.setDate(soon1.getDate() + 5); // Expires first
+      const soon2 = new Date();
+      soon2.setDate(soon2.getDate() + 25); // Expires later
+
+      seedMockData('credit_batches', [
+        {
+          id: 'batch-1',
+          user_id: 'test-user',
+          credits_remaining: 3,
+          expires_at: soon2.toISOString(), // Later date first in mock
+        },
+        {
+          id: 'batch-2',
+          user_id: 'test-user',
+          credits_remaining: 7,
+          expires_at: soon1.toISOString(), // Earlier date second in mock
+        },
+      ]);
+
+      const warnings = await getExpiringCreditsWarnings();
+      expect(warnings.length).toBe(1);
+      expect(warnings[0].creditsExpiring).toBe(10);
+      // Should use the earliest expiry date
+      expect(warnings[0].expiresAt.getTime()).toBeLessThanOrEqual(soon1.getTime() + 1000);
+    });
+
+    it('should handle batches with zero credits remaining', async () => {
+      const soon = new Date();
+      soon.setDate(soon.getDate() + 15);
+
+      seedMockData('credit_batches', [
+        {
+          id: 'batch-empty',
+          user_id: 'test-user',
+          credits_remaining: 0,
+          expires_at: soon.toISOString(),
+        },
+      ]);
+
+      const warnings = await getExpiringCreditsWarnings();
+      expect(warnings).toEqual([]);
+    });
+  });
+
+  describe('sendExpiryWarningNotifications', () => {
+    it('should log warnings for users with expiring credits', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      const soon = new Date();
+      soon.setDate(soon.getDate() + 10);
+
+      seedMockData('credit_batches', [
+        {
+          id: 'batch-1',
+          user_id: 'user-with-expiring',
+          credits_remaining: 15,
+          expires_at: soon.toISOString(),
+        },
+      ]);
+
+      await sendExpiryWarningNotifications();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[NOTIFICATION PLACEHOLDER]')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('user-with-expiring')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('15 credits expiring')
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should not log anything when no credits are expiring', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      const farFuture = new Date();
+      farFuture.setFullYear(farFuture.getFullYear() + 2);
+
+      seedMockData('credit_batches', [
+        {
+          id: 'batch-far',
+          user_id: 'test-user',
+          credits_remaining: 10,
+          expires_at: farFuture.toISOString(),
+        },
+      ]);
+
+      await sendExpiryWarningNotifications();
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should log warnings for multiple users', async () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      const soon = new Date();
+      soon.setDate(soon.getDate() + 10);
+
+      seedMockData('credit_batches', [
+        {
+          id: 'batch-1',
+          user_id: 'user-1',
+          credits_remaining: 5,
+          expires_at: soon.toISOString(),
+        },
+        {
+          id: 'batch-2',
+          user_id: 'user-2',
+          credits_remaining: 10,
+          expires_at: soon.toISOString(),
+        },
+      ]);
+
+      await sendExpiryWarningNotifications();
+
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('user-1')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('user-2')
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle deduction when balance exactly matches amount', async () => {
+      const futureDate = new Date();
+      futureDate.setFullYear(futureDate.getFullYear() + 1);
+
+      seedMockData('user_credits', [
+        { user_id: 'exact-user', balance: 5 },
+      ]);
+      seedMockData('credit_batches', [
+        {
+          id: 'batch-exact',
+          user_id: 'exact-user',
+          credits_remaining: 5,
+          purchased_at: new Date().toISOString(),
+          expires_at: futureDate.toISOString(),
+        },
+      ]);
+
+      const result = await deductCredits('exact-user', 5, 'brief-1', 'Exact deduction');
+      expect(result).toBe(true);
+
+      const batches = getMockData('credit_batches');
+      expect(batches[0].credits_remaining).toBe(0);
+
+      const userCredits = getMockData('user_credits');
+      expect(userCredits[0].balance).toBe(0);
+    });
+
+    it('should handle hasCredits with amount of 0', async () => {
+      seedMockData('user_credits', [
+        { user_id: 'any-user', balance: 10 },
+      ]);
+
+      const result = await hasCredits('any-user', 0);
+      expect(result).toBe(true);
+    });
+
+    it('should handle getBalance for user with null balance in record', async () => {
+      seedMockData('user_credits', [
+        { user_id: 'null-balance-user', balance: null },
+      ]);
+
+      const balance = await getBalance('null-balance-user');
+      // null should be treated as 0
+      expect(balance).toBe(0);
     });
   });
 });

@@ -143,7 +143,9 @@ export default function CreditsPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-heading font-semibold text-ink-800 mb-2">Buy Credits</h1>
           <p className="font-body text-ink-500">
-            Each brief generation costs 1 credit. Buy more to save.
+            Use credits to generate policy briefs or conduct accountability investigations.
+            <br />
+            Each brief or investigation costs 1 credit. Buy more to save.
           </p>
         </div>
 
@@ -202,7 +204,7 @@ export default function CreditsPage() {
                 <ul className="space-y-2 mb-6 text-sm font-ui">
                   <li className="flex items-center gap-2 text-ink-500">
                     <Check className="w-4 h-4 text-success" />
-                    <span>{pkg.credits} brief{pkg.credits > 1 ? "s" : ""}</span>
+                    <span>{pkg.credits} brief{pkg.credits > 1 ? "s" : ""} or investigation{pkg.credits > 1 ? "s" : ""}</span>
                   </li>
                   <li className="flex items-center gap-2 text-ink-500">
                     <Check className="w-4 h-4 text-success" />

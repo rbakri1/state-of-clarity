@@ -1,241 +1,144 @@
 {
   "project": "State of Clarity",
-  "branchName": "ralph/accountability-tracker-frontend",
-  "description": "Accountability Tracker Frontend - UI Components & Pages with SSE progress tracking, ethics modal, results display, and print layout. PRD 5 of 6 (see tasks/prd-accountability-tracker-overview.md).",
-  "frontendSkills": [
-    ".claude/skills/frontend-excellence.md - Component architecture, Radix/shadcn, accessibility",
-    ".claude/skills/brand-guidelines.md - Colors (Sage/Ivory/Ink), typography, styling"
-  ],
-  "styleGuide": {
-    "colors": "Use Tailwind theme: bg-sage-*, bg-ivory-*, text-ink-*, bg-warning-light, bg-success-light, bg-error-light",
-    "components": "Use Radix UI primitives for interactive elements (Dialog, Accordion, etc.)",
-    "icons": "Use Lucide React exclusively",
-    "utilities": "Use cn() from @/lib/utils for conditional classes",
-    "accessibility": "All interactive elements need: keyboard nav, focus indicators, ARIA labels"
-  },
+  "branchName": "ralph/accountability-tracker-integration",
+  "description": "Accountability Tracker Integration & Polish - Navigation updates, E2E testing, regression tests, performance validation, and developer documentation. PRD 6 of 6 (see tasks/prd-accountability-tracker-overview.md).",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Create landing page with entity input",
-      "description": "As a user, I want to enter a target entity name and start an investigation.",
+      "title": "Add Accountability navigation link to header",
+      "description": "As a user, I want to see Accountability in the main navigation.",
       "acceptanceCriteria": [
-        "Create /app/accountability/page.tsx (if not exists, update if exists)",
-        "Hero heading: 'Accountability Tracker' (text-4xl, font-heading)",
-        "Subheading about investigating corruption using UK public records",
-        "Yellow ethics notice banner with 'innocent until proven guilty' reminder",
-        "Input field with placeholder 'Enter name or organization to investigate...'",
-        "Submit button: 'Start Investigation'",
-        "Form validation: input required",
-        "On submit: show ethics modal (don't navigate yet)",
+        "Add 'Accountability' link to desktop header between Explore and Credits",
+        "Link navigates to /accountability",
+        "Current page indicator highlights when on /accountability/* routes",
+        "Mobile hamburger menu includes Accountability link",
+        "Link accessible via keyboard navigation (Tab key)",
+        "Hover state uses existing header styles",
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Create ethics acknowledgment modal",
-      "description": "As a user, I must acknowledge ethical principles before proceeding.",
+      "title": "Update credits page to mention investigations",
+      "description": "As a user, I want to know credits can be used for investigations too.",
       "acceptanceCriteria": [
-        "Create /components/accountability/ethics-modal.tsx (if not exists, update if exists)",
-        "Use Radix Dialog component (max-w-2xl, centered)",
-        "Display target entity name: 'You are about to investigate: [NAME]'",
-        "List 5 ethical principles as bullet points",
-        "Checkbox with label about understanding principles",
-        "Cancel button and Proceed button (disabled until checkbox checked)",
-        "Clicking Proceed navigates to /accountability/generate?entity=[NAME]",
-        "Proper ARIA labels: aria-modal, aria-labelledby",
+        "Update credits page copy to mention 'briefs or investigations'",
+        "Each brief or investigation costs 1 credit",
+        "No breaking changes to existing credit purchase flow",
+        "Mobile layout displays correctly",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Updated with checkbox, navigation to generate page, 5 ethical principles"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Create SSE hook for generation",
-      "description": "As a developer, I need an SSE hook for reusable progress tracking.",
+      "title": "Create E2E happy path test",
+      "description": "As a developer, I need an E2E test for the full investigation flow.",
       "acceptanceCriteria": [
-        "Create /lib/hooks/useInvestigationGeneration.ts",
-        "Hook accepts: targetEntity (string), ethicsAcknowledged (boolean)",
-        "Hook returns: status, progress, currentStage, error, investigationId, agentStatuses, startGeneration function",
-        "Uses fetch with POST to /api/accountability/generate for SSE",
-        "Parses SSE events: agent_started, agent_completed, stage_changed, complete, error",
-        "Updates state on each SSE event",
-        "Handles connection errors gracefully",
-        "Cleans up on unmount",
+        "Create test file: tests/e2e/accountability-tracker.spec.ts",
+        "Test navigates to /accountability landing page",
+        "Test enters target entity and opens ethics modal",
+        "Test checks acknowledgment checkbox and proceeds",
+        "Test verifies navigation to generation progress page",
+        "Test waits for SSE completion events",
+        "Test verifies results page renders with profile, scenarios, actions",
+        "Test completes in <3 minutes",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Created with all agent statuses, progress tracking, cleanup on unmount"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Create generation progress page",
-      "description": "As a user, I want to see real-time progress during investigation generation.",
+      "title": "Create E2E quality gate failure test",
+      "description": "As a developer, I need to verify credit refund on low-quality investigations.",
       "acceptanceCriteria": [
-        "Create /app/accountability/generate/page.tsx",
-        "Read entity from URL search params",
-        "Display entity name: 'Investigating: [NAME]'",
-        "Show 5 progress stages with icons (Entity Classification, UK Profile Research, Corruption Analysis, Action List Generation, Quality Check)",
-        "Current stage shows spinning Loader2 icon",
-        "Completed stages show green CheckCircle2 icon",
-        "Use the SSE hook from US-003",
-        "On complete event: navigate to /accountability/[id]",
-        "On error event: show error message with refund notice",
+        "Test enters non-existent entity name",
+        "Test acknowledges ethics modal",
+        "Test waits for generation to complete with error",
+        "Test verifies SSE error event with creditRefunded: true",
+        "Test verifies error message about insufficient data",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Created with 5 stages, progress bar, error/quality failed states, ethics reminder"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Create profile display component",
-      "description": "As a user, I want to see UK profile data in a clear format.",
+      "title": "Create E2E PDF export test",
+      "description": "As a developer, I need to verify PDF export functionality.",
       "acceptanceCriteria": [
-        "Create /components/accountability/profile-section.tsx",
-        "Props: profileData (UKProfileData)",
-        "Section heading: 'UK Public Records Profile'",
-        "Display data completeness indicators",
-        "Expandable cards for: Companies House, Charity Commission, Register of Interests, Electoral Commission, Contracts Finder",
-        "Each card shows source URL as link",
-        "Empty state: 'No data found for this source'",
+        "Test navigates to completed investigation results page",
+        "Test clicks Export PDF button",
+        "Test verifies navigation to /accountability/[id]/print route",
+        "Test verifies print-optimized layout renders",
+        "Test verifies disclaimer watermark present",
+        "Test verifies all sections present (profile, scenarios, actions, sources)",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Created with expandable cards, data completeness indicators, source links, empty states"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Create scenarios display component",
-      "description": "As a user, I want to see corruption scenarios in a scannable format.",
+      "title": "Create regression tests for existing features",
+      "description": "As a developer, I need to ensure existing features still work.",
       "acceptanceCriteria": [
-        "Create /components/accountability/scenarios-section.tsx",
-        "Props: scenarios (CorruptionScenario[])",
-        "Section heading: 'Theoretical Corruption Scenarios'",
-        "Ethics reminder about hypothetical scenarios",
-        "Each scenario card shows: title, risk level badge (color-coded), description, enabling positions, red flags, innocent explanations (highlighted)",
-        "Risk level badges: red=high, yellow=medium, gray=low",
-        "Expandable 'Show Details' for full scenario",
+        "Create test file: tests/e2e/regression.spec.ts",
+        "Test brief generation still works",
+        "Test home page renders without console errors",
+        "Test explore page renders correctly",
+        "Test authentication flow unchanged",
+        "Zero TypeScript errors (npm run typecheck)",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Created with expandable cards, risk badges (color-coded), ethics reminder, innocent explanations highlighted, detection difficulty"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Create action items display component",
-      "description": "As a user, I want to see prioritized action items as an investigation roadmap.",
+      "title": "Create developer documentation",
+      "description": "As a future developer, I want complete documentation for the feature.",
       "acceptanceCriteria": [
-        "Create /components/accountability/action-items-section.tsx",
-        "Props: actionItems (ActionItem[])",
-        "Section heading: 'Investigation Action Items'",
-        "Group by priority: Priority 1 (High/Red), Priority 2 (Medium/Yellow), Priority 3 (Low/Gray)",
-        "Each item shows: action, rationale, data source, expected evidence, estimated time, legal considerations",
-        "Checkbox for tracking (local state only)",
-        "Typecheck passes"
+        "Create documentation file: docs/ACCOUNTABILITY_TRACKER.md",
+        "Section 1: Feature Overview (what it does, ethical considerations)",
+        "Section 2: Architecture Diagram (LangGraph flow, data sources, API routes)",
+        "Section 3: Database Schema (tables, columns, RLS policies)",
+        "Section 4: API Endpoints (request/response formats, rate limits)",
+        "Section 5: Agent Prompts (system prompts, model selection)",
+        "Section 6: UK Data Sources (Companies House, Tavily setup)",
+        "Section 7: Testing Guide (how to run tests)",
+        "Section 8: Troubleshooting (common errors, debugging)",
+        "Section 9: Deployment (environment variables, checklist)",
+        "All links working",
+        "Markdown properly formatted"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Created with priority grouping, color-coded priority badges, checkbox tracking (local state), and ethics reminder banner"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-008",
-      "title": "Create results page",
-      "description": "As a user, I want to view completed investigation results.",
+      "title": "Run typecheck and fix any errors",
+      "description": "As a developer, I need zero TypeScript errors before deployment.",
       "acceptanceCriteria": [
-        "Create /app/accountability/[id]/page.tsx",
-        "Fetch investigation via /api/accountability/[id]",
-        "Display 404 if investigation not found",
-        "Header with target entity name and completion date",
-        "Export PDF button that opens /accountability/[id]/print in new tab",
-        "Ethics reminder banner (yellow, always visible)",
-        "Include ProfileSection, ScenariosSection, ActionItemsSection components",
-        "Sources footer with list of URLs",
-        "Typecheck passes"
+        "Run npm run typecheck",
+        "Fix any TypeScript errors related to accountability tracker",
+        "All files compile without errors",
+        "Document any pre-existing errors that are unrelated"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Created results page with header, ethics banner, profile/scenarios/action items sections, sources footer"
-    },
-    {
-      "id": "US-009",
-      "title": "Create print layout page",
-      "description": "As a user, I want to export investigations to PDF via browser print.",
-      "acceptanceCriteria": [
-        "Create /app/accountability/[id]/print/page.tsx",
-        "Fetch investigation via /api/accountability/[id]",
-        "Print-optimized layout (no nav, no interactive elements)",
-        "Title page with heading, date, and large disclaimer",
-        "Page breaks between sections",
-        "Footer on each section: 'RESEARCH HYPOTHESIS ONLY'",
-        "Grayscale-friendly (no Sage/Ivory colors)",
-        "Typecheck passes"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "Created print layout with title page, disclaimer, profile tables, scenarios, action items, and sources. Auto-prints on load. Grayscale-friendly with page breaks."
-    },
-    {
-      "id": "US-010",
-      "title": "Create unit tests for ethics modal",
-      "description": "As a QA engineer, I need unit tests for the ethics modal component.",
-      "acceptanceCriteria": [
-        "Create test file: __tests__/unit/components/accountability/ethics-modal.test.tsx",
-        "Test modal opens with entity name displayed",
-        "Test checkbox enables Proceed button",
-        "Test Cancel button calls onCancel callback",
-        "Test Proceed button calls onConfirm callback when checkbox checked",
-        "Test Proceed button disabled when checkbox unchecked",
-        "All tests pass",
-        "Typecheck passes"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "Created test file with 12 tests covering: modal opening with entity name, checkbox enabling proceed button, cancel callback, proceed navigation, proceed disabled state"
-    },
-    {
-      "id": "US-011",
-      "title": "Create unit tests for SSE hook",
-      "description": "As a QA engineer, I need unit tests for the SSE generation hook.",
-      "acceptanceCriteria": [
-        "Create test file: __tests__/unit/hooks/useInvestigationGeneration.test.ts",
-        "Mock fetch/SSE responses",
-        "Test initial state values",
-        "Test state updates on agent_started event",
-        "Test state updates on agent_completed event",
-        "Test state updates on complete event",
-        "Test error handling on error event",
-        "All tests pass",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "Created with 28 tests covering initial state, startGeneration validation, SSE event handling (agent_started, agent_completed, stage_changed, complete, error), reset, cleanup, network errors, and abort handling"
-    },
-    {
-      "id": "US-012",
-      "title": "Create unit tests for results components",
-      "description": "As a QA engineer, I need unit tests for profile, scenarios, and action items components.",
-      "acceptanceCriteria": [
-        "Create test file: __tests__/unit/components/accountability/profile-section.test.tsx",
-        "Create test file: __tests__/unit/components/accountability/scenarios-section.test.tsx",
-        "Create test file: __tests__/unit/components/accountability/action-items-section.test.tsx",
-        "Test ProfileSection renders all data types",
-        "Test ScenariosSection renders scenarios with correct risk badges",
-        "Test ActionItemsSection groups by priority",
-        "Test empty states render correctly",
-        "All tests pass",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Created 3 test files: profile-section (17 tests), scenarios-section (22 tests), action-items-section (28 tests). Total 67 new tests covering all data types, empty states, risk badges, priority grouping, expandable cards, and accessibility."
+      "passes": false,
+      "notes": ""
     }
   ]
 }
