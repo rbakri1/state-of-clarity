@@ -204,37 +204,55 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <Link
-                href="/profile/saved"
-                className="flex items-center gap-4 p-4 rounded-xl bg-ivory-100 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-              >
-                <div className="w-11 h-11 rounded-xl bg-sage-100 flex items-center justify-center flex-shrink-0">
-                  <Bookmark className="w-5 h-5 text-sage-600" />
+          </div>
+        </div>
+
+        {/* Briefs Section */}
+        <div className="mt-6 bg-ivory-50 rounded-2xl shadow-sm p-5 sm:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="w-5 h-5 text-sage-600" />
+            <h2 className="text-lg font-heading font-semibold text-ink-800">Briefs</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Link
+              href="/profile/history"
+              className="flex items-center gap-4 p-4 rounded-xl bg-ivory-100 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            >
+              <div className="w-11 h-11 rounded-xl bg-sage-100 flex items-center justify-center flex-shrink-0">
+                <History className="w-5 h-5 text-sage-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="font-ui font-semibold text-ink-800">My Briefs</div>
+                  <span className="px-2 py-0.5 text-xs font-ui font-medium bg-sage-100 text-sage-700 rounded-full">
+                    {stats.briefsGenerated}
+                  </span>
                 </div>
-                <div>
+                <div className="text-sm text-ink-500 font-ui">
+                  Briefs you&apos;ve generated
+                </div>
+              </div>
+            </Link>
+            <Link
+              href="/profile/saved"
+              className="flex items-center gap-4 p-4 rounded-xl bg-ivory-100 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            >
+              <div className="w-11 h-11 rounded-xl bg-sage-100 flex items-center justify-center flex-shrink-0">
+                <Bookmark className="w-5 h-5 text-sage-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
                   <div className="font-ui font-semibold text-ink-800">Saved Briefs</div>
-                  <div className="text-sm text-ink-500 font-ui">
-                    View your bookmarked briefs
-                  </div>
+                  <span className="px-2 py-0.5 text-xs font-ui font-medium bg-sage-100 text-sage-700 rounded-full">
+                    {stats.briefsSaved}
+                  </span>
                 </div>
-              </Link>
-              <Link
-                href="/profile/history"
-                className="flex items-center gap-4 p-4 rounded-xl bg-ivory-100 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
-              >
-                <div className="w-11 h-11 rounded-xl bg-sage-100 flex items-center justify-center flex-shrink-0">
-                  <History className="w-5 h-5 text-sage-600" />
+                <div className="text-sm text-ink-500 font-ui">
+                  Your bookmarked briefs
                 </div>
-                <div>
-                  <div className="font-ui font-semibold text-ink-800">Reading History</div>
-                  <div className="text-sm text-ink-500 font-ui">
-                    See briefs you&apos;ve read
-                  </div>
-                </div>
-              </Link>
-            </div>
+              </div>
+            </Link>
           </div>
         </div>
 
