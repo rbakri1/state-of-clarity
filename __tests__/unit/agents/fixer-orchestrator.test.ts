@@ -5,52 +5,40 @@
  * based on dimension scores from consensus evaluation.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { FixerType, ConsensusResult, FixerResult } from '@/lib/types/refinement';
 
-// Mock all fixer classes
-const mockSuggestEdits = vi.fn();
+// Shared mock function that all fixers will use - vi.hoisted ensures it runs before mocks
+const { sharedMockSuggestEdits } = vi.hoisted(() => ({
+  sharedMockSuggestEdits: vi.fn(),
+}));
 
 vi.mock('@/lib/agents/fixers/first-principles-fixer', () => ({
-  FirstPrinciplesFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  FirstPrinciplesFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 vi.mock('@/lib/agents/fixers/consistency-fixer', () => ({
-  ConsistencyFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  ConsistencyFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 vi.mock('@/lib/agents/fixers/evidence-fixer', () => ({
-  EvidenceFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  EvidenceFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 vi.mock('@/lib/agents/fixers/accessibility-fixer', () => ({
-  AccessibilityFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  AccessibilityFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 vi.mock('@/lib/agents/fixers/objectivity-fixer', () => ({
-  ObjectivityFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  ObjectivityFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 vi.mock('@/lib/agents/fixers/factual-accuracy-fixer', () => ({
-  FactualAccuracyFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  FactualAccuracyFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 vi.mock('@/lib/agents/fixers/bias-fixer', () => ({
-  BiasFixer: vi.fn().mockImplementation(() => ({
-    suggestEdits: mockSuggestEdits,
-  })),
+  BiasFixer: class { suggestEdits = sharedMockSuggestEdits; },
 }));
 
 import { orchestrateFixes, OrchestratorInput } from '@/lib/agents/fixers/fixer-orchestrator';
@@ -96,7 +84,7 @@ describe('Fixer Orchestrator', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSuggestEdits.mockResolvedValue(createMockFixerResult(FixerType.accessibility));
+    sharedMockSuggestEdits.mockResolvedValue(createMockFixerResult(FixerType.accessibility));
   });
 
   describe('Fixer Deployment', () => {
@@ -111,7 +99,7 @@ describe('Fixer Orchestrator', () => {
       expect(result.fixersDeployed).toEqual([]);
       expect(result.fixerResults).toEqual([]);
       expect(result.allSuggestedEdits).toEqual([]);
-      expect(mockSuggestEdits).not.toHaveBeenCalled();
+      expect(sharedMockSuggestEdits).not.toHaveBeenCalled();
     });
 
     it('should deploy a fixer for a dimension scoring below 7.0', async () => {
@@ -125,11 +113,11 @@ describe('Fixer Orchestrator', () => {
       const result = await orchestrateFixes(input);
 
       expect(result.fixersDeployed).toContain(FixerType.accessibility);
-      expect(mockSuggestEdits).toHaveBeenCalledTimes(1);
+      expect(sharedMockSuggestEdits).toHaveBeenCalledTimes(1);
     });
 
     it('should deploy multiple fixers for multiple low-scoring dimensions', async () => {
-      mockSuggestEdits
+      sharedMockSuggestEdits
         .mockResolvedValueOnce(createMockFixerResult(FixerType.accessibility))
         .mockResolvedValueOnce(createMockFixerResult(FixerType.evidenceQuality))
         .mockResolvedValueOnce(createMockFixerResult(FixerType.biasDetection));
@@ -149,7 +137,7 @@ describe('Fixer Orchestrator', () => {
       expect(result.fixersDeployed).toContain(FixerType.accessibility);
       expect(result.fixersDeployed).toContain(FixerType.evidenceQuality);
       expect(result.fixersDeployed).toContain(FixerType.biasDetection);
-      expect(mockSuggestEdits).toHaveBeenCalledTimes(3);
+      expect(sharedMockSuggestEdits).toHaveBeenCalledTimes(3);
     });
 
     it('should deploy all fixers when all dimensions score below 7.0', async () => {
@@ -171,7 +159,7 @@ describe('Fixer Orchestrator', () => {
       const result = await orchestrateFixes(input);
 
       expect(result.fixersDeployed).toHaveLength(7);
-      expect(mockSuggestEdits).toHaveBeenCalledTimes(7);
+      expect(sharedMockSuggestEdits).toHaveBeenCalledTimes(7);
     });
   });
 
@@ -187,7 +175,7 @@ describe('Fixer Orchestrator', () => {
         processingTime: 150,
       };
 
-      mockSuggestEdits.mockResolvedValue(multiEditResult);
+      sharedMockSuggestEdits.mockResolvedValue(multiEditResult);
 
       const input: OrchestratorInput = {
         brief: 'A brief.',
@@ -202,7 +190,7 @@ describe('Fixer Orchestrator', () => {
     });
 
     it('should return empty edits when no fixers suggest any edits', async () => {
-      mockSuggestEdits.mockResolvedValue({
+      sharedMockSuggestEdits.mockResolvedValue({
         fixerType: FixerType.accessibility,
         suggestedEdits: [],
         confidence: 0.5,
@@ -251,7 +239,7 @@ describe('Fixer Orchestrator', () => {
 
       await orchestrateFixes(input);
 
-      expect(mockSuggestEdits).toHaveBeenCalledWith(
+      expect(sharedMockSuggestEdits).toHaveBeenCalledWith(
         expect.objectContaining({ sources })
       );
     });
@@ -268,7 +256,7 @@ describe('Fixer Orchestrator', () => {
 
       await orchestrateFixes(input);
 
-      expect(mockSuggestEdits).toHaveBeenCalledWith(
+      expect(sharedMockSuggestEdits).toHaveBeenCalledWith(
         expect.objectContaining({
           dimensionScore: 5.5,
         })
@@ -287,7 +275,7 @@ describe('Fixer Orchestrator', () => {
 
       await orchestrateFixes(input);
 
-      expect(mockSuggestEdits).toHaveBeenCalledWith(
+      expect(sharedMockSuggestEdits).toHaveBeenCalledWith(
         expect.objectContaining({
           brief: briefText,
         })
@@ -297,11 +285,8 @@ describe('Fixer Orchestrator', () => {
 
   describe('Parallel Execution', () => {
     it('should execute fixers in parallel', async () => {
-      let callOrder: FixerType[] = [];
-
-      mockSuggestEdits.mockImplementation(async (input) => {
+      sharedMockSuggestEdits.mockImplementation(async () => {
         await new Promise((resolve) => setTimeout(resolve, 10));
-        callOrder.push(FixerType.accessibility); // Mock tracking
         return createMockFixerResult(FixerType.accessibility);
       });
 

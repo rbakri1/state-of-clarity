@@ -183,3 +183,41 @@ Thread: https://ampcode.com/threads/T-019bbd9d-da6b-752c-814d-4a37c54e95b0
   - Use `vi.stubEnv()` for environment variables
   - Reset mocks in `beforeEach` with `vi.clearAllMocks()` and `mockFetch.mockReset()`
 ---
+
+## 2026-01-15 21:52 - US-012
+Thread: https://ampcode.com/threads/T-019bbda0-55c4-76f5-8272-fd4bb8eeb44f
+- Created `__tests__/unit/parsers/uk-data-parsers.test.ts` with 31 tests
+- Tests cover all 4 Tavily-based parsers:
+  - `fetchCharityCommissionData`: charity number parsing (regId + /charity/ URL patterns), deduplication, role extraction
+  - `fetchRegisterOfInterests`: interest category parsing (Employment, Donations, Land, Shareholdings), £ value extraction
+  - `fetchElectoralCommissionData`: £ amount extraction, donation types (Cash, Services, Sponsorship, Loan)
+  - `fetchGovernmentContracts`: contract value extraction (£, £m, £million, £bn), buyer extraction from known departments
+- All parsers tested for returning empty arrays on no results and API errors
+- All sources verified as `verificationStatus: "unverified"`
+- All 31 tests pass
+- No typecheck errors in this file (pre-existing errors in other test files unrelated)
+- **Learnings for future iterations:**
+  - Mock `safeAICall` via `vi.mock("@/lib/ai/safe-ai-call")` for Tavily-based parser tests
+  - Return `{ data, error, isAIServiceError }` structure from mocked `safeAICall`
+  - All Tavily parsers share same `TavilySearchResponse` structure with `results` array
+---
+
+## 2026-01-15 22:04 - US-013
+Thread: https://ampcode.com/threads/T-019bbdab-234b-747a-97ee-e5961e1657f1
+- Created `__tests__/unit/services/uk-public-data-service.test.ts` with 7 tests
+- Tests cover:
+  - `fetchUKPublicData` aggregation: verifies results from all 5 sources are combined correctly
+  - Graceful degradation: one source fails, others still return data
+  - Graceful degradation: all sources fail, returns empty arrays with proper error classification
+  - Cache logic: verifies withCache is called with correct keys and TTLs, cached data returned on second call
+  - Entity type filtering: organizations include Contracts Finder, individuals do not (skips call + logs)
+- All mocks use vi.mock() for data sources, cache wrapper, and Sentry
+- Error recovery classification verified: 500/timeout/network are recoverable, 404/401/403 are not
+- All 7 tests pass
+- No typecheck errors in this file (pre-existing errors in other test files unrelated)
+- **Learnings for future iterations:**
+  - Use `vi.mocked()` to get typed mock functions from mocked modules
+  - Mock `withCache` to execute fetcher directly: `(_key, fn, _ttl) => fn()`
+  - InvestigationSource has no `id` field - types in accountability.ts are source of truth
+  - Donation uses `donor`/`recipient`/`date`/`type` fields, not `donorName`/`recipientName`/etc.
+---
