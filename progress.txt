@@ -29,3 +29,15 @@ Thread: https://ampcode.com/threads/T-019bbe9b-d2bb-7279-a0c8-b571482bccab
   - accountability_investigations table not in Supabase types yet - use type cast
   - Check `result.error` before accessing count for tables that might not exist
 ---
+
+## 2026-01-15 04:10 +04 - US-003
+Thread: https://ampcode.com/threads/T-019bbea3-f57b-7529-b34b-0336cee4729f
+- What was implemented: Stats grid already had investigations correctly implemented
+- Files verified: app/profile/page.tsx
+  - 4-item stats grid: Briefs Generated, Briefs Saved, Investigations, Feedback Given
+  - Uses Scale icon for Investigations
+  - Correct grid layout: grid-cols-2 sm:grid-cols-4
+- **Learnings for future iterations:**
+  - Profile page stats grid is on lines 176-205
+  - Implementation was completed in US-002 thread
+---
