@@ -76,3 +76,20 @@ Thread: https://ampcode.com/threads/T-019bbe50-0bd0-77f6-96ca-5834ce3fe6be
   - Highlight innocent explanations prominently (green bg) to balance red flags
   - Follow CorruptionScenario type from lib/types/accountability.ts
 ---
+
+## 2026-01-15 - US-007
+Thread: https://ampcode.com/threads/T-019bbe51-e67b-724e-ab2f-53baa3ef5f03
+- Created action-items-section.tsx with priority-grouped action items
+- Implemented ActionItemCard with checkbox tracking (local state via useState)
+- Priority grouping: Priority 1 (High/Red), Priority 2 (Medium/Yellow), Priority 3 (Low/Gray)
+- Each item shows: action, rationale, data source, expected evidence, estimated time, legal considerations
+- Added progress counter showing "X of Y completed"
+- Ethics reminder banner about investigation roadmap
+- Empty state with "No action items identified" message
+- Files changed:
+  - components/accountability/action-items-section.tsx (new)
+- **Learnings for future iterations:**
+  - Use getPriorityStyles() pattern for consistent priority level coloring (matching getRiskBadgeStyles pattern)
+  - Local useState with Set is efficient for checkbox tracking without server persistence
+  - Use border-l-4 with color classes for visual priority indication
+---
