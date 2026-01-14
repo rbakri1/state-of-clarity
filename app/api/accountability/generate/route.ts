@@ -75,8 +75,8 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
     await deductCredits(
       user.id,
       1,
-      investigationId,
-      `Accountability investigation: ${targetEntity.trim()}`
+      null, // brief_id is null for accountability investigations
+      `Accountability investigation: ${targetEntity.trim()} (${investigationId})`
     );
     console.log("[Accountability] Credit deducted for investigation:", investigationId);
   } catch (error) {
@@ -125,7 +125,7 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
         let creditRefunded = false;
 
         if (qualityScore < 6.0) {
-          await refundCredits(user.id, 1, investigationId, "Quality gate failed");
+          await refundCredits(user.id, 1, null, `Quality gate failed for investigation ${investigationId}`);
           creditRefunded = true;
           console.log("Credit refunded - quality gate failed:", qualityScore);
         }
@@ -143,7 +143,7 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
         const errorMessage = error instanceof Error ? error.message : "Generation failed";
 
         try {
-          await refundCredits(user.id, 1, investigationId, "Generation failed");
+          await refundCredits(user.id, 1, null, `Generation failed for investigation ${investigationId}`);
         } catch (refundError) {
           console.error("Failed to refund credits:", refundError);
         }
