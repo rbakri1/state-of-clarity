@@ -60,3 +60,18 @@ Thread: https://ampcode.com/threads/T-019bbeaa-9837-778c-bcc8-f7bc389a56a0
   - Icon containers use: w-11 h-11 rounded-xl bg-sage-100
   - Count badges use: px-2 py-0.5 text-xs font-ui font-medium bg-sage-100 text-sage-700 rounded-full
 ---
+
+## 2026-01-15 07:05 +04 - US-005
+Thread: https://ampcode.com/threads/T-019bbead-994d-73fe-bffb-8a2599c2789e
+- What was implemented: Added Investigations section to profile quick links
+- Files changed: app/profile/page.tsx
+  - Added new Investigations section between Briefs and Account sections
+  - Section has Scale icon and "Investigations" heading
+  - Contains "My Investigations" link to /accountability with count badge
+  - Shows "Start your first investigation" when investigationsCount is 0
+  - Uses existing quick link card styling (rounded-xl, bg-ivory-100, hover:bg-ivory-200)
+- **Learnings for future iterations:**
+  - Profile sections follow consistent structure: bg-ivory-50 rounded-2xl shadow-sm p-5 sm:p-6
+  - Section headings use: flex items-center gap-2 mb-4 with icon (w-5 h-5) and h2
+  - Conditional secondary text pattern: ternary based on count for contextual messaging
+---
