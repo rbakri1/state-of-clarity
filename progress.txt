@@ -24,3 +24,14 @@ Thread: https://ampcode.com/threads/T-019bbe29-832a-714b-bdd0-e315043478ee
   - Always close the stream controller with `controller.close()` after sending complete/error event
   - US-006 through US-009 are tightly coupled - SSE streaming, quality gate refund, and error handling are all in the same endpoint
 ---
+
+## 2026-01-15 - US-010
+Thread: https://ampcode.com/threads/T-019bbe2c-a098-71af-a41b-b5c553e0e7aa
+- Created unit tests for list investigations endpoint
+- Tests: 401 for unauthenticated, returns investigations array, returns empty array, verifies correct user ID and limit passed
+- Files changed: __tests__/unit/api/accountability-list.test.ts
+- **Learnings for future iterations:**
+  - For API tests, mock `createServerSupabaseClient` and individual service functions separately
+  - Use `vi.fn()` for mock functions and `vi.mock()` for module mocking
+  - Pre-existing type errors exist in other test files but shouldn't block new test commits if tests pass
+---
