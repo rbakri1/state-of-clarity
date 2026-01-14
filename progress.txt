@@ -199,3 +199,20 @@ Thread: https://ampcode.com/threads/T-019bbd79-e86d-7252-b9c1-28e875ed41e3
   - Pattern: DataCompleteness uses `hasCompaniesHouse`, `hasRegisterOfInterests`, etc. (not shorthand names)
   - Pre-existing typecheck errors in other test files are not blocking for new tests
 ---
+
+## 2026-01-14 21:13 - US-015
+Thread: https://ampcode.com/threads/T-019bbd7c-cc77-7058-a459-182aa6c03632
+- Added unit tests for CRUD service functions to __tests__/unit/services/accountability-service.test.ts
+- Tests for createInvestigation: success case returns id, stores data correctly, error case throws descriptive error
+- Tests for getInvestigation: found case returns investigation, not found case returns null
+- Tests for updateInvestigationResults: partial update works, only updates provided fields
+- Tests for listUserInvestigations: returns ordered array (DESC), empty array when none found, filters by user_id
+- Tests for addInvestigationSource: returns id, stores source with investigation_id
+- Tests for getInvestigationSources: ordered by accessed_at DESC, empty array when none, filters by investigation_id
+- All 29 tests pass with npm run test
+- Files changed: __tests__/unit/services/accountability-service.test.ts
+- **Learnings for future iterations:**
+  - Pattern: Use `(mockSupabaseClient as any).from = ...` for type-safe mock overrides in tests
+  - Pattern: Follow existing supabase mock pattern from brief-service.test.ts
+  - Pattern: Use seedMockData() to pre-populate mock database, getMockData() to verify stored data
+---
