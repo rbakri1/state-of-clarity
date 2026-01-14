@@ -148,3 +148,30 @@ export async function updateInvestigationResults(
     throw err instanceof Error ? err : new Error(String(err));
   }
 }
+
+/**
+ * List all investigations for a given user.
+ *
+ * @param userId - The UUID of the user whose investigations to fetch
+ * @param limit - Maximum number of investigations to return (default: 50)
+ * @returns Array of investigations ordered by created_at DESC (newest first), empty array if none found
+ */
+export async function listUserInvestigations(
+  userId: string,
+  limit: number = 50
+): Promise<AccountabilityInvestigation[]> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await (supabase.from("accountability_investigations") as any)
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[AccountabilityService] Error listing user investigations:", error);
+    return [];
+  }
+
+  return (data || []) as AccountabilityInvestigation[];
+}
