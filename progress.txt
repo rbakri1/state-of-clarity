@@ -7,6 +7,9 @@ Started: Wed 14 Jan 2026 20:29:18 +04
 - Use `IF NOT EXISTS` for CREATE TABLE to ensure idempotency
 - Use `DROP TRIGGER IF EXISTS` before CREATE TRIGGER for idempotency
 - Use `CREATE INDEX IF NOT EXISTS` for idempotent index creation
+- Use `DROP POLICY IF EXISTS` before CREATE POLICY for idempotent RLS policies
+- RLS on child tables: use `EXISTS (SELECT 1 FROM parent WHERE parent.user_id = auth.uid())`
+- Service role access: `auth.jwt() ->> 'role' = 'service_role'`
 - Pre-existing typecheck errors in test files - not blocking for SQL migrations
 ---
 
@@ -45,4 +48,18 @@ Thread: https://ampcode.com/threads/T-019bbd5a-1ced-7258-9365-9716e6c1d26d
   - Pattern: Use `CREATE INDEX IF NOT EXISTS` for idempotency
   - Pattern: Use partial indexes (`WHERE column IS NOT NULL`) for nullable columns to save space
   - Pattern: Use DESC for timestamp columns commonly sorted newest-first
+---
+
+## 2026-01-14 17:15 - US-004
+Thread: https://ampcode.com/threads/T-019bbd5b-bd6d-71d0-ac04-102c77d9cfcb
+- Added Row Level Security policies to accountability tables
+- Enabled RLS on both accountability_investigations and accountability_investigation_sources
+- Users can SELECT/INSERT/UPDATE their own investigations (auth.uid() = user_id)
+- Service role has full access to both tables (auth.jwt() ->> 'role' = 'service_role')
+- Sources access controlled via subquery on parent investigation
+- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
+- **Learnings for future iterations:**
+  - Pattern: Use `DROP POLICY IF EXISTS` before CREATE POLICY for idempotency
+  - Pattern: Use subquery EXISTS for RLS on child tables (e.g., sources checking parent investigation ownership)
+  - Pattern: Service role access uses `auth.jwt() ->> 'role' = 'service_role'`
 ---
