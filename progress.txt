@@ -63,3 +63,16 @@ Thread: https://ampcode.com/threads/T-019bbd5b-bd6d-71d0-ac04-102c77d9cfcb
   - Pattern: Use subquery EXISTS for RLS on child tables (e.g., sources checking parent investigation ownership)
   - Pattern: Service role access uses `auth.jwt() ->> 'role' = 'service_role'`
 ---
+
+## 2026-01-14 20:30 - US-005
+Thread: https://ampcode.com/threads/T-019bbd5d-3f06-72eb-b72d-f2c3362fb22e
+- Created /lib/types/accountability.ts with core TypeScript types
+- Exported EntityType union type for individual/organization
+- Exported Position, CompanyRecord, InterestDeclaration, CharityRecord, Donation, Contract interfaces
+- All interfaces include required sourceUrl field for audit trail
+- Files changed: lib/types/accountability.ts
+- **Learnings for future iterations:**
+  - Pattern: Follow existing types file conventions (see lib/types/brief.ts for examples)
+  - Pattern: Use string for dates in interfaces (ISO format), number for monetary values
+  - Pattern: Include sourceUrl on all record types for traceability
+---
