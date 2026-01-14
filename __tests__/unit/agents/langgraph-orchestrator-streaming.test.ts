@@ -104,13 +104,15 @@ vi.mock('@langchain/langgraph', () => {
     }),
   };
 
+  // Create Annotation as a function that also has a Root method
+  const AnnotationFn = vi.fn().mockReturnValue({});
+  AnnotationFn.Root = vi.fn().mockImplementation((config) => ({
+    State: config,
+  }));
+
   return {
     StateGraph: vi.fn().mockImplementation(() => mockGraph),
-    Annotation: {
-      Root: vi.fn().mockImplementation((config) => ({
-        State: config,
-      })),
-    },
+    Annotation: AnnotationFn,
     END: 'END',
     START: 'START',
   };
