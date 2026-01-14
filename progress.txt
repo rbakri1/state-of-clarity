@@ -18,3 +18,32 @@ Thread: https://ampcode.com/threads/T-019bbdc2-051a-725c-b4ad-e2b2b36254ba
   - Existing test files have pre-existing type errors (unrelated to this work)
   - Follow the pattern in specialist-personas.ts for persona exports
 ---
+
+## 2026-01-14 - US-002
+Thread: https://ampcode.com/threads/T-019bbdc4-9153-750e-b5d4-d9453d3a6e07
+- Created LangGraph state annotation and types for accountability tracker pipeline
+- File created: lib/agents/accountability-tracker-orchestrator.ts
+- Defined AccountabilityState interface with all required fields
+- Created AccountabilityStateAnnotation using Annotation.Root from @langchain/langgraph
+- Added concatenation reducer for completedSteps array
+- Added replace reducers for object fields (profileData, corruptionScenarios, actionItems, etc.)
+- **Learnings for future iterations:**
+  - Follow the existing pattern in langgraph-orchestrator.ts for state annotations
+  - Use `reducer: (prev, next) => next ?? prev` for fields that should be replaced
+  - Use `reducer: (prev, next) => [...prev, ...next]` for arrays that accumulate
+---
+
+## 2026-01-14 - US-003
+Thread: https://ampcode.com/threads/T-019bbdc6-5ba8-7788-a930-7dbb9f38d2fe
+- Implemented entity classification agent for individual/organization classification
+- File created: lib/agents/entity-classification-agent.ts
+- Uses Claude Haiku (claude-haiku-4-5-20251001) for cost efficiency
+- Checks for organization suffixes (Ltd, Limited, PLC, etc.) before calling LLM
+- Parses JSON response with entityType, confidence, reasoning
+- Defaults to 'individual' if response is ambiguous or unparseable
+- Returns updated state with entityType and adds 'entity_classification' to completedSteps
+- **Learnings for future iterations:**
+  - Use claude-haiku-4-5-20251001 (not claude-3-haiku-20240307) per codebase convention
+  - Follow question-classifier.ts pattern for Anthropic API calls and JSON parsing
+  - Pre-existing test file type errors don't block implementation work
+---
