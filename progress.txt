@@ -85,3 +85,19 @@ Thread: https://ampcode.com/threads/T-019bbd93-a976-76bb-8a2f-a86d8cee5ec3
   - Donation type can be inferred from keywords: cash, services, sponsorship, loan
   - Donor/recipient direction can be inferred from context words like "donated to" or "received from"
 ---
+
+## 2026-01-14 21:45 - US-006
+Thread: https://ampcode.com/threads/T-019bbd95-59bf-77b5-93fe-1980ac2e6d53
+- Created `/lib/parsers/contracts-finder-parser.ts`
+- Implemented `fetchGovernmentContracts(entityName)` function
+- Uses Tavily search with query: `"[name]" site:contractsfinder.service.gov.uk`
+- Extracts contract values supporting £m, £bn, and standard amounts
+- Returns `{ records: Contract[]; sources: InvestigationSource[] }`
+- Maps to Contract type with: contractTitle, buyer, supplier, value, awardDate, sourceUrl
+- Sources have `verificationStatus: "unverified"` (web scraped data)
+- Typecheck passes (no errors specific to this file)
+- **Learnings for future iterations:**
+  - Contract type requires: contractTitle, buyer, supplier, value, awardDate, sourceUrl
+  - Value extraction should handle £m/million and £bn/billion suffixes
+  - Government department names can be matched from a curated list or extracted from "awarded by" patterns
+---
