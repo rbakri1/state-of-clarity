@@ -147,3 +147,50 @@ export interface ActionItem {
   legalConsiderations?: string[];
   relatedScenarios: string[];
 }
+
+export interface AccountabilityInvestigation {
+  id: string;
+  user_id: string;
+  target_entity: string;
+  entity_type: EntityType;
+  ethics_acknowledged_at: string;
+  profile_data: UKProfileData;
+  corruption_scenarios: CorruptionScenario[];
+  action_items: ActionItem[];
+  quality_score: number | null;
+  quality_notes: string[] | null;
+  generation_time_ms: number | null;
+  data_sources_count: number;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AccountabilityInvestigationSource {
+  id: string;
+  investigation_id: string;
+  source_type: SourceType;
+  url: string;
+  title: string | null;
+  accessed_at: string;
+  data_extracted: Record<string, unknown> | null;
+  verification_status: VerificationStatus;
+  created_at: string;
+}
+
+export interface CreateInvestigationInput {
+  target_entity: string;
+  user_id: string;
+  entity_type: EntityType;
+  ethics_acknowledged_at: Date;
+}
+
+export interface UpdateInvestigationInput {
+  profile_data?: UKProfileData;
+  corruption_scenarios?: CorruptionScenario[];
+  action_items?: ActionItem[];
+  quality_score?: number;
+  quality_notes?: string[];
+  generation_time_ms?: number;
+  data_sources_count?: number;
+}
