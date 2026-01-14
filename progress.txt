@@ -120,3 +120,28 @@ Thread: https://ampcode.com/threads/T-019bbd61-eeea-71ba-aef3-38b451dd9285
   - Pattern: Use `(supabase.from("table") as any)` to avoid strict typing issues
   - Pattern: Convert Date to ISO string with .toISOString() for DB insert
 ---
+
+## 2026-01-14 22:30 - US-009
+Thread: https://ampcode.com/threads/T-019bbd63-5dc6-706f-97f8-ec9b5ac835b5
+- Added getInvestigation function to /lib/services/accountability-service.ts
+- Function accepts investigationId and returns AccountabilityInvestigation | null
+- Returns null if not found (using PGRST116 error code check)
+- Includes JSDoc comment with @param and @returns
+- Files changed: lib/services/accountability-service.ts
+- **Learnings for future iterations:**
+  - Pattern: Supabase returns error code "PGRST116" when .single() finds no rows
+  - Pattern: Return null for "not found" cases instead of throwing errors
+---
+
+## 2026-01-14 23:00 - US-010
+Thread: https://ampcode.com/threads/T-019bbd64-ce69-7469-b4d2-efae884b63d8
+- Added updateInvestigationResults function to /lib/services/accountability-service.ts
+- Function accepts investigationId and UpdateInvestigationInput partial object
+- Updates only provided fields (profile_data, corruption_scenarios, action_items, quality_score, quality_notes, generation_time_ms, data_sources_count)
+- Includes error handling with try-catch and descriptive error messages
+- Includes JSDoc comment with @param documentation
+- Files changed: lib/services/accountability-service.ts
+- **Learnings for future iterations:**
+  - Pattern: Use `Record<string, unknown>` for building dynamic update objects
+  - Pattern: Check `!== undefined` (not just truthy) to allow setting fields to 0 or empty arrays
+---
