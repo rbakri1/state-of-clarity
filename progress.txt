@@ -95,3 +95,18 @@ Thread: https://ampcode.com/threads/T-019bbdd0-430b-754c-8f2a-9976c84d8857
   - Use generateDefaultActionItems() for graceful fallback when LLM data is sparse
   - Filter out invalid action items rather than failing completely
 ---
+
+## 2026-01-14 - US-007
+Thread: https://ampcode.com/threads/T-019bbdd5-9919-75d5-8a84-a4ad3a6d56a0
+- Implemented quality check agent as final pipeline step
+- File created: lib/agents/quality-check-agent.ts
+- Calls getInvestigationSources() to count data sources used
+- Calls calculateQualityScore() with profile data, scenarios, and source count
+- Persists all results via updateInvestigationResults()
+- Logs quality gate pass/fail status with score to console
+- Returns qualityScore, qualityNotes, and adds 'quality_check' to completedSteps
+- **Learnings for future iterations:**
+  - Quality score calculation uses data_sources_count from investigation sources table
+  - Quality gate threshold is 6.0 (scores >= 6.0 pass)
+  - Pre-existing test file type errors don't block implementation work
+---

@@ -5,7 +5,12 @@
  * Pipeline: Entity Classification → UK Profile Research → Corruption Analysis → Action List Generation → Quality Check
  */
 
-import { Annotation } from "@langchain/langgraph";
+import { StateGraph, Annotation, END, START } from "@langchain/langgraph";
+import { entityClassificationNode } from "./entity-classification-agent";
+import { ukProfileResearchNode } from "./uk-profile-research-agent";
+import { corruptionAnalysisNode } from "./corruption-analysis-agent";
+import { actionListGenerationNode } from "./action-list-agent";
+import { qualityCheckNode } from "./quality-check-agent";
 import type {
   EntityType,
   UKProfileData,
@@ -70,3 +75,27 @@ export const AccountabilityStateAnnotation = Annotation.Root({
     default: () => [],
   }),
 });
+
+/**
+ * Create the Accountability Tracker LangGraph
+ *
+ * Pipeline: START → entity_classification → uk_profile_research → corruption_analysis → action_list_generation → quality_check → END
+ */
+export function createAccountabilityGraph() {
+  const graph = new StateGraph(AccountabilityStateAnnotation)
+    .addNode("entity_classification", entityClassificationNode)
+    .addNode("uk_profile_research", ukProfileResearchNode)
+    .addNode("corruption_analysis", corruptionAnalysisNode)
+    .addNode("action_list_generation", actionListGenerationNode)
+    .addNode("quality_check", qualityCheckNode)
+    .addEdge(START, "entity_classification")
+    .addEdge("entity_classification", "uk_profile_research")
+    .addEdge("uk_profile_research", "corruption_analysis")
+    .addEdge("corruption_analysis", "action_list_generation")
+    .addEdge("action_list_generation", "quality_check")
+    .addEdge("quality_check", END);
+
+  return graph.compile();
+}
+
+export const accountabilityGraph = createAccountabilityGraph();
