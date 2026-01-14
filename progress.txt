@@ -138,3 +138,20 @@ Thread: https://ampcode.com/threads/T-019bbd99-7de8-763f-a0e0-6724533522db
   - Normalize cache keys by lowercasing, trimming, and replacing spaces with underscores
   - Cache wrapper goes inside `safeDataSourceCall` fetcher function
 ---
+
+## 2026-01-14 23:05 - US-009
+Thread: https://ampcode.com/threads/T-019bbd9b-68d8-701c-bea0-e9a3332e6e40
+- Added Sentry error logging to UK public data service
+- Imported `@sentry/nextjs` in uk-public-data-service.ts
+- Updated `safeDataSourceCall` to log errors with:
+  - Tags: component 'uk-public-data', source name, normalized entity name
+  - Extra: entityType, errorType (transient/permanent), entityName, recoverable
+- Added `getErrorType()` helper function to classify transient vs permanent errors
+- Transient errors (timeout, 500, 502, 503, network issues) marked `recoverable: true`
+- Permanent errors (404, 401, 403) marked `recoverable: false`
+- Typecheck passes (pre-existing test errors not related to this change)
+- **Learnings for future iterations:**
+  - Use `@sentry/nextjs` for Sentry imports (consistent with other files)
+  - Tags are indexed for filtering, Extra is for additional context
+  - Pass entity context through wrapper functions for proper error tagging
+---
