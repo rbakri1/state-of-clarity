@@ -165,3 +165,21 @@ Thread: https://ampcode.com/threads/T-019bbd9b-68d8-701c-bea0-e9a3332e6e40
   - Logs "Skipping Contracts Finder for individual entity"
 - No changes needed
 ---
+
+## 2026-01-15 01:48 - US-011
+Thread: https://ampcode.com/threads/T-019bbd9d-da6b-752c-814d-4a37c54e95b0
+- Created `__tests__/unit/services/companies-house-api.test.ts` with 14 tests
+- Tests cover:
+  - `getCompaniesHouseAuthHeader()` - Basic Auth encoding
+  - `searchOfficers()` - parsed results, 404 handling, empty items
+  - `getOfficerAppointments()` - appointments fetch, 404 handling, error throws
+  - `fetchCompaniesHouseProfile()` - CompanyRecord mapping, sources with verified status
+  - Retry logic - triggers on 500, does NOT trigger on 404
+  - Graceful degradation when one officer's appointments fail
+- All 14 tests pass
+- No typecheck errors in this file (pre-existing errors in other test files unrelated)
+- **Learnings for future iterations:**
+  - Mock `global.fetch` with `vi.fn()` for API tests
+  - Use `vi.stubEnv()` for environment variables
+  - Reset mocks in `beforeEach` with `vi.clearAllMocks()` and `mockFetch.mockReset()`
+---
