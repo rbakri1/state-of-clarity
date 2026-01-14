@@ -51,23 +51,41 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
     );
   }
 
-  console.log("Generating investigation for:", targetEntity);
+  console.log("[Accountability] Starting generation for:", targetEntity, "user:", user.id);
 
-  const { id: investigationId } = await createInvestigation(
-    targetEntity.trim(),
-    user.id,
-    "individual",
-    new Date()
-  );
+  let investigationId: string;
+  try {
+    const result = await createInvestigation(
+      targetEntity.trim(),
+      user.id,
+      "individual",
+      new Date()
+    );
+    investigationId = result.id;
+    console.log("[Accountability] Created investigation:", investigationId);
+  } catch (error) {
+    console.error("[Accountability] Failed to create investigation:", error);
+    return NextResponse.json(
+      { error: `Failed to create investigation: ${error instanceof Error ? error.message : "Unknown error"}` },
+      { status: 500 }
+    );
+  }
 
-  await deductCredits(
-    user.id,
-    1,
-    investigationId,
-    `Accountability investigation: ${targetEntity.trim()}`
-  );
-
-  console.log("Credit deducted for investigation:", investigationId);
+  try {
+    await deductCredits(
+      user.id,
+      1,
+      investigationId,
+      `Accountability investigation: ${targetEntity.trim()}`
+    );
+    console.log("[Accountability] Credit deducted for investigation:", investigationId);
+  } catch (error) {
+    console.error("[Accountability] Failed to deduct credits:", error);
+    return NextResponse.json(
+      { error: `Failed to deduct credits: ${error instanceof Error ? error.message : "Unknown error"}` },
+      { status: 500 }
+    );
+  }
 
   const stream = new ReadableStream({
     async start(controller) {
