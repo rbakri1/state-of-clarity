@@ -240,3 +240,22 @@ Thread: https://ampcode.com/threads/T-019bbdf7-dce6-743b-b559-f813dbb159e7
   - Create createMockScenarios() helper for test scenario data
   - Pre-existing test file type errors in other files don't block new test creation
 ---
+
+## 2026-01-14 - US-015
+Thread: https://ampcode.com/threads/T-019bbdfb-0fa1-73f8-a594-258c9e53d7c9
+- Created unit tests for LangGraph orchestrator
+- File created: __tests__/unit/agents/accountability-tracker-orchestrator.test.ts
+- Mocks all 5 agent node functions using vi.mock()
+- Tests graph compiles without errors (createAccountabilityGraph returns defined graph with invoke method)
+- Tests generateAccountabilityReport returns all expected fields (profileData, corruptionScenarios, actionItems, qualityScore, qualityNotes)
+- Tests callbacks are emitted in correct order (entity_classification → uk_profile_research → corruption_analysis → action_list_generation → quality_check)
+- Tests error propagation from each agent to onError callback
+- Tests completedSteps accumulates through the pipeline
+- Tests work correctly without callbacks or with partial callbacks
+- All 21 tests pass
+- **Learnings for future iterations:**
+  - Use vi.mock() at top of test file to mock entire agent modules
+  - Access mocked functions via import and cast with `as Mock` for type safety
+  - Create setupMockAgents() helper with options for throwError/throwInAgent to test error propagation
+  - Mock agents should emit callbacks to test callback ordering
+---
