@@ -14,6 +14,7 @@ import {
   History,
   Settings,
   Download,
+  Scale,
 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -172,27 +173,34 @@ export default function ProfilePage() {
             </div>
 
             {/* Stats Grid */}
-            <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <div className="text-center p-3 sm:p-5 rounded-xl bg-ivory-100">
                 <div className="flex items-center justify-center mb-2">
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-sage-500" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{stats.briefsGenerated}</div>
-                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Briefs generated</div>
+                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Briefs Generated</div>
               </div>
               <div className="text-center p-3 sm:p-5 rounded-xl bg-ivory-100">
                 <div className="flex items-center justify-center mb-2">
                   <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-sage-500" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{stats.briefsSaved}</div>
-                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Briefs saved</div>
+                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Briefs Saved</div>
+              </div>
+              <div className="text-center p-3 sm:p-5 rounded-xl bg-ivory-100">
+                <div className="flex items-center justify-center mb-2">
+                  <Scale className="w-4 h-4 sm:w-5 sm:h-5 text-sage-500" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{stats.investigationsCount}</div>
+                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Investigations</div>
               </div>
               <div className="text-center p-3 sm:p-5 rounded-xl bg-ivory-100">
                 <div className="flex items-center justify-center mb-2">
                   <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-sage-500" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-heading font-bold text-ink-800">{stats.feedbackCount}</div>
-                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Feedback given</div>
+                <div className="text-xs sm:text-sm text-ink-500 font-ui mt-1">Feedback Given</div>
               </div>
             </div>
 
