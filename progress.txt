@@ -68,3 +68,20 @@ Thread: https://ampcode.com/threads/T-019bbd91-fe11-75ad-8463-f3eb956e2bf3
   - Extract dates from content with regex, fallback to current date
   - Deduplicate results using `Set<string>` on URLs
 ---
+
+## 2026-01-14 21:40 - US-005
+Thread: https://ampcode.com/threads/T-019bbd93-a976-76bb-8a2f-a86d8cee5ec3
+- Created `/lib/parsers/electoral-commission-parser.ts`
+- Implemented `fetchElectoralCommissionData(entityName)` function
+- Uses Tavily search with query: `"[name]" donations site:search.electoralcommission.org.uk`
+- Extracts £ amounts using regex `/£([\d,]+(?:\.\d{2})?)/g`
+- Returns `{ records: Donation[]; sources: InvestigationSource[] }`
+- Parses donation types (Cash, Services, Sponsorship, Loan)
+- Extracts donor/recipient context from content
+- Sources have `verificationStatus: "unverified"` (web scraped data)
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Extract multiple amounts per result (loop through regex matches)
+  - Donation type can be inferred from keywords: cash, services, sponsorship, loan
+  - Donor/recipient direction can be inferred from context words like "donated to" or "received from"
+---
