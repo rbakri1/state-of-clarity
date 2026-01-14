@@ -1,277 +1,276 @@
 {
   "project": "State of Clarity",
-  "branchName": "ralph/explore-page",
-  "description": "Explore Page - Article discovery with search, filtering by tags/score/date, sorting, and pagination. Adds 'Explore' to navbar and 'See All' button to homepage.",
+  "branchName": "ralph/accountability-tracker-foundation",
+  "description": "Accountability Tracker Foundation - Database schema, TypeScript types, and CRUD service layer for the investigative journalism corruption investigation feature. Part of a 6-PRD epic (see tasks/prd-accountability-tracker-overview.md for full context).",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Add view_count column to briefs table",
-      "description": "As a developer, I need to track brief views for 'Most Read' sorting.",
+      "title": "Create accountability_investigations table",
+      "description": "As a developer, I need a database table to store investigation data so that user investigations can be persisted.",
       "acceptanceCriteria": [
-        "Add view_count integer column to briefs table (default 0)",
-        "Create Supabase migration file",
-        "Migration runs successfully",
+        "Create migration file: /lib/supabase/migrations/013_add_accountability_tracker_tables.sql",
+        "Table has columns: id (UUID PK), user_id (UUID FK to auth.users), target_entity (TEXT NOT NULL), entity_type (TEXT CHECK individual/organization)",
+        "Table has columns: ethics_acknowledged_at (TIMESTAMPTZ NOT NULL), profile_data (JSONB DEFAULT '{}'), corruption_scenarios (JSONB DEFAULT '[]'), action_items (JSONB DEFAULT '[]')",
+        "Table has columns: quality_score (NUMERIC 0-10), quality_notes (TEXT[]), generation_time_ms (INTEGER), data_sources_count (INTEGER DEFAULT 0)",
+        "Table has columns: is_public (BOOLEAN DEFAULT false), created_at (TIMESTAMPTZ), updated_at (TIMESTAMPTZ)",
+        "Add updated_at trigger function that sets updated_at = NOW() on UPDATE",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Migration: lib/supabase/migrations/011_add_view_count_column.sql"
+      "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Add is_public column to briefs table",
-      "description": "As a developer, I need to track brief visibility for privacy.",
+      "title": "Create accountability_investigation_sources table",
+      "description": "As a developer, I need a sources table to track all data sources used in investigations for audit trail and transparency.",
       "acceptanceCriteria": [
-        "Add is_public boolean column to briefs table (default true)",
-        "Create Supabase migration file",
-        "Migration runs successfully",
+        "Add to migration file: /lib/supabase/migrations/013_add_accountability_tracker_tables.sql",
+        "Table has columns: id (UUID PK), investigation_id (UUID FK with CASCADE delete)",
+        "Table has columns: source_type (TEXT CHECK: companies_house, charity_commission, register_of_interests, electoral_commission, contracts_finder, web_search, gov_uk, other)",
+        "Table has columns: url (TEXT NOT NULL), title (TEXT), accessed_at (TIMESTAMPTZ DEFAULT NOW())",
+        "Table has columns: data_extracted (JSONB), verification_status (TEXT DEFAULT 'unverified' CHECK: verified/unverified/disputed)",
+        "Table has column: created_at (TIMESTAMPTZ DEFAULT NOW())",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Migration: lib/supabase/migrations/012_add_is_public_column.sql"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Increment view_count when brief is viewed",
-      "description": "As a developer, I need to track views when users visit brief pages.",
+      "title": "Add indexes to accountability tables",
+      "description": "As a developer, I need database indexes for query performance on common access patterns.",
       "acceptanceCriteria": [
-        "Increment view_count in brief page server component or API",
-        "Only increment once per session/user (use cookie or localStorage)",
-        "Handle errors gracefully (don't break page load)",
+        "Add to migration file: CREATE INDEX idx_investigations_user_id ON accountability_investigations(user_id)",
+        "Add index: idx_investigations_created_at ON accountability_investigations(created_at DESC)",
+        "Add index: idx_investigations_target ON accountability_investigations(target_entity)",
+        "Add index: idx_investigations_quality_score (partial index WHERE quality_score IS NOT NULL)",
+        "Add index: idx_investigation_sources_investigation_id ON sources table",
+        "Add index: idx_investigation_sources_source_type ON sources table",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "API: /api/briefs/[id]/view - uses httpOnly cookie (24hr) to track session views"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Create GET /api/briefs endpoint",
-      "description": "As a developer, I need an API to fetch briefs with filtering and pagination.",
+      "title": "Add RLS policies to accountability tables",
+      "description": "As a system administrator, I need Row Level Security policies so that users can only access their own investigations.",
       "acceptanceCriteria": [
-        "Create /api/briefs/route.ts with GET handler",
-        "Query params: q (search), tags (comma-separated), minScore (number), sort (newest|oldest|score|views), date (week|month|year|all), limit (default 12), offset (default 0)",
-        "Search uses ilike on question column",
-        "Filter by tags uses array contains or overlap",
-        "Only return briefs where is_public = true",
-        "Return JSON: { briefs: Brief[], total: number, hasMore: boolean }",
+        "Enable RLS on accountability_investigations table",
+        "Enable RLS on accountability_investigation_sources table",
+        "Policy: Users can SELECT own investigations (auth.uid() = user_id)",
+        "Policy: Users can INSERT investigations (auth.uid() = user_id)",
+        "Policy: Users can UPDATE own investigations (auth.uid() = user_id)",
+        "Policy: Service role has full access to investigations",
+        "Policy: Users can SELECT sources for own investigations (via subquery on parent)",
+        "Policy: Service role has full access to sources",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "API: /api/briefs/route.ts with zod validation in lib/validation/brief-schemas.ts"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Create Explore page route and layout",
-      "description": "As a user, I want to access an Explore page to browse all briefs.",
+      "title": "Create core TypeScript types for Accountability Tracker",
+      "description": "As a developer, I need TypeScript types for type safety across the Accountability Tracker codebase.",
       "acceptanceCriteria": [
-        "Create /app/explore/page.tsx",
-        "Page has hero section: 'Explore Briefs' title, subtitle explaining discovery",
-        "Uses design system (ivory/ink/sage colors, font-heading/font-body)",
-        "Consistent header/footer with rest of site",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create file: /lib/types/accountability.ts",
+        "Export EntityType = 'individual' | 'organization'",
+        "Export Position interface with: title, organization, startDate, endDate?, description?, sourceUrl",
+        "Export CompanyRecord interface with: companyNumber, companyName, role, appointedOn?, resignedOn?, companyStatus, sourceUrl",
+        "Export InterestDeclaration interface with: category, description, value?, dateRegistered, sourceUrl",
+        "Export CharityRecord interface with: charityNumber, charityName, role, startDate?, endDate?, charityIncome?, sourceUrl",
+        "Export Donation interface with: donor?, recipient?, amount, date, type, sourceUrl",
+        "Export Contract interface with: contractTitle, buyer, supplier, value, awardDate, sourceUrl",
+        "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Created app/explore/page.tsx with hero section using Compass icon badge, proper design system colors and typography"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-006",
-      "title": "Create BriefCard component for Explore grid",
-      "description": "As a user, I want to see briefs as cards with key info.",
+      "title": "Create UKProfileData and scenario types",
+      "description": "As a developer, I need types for profile data, corruption scenarios, and action items for structured AI outputs.",
       "acceptanceCriteria": [
-        "Create /components/explore/brief-card.tsx",
-        "Card shows: question (title), clarity score badge, tags (max 3), read time, excerpt (truncated to 2 lines)",
-        "Card links to /brief/[id]",
-        "Hover state with elevation/border change",
-        "Uses design system colors and typography",
+        "Add to /lib/types/accountability.ts",
+        "Export ConflictOfInterest interface with: description, positionA, positionB, conflictType (financial/regulatory/oversight/personal)",
+        "Export HistoricalCase interface with: name, year, description, outcome, sourceUrl?",
+        "Export InvestigationSource interface with: sourceType, url, title, accessedAt, verificationStatus",
+        "Export SourceType union: companies_house | charity_commission | register_of_interests | electoral_commission | contracts_finder | web_search | gov_uk | other",
+        "Export UKProfileData interface with: fullName, aliases[], dateOfBirth?, currentPositions[], pastPositions[], companiesHouseEntities[], registerOfInterests[], charityInvolvements[], politicalDonations[], governmentContracts[], sources[], dataCompleteness object",
+        "Export CorruptionScenario interface with: scenarioId, title, description, mechanism, incentiveStructure, enablingPositions[], potentialConflicts[], redFlags[], innocentExplanations[], riskLevel, detectionDifficulty, historicalPrecedents[]",
+        "Export ActionItem interface with: actionId, priority (1|2|3), action, rationale, dataSource, expectedEvidence, estimatedTime?, legalConsiderations?[], relatedScenarios[]",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Component: components/explore/brief-card.tsx - uses Brief type, supports onTagClick callback for filter integration"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Display briefs grid on Explore page",
-      "description": "As a user, I want to see briefs in a responsive grid layout.",
+      "title": "Create database row types",
+      "description": "As a developer, I need TypeScript types that match the database schema for Supabase queries.",
       "acceptanceCriteria": [
-        "Fetch briefs from /api/briefs on page load",
-        "Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop",
-        "Show loading skeleton while fetching",
-        "Show empty state if no briefs",
-        "Display total count: 'Showing X of Y briefs'",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Add to /lib/types/accountability.ts",
+        "Export AccountabilityInvestigation interface matching DB schema: id, user_id, target_entity, entity_type, ethics_acknowledged_at, profile_data, corruption_scenarios, action_items, quality_score, quality_notes, generation_time_ms, data_sources_count, is_public, created_at, updated_at",
+        "Export AccountabilityInvestigationSource interface: id, investigation_id, source_type, url, title, accessed_at, data_extracted, verification_status, created_at",
+        "Export CreateInvestigationInput type for service function input",
+        "Export UpdateInvestigationInput type for partial updates",
+        "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Component: components/explore/briefs-grid.tsx - includes skeleton loaders, empty state, error handling, and 'Showing X of Y briefs' count"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-008",
-      "title": "Add search input to Explore page",
-      "description": "As a user, I want to search briefs by keyword.",
+      "title": "Create accountability service - createInvestigation",
+      "description": "As a developer, I need a function to create new investigations in the database.",
       "acceptanceCriteria": [
-        "Search input at top of page with Search icon",
-        "Debounced input (300ms) triggers API call with q param",
-        "Search term persisted in URL: ?q=searchterm",
-        "Clear button to reset search",
-        "Empty state when no results match",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create file: /lib/services/accountability-service.ts",
+        "Export async function createInvestigation(targetEntity: string, userId: string, entityType: EntityType, ethicsAcknowledgedAt: Date): Promise<{ id: string }>",
+        "Use Supabase service client for database access",
+        "Insert new row with provided data and defaults",
+        "Return the new investigation ID",
+        "Handle errors with try-catch and throw descriptive errors",
+        "Add JSDoc comment with @param and @returns",
+        "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Components: search-input.tsx (debounced), explore-content.tsx (URL params). Uses Suspense boundary for useSearchParams."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-009",
-      "title": "Add tag filter to Explore page",
-      "description": "As a user, I want to filter briefs by tags.",
+      "title": "Create accountability service - getInvestigation",
+      "description": "As a developer, I need a function to fetch investigation by ID.",
       "acceptanceCriteria": [
-        "Tag filter section shows all available tags",
-        "Tags displayed as clickable pills with count",
-        "Multi-select: clicking adds/removes tag from filter",
-        "Active tags highlighted with sage-500 bg",
-        "Tags persisted in URL: ?tags=Climate,Healthcare",
-        "Clicking tag on brief card adds it to filter",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Add to /lib/services/accountability-service.ts",
+        "Export async function getInvestigation(investigationId: string): Promise<AccountabilityInvestigation | null>",
+        "Fetch investigation by ID from database",
+        "Return null if not found (don't throw)",
+        "Return typed AccountabilityInvestigation object",
+        "Add JSDoc comment with @param and @returns",
+        "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
-      "notes": "Component: components/explore/tag-filter.tsx - pills with counts, multi-select, URL sync via ?tags param. Tags extracted from all briefs and sorted by count."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-010",
-      "title": "Add clarity score filter to Explore page",
-      "description": "As a user, I want to filter by minimum clarity score.",
+      "title": "Create accountability service - updateInvestigationResults",
+      "description": "As a developer, I need a function to update investigation results after AI generation completes.",
       "acceptanceCriteria": [
-        "Score filter dropdown: All, 7+, 8+, 9+",
-        "Default: All",
-        "Filter updates results in real-time",
-        "Persisted in URL: ?minScore=8",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Add to /lib/services/accountability-service.ts",
+        "Export async function updateInvestigationResults(investigationId: string, data: UpdateInvestigationInput): Promise<void>",
+        "Accept partial update object with optional fields: profileData, corruptionScenarios, actionItems, qualityScore, qualityNotes, generationTimeMs, dataSourcesCount",
+        "Update only provided fields in database",
+        "Handle errors with descriptive messages",
+        "Add JSDoc comment",
+        "Typecheck passes"
       ],
       "priority": 10,
-      "passes": true,
-      "notes": "Component: components/explore/score-filter.tsx - dropdown with All/7+/8+/9+ options, URL sync via ?minScore param"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-011",
-      "title": "Add sort dropdown to Explore page",
-      "description": "As a user, I want to sort briefs by different criteria.",
+      "title": "Create accountability service - listUserInvestigations",
+      "description": "As a developer, I need a function to list all investigations for a user.",
       "acceptanceCriteria": [
-        "Sort dropdown: Newest, Oldest, Highest Score, Most Read",
-        "Default: Newest",
-        "Sort updates results in real-time",
-        "Persisted in URL: ?sort=score",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Add to /lib/services/accountability-service.ts",
+        "Export async function listUserInvestigations(userId: string, limit?: number): Promise<AccountabilityInvestigation[]>",
+        "Fetch investigations where user_id matches",
+        "Order by created_at DESC (newest first)",
+        "Apply limit (default 50)",
+        "Return empty array if none found",
+        "Add JSDoc comment",
+        "Typecheck passes"
       ],
       "priority": 11,
-      "passes": true,
-      "notes": "Component: components/explore/sort-filter.tsx - dropdown with Newest/Oldest/Highest Score/Most Read options. URL sync via ?sort param (newest is default, not persisted in URL)."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-012",
-      "title": "Add date range filter to Explore page",
-      "description": "As a user, I want to filter by when briefs were created.",
+      "title": "Create accountability service - source management functions",
+      "description": "As a developer, I need functions to add and retrieve investigation sources.",
       "acceptanceCriteria": [
-        "Date filter: All Time, Past Week, Past Month, Past Year",
-        "Default: All Time",
-        "Filter updates results in real-time",
-        "Persisted in URL: ?date=month",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Add to /lib/services/accountability-service.ts",
+        "Export async function addInvestigationSource(investigationId: string, source: Omit<AccountabilityInvestigationSource, 'id' | 'investigation_id' | 'created_at'>): Promise<{ id: string }>",
+        "Export async function getInvestigationSources(investigationId: string): Promise<AccountabilityInvestigationSource[]>",
+        "addInvestigationSource inserts new source record",
+        "getInvestigationSources fetches all sources for investigation, ordered by accessed_at DESC",
+        "Add JSDoc comments to both functions",
+        "Typecheck passes"
       ],
       "priority": 12,
-      "passes": true,
-      "notes": "Component: components/explore/date-filter.tsx - dropdown with All Time/Past Week/Past Month/Past Year options. URL sync via ?date param (all is default, not persisted in URL)."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-013",
-      "title": "Add Load More pagination to Explore page",
-      "description": "As a user, I want to load more briefs without page refresh.",
+      "title": "Create calculateQualityScore function",
+      "description": "As a developer, I need a function to calculate investigation quality scores for the quality gate.",
       "acceptanceCriteria": [
-        "Initial load shows 12 briefs",
-        "'Load More' button appears if hasMore is true",
-        "Clicking loads next 12 briefs and appends to grid",
-        "Loading state on button while fetching",
-        "Button hidden when no more briefs",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Add to /lib/services/accountability-service.ts",
+        "Export function calculateQualityScore(investigation: { profile_data: UKProfileData; corruption_scenarios: CorruptionScenario[]; data_sources_count: number }): { score: number; notes: string[] }",
+        "Score calculation: sources (0-3 = 0pts, 4-6 = 2.5pts, 7+ = 5pts) + scenarios (<3 = 0pts, 3-5 = 2.5pts, 6+ = 5pts)",
+        "Total score range: 0-10",
+        "Add quality notes explaining scoring breakdown",
+        "Add note 'QUALITY GATE FAILED' if score < 6.0",
+        "Round score to 1 decimal place",
+        "Add JSDoc comment with scoring rubric",
+        "Typecheck passes"
       ],
       "priority": 13,
-      "passes": true,
-      "notes": "Component: explore-content.tsx - handleLoadMore with offset pagination, animated loading spinner, appends to briefs array"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-014",
-      "title": "Add Explore link to main navigation",
-      "description": "As a user, I want to access Explore from the navbar.",
+      "title": "Create unit tests for calculateQualityScore",
+      "description": "As a QA engineer, I need tests to verify the quality score calculation is accurate.",
       "acceptanceCriteria": [
-        "Add 'Explore' link to header nav (after Home or Ask)",
-        "Active state when on /explore route",
-        "Works in mobile menu as well",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Create test file: __tests__/unit/services/accountability-service.test.ts",
+        "Test: 0 sources, 0 scenarios returns score 0",
+        "Test: 5 sources, 4 scenarios returns score 5.0",
+        "Test: 10 sources, 7 scenarios returns score 10.0",
+        "Test: score < 6.0 includes 'QUALITY GATE FAILED' note",
+        "Test: score >= 6.0 includes 'Quality gate passed' note",
+        "Test: edge cases with null/undefined inputs handled gracefully",
+        "All tests pass with npm run test",
+        "Typecheck passes"
       ],
       "priority": 14,
-      "passes": true,
-      "notes": "Already implemented in components/layout/header.tsx - navLinks array includes Explore after Ask Anything"
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-015",
-      "title": "Add See All button to homepage showcase section",
-      "description": "As a user, I want to see more briefs from the homepage.",
+      "title": "Create unit tests for CRUD service functions",
+      "description": "As a QA engineer, I need tests to verify all service functions work correctly with mocked database.",
       "acceptanceCriteria": [
-        "Add 'See All Briefs →' button below showcase grid on homepage",
-        "Button links to /explore",
-        "Styled as secondary CTA (sage-100 bg, sage-600 text, hover:sage-200)",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": "Already implemented in app/page.tsx lines 614-628 with correct styling and /explore link"
-    },
-    {
-      "id": "US-016",
-      "title": "Fetch available tags for filter sidebar",
-      "description": "As a developer, I need to get all unique tags with counts.",
-      "acceptanceCriteria": [
-        "Create /api/briefs/tags endpoint or include in /api/briefs response",
-        "Return array of { tag: string, count: number }",
-        "Only count tags from public briefs",
-        "Sort by count descending",
+        "Add to __tests__/unit/services/accountability-service.test.ts",
+        "Mock Supabase client for all tests",
+        "Test createInvestigation success case returns id",
+        "Test createInvestigation error case throws descriptive error",
+        "Test getInvestigation found case returns investigation",
+        "Test getInvestigation not found case returns null",
+        "Test updateInvestigationResults with partial update",
+        "Test listUserInvestigations returns ordered array",
+        "All tests pass with npm run test",
         "Typecheck passes"
       ],
-      "priority": 16,
-      "passes": true,
-      "notes": "API: /api/briefs/tags returns { tags: TagWithCount[] }. Explore page updated to use this endpoint instead of fetching all briefs."
-    },
-    {
-      "id": "US-017",
-      "title": "Mobile-friendly filter UI",
-      "description": "As a mobile user, I want filters to be accessible on small screens.",
-      "acceptanceCriteria": [
-        "Filters collapse into a 'Filters' button on mobile",
-        "Clicking opens a slide-up drawer or modal",
-        "All filters accessible in drawer",
-        "Apply/Clear buttons in drawer",
-        "Active filter count shown on button badge",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": "Component: components/explore/mobile-filter-drawer.tsx - slide-up drawer with all filters, Clear All/Apply Filters buttons, active count badge on Filters button"
+      "priority": 15,
+      "passes": false,
+      "notes": ""
     }
   ]
 }
