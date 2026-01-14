@@ -6,6 +6,8 @@ Started: Wed 14 Jan 2026 20:29:18 +04
 - Migrations go in `/lib/supabase/migrations/` with sequential numbering (001, 002, etc.)
 - Use `IF NOT EXISTS` for CREATE TABLE to ensure idempotency
 - Use `DROP TRIGGER IF EXISTS` before CREATE TRIGGER for idempotency
+- Use `CREATE INDEX IF NOT EXISTS` for idempotent index creation
+- Pre-existing typecheck errors in test files - not blocking for SQL migrations
 ---
 
 ## 2026-01-14 16:30 - US-001
@@ -31,4 +33,16 @@ Thread: https://ampcode.com/threads/T-019bbd58-ab5b-74b9-a746-970d47d81810
 - Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
 - **Learnings for future iterations:**
   - Pattern: Use foreign key with `ON DELETE CASCADE` for child tables referencing parent tables
+---
+
+## 2026-01-14 17:00 - US-003
+Thread: https://ampcode.com/threads/T-019bbd5a-1ced-7258-9365-9716e6c1d26d
+- Added 6 indexes to accountability tables in migration 013
+- accountability_investigations: user_id, created_at DESC, target_entity, quality_score (partial WHERE NOT NULL)
+- accountability_investigation_sources: investigation_id, source_type
+- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
+- **Learnings for future iterations:**
+  - Pattern: Use `CREATE INDEX IF NOT EXISTS` for idempotency
+  - Pattern: Use partial indexes (`WHERE column IS NOT NULL`) for nullable columns to save space
+  - Pattern: Use DESC for timestamp columns commonly sorted newest-first
 ---
