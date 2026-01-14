@@ -50,3 +50,25 @@ CREATE TRIGGER trigger_update_accountability_investigations_updated_at
     BEFORE UPDATE ON public.accountability_investigations
     FOR EACH ROW
     EXECUTE FUNCTION public.update_accountability_investigations_updated_at();
+
+-- ============================================
+-- Table: accountability_investigation_sources
+-- Tracks data sources used in investigations
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS public.accountability_investigation_sources (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    investigation_id UUID NOT NULL REFERENCES public.accountability_investigations(id) ON DELETE CASCADE,
+    source_type TEXT NOT NULL CHECK (source_type IN ('companies_house', 'charity_commission', 'register_of_interests', 'electoral_commission', 'contracts_finder', 'web_search', 'gov_uk', 'other')),
+    url TEXT NOT NULL,
+    title TEXT,
+    accessed_at TIMESTAMPTZ DEFAULT NOW(),
+    data_extracted JSONB,
+    verification_status TEXT DEFAULT 'unverified' CHECK (verification_status IN ('verified', 'unverified', 'disputed')),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Comments for documentation
+COMMENT ON TABLE public.accountability_investigation_sources IS 'Tracks all data sources used in investigations for audit trail and transparency';
+COMMENT ON COLUMN public.accountability_investigation_sources.source_type IS 'Type of data source: companies_house, charity_commission, etc.';
+COMMENT ON COLUMN public.accountability_investigation_sources.verification_status IS 'Status: verified, unverified, or disputed';
