@@ -149,3 +149,23 @@ Thread: https://ampcode.com/threads/T-019bbe59-cadb-760c-9418-19c715a47606
   - Use vi.clearAllMocks() in beforeEach to reset mock state between tests
   - Radix Dialog components render in the DOM when open=true, no special mocking needed
 ---
+
+## 2026-01-15 - US-011
+Thread: https://ampcode.com/threads/T-019bbe5b-722a-71bb-b4f8-e1b77540d9cf
+- Created unit tests for useInvestigationGeneration SSE hook
+- 28 tests covering all acceptance criteria:
+  - Initial state: status, progress, agentStatuses, investigationId, error, functions
+  - startGeneration: validation (empty entity, ethics not acknowledged), POST request, non-ok responses, no body
+  - SSE event handling: agent_started, agent_completed, stage_changed, complete, quality_failed, error events
+  - Progress calculation: correctly updates based on completed agents, caps at 95%
+  - Reset: returns to initial state, aborts ongoing request
+  - Cleanup: aborts on unmount, ignores AbortError
+  - Network errors: handles fetch failures and unknown error types
+  - Abort: previous request is aborted when starting new generation
+- Files changed:
+  - __tests__/unit/hooks/useInvestigationGeneration.test.ts (new)
+- **Learnings for future iterations:**
+  - Use createMockSSEStream helper for SSE event testing
+  - Mock fetch with mockImplementation returning Promise(() => {}) for pending requests
+  - Type AbortSignal properly with `as AbortSignal | null` cast to fix TypeScript errors
+---
