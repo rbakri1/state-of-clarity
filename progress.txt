@@ -35,3 +35,13 @@ Thread: https://ampcode.com/threads/T-019bbe2c-a098-71af-a41b-b5c553e0e7aa
   - Use `vi.fn()` for mock functions and `vi.mock()` for module mocking
   - Pre-existing type errors exist in other test files but shouldn't block new test commits if tests pass
 ---
+
+## 2026-01-15 - US-011
+Thread: https://ampcode.com/threads/T-019bbe2e-0e3b-749f-acf4-a820b91eafca
+- Created unit tests for fetch investigation endpoint
+- Tests: 401 for unauthenticated, 404 when not found, 403 when user doesn't own, returns investigation with sources for owner, includes sources array, empty sources array
+- Files changed: __tests__/unit/api/accountability-fetch.test.ts
+- **Learnings for future iterations:**
+  - For dynamic route endpoints like `[id]`, pass params as `Promise.resolve({ id: "value" })` in tests to match Next.js 15 async params
+  - Import the GET handler from the route file directly and call it with NextRequest and params object
+---
