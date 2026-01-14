@@ -47,3 +47,18 @@ Thread: https://ampcode.com/threads/T-019bbdc6-5ba8-7788-a930-7dbb9f38d2fe
   - Follow question-classifier.ts pattern for Anthropic API calls and JSON parsing
   - Pre-existing test file type errors don't block implementation work
 ---
+
+## 2026-01-14 - US-004
+Thread: https://ampcode.com/threads/T-019bbdc8-3716-723c-9c15-3476d124107e
+- Implemented UK profile research agent for fetching and synthesizing UK public data
+- File created: lib/agents/uk-profile-research-agent.ts
+- Calls fetchUKPublicData() to fetch from 5 UK public data sources in parallel
+- Uses Claude Sonnet (claude-sonnet-4-20250514) for profile synthesis (not Opus as it's not available)
+- Adds each source to investigation via addInvestigationSource()
+- Creates sparse profile when no data is available (graceful degradation)
+- Returns profileData and adds 'uk_profile_research' to completedSteps
+- **Learnings for future iterations:**
+  - Use claude-sonnet-4-20250514 instead of claude-3-opus-20240229 (per codebase convention)
+  - Follow entity-classification-agent.ts pattern for JSON extraction and error handling
+  - Pre-existing test file type errors don't block implementation work
+---
