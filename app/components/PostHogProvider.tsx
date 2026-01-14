@@ -1,53 +1,47 @@
 "use client";
 
 import posthog from "posthog-js";
-import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
+import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, Suspense, useState } from "react";
+import { useEffect, Suspense, useRef } from "react";
+
+const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+// Initialize PostHog once at module load (client-side only)
+if (typeof window !== "undefined" && POSTHOG_KEY && !posthog.__loaded) {
+  posthog.init(POSTHOG_KEY, {
+    api_host: POSTHOG_HOST || "https://us.i.posthog.com",
+    person_profiles: "identified_only",
+    capture_pageview: false,
+    capture_pageleave: true,
+    debug: process.env.NODE_ENV === "development",
+  });
+}
 
 function PostHogPageview() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const posthogClient = usePostHog();
+  const lastPathRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (pathname && posthogClient) {
-      let url = window.origin + pathname;
-      if (searchParams?.toString()) {
-        url = url + "?" + searchParams.toString();
-      }
-      posthogClient.capture("$pageview", { $current_url: url });
+    if (!POSTHOG_KEY || !pathname) return;
+
+    const currentPath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
+
+    // Only capture if path actually changed (or first load)
+    if (lastPathRef.current !== currentPath) {
+      const url = window.origin + currentPath;
+      posthog.capture("$pageview", { $current_url: url });
+      lastPathRef.current = currentPath;
     }
-  }, [pathname, searchParams, posthogClient]);
+  }, [pathname, searchParams]);
 
   return null;
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-    const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
-
-    if (key && typeof window !== "undefined") {
-      posthog.init(key, {
-        api_host: host || "https://us.i.posthog.com",
-        person_profiles: "identified_only",
-        capture_pageview: false,
-        capture_pageleave: true,
-        loaded: (posthog) => {
-          if (process.env.NODE_ENV === "development") {
-            console.log("PostHog initialized successfully");
-          }
-        },
-      });
-      setIsInitialized(true);
-    }
-  }, []);
-
-  // Always render children, but only wrap with provider if initialized
-  if (!isInitialized) {
+  if (!POSTHOG_KEY) {
     return <>{children}</>;
   }
 
