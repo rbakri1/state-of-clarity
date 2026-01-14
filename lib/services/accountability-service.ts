@@ -175,3 +175,66 @@ export async function listUserInvestigations(
 
   return (data || []) as AccountabilityInvestigation[];
 }
+
+/**
+ * Add a source record to an investigation.
+ *
+ * @param investigationId - The UUID of the investigation to add the source to
+ * @param source - The source data to add (excludes id, investigation_id, created_at which are auto-generated)
+ * @returns The ID of the newly created source record
+ */
+export async function addInvestigationSource(
+  investigationId: string,
+  source: Omit<AccountabilityInvestigationSource, "id" | "investigation_id" | "created_at">
+): Promise<{ id: string }> {
+  const supabase = getSupabaseClient();
+
+  try {
+    const { data, error } = await (supabase.from("accountability_investigation_sources") as any)
+      .insert({
+        investigation_id: investigationId,
+        source_type: source.source_type,
+        url: source.url,
+        title: source.title,
+        accessed_at: source.accessed_at,
+        data_extracted: source.data_extracted,
+        verification_status: source.verification_status,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to add investigation source: ${error.message}`);
+    }
+
+    console.log(`[AccountabilityService] Added source to investigation ${investigationId}`);
+    return { id: data.id };
+  } catch (err) {
+    console.error("[AccountabilityService] Error adding investigation source:", err);
+    throw err instanceof Error ? err : new Error(String(err));
+  }
+}
+
+/**
+ * Get all sources for an investigation.
+ *
+ * @param investigationId - The UUID of the investigation to get sources for
+ * @returns Array of sources ordered by accessed_at DESC (most recent first)
+ */
+export async function getInvestigationSources(
+  investigationId: string
+): Promise<AccountabilityInvestigationSource[]> {
+  const supabase = getSupabaseClient();
+
+  const { data, error } = await (supabase.from("accountability_investigation_sources") as any)
+    .select("*")
+    .eq("investigation_id", investigationId)
+    .order("accessed_at", { ascending: false });
+
+  if (error) {
+    console.error("[AccountabilityService] Error fetching investigation sources:", error);
+    return [];
+  }
+
+  return (data || []) as AccountabilityInvestigationSource[];
+}
