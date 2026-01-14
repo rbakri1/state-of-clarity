@@ -11,6 +11,7 @@ import type { AccountabilityState } from "./accountability-tracker-orchestrator"
 import type { UKProfileData, InvestigationSource, SourceType } from "../types/accountability";
 import { fetchUKPublicData } from "../services/uk-public-data-service";
 import { addInvestigationSource } from "../services/accountability-service";
+import { parseJsonWithRetry, createStricterPrompt } from "./json-parse-retry";
 
 /**
  * Map source type strings from uk-public-data-service to SourceType
@@ -114,45 +115,32 @@ export async function ukProfileResearchNode(
 
   const rawDataJson = JSON.stringify(ukDataResult.profileData, null, 2);
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: `${UK_PROFILE_RESEARCH_PROMPT}
+  const basePrompt = `${UK_PROFILE_RESEARCH_PROMPT}
 
 Entity Name: "${state.targetEntity}"
 Entity Type: ${entityType}
 
 Raw Public Data:
-${rawDataJson}`,
-      },
-    ],
-  });
-
-  const responseText =
-    message.content[0].type === "text" ? message.content[0].text : "";
-
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    console.warn(
-      `[UK Profile Research] Could not extract JSON, returning sparse profile`
-    );
-    const durationMs = Date.now() - startTime;
-    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
-    return {
-      profileData: createSparseProfile(state.targetEntity),
-      completedSteps: ["uk_profile_research"],
-    };
-  }
+${rawDataJson}`;
 
   let profileData: UKProfileData;
   try {
-    profileData = JSON.parse(jsonMatch[0]) as UKProfileData;
+    profileData = await parseJsonWithRetry<UKProfileData>(
+      async (isRetry) => {
+        const prompt = createStricterPrompt(basePrompt, isRetry);
+        const message = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 4096,
+          messages: [{ role: "user", content: prompt }],
+        });
+        return message.content[0].type === "text" ? message.content[0].text : "";
+      },
+      (text) => text.match(/\{[\s\S]*\}/)?.[0] ?? null,
+      { maxRetries: 1, agentName: "UK Profile Research" }
+    );
   } catch {
     console.warn(
-      `[UK Profile Research] JSON parse failed, returning sparse profile`
+      `[UK Profile Research] JSON parse failed after retries, returning sparse profile`
     );
     const durationMs = Date.now() - startTime;
     state.callbacks?.onAgentCompleted?.(agentName, durationMs);

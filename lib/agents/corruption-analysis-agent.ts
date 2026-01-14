@@ -9,6 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { CORRUPTION_ANALYSIS_PROMPT } from "./accountability-personas";
 import type { AccountabilityState } from "./accountability-tracker-orchestrator";
 import type { CorruptionScenario, EntityType } from "../types/accountability";
+import { parseJsonWithRetry, createStricterPrompt } from "./json-parse-retry";
 
 /**
  * Generate generic scenarios when profile data is sparse or empty.
@@ -344,47 +345,32 @@ export async function corruptionAnalysisNode(
 
   const profileDataJson = JSON.stringify(profileData, null, 2);
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 8192,
-    messages: [
-      {
-        role: "user",
-        content: `${CORRUPTION_ANALYSIS_PROMPT}
+  const basePrompt = `${CORRUPTION_ANALYSIS_PROMPT}
 
 Entity Name: "${state.targetEntity}"
 Entity Type: ${entityType}
 
 Profile Data:
-${profileDataJson}`,
-      },
-    ],
-  });
-
-  const responseText =
-    message.content[0].type === "text" ? message.content[0].text : "";
-
-  // Extract JSON array from response
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    console.warn(
-      `[Corruption Analysis] Could not extract JSON array, generating generic scenarios`
-    );
-    const genericScenarios = generateGenericScenarios(entityType);
-    const durationMs = Date.now() - startTime;
-    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
-    return {
-      corruptionScenarios: genericScenarios,
-      completedSteps: ["corruption_analysis"],
-    };
-  }
+${profileDataJson}`;
 
   let scenarios: CorruptionScenario[];
   try {
-    scenarios = JSON.parse(jsonMatch[0]) as CorruptionScenario[];
+    scenarios = await parseJsonWithRetry<CorruptionScenario[]>(
+      async (isRetry) => {
+        const prompt = createStricterPrompt(basePrompt, isRetry);
+        const message = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 8192,
+          messages: [{ role: "user", content: prompt }],
+        });
+        return message.content[0].type === "text" ? message.content[0].text : "";
+      },
+      (text) => text.match(/\[[\s\S]*\]/)?.[0] ?? null,
+      { maxRetries: 1, agentName: "Corruption Analysis" }
+    );
   } catch {
     console.warn(
-      `[Corruption Analysis] JSON parse failed, generating generic scenarios`
+      `[Corruption Analysis] JSON parse failed after retries, generating generic scenarios`
     );
     const genericScenarios = generateGenericScenarios(entityType);
     const durationMs = Date.now() - startTime;

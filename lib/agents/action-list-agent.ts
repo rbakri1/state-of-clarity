@@ -9,6 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { ACTION_LIST_GENERATION_PROMPT } from "./accountability-personas";
 import type { AccountabilityState } from "./accountability-tracker-orchestrator";
 import type { ActionItem, ActionPriority, CorruptionScenario } from "../types/accountability";
+import { parseJsonWithRetry, createStricterPrompt } from "./json-parse-retry";
 
 const BANNED_WORDS = ["hack", "bribe", "stalk", "harass", "threaten"];
 
@@ -241,13 +242,7 @@ export async function actionListGenerationNode(
   const profileDataJson = JSON.stringify(profileData, null, 2);
   const scenariosJson = JSON.stringify(corruptionScenarios, null, 2);
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 8192,
-    messages: [
-      {
-        role: "user",
-        content: `${ACTION_LIST_GENERATION_PROMPT}
+  const basePrompt = `${ACTION_LIST_GENERATION_PROMPT}
 
 Entity Name: "${state.targetEntity}"
 
@@ -255,34 +250,26 @@ Profile Data:
 ${profileDataJson}
 
 Corruption Scenarios:
-${scenariosJson}`,
-      },
-    ],
-  });
-
-  const responseText =
-    message.content[0].type === "text" ? message.content[0].text : "";
-
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    console.warn(
-      `[Action List] Could not extract JSON array, generating default action items`
-    );
-    const defaultItems = generateDefaultActionItems(scenarioIds);
-    const durationMs = Date.now() - startTime;
-    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
-    return {
-      actionItems: defaultItems,
-      completedSteps: ["action_list_generation"],
-    };
-  }
+${scenariosJson}`;
 
   let actionItems: ActionItem[];
   try {
-    actionItems = JSON.parse(jsonMatch[0]) as ActionItem[];
+    actionItems = await parseJsonWithRetry<ActionItem[]>(
+      async (isRetry) => {
+        const prompt = createStricterPrompt(basePrompt, isRetry);
+        const message = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 8192,
+          messages: [{ role: "user", content: prompt }],
+        });
+        return message.content[0].type === "text" ? message.content[0].text : "";
+      },
+      (text) => text.match(/\[[\s\S]*\]/)?.[0] ?? null,
+      { maxRetries: 1, agentName: "Action List" }
+    );
   } catch {
     console.warn(
-      `[Action List] JSON parse failed, generating default action items`
+      `[Action List] JSON parse failed after retries, generating default action items`
     );
     const defaultItems = generateDefaultActionItems(scenarioIds);
     const durationMs = Date.now() - startTime;
