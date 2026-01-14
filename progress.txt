@@ -101,3 +101,21 @@ Thread: https://ampcode.com/threads/T-019bbd95-59bf-77b5-93fe-1980ac2e6d53
   - Value extraction should handle £m/million and £bn/billion suffixes
   - Government department names can be matched from a curated list or extracted from "awarded by" patterns
 ---
+
+## 2026-01-14 21:50 - US-007
+Thread: https://ampcode.com/threads/T-019bbd97-50e4-773b-9b8b-63301a942449
+- Created `/lib/services/uk-public-data-service.ts`
+- Implemented `fetchUKPublicData(targetEntity, entityType)` orchestrator
+- Defined types: `UKPublicDataResult`, `DataSourceError`, `PartialUKProfileData`
+- Calls all 5 data sources in parallel using `Promise.all` with safe wrappers
+- Each source wrapped in try-catch via `safeDataSourceCall` for graceful degradation
+- Aggregates results from all sources into single `profileData` object
+- Collects all sources and errors arrays
+- Implements `isRecoverableError` to classify transient vs permanent errors
+- Skips Contracts Finder for individuals (logs skip reason)
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Use wrapper function pattern for graceful degradation instead of dynamic fetcher arrays (avoids TypeScript union type issues)
+  - `Promise.all` with explicit typed promises is cleaner than `Promise.allSettled` with generic handlers
+  - Pre-existing test errors in `__tests__/` don't block commits
+---
