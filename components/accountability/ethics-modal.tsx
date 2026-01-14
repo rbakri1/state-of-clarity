@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AlertTriangle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,14 +17,26 @@ export default function EthicsModal({
   onOpenChange,
   targetEntity,
 }: EthicsModalProps) {
+  const router = useRouter();
+  const [acknowledged, setAcknowledged] = useState(false);
+
   const handleProceed = () => {
-    // TODO: Implement investigation start with SSE streaming
-    console.log("Starting investigation for:", targetEntity);
+    if (!acknowledged) return;
+    const encodedEntity = encodeURIComponent(targetEntity.trim());
+    router.push(`/accountability/generate?entity=${encodedEntity}`);
     onOpenChange(false);
+    setAcknowledged(false);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setAcknowledged(false);
+    }
+    onOpenChange(open);
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-50 animate-in fade-in duration-200" />
         <Dialog.Content
@@ -63,40 +77,59 @@ export default function EthicsModal({
 
           <div className="space-y-4 mb-6 text-left">
             <p className="font-body text-ink-700 text-sm">
-              By proceeding, you acknowledge that:
+              Please read and understand these ethical principles:
             </p>
             <ul className="space-y-2 text-sm font-body text-ink-600">
               <li className="flex gap-2">
                 <span className="text-sage-600">•</span>
-                This tool is for legitimate investigative journalism purposes
+                Innocent until proven guilty
               </li>
               <li className="flex gap-2">
                 <span className="text-sage-600">•</span>
-                All individuals are presumed innocent until proven guilty
+                Correlation does not equal causation
               </li>
               <li className="flex gap-2">
                 <span className="text-sage-600">•</span>
-                You will verify findings through official sources
+                This tool maps theoretical possibilities, NOT confirmed wrongdoing
               </li>
               <li className="flex gap-2">
                 <span className="text-sage-600">•</span>
-                You will use findings responsibly and ethically
+                All findings must be verified through traditional investigative methods
+              </li>
+              <li className="flex gap-2">
+                <span className="text-sage-600">•</span>
+                Use responsibly and ethically for legitimate journalism only
               </li>
             </ul>
           </div>
 
+          <label className="flex items-start gap-3 mb-6 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={acknowledged}
+              onChange={(e) => setAcknowledged(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-ivory-600 text-sage-500 focus:ring-sage-500"
+            />
+            <span className="text-sm font-body text-ink-700">
+              I understand these principles and will use this tool ethically for legitimate investigative journalism purposes.
+            </span>
+          </label>
+
           <div className="flex flex-col gap-3">
             <button
               onClick={handleProceed}
+              disabled={!acknowledged}
               className={cn(
                 "w-full py-3 px-6 rounded-lg",
-                "bg-sage-500 text-ivory-100 font-ui font-semibold text-base",
-                "hover:bg-sage-600 active:bg-sage-700",
+                "font-ui font-semibold text-base",
                 "transition-all duration-200",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                acknowledged
+                  ? "bg-sage-500 text-ivory-100 hover:bg-sage-600 active:bg-sage-700"
+                  : "bg-ivory-300 text-ink-400 cursor-not-allowed"
               )}
             >
-              I Understand - Proceed (£9.99)
+              Proceed with Investigation
             </button>
             <button
               onClick={() => onOpenChange(false)}

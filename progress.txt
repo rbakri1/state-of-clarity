@@ -1,73 +1,12 @@
 # Ralph Progress Log
-Started: Thu 15 Jan 2026 00:21:42 +04
+Started: Thu 15 Jan 2026 00:35:00 +04
 
 ## Codebase Patterns
-- Use `withAuth` from `@/lib/auth/middleware` for authenticated API routes
-- Use `withRateLimit` from `@/lib/auth/middleware` for rate-limited endpoints
-- SSE helpers are in `lib/api/sse-helpers.ts` - use `createSSEResponse` and `sendSSE`
-- Credit service functions: `hasCredits`, `deductCredits`, `refundCredits` from `lib/services/credit-service.ts`
-- Accountability service functions: `createInvestigation`, `getInvestigation`, `listUserInvestigations`, `getInvestigationSources` from `lib/services/accountability-service.ts`
-- Accountability report generation: `generateAccountabilityReport` from `lib/agents/accountability-tracker-orchestrator.ts` with callbacks for SSE streaming
+- Use Radix UI components from `@radix-ui/react-*` for modals/dialogs
+- Use Lucide React icons from `lucide-react`
+- Tailwind CSS with State of Clarity theme (Sage primary, Ivory backgrounds, Ink text)
+- Next.js 14 App Router with `use client` for client components
+- SSE via fetch with ReadableStream parsing (not EventSource for POST requests)
+- Types from `@/lib/types/accountability`
 
----
-
-## 2026-01-15 - US-006, US-007, US-008, US-009
-Thread: https://ampcode.com/threads/T-019bbe29-832a-714b-bdd0-e315043478ee
-- Implemented full SSE streaming in generation endpoint
-- Added credit check and deduction before generation starts
-- SSE events: agent_started, agent_completed, stage_changed, complete, error
-- Quality gate refund: if qualityScore < 6.0, credit is refunded
-- Error handling: try-catch with refund on failure, SSE error event
-- Files changed: app/api/accountability/generate/route.ts
-- **Learnings for future iterations:**
-  - The `generateAccountabilityReport` function accepts callbacks for onAgentStarted, onAgentCompleted, onStageChanged
-  - Always close the stream controller with `controller.close()` after sending complete/error event
-  - US-006 through US-009 are tightly coupled - SSE streaming, quality gate refund, and error handling are all in the same endpoint
----
-
-## 2026-01-15 - US-010
-Thread: https://ampcode.com/threads/T-019bbe2c-a098-71af-a41b-b5c553e0e7aa
-- Created unit tests for list investigations endpoint
-- Tests: 401 for unauthenticated, returns investigations array, returns empty array, verifies correct user ID and limit passed
-- Files changed: __tests__/unit/api/accountability-list.test.ts
-- **Learnings for future iterations:**
-  - For API tests, mock `createServerSupabaseClient` and individual service functions separately
-  - Use `vi.fn()` for mock functions and `vi.mock()` for module mocking
-  - Pre-existing type errors exist in other test files but shouldn't block new test commits if tests pass
----
-
-## 2026-01-15 - US-011
-Thread: https://ampcode.com/threads/T-019bbe2e-0e3b-749f-acf4-a820b91eafca
-- Created unit tests for fetch investigation endpoint
-- Tests: 401 for unauthenticated, 404 when not found, 403 when user doesn't own, returns investigation with sources for owner, includes sources array, empty sources array
-- Files changed: __tests__/unit/api/accountability-fetch.test.ts
-- **Learnings for future iterations:**
-  - For dynamic route endpoints like `[id]`, pass params as `Promise.resolve({ id: "value" })` in tests to match Next.js 15 async params
-  - Import the GET handler from the route file directly and call it with NextRequest and params object
----
-
-## 2026-01-15 - US-012
-Thread: https://ampcode.com/threads/T-019bbe2e-0e3b-749f-acf4-a820b91eafca
-- Created unit tests for generation endpoint
-- Tests cover: 401 unauthenticated, 400 ethicsAcknowledged validation, 402 insufficient credits, credit deduction, quality score refund, error refund, SSE event formatting
-- Helper function `readSSEStream` to parse and collect SSE events during tests
-- Mock withAuth and withRateLimit middleware for consistent test behavior
-- Files changed: __tests__/unit/api/accountability-generate.test.ts
-- **Learnings for future iterations:**
-  - SSE streaming tests require reading the entire stream with a ReadableStream reader
-  - Use a helper function like `readSSEStream` to parse SSE events (event: and data: lines)
-  - Mock `withRateLimit` to bypass rate limiting in tests (just return the handler)
-  - For testing callbacks in SSE generation, mock the `generateAccountabilityReport` to call the callbacks inline
-  - All 9 tests pass, covering comprehensive scenarios for generation endpoint including error handling
----
-
-## 2026-01-15 - US-013
-Thread: https://ampcode.com/threads/T-019bbe2e-86e6-7214-838c-cd69f26d6d99
-- Created unit tests for export redirect endpoint
-- Tests: 401 unauthenticated, 404 when not found, 403 when user doesn't own, redirects to print page, 302 status, correct ID passed to service
-- Files changed: __tests__/unit/api/accountability-export.test.ts
-- **Learnings for future iterations:**
-  - Export endpoint tests follow same pattern as fetch endpoint tests
-  - For redirect testing, check `response.headers.get("Location")` contains the expected URL
-  - All 6 tests pass
 ---
