@@ -36,3 +36,18 @@ Thread: https://ampcode.com/threads/T-019bbd8f-6ea9-749c-9e2e-c8902203291f
 - Creates sources with `sourceType: "companies_house"` and `verificationStatus: "verified"`
 - Typecheck passes
 ---
+
+## 2026-01-14 21:35 - US-003
+Thread: https://ampcode.com/threads/T-019bbd8f-6ea9-749c-9e2e-c8902203291f
+- Created `/lib/parsers/charity-commission-parser.ts`
+- Implemented `fetchCharityCommissionData(entityName)` function
+- Uses Tavily search with query: `"[name]" trustee site:register-of-charities.charitycommission.gov.uk`
+- Parses charity numbers from URLs using regId and /charity/ patterns
+- Returns `{ records: CharityRecord[]; sources: InvestigationSource[] }`
+- Sources have `verificationStatus: "unverified"` (web scraped data)
+- Typecheck passes
+- **Learnings for future iterations:**
+  - Created `/lib/parsers/` directory for Tavily-based parsers
+  - Tavily pattern: use `safeAICall` wrapper for error handling
+  - Use `include_domains` param to limit search to specific sites
+---
