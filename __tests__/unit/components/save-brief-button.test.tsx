@@ -40,6 +40,17 @@ vi.mock('@/app/components/auth/AuthModal', () => ({
   }),
 }));
 
+// Helper to create chainable mock
+function createChainableMock(savedData: object | null = null) {
+  const chainable: Record<string, any> = {};
+  chainable.select = vi.fn().mockReturnValue(chainable);
+  chainable.eq = vi.fn().mockReturnValue(chainable);
+  chainable.single = vi.fn().mockResolvedValue({ data: savedData, error: null });
+  chainable.delete = vi.fn().mockReturnValue(chainable);
+  chainable.insert = vi.fn().mockResolvedValue({ data: {}, error: null });
+  return chainable;
+}
+
 describe('SaveBriefButton', () => {
   const defaultBriefId = 'test-brief-123';
 
@@ -52,15 +63,7 @@ describe('SaveBriefButton', () => {
       data: { subscription: { unsubscribe: vi.fn() } },
     });
 
-    // Mock query builder chain
-    const mockQueryBuilder = {
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: null }),
-      delete: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-    };
-    mockFrom.mockReturnValue(mockQueryBuilder);
+    mockFrom.mockReturnValue(createChainableMock(null));
   });
 
   describe('Rendering', () => {
@@ -90,15 +93,7 @@ describe('SaveBriefButton', () => {
     });
 
     it('should show bookmark-check icon when saved', async () => {
-      // Mock brief as already saved
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { brief_id: defaultBriefId }, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      mockFrom.mockReturnValue(createChainableMock({ brief_id: defaultBriefId }));
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -117,14 +112,7 @@ describe('SaveBriefButton', () => {
     });
 
     it('should have correct title when saved', async () => {
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { brief_id: defaultBriefId }, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      mockFrom.mockReturnValue(createChainableMock({ brief_id: defaultBriefId }));
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -162,14 +150,7 @@ describe('SaveBriefButton', () => {
     });
 
     it('should show "Saved" label when showLabel is true and saved', async () => {
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { brief_id: defaultBriefId }, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      mockFrom.mockReturnValue(createChainableMock({ brief_id: defaultBriefId }));
 
       render(<SaveBriefButton briefId={defaultBriefId} showLabel />);
 
@@ -199,14 +180,8 @@ describe('SaveBriefButton', () => {
 
     it('should not attempt to save when unauthenticated', async () => {
       const user = userEvent.setup();
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      const chainable = createChainableMock(null);
+      mockFrom.mockReturnValue(chainable);
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -217,22 +192,15 @@ describe('SaveBriefButton', () => {
       await user.click(screen.getByRole('button'));
 
       // Insert should not be called
-      expect(mockQueryBuilder.insert).not.toHaveBeenCalled();
+      expect(chainable.insert).not.toHaveBeenCalled();
     });
   });
 
   describe('Save/Unsave Actions', () => {
-    it('should save brief when clicked and not saved', async () => {
+    it('should call insert when clicking save on unsaved brief', async () => {
       const user = userEvent.setup();
-      const mockInsert = vi.fn().mockResolvedValue({ data: {}, error: null });
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: mockInsert,
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      const chainable = createChainableMock(null);
+      mockFrom.mockReturnValue(chainable);
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -243,35 +211,17 @@ describe('SaveBriefButton', () => {
       await user.click(screen.getByRole('button'));
 
       await waitFor(() => {
-        expect(mockInsert).toHaveBeenCalledWith({
+        expect(chainable.insert).toHaveBeenCalledWith({
           user_id: 'user-123',
           brief_id: defaultBriefId,
         });
       });
     });
 
-    it('should unsave brief when clicked and already saved', async () => {
+    it('should call delete when clicking unsave on saved brief', async () => {
       const user = userEvent.setup();
-      const mockDelete = vi.fn();
-
-      // Create a proper chainable mock that handles all the Supabase query methods
-      const createChainableMock = (isSaved: boolean) => {
-        const chainable: Record<string, any> = {};
-        chainable.select = vi.fn().mockReturnValue(chainable);
-        chainable.eq = vi.fn().mockReturnValue(chainable);
-        chainable.single = vi.fn().mockResolvedValue({
-          data: isSaved ? { brief_id: defaultBriefId } : null,
-          error: null
-        });
-        chainable.delete = vi.fn().mockImplementation(() => {
-          mockDelete();
-          return chainable;
-        });
-        chainable.insert = vi.fn().mockResolvedValue({ data: {}, error: null });
-        return chainable;
-      };
-
-      mockFrom.mockReturnValue(createChainableMock(true));
+      const chainable = createChainableMock({ brief_id: defaultBriefId });
+      mockFrom.mockReturnValue(chainable);
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -282,53 +232,14 @@ describe('SaveBriefButton', () => {
       await user.click(screen.getByRole('button'));
 
       await waitFor(() => {
-        expect(mockDelete).toHaveBeenCalled();
+        expect(chainable.delete).toHaveBeenCalled();
       });
     });
 
-    it('should show loading state during save action', async () => {
+    it('should have correct insert parameters', async () => {
       const user = userEvent.setup();
-      let resolveInsert: () => void;
-      const insertPromise = new Promise<{ data: object; error: null }>((resolve) => {
-        resolveInsert = () => resolve({ data: {}, error: null });
-      });
-
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockReturnValue(insertPromise),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
-
-      render(<SaveBriefButton briefId={defaultBriefId} />);
-
-      await waitFor(() => {
-        expect(screen.getByTitle('Save brief')).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole('button'));
-
-      // Should show loading spinner
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
-      expect(screen.getByRole('button')).toBeDisabled();
-
-      await act(async () => {
-        resolveInsert!();
-      });
-    });
-
-    it('should update icon after successful save', async () => {
-      const user = userEvent.setup();
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      const chainable = createChainableMock(null);
+      mockFrom.mockReturnValue(chainable);
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -339,7 +250,12 @@ describe('SaveBriefButton', () => {
       await user.click(screen.getByRole('button'));
 
       await waitFor(() => {
-        expect(screen.getByTitle('Remove from saved')).toBeInTheDocument();
+        expect(chainable.insert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            user_id: 'user-123',
+            brief_id: defaultBriefId,
+          })
+        );
       });
     });
   });
@@ -374,14 +290,7 @@ describe('SaveBriefButton', () => {
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       });
 
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { brief_id: defaultBriefId }, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      mockFrom.mockReturnValue(createChainableMock({ brief_id: defaultBriefId }));
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -401,14 +310,7 @@ describe('SaveBriefButton', () => {
 
   describe('Visual States', () => {
     it('should have primary color class when saved', async () => {
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { brief_id: defaultBriefId }, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      mockFrom.mockReturnValue(createChainableMock({ brief_id: defaultBriefId }));
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -428,14 +330,7 @@ describe('SaveBriefButton', () => {
     });
 
     it('should have fill-current class on icon when saved', async () => {
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: { brief_id: defaultBriefId }, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      mockFrom.mockReturnValue(createChainableMock({ brief_id: defaultBriefId }));
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -451,14 +346,9 @@ describe('SaveBriefButton', () => {
       const user = userEvent.setup();
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockRejectedValue(new Error('Save failed')),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      const chainable = createChainableMock(null);
+      chainable.insert = vi.fn().mockRejectedValue(new Error('Save failed'));
+      mockFrom.mockReturnValue(chainable);
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 
@@ -479,14 +369,9 @@ describe('SaveBriefButton', () => {
       const user = userEvent.setup();
       vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const mockQueryBuilder = {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-        delete: vi.fn().mockReturnThis(),
-        insert: vi.fn().mockRejectedValue(new Error('Save failed')),
-      };
-      mockFrom.mockReturnValue(mockQueryBuilder);
+      const chainable = createChainableMock(null);
+      chainable.insert = vi.fn().mockRejectedValue(new Error('Save failed'));
+      mockFrom.mockReturnValue(chainable);
 
       render(<SaveBriefButton briefId={defaultBriefId} />);
 

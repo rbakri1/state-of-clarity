@@ -45,7 +45,7 @@ export default function EthicsModal({
           aria-describedby="ethics-description"
           className={cn(
             "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
-            "w-[calc(100%-2rem)] max-w-lg",
+            "w-[calc(100%-2rem)] max-w-2xl",
             "rounded-2xl bg-ivory-100 shadow-xl border border-ivory-600",
             "p-6 sm:p-8",
             "animate-in fade-in slide-in-from-bottom-4 duration-300",
@@ -71,7 +71,7 @@ export default function EthicsModal({
               id="ethics-description"
               className="text-ink-600 font-body text-base"
             >
-              Before investigating <strong>{targetEntity}</strong>
+              You are about to investigate: <strong>{targetEntity}</strong>
             </Dialog.Description>
           </div>
 

@@ -48,7 +48,7 @@ export default function AccountabilityPage() {
             type="submit"
             className="w-full py-4 rounded-xl bg-sage-500 text-ivory-100 font-ui font-medium hover:bg-sage-600 transition-colors duration-200"
           >
-            Start Investigation (£9.99)
+            Start Investigation
           </button>
         </form>
       </main>

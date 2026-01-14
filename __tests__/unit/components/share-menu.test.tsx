@@ -11,8 +11,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ShareMenu } from '@/app/components/ShareMenu';
+
+// Mock clipboard writeText
+const mockWriteText = vi.fn().mockResolvedValue(undefined);
 
 describe('ShareMenu', () => {
   const defaultProps = {
@@ -22,6 +25,7 @@ describe('ShareMenu', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+
     // Mock window.location
     Object.defineProperty(window, 'location', {
       value: {
@@ -31,12 +35,16 @@ describe('ShareMenu', () => {
       configurable: true,
     });
 
-    // Mock clipboard
-    Object.assign(navigator, {
-      clipboard: {
-        writeText: vi.fn().mockResolvedValue(undefined),
+    // Mock clipboard API using Object.defineProperty
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: mockWriteText,
       },
+      writable: true,
+      configurable: true,
     });
+
+    mockWriteText.mockClear();
   });
 
   afterEach(() => {
@@ -170,7 +178,7 @@ describe('ShareMenu', () => {
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
       fireEvent.click(screen.getByText('Copy Link'));
 
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect(mockWriteText).toHaveBeenCalledWith(
         'https://example.com/article/test-article'
       );
     });
@@ -179,57 +187,68 @@ describe('ShareMenu', () => {
       render(<ShareMenu {...defaultProps} />);
 
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
-      fireEvent.click(screen.getByText('Copy Link'));
 
-      await waitFor(() => {
-        expect(screen.getByText('Link copied!')).toBeInTheDocument();
+      await act(async () => {
+        fireEvent.click(screen.getByText('Copy Link'));
+        await Promise.resolve(); // Flush the promise from clipboard.writeText
       });
+
+      // There will be two "Link copied!" - one in button label and one in toast
+      const linkCopiedElements = screen.getAllByText('Link copied!');
+      expect(linkCopiedElements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should show toast notification after copying', async () => {
       render(<ShareMenu {...defaultProps} />);
 
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
-      fireEvent.click(screen.getByText('Copy Link'));
 
-      await waitFor(() => {
-        // There will be two "Link copied!" - one in button label and one in toast
-        const linkCopiedElements = screen.getAllByText('Link copied!');
-        expect(linkCopiedElements.length).toBeGreaterThanOrEqual(1);
+      await act(async () => {
+        fireEvent.click(screen.getByText('Copy Link'));
+        await Promise.resolve(); // Flush the promise from clipboard.writeText
       });
+
+      // There will be two "Link copied!" - one in button label and one in toast
+      const linkCopiedElements = screen.getAllByText('Link copied!');
+      expect(linkCopiedElements.length).toBe(2); // Button label and toast
     });
 
     it('should reset copied state after 2 seconds', async () => {
       render(<ShareMenu {...defaultProps} />);
 
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
-      fireEvent.click(screen.getByText('Copy Link'));
 
-      await waitFor(() => {
-        expect(screen.getByText('Link copied!')).toBeInTheDocument();
+      await act(async () => {
+        fireEvent.click(screen.getByText('Copy Link'));
+        await Promise.resolve(); // Flush the promise from clipboard.writeText
       });
+
+      // There will be two "Link copied!" - one in button label and one in toast
+      const linkCopiedElements = screen.getAllByText('Link copied!');
+      expect(linkCopiedElements.length).toBeGreaterThanOrEqual(1);
 
       act(() => {
         vi.advanceTimersByTime(2000);
       });
 
-      await waitFor(() => {
-        expect(screen.getByText('Copy Link')).toBeInTheDocument();
-      });
+      expect(screen.getByText('Copy Link')).toBeInTheDocument();
     });
 
     it('should handle clipboard error gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error('Clipboard error'));
+      mockWriteText.mockRejectedValueOnce(new Error('Clipboard error'));
 
       render(<ShareMenu {...defaultProps} />);
 
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
-      fireEvent.click(screen.getByText('Copy Link'));
 
-      await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith('Failed to copy:', expect.any(Error));
+      await act(async () => {
+        fireEvent.click(screen.getByText('Copy Link'));
+        await Promise.resolve(); // Flush the rejected promise
+        await Promise.resolve(); // Allow error handler to run
       });
+
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to copy:', expect.any(Error));
 
       consoleSpy.mockRestore();
     });
@@ -243,7 +262,8 @@ describe('ShareMenu', () => {
 
       const twitterLink = screen.getByText('X / Twitter').closest('a');
       expect(twitterLink).toHaveAttribute('href', expect.stringContaining('twitter.com/intent/tweet'));
-      expect(twitterLink).toHaveAttribute('href', expect.stringContaining('utm_source=twitter'));
+      // UTM params are URL-encoded inside the share URL
+      expect(twitterLink?.getAttribute('href')).toContain('utm_source%3Dtwitter');
     });
 
     it('should have correct LinkedIn share URL', () => {
@@ -253,7 +273,8 @@ describe('ShareMenu', () => {
 
       const linkedinLink = screen.getByText('LinkedIn').closest('a');
       expect(linkedinLink).toHaveAttribute('href', expect.stringContaining('linkedin.com/sharing'));
-      expect(linkedinLink).toHaveAttribute('href', expect.stringContaining('utm_source=linkedin'));
+      // UTM params are URL-encoded inside the share URL
+      expect(linkedinLink?.getAttribute('href')).toContain('utm_source%3Dlinkedin');
     });
 
     it('should have correct Facebook share URL', () => {
@@ -263,7 +284,8 @@ describe('ShareMenu', () => {
 
       const facebookLink = screen.getByText('Facebook').closest('a');
       expect(facebookLink).toHaveAttribute('href', expect.stringContaining('facebook.com/sharer'));
-      expect(facebookLink).toHaveAttribute('href', expect.stringContaining('utm_source=facebook'));
+      // UTM params are URL-encoded inside the share URL
+      expect(facebookLink?.getAttribute('href')).toContain('utm_source%3Dfacebook');
     });
 
     it('should have correct Reddit share URL', () => {
@@ -273,7 +295,8 @@ describe('ShareMenu', () => {
 
       const redditLink = screen.getByText('Reddit').closest('a');
       expect(redditLink).toHaveAttribute('href', expect.stringContaining('reddit.com/submit'));
-      expect(redditLink).toHaveAttribute('href', expect.stringContaining('utm_source=reddit'));
+      // UTM params are URL-encoded inside the share URL
+      expect(redditLink?.getAttribute('href')).toContain('utm_source%3Dreddit');
     });
 
     it('should have correct Email share URL', () => {
@@ -364,7 +387,8 @@ describe('ShareMenu', () => {
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
 
       const twitterLink = screen.getByText('X / Twitter').closest('a');
-      expect(twitterLink?.getAttribute('href')).toContain('utm_source=twitter');
+      // UTM params are URL-encoded inside the share URL
+      expect(twitterLink?.getAttribute('href')).toContain('utm_source%3Dtwitter');
     });
 
     it('should add utm_medium=social parameter to share URLs', () => {
@@ -373,7 +397,8 @@ describe('ShareMenu', () => {
       fireEvent.click(screen.getByRole('button', { name: /share/i }));
 
       const twitterLink = screen.getByText('X / Twitter').closest('a');
-      expect(twitterLink?.getAttribute('href')).toContain('utm_medium=social');
+      // UTM params are URL-encoded inside the share URL
+      expect(twitterLink?.getAttribute('href')).toContain('utm_medium%3Dsocial');
     });
   });
 });
