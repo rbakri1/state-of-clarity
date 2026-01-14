@@ -1,0 +1,90 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/header-nav-profile-sections",
+  "description": "Header Navigation & Profile Reorganisation - Add Briefs and Investigations to header nav, update profile page with separate sections and stats for each feature.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Update header navigation with Briefs and Investigations links",
+      "description": "As a visitor, I want to see both Briefs and Investigations in the header so I can discover and access either feature.",
+      "acceptanceCriteria": [
+        "Header nav shows 'Briefs' link to /briefs (replaces 'Browse Briefs')",
+        "Header nav shows 'Investigations' link to /accountability",
+        "'Briefs' appears before 'Investigations' in the nav order",
+        "Both links use existing nav styling (text-muted-foreground, hover:text-foreground)",
+        "Both links hidden on mobile (hidden sm:block pattern)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Add investigations count fetch to profile page",
+      "description": "As a developer, I need to fetch the user's investigation count to display in stats.",
+      "acceptanceCriteria": [
+        "Add query to fetch count from accountability_investigations table",
+        "Query filters by user_id matching current user",
+        "Count stored in stats state alongside existing brief counts",
+        "Handle case where table doesn't exist gracefully (count = 0)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Expand profile stats grid to include investigations",
+      "description": "As a user, I want to see my investigation count alongside brief stats.",
+      "acceptanceCriteria": [
+        "Stats grid shows 4 items: Briefs Generated, Briefs Saved, Investigations, Feedback Given",
+        "Investigations stat uses Scale icon from lucide-react",
+        "Grid layout: 2x2 on mobile (grid-cols-2), 4-col on desktop (sm:grid-cols-4)",
+        "Investigation count displays correctly",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add Briefs section to profile quick links",
+      "description": "As a user, I want a dedicated Briefs section grouping my brief-related actions.",
+      "acceptanceCriteria": [
+        "New section with heading 'Briefs' and FileText icon",
+        "Contains two quick links: 'My Briefs' (/profile/history) and 'Saved Briefs' (/profile/saved)",
+        "Each link shows count badge (briefsGenerated, briefsSaved)",
+        "Section appears above the Account section",
+        "Uses existing quick link card styling (rounded-xl, bg-ivory-100, hover:bg-ivory-200)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Add Investigations section to profile quick links",
+      "description": "As a user, I want a dedicated Investigations section on my profile.",
+      "acceptanceCriteria": [
+        "New section with heading 'Investigations' and Scale icon",
+        "Contains quick link: 'My Investigations' linking to /accountability",
+        "Link shows investigation count badge",
+        "If count is 0, shows secondary text 'Start your first investigation'",
+        "Section appears between Briefs section and Account section",
+        "Uses existing quick link card styling",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

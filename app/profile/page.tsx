@@ -25,6 +25,7 @@ interface ProfileStats {
   briefsGenerated: number;
   briefsSaved: number;
   feedbackCount: number;
+  investigationsCount: number;
 }
 
 export default function ProfilePage() {
@@ -35,6 +36,7 @@ export default function ProfilePage() {
     briefsGenerated: 0,
     briefsSaved: 0,
     feedbackCount: 0,
+    investigationsCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,16 +65,20 @@ export default function ProfilePage() {
         setProfile(profileData);
       }
 
-      const [briefsResult, savedResult, feedbackResult] = await Promise.all([
+      const [briefsResult, savedResult, feedbackResult, investigationsResult] = await Promise.all([
         supabase.from("briefs").select("id", { count: "exact" }).eq("user_id", user.id),
         supabase.from("saved_briefs").select("brief_id", { count: "exact" }).eq("user_id", user.id),
         supabase.from("feedback").select("id", { count: "exact" }).eq("user_id", user.id),
+        (supabase.from("accountability_investigations") as ReturnType<typeof supabase.from>)
+          .select("id", { count: "exact" })
+          .eq("user_id", user.id),
       ]);
 
       setStats({
         briefsGenerated: briefsResult.count || 0,
         briefsSaved: savedResult.count || 0,
         feedbackCount: feedbackResult.count || 0,
+        investigationsCount: investigationsResult.error ? 0 : (investigationsResult.count || 0),
       });
 
       setIsLoading(false);

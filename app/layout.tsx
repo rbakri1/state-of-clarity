@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { OfflineBanner } from "./components/OfflineBanner";
+import { PostHogProvider } from "./components/PostHogProvider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { WelcomeModalWrapper } from "@/components/onboarding/welcome-modal-wrapper";
@@ -57,13 +58,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased bg-ivory-100 text-ink-800 min-h-screen flex flex-col">
-        <OfflineBanner />
-        <Header />
-        <ErrorBoundary>
-          <main className="flex-1">{children}</main>
-        </ErrorBoundary>
-        <Footer />
-        <WelcomeModalWrapper />
+        <PostHogProvider>
+          <OfflineBanner />
+          <Header />
+          <ErrorBoundary>
+            <main className="flex-1">{children}</main>
+          </ErrorBoundary>
+          <Footer />
+          <WelcomeModalWrapper />
+        </PostHogProvider>
       </body>
     </html>
   );

@@ -133,7 +133,7 @@ describe('useInvestigationGeneration', () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
-        json: () => Promise.resolve({ error: 'Server error' }),
+        text: () => Promise.resolve(JSON.stringify({ error: 'Server error' })),
       });
 
       const { result } = renderHook(() =>
@@ -155,7 +155,7 @@ describe('useInvestigationGeneration', () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 402,
-        json: () => Promise.resolve({ error: 'Insufficient credits' }),
+        text: () => Promise.resolve(JSON.stringify({ error: 'Insufficient credits' })),
       });
 
       const { result } = renderHook(() =>

@@ -1,0 +1,17 @@
+# Ralph Progress Log
+Started: Thu 15 Jan 2026
+
+## PRD: Header Navigation & Profile Sections
+Add Briefs and Investigations to header nav, reorganise profile with dedicated sections.
+
+## Codebase Patterns
+- Header component: app/components/Header.tsx
+- Profile page: app/profile/page.tsx
+- Quick link cards: Use existing rounded-xl, bg-ivory-100 styling
+- Icons: lucide-react (FileText, Bookmark, Scale, MessageSquare)
+- Stats grid: Currently 3-col, expanding to 4-col
+
+## Dependencies
+- accountability_investigations table must exist (from previous PRDs)
+
+---
