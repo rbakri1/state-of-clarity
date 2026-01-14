@@ -6,6 +6,8 @@ Started: Thu 15 Jan 2026 02:14:40 +04
 - Test file type errors exist in __tests__/unit/ but don't block component work
 - For accountability_investigations table, use cast to `ReturnType<typeof supabase.from>` (table not in types yet)
 - Check error field when querying tables that may not exist - handle gracefully with fallback to 0
+- Profile page sections: `bg-ivory-50 rounded-2xl shadow-sm p-5 sm:p-6`
+- Quick link card styling: `rounded-xl bg-ivory-100 hover:bg-ivory-200`
 ---
 
 ## 2026-01-15 02:22 +04 - US-001
@@ -40,4 +42,21 @@ Thread: https://ampcode.com/threads/T-019bbea3-f57b-7529-b34b-0336cee4729f
 - **Learnings for future iterations:**
   - Profile page stats grid is on lines 176-205
   - Implementation was completed in US-002 thread
+---
+
+## 2026-01-15 05:38 +04 - US-004
+Thread: https://ampcode.com/threads/T-019bbeaa-9837-778c-bcc8-f7bc389a56a0
+- What was implemented: Added Briefs section to profile quick links
+- Files changed: app/profile/page.tsx
+  - Created new "Briefs" section with FileText icon and heading
+  - Added "My Briefs" link to /profile/history with briefsGenerated count badge
+  - Added "Saved Briefs" link to /profile/saved with briefsSaved count badge
+  - Section positioned above Account section
+  - Used existing quick link card styling (rounded-xl, bg-ivory-100, hover:bg-ivory-200)
+  - Removed old inline quick links that were inside the profile card
+- **Learnings for future iterations:**
+  - Profile page sections follow pattern: bg-ivory-50 rounded-2xl shadow-sm p-5 sm:p-6
+  - Quick link cards use: flex, items-center, gap-4, p-4, rounded-xl, bg-ivory-100, hover:bg-ivory-200
+  - Icon containers use: w-11 h-11 rounded-xl bg-sage-100
+  - Count badges use: px-2 py-0.5 text-xs font-ui font-medium bg-sage-100 text-sage-700 rounded-full
 ---

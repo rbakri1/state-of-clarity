@@ -256,6 +256,38 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Investigations Section */}
+        <div className="mt-6 bg-ivory-50 rounded-2xl shadow-sm p-5 sm:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Scale className="w-5 h-5 text-sage-600" />
+            <h2 className="text-lg font-heading font-semibold text-ink-800">Investigations</h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:gap-4">
+            <Link
+              href="/accountability"
+              className="flex items-center gap-4 p-4 rounded-xl bg-ivory-100 hover:bg-ivory-200 transition-colors focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2"
+            >
+              <div className="w-11 h-11 rounded-xl bg-sage-100 flex items-center justify-center flex-shrink-0">
+                <Scale className="w-5 h-5 text-sage-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="font-ui font-semibold text-ink-800">My Investigations</div>
+                  <span className="px-2 py-0.5 text-xs font-ui font-medium bg-sage-100 text-sage-700 rounded-full">
+                    {stats.investigationsCount}
+                  </span>
+                </div>
+                <div className="text-sm text-ink-500 font-ui">
+                  {stats.investigationsCount === 0
+                    ? "Start your first investigation"
+                    : "Your accountability investigations"}
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+
         {/* Settings & Data Section */}
         <div className="mt-6 bg-ivory-50 rounded-2xl shadow-sm p-5 sm:p-6">
           <h2 className="text-lg font-heading font-semibold text-ink-800 mb-4">Account</h2>
