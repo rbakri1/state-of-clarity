@@ -197,3 +197,24 @@ Thread: https://ampcode.com/threads/T-019bbdf2-dc17-770a-811d-72973ba231d8
   - Create a createTestState() helper function for creating AccountabilityState objects
   - Pre-existing test file type errors in other files don't block new test creation
 ---
+
+## 2026-01-14 - US-013
+Thread: https://ampcode.com/threads/T-019bbdf5-11d8-7449-ab4d-60e199fe2299
+- Created unit tests for corruption analysis agent ethical validation
+- File created: __tests__/unit/agents/corruption-analysis-agent.test.ts
+- Tests return of 3-5 CorruptionScenario objects with profile data
+- Tests each scenario has non-empty innocentExplanations array
+- Tests default innocentExplanations added when LLM omits them
+- Tests scenarios use conditional language (no direct accusations)
+- Tests sparse/empty profile data returns 3 generic scenarios
+- Tests organization-specific generic scenarios for org entityType
+- Tests completedSteps includes 'corruption_analysis'
+- Tests callback invocations (onAgentStarted, onAgentCompleted, onStageChanged)
+- Tests graceful fallback to generic scenarios on JSON parse failure
+- All 18 tests pass
+- **Learnings for future iterations:**
+  - Follow entity-classification-agent.test.ts pattern for test structure
+  - Create createMockProfileData() helper for test data with required fields
+  - Create createValidScenarios() helper to generate properly-typed CorruptionScenario[]
+  - Test conditional language by checking for keywords like 'could', 'might', 'potential'
+---
