@@ -18,6 +18,16 @@ import type {
   ActionItem,
 } from "../types/accountability";
 
+/**
+ * Callback interface for SSE streaming progress updates
+ */
+export interface AccountabilityCallbacks {
+  onAgentStarted?: (agentName: string) => void;
+  onAgentCompleted?: (agentName: string, durationMs: number) => void;
+  onStageChanged?: (stage: string) => void;
+  onError?: (error: Error) => void;
+}
+
 export interface AccountabilityState {
   targetEntity: string;
   investigationId: string;
@@ -29,6 +39,7 @@ export interface AccountabilityState {
   qualityNotes: string[] | null;
   error: string | null;
   completedSteps: string[];
+  callbacks: AccountabilityCallbacks | null;
 }
 
 export const AccountabilityStateAnnotation = Annotation.Root({
@@ -74,6 +85,11 @@ export const AccountabilityStateAnnotation = Annotation.Root({
     reducer: (prev, next) => [...prev, ...next],
     default: () => [],
   }),
+
+  callbacks: Annotation<AccountabilityCallbacks | null>({
+    reducer: (prev, next) => next ?? prev,
+    default: () => null,
+  }),
 });
 
 /**
@@ -99,16 +115,6 @@ export function createAccountabilityGraph() {
 }
 
 export const accountabilityGraph = createAccountabilityGraph();
-
-/**
- * Callback interface for SSE streaming progress updates
- */
-export interface AccountabilityCallbacks {
-  onAgentStarted?: (agentName: string) => void;
-  onAgentCompleted?: (agentName: string, durationMs: number) => void;
-  onStageChanged?: (stage: string) => void;
-  onError?: (error: Error) => void;
-}
 
 /**
  * Result type for the accountability report generation
@@ -153,6 +159,7 @@ export async function generateAccountabilityReport(
     qualityNotes: null,
     error: null,
     completedSteps: [],
+    callbacks: callbacks ?? null,
   };
 
   try {

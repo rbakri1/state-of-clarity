@@ -21,6 +21,12 @@ import type { AccountabilityState } from "./accountability-tracker-orchestrator"
 export async function qualityCheckNode(
   state: AccountabilityState
 ): Promise<Partial<AccountabilityState>> {
+  const startTime = Date.now();
+  const agentName = "quality_check";
+  
+  state.callbacks?.onAgentStarted?.(agentName);
+  state.callbacks?.onStageChanged?.("checking");
+  
   console.log(
     `[Quality Check] Calculating quality score for investigation: "${state.investigationId}"`
   );
@@ -73,6 +79,9 @@ export async function qualityCheckNode(
     `[Quality Check] Persisted investigation results to database`
   );
 
+  const durationMs = Date.now() - startTime;
+  state.callbacks?.onAgentCompleted?.(agentName, durationMs);
+  
   return {
     qualityScore: score,
     qualityNotes: notes,

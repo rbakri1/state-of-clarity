@@ -57,12 +57,20 @@ function detectOrganizationBySuffix(entityName: string): boolean {
 export async function entityClassificationNode(
   state: AccountabilityState
 ): Promise<Partial<AccountabilityState>> {
+  const startTime = Date.now();
+  const agentName = "entity_classification";
+  
+  state.callbacks?.onAgentStarted?.(agentName);
+  state.callbacks?.onStageChanged?.("classifying");
+  
   console.log(`[Entity Classification] Classifying: "${state.targetEntity}"`);
 
   if (detectOrganizationBySuffix(state.targetEntity)) {
     console.log(
       `[Entity Classification] Detected organization suffix in name`
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       entityType: "organization",
       completedSteps: ["entity_classification"],
@@ -92,6 +100,8 @@ export async function entityClassificationNode(
     console.warn(
       `[Entity Classification] Could not extract JSON, defaulting to individual`
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       entityType: "individual",
       completedSteps: ["entity_classification"],
@@ -105,6 +115,8 @@ export async function entityClassificationNode(
     console.warn(
       `[Entity Classification] JSON parse failed, defaulting to individual`
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       entityType: "individual",
       completedSteps: ["entity_classification"],
@@ -120,6 +132,9 @@ export async function entityClassificationNode(
     `[Entity Classification] Result: ${entityType} (confidence: ${parsed.confidence}, reason: ${parsed.reasoning})`
   );
 
+  const durationMs = Date.now() - startTime;
+  state.callbacks?.onAgentCompleted?.(agentName, durationMs);
+  
   return {
     entityType,
     completedSteps: ["entity_classification"],

@@ -302,6 +302,12 @@ function validateScenarios(scenarios: CorruptionScenario[]): void {
 export async function corruptionAnalysisNode(
   state: AccountabilityState
 ): Promise<Partial<AccountabilityState>> {
+  const startTime = Date.now();
+  const agentName = "corruption_analysis";
+  
+  state.callbacks?.onAgentStarted?.(agentName);
+  state.callbacks?.onStageChanged?.("analyzing");
+  
   console.log(
     `[Corruption Analysis] Analyzing potential scenarios for: "${state.targetEntity}"`
   );
@@ -324,6 +330,8 @@ export async function corruptionAnalysisNode(
       `[Corruption Analysis] Sparse profile data, generating generic scenarios`
     );
     const genericScenarios = generateGenericScenarios(entityType);
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       corruptionScenarios: genericScenarios,
       completedSteps: ["corruption_analysis"],
@@ -363,6 +371,8 @@ ${profileDataJson}`,
       `[Corruption Analysis] Could not extract JSON array, generating generic scenarios`
     );
     const genericScenarios = generateGenericScenarios(entityType);
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       corruptionScenarios: genericScenarios,
       completedSteps: ["corruption_analysis"],
@@ -377,6 +387,8 @@ ${profileDataJson}`,
       `[Corruption Analysis] JSON parse failed, generating generic scenarios`
     );
     const genericScenarios = generateGenericScenarios(entityType);
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       corruptionScenarios: genericScenarios,
       completedSteps: ["corruption_analysis"],
@@ -401,6 +413,9 @@ ${profileDataJson}`,
     `[Corruption Analysis] Generated ${scenarios.length} theoretical scenarios`
   );
 
+  const durationMs = Date.now() - startTime;
+  state.callbacks?.onAgentCompleted?.(agentName, durationMs);
+  
   return {
     corruptionScenarios: scenarios,
     completedSteps: ["corruption_analysis"],

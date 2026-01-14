@@ -199,6 +199,12 @@ function ensureRelatedScenarios(
 export async function actionListGenerationNode(
   state: AccountabilityState
 ): Promise<Partial<AccountabilityState>> {
+  const startTime = Date.now();
+  const agentName = "action_list_generation";
+  
+  state.callbacks?.onAgentStarted?.(agentName);
+  state.callbacks?.onStageChanged?.("generating");
+  
   console.log(
     `[Action List] Generating investigation actions for: "${state.targetEntity}"`
   );
@@ -220,6 +226,8 @@ export async function actionListGenerationNode(
     const defaultItems = generateDefaultActionItems(
       scenarioIds.length > 0 ? scenarioIds : ["generic-1", "generic-2", "generic-3"]
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       actionItems: defaultItems,
       completedSteps: ["action_list_generation"],
@@ -261,6 +269,8 @@ ${scenariosJson}`,
       `[Action List] Could not extract JSON array, generating default action items`
     );
     const defaultItems = generateDefaultActionItems(scenarioIds);
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       actionItems: defaultItems,
       completedSteps: ["action_list_generation"],
@@ -275,6 +285,8 @@ ${scenariosJson}`,
       `[Action List] JSON parse failed, generating default action items`
     );
     const defaultItems = generateDefaultActionItems(scenarioIds);
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       actionItems: defaultItems,
       completedSteps: ["action_list_generation"],
@@ -305,6 +317,9 @@ ${scenariosJson}`,
     `[Action List] Generated ${validItems.length} investigation action items`
   );
 
+  const durationMs = Date.now() - startTime;
+  state.callbacks?.onAgentCompleted?.(agentName, durationMs);
+  
   return {
     actionItems: validItems,
     completedSteps: ["action_list_generation"],

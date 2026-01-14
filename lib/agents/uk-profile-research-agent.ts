@@ -62,6 +62,12 @@ function createSparseProfile(entityName: string): UKProfileData {
 export async function ukProfileResearchNode(
   state: AccountabilityState
 ): Promise<Partial<AccountabilityState>> {
+  const startTime = Date.now();
+  const agentName = "uk_profile_research";
+  
+  state.callbacks?.onAgentStarted?.(agentName);
+  state.callbacks?.onStageChanged?.("researching");
+  
   console.log(`[UK Profile Research] Researching: "${state.targetEntity}"`);
 
   const entityType = state.entityType ?? "individual";
@@ -94,6 +100,8 @@ export async function ukProfileResearchNode(
     console.log(
       `[UK Profile Research] No data found, returning sparse profile`
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       profileData: createSparseProfile(state.targetEntity),
       completedSteps: ["uk_profile_research"],
@@ -131,6 +139,8 @@ ${rawDataJson}`,
     console.warn(
       `[UK Profile Research] Could not extract JSON, returning sparse profile`
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       profileData: createSparseProfile(state.targetEntity),
       completedSteps: ["uk_profile_research"],
@@ -144,6 +154,8 @@ ${rawDataJson}`,
     console.warn(
       `[UK Profile Research] JSON parse failed, returning sparse profile`
     );
+    const durationMs = Date.now() - startTime;
+    state.callbacks?.onAgentCompleted?.(agentName, durationMs);
     return {
       profileData: createSparseProfile(state.targetEntity),
       completedSteps: ["uk_profile_research"],
@@ -154,6 +166,9 @@ ${rawDataJson}`,
     `[UK Profile Research] Profile synthesized with completeness score: ${profileData.dataCompleteness?.completenessScore ?? 0}`
   );
 
+  const durationMs = Date.now() - startTime;
+  state.callbacks?.onAgentCompleted?.(agentName, durationMs);
+  
   return {
     profileData,
     completedSteps: ["uk_profile_research"],
