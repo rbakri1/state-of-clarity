@@ -21,3 +21,14 @@ Thread: https://ampcode.com/threads/T-019bbd57-1602-765b-bd13-f12132dba7f4
   - Pattern: Use `gen_random_uuid()` for UUID primary keys
   - Pattern: Use `TIMESTAMPTZ` for all timestamp columns (not TIMESTAMP)
 ---
+
+## 2026-01-14 16:45 - US-002
+Thread: https://ampcode.com/threads/T-019bbd58-ab5b-74b9-a746-970d47d81810
+- Created accountability_investigation_sources table in migration 013
+- Includes all columns: id, investigation_id (FK with CASCADE), source_type, url, title, accessed_at, data_extracted, verification_status, created_at
+- Added CHECK constraint for source_type (companies_house, charity_commission, register_of_interests, electoral_commission, contracts_finder, web_search, gov_uk, other)
+- Added CHECK constraint for verification_status (verified, unverified, disputed)
+- Files changed: lib/supabase/migrations/013_add_accountability_tracker_tables.sql
+- **Learnings for future iterations:**
+  - Pattern: Use foreign key with `ON DELETE CASCADE` for child tables referencing parent tables
+---
