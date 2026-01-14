@@ -1,0 +1,181 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/accountability-tracker-integration",
+  "description": "Accountability Tracker Integration & Polish - Navigation updates, E2E testing, regression testing, performance validation, and developer documentation. PRD 6 of 6 (see tasks/prd-accountability-tracker-overview.md).",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add Accountability navigation link to header",
+      "description": "As a State of Clarity user, I want to see 'Accountability' in the main navigation so that I can easily discover and access the corruption investigation feature.",
+      "acceptanceCriteria": [
+        "'Accountability' link appears in desktop header navigation between 'Explore' and 'Credits'",
+        "Link navigates to /accountability landing page",
+        "Current page indicator highlights 'Accountability' when on /accountability/* routes",
+        "Mobile hamburger menu includes 'Accountability' link",
+        "Navigation order: Home → Explore → Accountability → Credits",
+        "Link accessible via keyboard navigation (Tab key)",
+        "Hover state shows sage green underline (State of Clarity design system)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Update credits page to mention investigations",
+      "description": "As a user viewing the credits page, I want to understand that credits can be used for both briefs and investigations so that I know what I'm purchasing.",
+      "acceptanceCriteria": [
+        "Credits page copy updated to: 'Use credits to generate policy briefs or conduct accountability investigations. Each brief or investigation costs 1 credit (£9.99).'",
+        "'How Credits Work' section mentions both use cases",
+        "Purchase flow modal lists both 'Policy Briefs' and 'Accountability Investigations' as usage options",
+        "No breaking changes to existing credit purchase flow",
+        "Typecheck passes",
+        "Mobile layout displays correctly (no text overflow)"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create E2E happy path test",
+      "description": "As a developer, I need an E2E test for the full investigation flow so that I can verify the feature works correctly before deployment.",
+      "acceptanceCriteria": [
+        "Test navigates to /accountability landing page",
+        "Test enters 'Boris Johnson' as target entity",
+        "Test opens ethics modal and checks acknowledgment checkbox",
+        "Test clicks 'Proceed with Investigation' button",
+        "Test verifies navigation to generation progress page",
+        "Test waits for SSE events (agent_started, agent_completed for all 5 agents)",
+        "Test verifies completion event with quality score ≥6.0",
+        "Test navigates to results page via investigationId",
+        "Test verifies profile data section renders (≥3 data sources)",
+        "Test verifies corruption scenarios section renders (≥3 scenarios)",
+        "Test verifies action items section renders (≥5 items)",
+        "Test completes in <3 minutes",
+        "Test passes consistently (3/3 runs)"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create quality gate failure test",
+      "description": "As a developer, I need to verify the quality gate refund mechanism works correctly so that users aren't charged for low-quality investigations.",
+      "acceptanceCriteria": [
+        "Test enters non-existent entity name 'Asdfghjkl Zxcvbnm Qwerty'",
+        "Test acknowledges ethics modal",
+        "Test verifies credit deduction (1 credit subtracted)",
+        "Test waits for generation to complete",
+        "Test receives SSE error event with creditRefunded: true",
+        "Test verifies credit refund (1 credit restored)",
+        "Test verifies error message: 'Insufficient public data to generate reliable investigation'",
+        "Test verifies user balance unchanged (deduction + refund = net zero)",
+        "Test passes consistently (3/3 runs)"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create rate limiting test",
+      "description": "As a developer, I need to verify rate limiting works correctly so that abuse is prevented and API costs are controlled.",
+      "acceptanceCriteria": [
+        "Test runs 3 investigations successfully within 1 hour",
+        "Test attempts 4th investigation within same hour",
+        "Test receives 429 Too Many Requests error",
+        "Test error message: 'Rate limit exceeded. You can run 3 investigations per hour. Please try again in X minutes.'",
+        "Test verifies no credit deduction for rate-limited request",
+        "Test waits 61 minutes (bypass rate limit window)",
+        "Test runs 4th investigation successfully",
+        "Test passes consistently (3/3 runs)"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create PDF export test",
+      "description": "As a developer, I need to verify PDF export works correctly so that journalists can save and share investigation reports.",
+      "acceptanceCriteria": [
+        "Test completes investigation (reuse from US-003)",
+        "Test navigates to results page",
+        "Test clicks 'Export PDF' button",
+        "Test verifies navigation to /accountability/[id]/print route",
+        "Test verifies print-optimized layout renders (no navigation, clean design)",
+        "Test verifies disclaimer watermark: 'RESEARCH HYPOTHESIS ONLY'",
+        "Test verifies all sections present (title page, profile, scenarios, actions, sources)",
+        "Test verifies page breaks between major sections",
+        "Visual regression test: screenshot matches baseline",
+        "Test passes in headless browser mode"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create regression test suite",
+      "description": "As a developer, I need to ensure Accountability Tracker doesn't break existing features so that current users experience no disruptions.",
+      "acceptanceCriteria": [
+        "Test brief generation still works (full flow from search to completion)",
+        "Test credit purchase flow unchanged (Stripe checkout works)",
+        "Test credit deduction for briefs still works (1 credit per brief)",
+        "Test home page renders correctly (no console errors)",
+        "Test explore page renders correctly",
+        "Test all existing API routes return 200 OK",
+        "Test authentication flow unchanged (login, logout, session persistence)",
+        "Test passes in CI/CD pipeline (GitHub Actions)",
+        "Zero console errors in browser DevTools",
+        "Zero TypeScript errors (npm run typecheck)"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Validate performance benchmarks",
+      "description": "As a developer, I need to measure investigation generation time so that I can ensure acceptable user experience and identify bottlenecks.",
+      "acceptanceCriteria": [
+        "Test measures end-to-end generation time for 'Boris Johnson'",
+        "Test target: <2 minutes (120 seconds) for full investigation",
+        "Test measures individual agent execution times: Entity classification <5 seconds, UK profile research <30 seconds, Corruption analysis <45 seconds, Action list generation <30 seconds, Quality check <10 seconds",
+        "Test measures cache hit performance (duplicate investigation): <10 seconds",
+        "Test logs all timing data to console for performance tracking",
+        "Test identifies slowest agent (for optimization priority)",
+        "Test passes with ≥80% success rate (8/10 runs meet targets)"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create comprehensive developer documentation",
+      "description": "As a future developer, I want complete documentation so that I can understand, maintain, and extend the Accountability Tracker feature.",
+      "acceptanceCriteria": [
+        "Documentation file created: /docs/ACCOUNTABILITY_TRACKER.md",
+        "Section 1: Feature Overview (what it does, why it exists, ethical considerations)",
+        "Section 2: Architecture Diagram (LangGraph flow, data sources, API routes)",
+        "Section 3: Database Schema (all tables, columns, RLS policies)",
+        "Section 4: API Endpoints (request/response formats, authentication, rate limits)",
+        "Section 5: Agent Prompts (system prompts for all 5 agents, model selection rationale)",
+        "Section 6: UK Data Sources (Companies House setup, Tavily configuration, caching strategy)",
+        "Section 7: Testing Guide (how to run unit/integration/E2E tests, test data)",
+        "Section 8: Troubleshooting (common errors, debugging tips, Sentry logs)",
+        "Section 9: Deployment (environment variables, staging/production checklist)",
+        "All code examples syntax highlighted and tested",
+        "All links working (no 404s)",
+        "Markdown linting passes (markdownlint)"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

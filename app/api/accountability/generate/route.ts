@@ -6,6 +6,10 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth, withRateLimit } from "@/lib/auth/middleware";
+import { hasCredits, deductCredits, refundCredits } from "@/lib/services/credit-service";
+import { createInvestigation } from "@/lib/services/accountability-service";
+import { createSSEResponse, sendSSE } from "@/lib/api/sse-helpers";
+import { generateAccountabilityReport } from "@/lib/agents/accountability-tracker-orchestrator";
 
 interface GenerateRequestBody {
   targetEntity: string;
@@ -30,13 +34,95 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
     );
   }
 
+  const userHasCredits = await hasCredits(user.id, 1);
+  if (!userHasCredits) {
+    return NextResponse.json(
+      { error: "Insufficient credits", redirectTo: "/credits" },
+      { status: 402 }
+    );
+  }
+
   console.log("Generating investigation for:", targetEntity);
 
-  return NextResponse.json({
-    message: "Generation endpoint placeholder",
-    userId: user.id,
-    targetEntity: targetEntity.trim(),
+  const { id: investigationId } = await createInvestigation(
+    targetEntity.trim(),
+    user.id,
+    "individual",
+    new Date()
+  );
+
+  await deductCredits(
+    user.id,
+    1,
+    investigationId,
+    `Accountability investigation: ${targetEntity.trim()}`
+  );
+
+  console.log("Credit deducted for investigation:", investigationId);
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        const result = await generateAccountabilityReport(
+          targetEntity.trim(),
+          investigationId,
+          {
+            onAgentStarted: (agent: string) => {
+              sendSSE(controller, "agent_started", {
+                agent,
+                timestamp: new Date().toISOString(),
+              });
+            },
+            onAgentCompleted: (agent: string, duration: number) => {
+              sendSSE(controller, "agent_completed", {
+                agent,
+                duration,
+                timestamp: new Date().toISOString(),
+              });
+            },
+            onStageChanged: (stage: string) => {
+              sendSSE(controller, "stage_changed", {
+                stage,
+                timestamp: new Date().toISOString(),
+              });
+            },
+          }
+        );
+
+        const qualityScore = result.qualityScore ?? 0;
+        let creditRefunded = false;
+
+        if (qualityScore < 6.0) {
+          await refundCredits(user.id, 1, investigationId, "Quality gate failed");
+          creditRefunded = true;
+          console.log("Credit refunded - quality gate failed:", qualityScore);
+        }
+
+        sendSSE(controller, "complete", {
+          investigationId,
+          qualityScore,
+          creditRefunded,
+          timestamp: new Date().toISOString(),
+        });
+
+        controller.close();
+      } catch (error) {
+        console.error("Generation failed:", error);
+
+        await refundCredits(user.id, 1, investigationId, "Generation failed");
+
+        sendSSE(controller, "error", {
+          message: error instanceof Error ? error.message : "Generation failed",
+          creditRefunded: true,
+          timestamp: new Date().toISOString(),
+        });
+
+        controller.close();
+      }
+    },
   });
+
+  return createSSEResponse(stream);
 });
 
 export const POST = withRateLimit(handler, { requests: 3, window: 3600 });
