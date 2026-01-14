@@ -15,11 +15,39 @@ import type {
   Contract,
 } from "../types/accountability";
 
+import { withCache } from "../cache/with-cache";
 import { fetchCompaniesHouseProfile } from "./companies-house-api";
 import { fetchCharityCommissionData } from "../parsers/charity-commission-parser";
 import { fetchRegisterOfInterests } from "../parsers/parliament-parser";
 import { fetchElectoralCommissionData } from "../parsers/electoral-commission-parser";
 import { fetchGovernmentContracts } from "../parsers/contracts-finder-parser";
+
+/**
+ * Cache TTL values in seconds for each data source.
+ */
+const CACHE_TTLS = {
+  companies_house: 86400,    // 24 hours
+  charity_commission: 86400, // 24 hours
+  register_of_interests: 43200, // 12 hours
+  electoral_commission: 43200,  // 12 hours
+  contracts_finder: 86400,   // 24 hours
+} as const;
+
+/**
+ * Normalize entity name for use in cache keys.
+ * Lowercases and trims whitespace.
+ */
+function normalizeCacheKey(entityName: string): string {
+  return entityName.toLowerCase().trim().replace(/\s+/g, "_");
+}
+
+/**
+ * Generate a cache key for a UK data source.
+ * Format: uk_data:{source}:{normalized_entity_name}
+ */
+function getCacheKey(source: keyof typeof CACHE_TTLS, entityName: string): string {
+  return `uk_data:${source}:${normalizeCacheKey(entityName)}`;
+}
 
 /**
  * Error information from a data source fetch operation.
@@ -116,28 +144,48 @@ export async function fetchUKPublicData(
   const sources: InvestigationSource[] = [];
   const errors: DataSourceError[] = [];
 
-  // Build array of promises for parallel execution
+  // Build array of promises for parallel execution with caching
   const companiesHousePromise = safeDataSourceCall(
     "companies_house",
-    () => fetchCompaniesHouseProfile(targetEntity),
+    () =>
+      withCache(
+        getCacheKey("companies_house", targetEntity),
+        () => fetchCompaniesHouseProfile(targetEntity),
+        CACHE_TTLS.companies_house
+      ),
     errors
   );
 
   const charityPromise = safeDataSourceCall(
     "charity_commission",
-    () => fetchCharityCommissionData(targetEntity),
+    () =>
+      withCache(
+        getCacheKey("charity_commission", targetEntity),
+        () => fetchCharityCommissionData(targetEntity),
+        CACHE_TTLS.charity_commission
+      ),
     errors
   );
 
   const parliamentPromise = safeDataSourceCall(
     "register_of_interests",
-    () => fetchRegisterOfInterests(targetEntity),
+    () =>
+      withCache(
+        getCacheKey("register_of_interests", targetEntity),
+        () => fetchRegisterOfInterests(targetEntity),
+        CACHE_TTLS.register_of_interests
+      ),
     errors
   );
 
   const electoralPromise = safeDataSourceCall(
     "electoral_commission",
-    () => fetchElectoralCommissionData(targetEntity),
+    () =>
+      withCache(
+        getCacheKey("electoral_commission", targetEntity),
+        () => fetchElectoralCommissionData(targetEntity),
+        CACHE_TTLS.electoral_commission
+      ),
     errors
   );
 
@@ -146,7 +194,12 @@ export async function fetchUKPublicData(
     entityType === "organization"
       ? safeDataSourceCall(
           "contracts_finder",
-          () => fetchGovernmentContracts(targetEntity),
+          () =>
+            withCache(
+              getCacheKey("contracts_finder", targetEntity),
+              () => fetchGovernmentContracts(targetEntity),
+              CACHE_TTLS.contracts_finder
+            ),
           errors
         )
       : Promise.resolve(null);
