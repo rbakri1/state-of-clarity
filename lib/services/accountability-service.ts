@@ -11,6 +11,8 @@ import type {
   AccountabilityInvestigation,
   AccountabilityInvestigationSource,
   UpdateInvestigationInput,
+  UKProfileData,
+  CorruptionScenario,
 } from "../types/accountability";
 
 function getSupabaseClient() {
@@ -237,4 +239,67 @@ export async function getInvestigationSources(
   }
 
   return (data || []) as AccountabilityInvestigationSource[];
+}
+
+/**
+ * Calculate a quality score for an investigation based on data completeness.
+ *
+ * Scoring Rubric (Total: 0-10 points):
+ * - Sources score (0-5 points):
+ *   - 0-3 sources: 0 points
+ *   - 4-6 sources: 2.5 points
+ *   - 7+ sources: 5 points
+ * - Scenarios score (0-5 points):
+ *   - <3 scenarios: 0 points
+ *   - 3-5 scenarios: 2.5 points
+ *   - 6+ scenarios: 5 points
+ *
+ * @param investigation - Object containing profile_data, corruption_scenarios, and data_sources_count
+ * @returns Object with score (0-10, rounded to 1 decimal) and notes explaining the breakdown
+ */
+export function calculateQualityScore(investigation: {
+  profile_data: UKProfileData;
+  corruption_scenarios: CorruptionScenario[];
+  data_sources_count: number;
+}): { score: number; notes: string[] } {
+  const notes: string[] = [];
+  
+  const sourcesCount = investigation.data_sources_count ?? 0;
+  const scenariosCount = investigation.corruption_scenarios?.length ?? 0;
+
+  let sourcesScore: number;
+  if (sourcesCount >= 7) {
+    sourcesScore = 5;
+    notes.push(`Sources: ${sourcesCount} sources (7+) = 5.0 points`);
+  } else if (sourcesCount >= 4) {
+    sourcesScore = 2.5;
+    notes.push(`Sources: ${sourcesCount} sources (4-6) = 2.5 points`);
+  } else {
+    sourcesScore = 0;
+    notes.push(`Sources: ${sourcesCount} sources (0-3) = 0 points`);
+  }
+
+  let scenariosScore: number;
+  if (scenariosCount >= 6) {
+    scenariosScore = 5;
+    notes.push(`Scenarios: ${scenariosCount} scenarios (6+) = 5.0 points`);
+  } else if (scenariosCount >= 3) {
+    scenariosScore = 2.5;
+    notes.push(`Scenarios: ${scenariosCount} scenarios (3-5) = 2.5 points`);
+  } else {
+    scenariosScore = 0;
+    notes.push(`Scenarios: ${scenariosCount} scenarios (<3) = 0 points`);
+  }
+
+  const totalScore = Math.round((sourcesScore + scenariosScore) * 10) / 10;
+  
+  notes.push(`Total score: ${totalScore}/10`);
+
+  if (totalScore < 6.0) {
+    notes.push("QUALITY GATE FAILED");
+  } else {
+    notes.push("Quality gate passed");
+  }
+
+  return { score: totalScore, notes };
 }
