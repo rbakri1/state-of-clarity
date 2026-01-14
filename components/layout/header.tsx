@@ -80,7 +80,8 @@ export function Header({ className }: HeaderProps) {
   const navLinks = [
     { href: "/ask", label: "Ask Anything" },
     { href: "/explore", label: "Explore" },
-    { href: "/accountability", label: "Accountability" },
+    { href: "/briefs", label: "Briefs" },
+    { href: "/accountability", label: "Investigations" },
     { href: "/about", label: "About" },
   ];
 
