@@ -145,11 +145,20 @@ export function useInvestigationGeneration(
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorMessage = "Failed to start generation";
+        try {
+          const text = await response.text();
+          if (text) {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData.error || errorMessage;
+          }
+        } catch {
+          console.warn("[SSE] Failed to parse error response");
+        }
         setState((prev) => ({
           ...prev,
           status: "error",
-          error: errorData.error || "Failed to start generation",
+          error: errorMessage,
           creditRefunded: response.status !== 402,
         }));
         return;

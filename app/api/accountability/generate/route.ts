@@ -17,7 +17,16 @@ interface GenerateRequestBody {
 }
 
 const handler = withAuth(async (req: NextRequest, { user }) => {
-  const body = (await req.json()) as GenerateRequestBody;
+  let body: GenerateRequestBody;
+  try {
+    body = (await req.json()) as GenerateRequestBody;
+  } catch (e) {
+    console.error("Failed to parse request body:", e);
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
   const { targetEntity, ethicsAcknowledged } = body;
 
   if (!ethicsAcknowledged) {
@@ -63,6 +72,11 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        sendSSE(controller, "started", {
+          investigationId,
+          timestamp: new Date().toISOString(),
+        });
+
         const result = await generateAccountabilityReport(
           targetEntity.trim(),
           investigationId,
@@ -108,11 +122,16 @@ const handler = withAuth(async (req: NextRequest, { user }) => {
         controller.close();
       } catch (error) {
         console.error("Generation failed:", error);
+        const errorMessage = error instanceof Error ? error.message : "Generation failed";
 
-        await refundCredits(user.id, 1, investigationId, "Generation failed");
+        try {
+          await refundCredits(user.id, 1, investigationId, "Generation failed");
+        } catch (refundError) {
+          console.error("Failed to refund credits:", refundError);
+        }
 
         sendSSE(controller, "error", {
-          message: error instanceof Error ? error.message : "Generation failed",
+          message: errorMessage,
           creditRefunded: true,
           timestamp: new Date().toISOString(),
         });
