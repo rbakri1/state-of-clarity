@@ -196,8 +196,8 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created test file with 12 tests covering: modal opening with entity name, checkbox enabling proceed button, cancel callback, proceed navigation, proceed disabled state"
     },
     {
       "id": "US-011",

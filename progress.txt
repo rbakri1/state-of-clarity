@@ -132,3 +132,20 @@ Thread: https://ampcode.com/threads/T-019bbe56-188d-77aa-8064-f96aa3754ee1
   - Grayscale: use gray-* colors instead of brand colors (sage/ivory)
   - Auto-print with setTimeout after data loads to ensure render complete
 ---
+
+## 2026-01-15 - US-010
+Thread: https://ampcode.com/threads/T-019bbe59-cadb-760c-9418-19c715a47606
+- Created unit tests for ethics-modal.tsx component
+- 12 tests covering all acceptance criteria:
+  - Modal opens with entity name displayed
+  - Checkbox enables/disables Proceed button
+  - Cancel button calls onOpenChange callback
+  - Proceed button calls navigation when checkbox checked
+  - Proceed button disabled when checkbox unchecked
+- Files changed:
+  - __tests__/unit/components/accountability/ethics-modal.test.tsx (new)
+- **Learnings for future iterations:**
+  - Mock next/navigation with vi.mock for useRouter tests
+  - Use vi.clearAllMocks() in beforeEach to reset mock state between tests
+  - Radix Dialog components render in the DOM when open=true, no special mocking needed
+---
