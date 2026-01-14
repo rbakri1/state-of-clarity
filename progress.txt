@@ -155,3 +155,13 @@ Thread: https://ampcode.com/threads/T-019bbd9b-68d8-701c-bea0-e9a3332e6e40
   - Tags are indexed for filtering, Extra is for additional context
   - Pass entity context through wrapper functions for proper error tagging
 ---
+
+## 2026-01-14 23:08 - US-010
+Thread: https://ampcode.com/threads/T-019bbd9b-68d8-701c-bea0-e9a3332e6e40
+- US-010 was already implemented as part of US-007 commit
+- Verified in uk-public-data-service.ts lines 231-251:
+  - `entityType === "organization"` check before calling fetchGovernmentContracts
+  - Sets `governmentContracts` to empty array for individuals
+  - Logs "Skipping Contracts Finder for individual entity"
+- No changes needed
+---

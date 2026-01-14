@@ -174,8 +174,8 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Already implemented in US-007"
     },
     {
       "id": "US-011",
