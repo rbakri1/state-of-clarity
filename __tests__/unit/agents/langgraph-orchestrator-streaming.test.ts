@@ -92,26 +92,26 @@ vi.mock('@/lib/services/brief-service', () => ({
   completeBriefGeneration: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock LangGraph
-const mockInvoke = vi.fn();
+// Mock LangGraph - use vi.hoisted to make mockInvoke available
+const { mockInvoke } = vi.hoisted(() => ({
+  mockInvoke: vi.fn(),
+}));
 
 vi.mock('@langchain/langgraph', () => {
-  const mockGraph = {
-    addNode: vi.fn().mockReturnThis(),
-    addEdge: vi.fn().mockReturnThis(),
-    compile: vi.fn().mockReturnValue({
-      invoke: mockInvoke,
-    }),
-  };
-
   // Create Annotation as a function that also has a Root method
-  const AnnotationFn = vi.fn().mockReturnValue({});
-  AnnotationFn.Root = vi.fn().mockImplementation((config) => ({
-    State: config,
-  }));
+  const AnnotationFn = function() { return {}; } as any;
+  AnnotationFn.Root = (config: any) => ({ State: config });
+
+  // Mock StateGraph class that can be used with 'new' and uses shared mockInvoke
+  class MockStateGraph {
+    invoke = mockInvoke;
+    addNode() { return this; }
+    addEdge() { return this; }
+    compile() { return this; }
+  }
 
   return {
-    StateGraph: vi.fn().mockImplementation(() => mockGraph),
+    StateGraph: MockStateGraph,
     Annotation: AnnotationFn,
     END: 'END',
     START: 'START',

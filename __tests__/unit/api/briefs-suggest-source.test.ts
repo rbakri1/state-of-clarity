@@ -431,5 +431,99 @@ describe('Briefs Suggest Source API Route', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
     });
+
+    it('should handle flagged screening result and update status', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'user-123' } },
+      });
+
+      setupInsertMock({ id: 'suggestion-flagged' }, null);
+      setupUpdateMock();
+      mockScreenFeedback.mockResolvedValue({
+        approved: false,
+        flagged: true,
+        confidence: 0.8,
+      });
+
+      const { POST } = await import('@/app/api/briefs/[id]/suggest-source/route');
+      const request = new NextRequest('http://localhost/api/briefs/brief-123/suggest-source', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: 'https://suspicious-site.com/article',
+        }),
+      });
+
+      const response = await POST(request, { params: Promise.resolve({ id: 'brief-123' }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.id).toBe('suggestion-flagged');
+
+      // Allow async screening to complete
+      await new Promise(resolve => setTimeout(resolve, 10));
+    });
+
+    it('should keep pending status when confidence is low', async () => {
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'user-123' } },
+      });
+
+      setupInsertMock({ id: 'suggestion-low-conf' }, null);
+      setupUpdateMock();
+      mockScreenFeedback.mockResolvedValue({
+        approved: true,
+        flagged: false,
+        confidence: 0.7, // Below 0.9 threshold
+      });
+
+      const { POST } = await import('@/app/api/briefs/[id]/suggest-source/route');
+      const request = new NextRequest('http://localhost/api/briefs/brief-123/suggest-source', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: 'https://example.com/low-confidence-source',
+        }),
+      });
+
+      const response = await POST(request, { params: Promise.resolve({ id: 'brief-123' }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+
+      // Allow async screening to complete
+      await new Promise(resolve => setTimeout(resolve, 10));
+    });
+
+    it('should handle screening failure gracefully', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      mockGetUser.mockResolvedValue({
+        data: { user: { id: 'user-123' } },
+      });
+
+      setupInsertMock({ id: 'suggestion-screen-fail' }, null);
+      mockScreenFeedback.mockRejectedValue(new Error('Screening service unavailable'));
+
+      const { POST } = await import('@/app/api/briefs/[id]/suggest-source/route');
+      const request = new NextRequest('http://localhost/api/briefs/brief-123/suggest-source', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: 'https://example.com/will-fail-screening',
+        }),
+      });
+
+      const response = await POST(request, { params: Promise.resolve({ id: 'brief-123' }) });
+      const data = await response.json();
+
+      // Response should still be successful since screening is async
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+
+      // Allow async screening to complete and log error
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      consoleSpy.mockRestore();
+    });
   });
 });

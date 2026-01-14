@@ -5,6 +5,9 @@ Started: Wed 14 Jan 2026 22:26:06 +04
 - Agent persona files export string constants for system prompts (see specialist-personas.ts and accountability-personas.ts for patterns)
 - Types for accountability features are in lib/types/accountability.ts
 - Use @langchain/langgraph for state machine orchestration (already in dependencies)
+- Pass callbacks through LangGraph state annotation rather than closures (callbacks field in state)
+- Use optional chaining (?.) for callback invocations to make them optional
+- Use parseJsonWithRetry() from json-parse-retry.ts for LLM JSON extraction with automatic retry on parse failure
 ---
 
 ## 2026-01-14 - US-001
@@ -139,4 +142,39 @@ Thread: https://ampcode.com/threads/T-019bbdda-52a0-7024-9af7-e0aa2495907a
   - Callbacks are passed to the function but not yet threaded through to individual agents (US-010 will handle this)
   - The graph.invoke() returns the final state directly
   - Pre-existing test file type errors don't block implementation work
+---
+
+## 2026-01-14 - US-010
+Thread: https://ampcode.com/threads/T-019bbddc-a284-769d-9d19-8cb328a844f3
+- Added callback emissions to all 5 accountability tracker agents for SSE streaming
+- Modified orchestrator to pass callbacks through state annotation (added callbacks field to AccountabilityState)
+- Each agent now emits onAgentStarted at beginning, onAgentCompleted at end with duration
+- Entity classification emits onStageChanged('classifying')
+- UK profile research emits onStageChanged('researching')
+- Corruption analysis emits onStageChanged('analyzing')
+- Action list emits onStageChanged('generating')
+- Quality check emits onStageChanged('checking')
+- Callbacks are optional - agents work without them (using optional chaining)
+- Files modified: accountability-tracker-orchestrator.ts, entity-classification-agent.ts, uk-profile-research-agent.ts, corruption-analysis-agent.ts, action-list-agent.ts, quality-check-agent.ts
+- **Learnings for future iterations:**
+  - Use optional chaining (?.) for callback invocations to make them truly optional
+  - Pass callbacks through state annotation rather than closures for LangGraph compatibility
+  - Track startTime at beginning of agent function to calculate accurate durationMs
+---
+
+## 2026-01-14 - US-011
+Thread: https://ampcode.com/threads/T-019bbdec-9f65-717a-90af-e3fa3f63cc1c
+- Created JSON parsing retry helper for LLM responses
+- File created: lib/agents/json-parse-retry.ts
+- Exports parseJsonWithRetry() - retries LLM call with stricter prompt on JSON parse failure
+- Exports createStricterPrompt() - appends "CRITICAL: You MUST return valid JSON only" on retry
+- Updated uk-profile-research-agent.ts to use parseJsonWithRetry for profile synthesis
+- Updated corruption-analysis-agent.ts to use parseJsonWithRetry for scenario generation
+- Updated action-list-agent.ts to use parseJsonWithRetry for action item generation
+- All agents fall back gracefully to defaults after retries exhausted
+- Build passes (pre-existing test type errors don't block)
+- **Learnings for future iterations:**
+  - Use llmCall callback pattern with isRetry boolean to control prompt modification
+  - Use extractJson function parameter to handle object ({}) vs array ([]) extraction
+  - Each agent can use different max_tokens based on expected response size
 ---
