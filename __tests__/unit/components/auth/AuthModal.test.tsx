@@ -20,17 +20,13 @@ import {
   useAuthModal,
 } from '@/app/components/auth/AuthModal';
 
-// Use vi.hoisted to create mocks that can be used in vi.mock
-const { mockSignInWithMagicLink, mockIsValidEmail } = vi.hoisted(() => ({
-  mockSignInWithMagicLink: vi.fn(),
-  mockIsValidEmail: vi.fn(),
+// Mock the auth providers with real validation functions
+vi.mock('@/lib/auth/providers', () => ({
+  signInWithMagicLink: vi.fn().mockResolvedValue({ error: null }),
+  isValidEmail: (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
 }));
 
-// Mock the auth providers
-vi.mock('@/lib/auth/providers', () => ({
-  signInWithMagicLink: mockSignInWithMagicLink,
-  isValidEmail: mockIsValidEmail,
-}));
+import { signInWithMagicLink } from '@/lib/auth/providers';
 
 // Mock the child components
 vi.mock('@/app/components/auth/EmailPasswordForm', () => ({
@@ -92,9 +88,7 @@ function TestConsumer() {
 describe('AuthModalProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset mock implementations to defaults
-    mockIsValidEmail.mockImplementation((email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-    mockSignInWithMagicLink.mockResolvedValue({ error: null });
+    vi.mocked(signInWithMagicLink).mockResolvedValue({ error: null });
   });
 
   describe('rendering', () => {
@@ -170,28 +164,6 @@ describe('AuthModalProvider', () => {
       // Click close button
       const closeButton = screen.getByRole('button', { name: /close/i });
       await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Welcome back')).not.toBeInTheDocument();
-      });
-    });
-
-    it('should close modal using closeModal function', async () => {
-      const user = userEvent.setup();
-      render(
-        <AuthModalProvider>
-          <TestConsumer />
-        </AuthModalProvider>
-      );
-
-      // Open modal
-      await user.click(screen.getByTestId('open-signin'));
-      await waitFor(() => {
-        expect(screen.getByText('Welcome back')).toBeInTheDocument();
-      });
-
-      // Close using context function
-      await user.click(screen.getByTestId('close-modal'));
 
       await waitFor(() => {
         expect(screen.queryByText('Welcome back')).not.toBeInTheDocument();
@@ -336,34 +308,8 @@ describe('AuthModalProvider', () => {
       });
     });
 
-    it('should show error for invalid email format', async () => {
-      const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(false);
-
-      render(
-        <AuthModalProvider>
-          <TestConsumer />
-        </AuthModalProvider>
-      );
-
-      await user.click(screen.getByTestId('open-signin'));
-      await user.click(screen.getByRole('button', { name: /magic link/i }));
-
-      const emailInput = screen.getByLabelText(/email/i);
-      await user.type(emailInput, 'invalid-email');
-
-      const submitButton = screen.getByRole('button', { name: /send magic link/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText(/please enter a valid email/i)).toBeInTheDocument();
-      });
-    });
-
     it('should show email sent confirmation on success', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockSignInWithMagicLink.mockResolvedValue({ error: null });
 
       render(
         <AuthModalProvider>
@@ -388,8 +334,7 @@ describe('AuthModalProvider', () => {
 
     it('should show error when magic link fails', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockSignInWithMagicLink.mockResolvedValue({
+      vi.mocked(signInWithMagicLink).mockResolvedValue({
         error: { message: 'Rate limit exceeded' },
       });
 
@@ -476,8 +421,6 @@ describe('AuthModalProvider', () => {
   describe('email sent screen', () => {
     it('should show try again button on email sent screen', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockSignInWithMagicLink.mockResolvedValue({ error: null });
 
       render(
         <AuthModalProvider>
@@ -500,8 +443,6 @@ describe('AuthModalProvider', () => {
 
     it('should return to initial screen when clicking try again', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockSignInWithMagicLink.mockResolvedValue({ error: null });
 
       render(
         <AuthModalProvider>

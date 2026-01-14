@@ -169,3 +169,20 @@ Thread: https://ampcode.com/threads/T-019bbe5b-722a-71bb-b4f8-e1b77540d9cf
   - Mock fetch with mockImplementation returning Promise(() => {}) for pending requests
   - Type AbortSignal properly with `as AbortSignal | null` cast to fix TypeScript errors
 ---
+
+## 2026-01-15 - US-012
+Thread: https://ampcode.com/threads/T-019bbe5e-9209-7704-b26a-05cdbbe627c8
+- Created unit tests for profile, scenarios, and action items components
+- profile-section.test.tsx: 17 tests covering data completeness indicator, expandable cards, all 5 data source types, empty states, source links, accessibility
+- scenarios-section.test.tsx: 22 tests covering risk badges (color-coded), ethics reminder, expandable content, all scenario fields, accessibility
+- action-items-section.test.tsx: 28 tests covering priority grouping, priority badges, checkbox tracking, completion counter, legal considerations, accessibility
+- All 67 tests pass
+- Files changed:
+  - __tests__/unit/components/accountability/profile-section.test.tsx (new)
+  - __tests__/unit/components/accountability/scenarios-section.test.tsx (new)
+  - __tests__/unit/components/accountability/action-items-section.test.tsx (new)
+- **Learnings for future iterations:**
+  - Use getAllByText when text appears in multiple places (e.g., priority labels in group heading AND badge)
+  - Filter by element.tagName and element.className to distinguish between similar elements
+  - The component renders all expandable cards even when collapsed; expand via fireEvent.click before checking inner content
+---

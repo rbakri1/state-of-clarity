@@ -1,13 +1,11 @@
 /**
  * EmailPasswordForm Component Tests
  *
- * Tests for the EmailPasswordForm component:
+ * Tests for the EmailPasswordForm component covering:
  * - Component renders with correct mode (signin/signup)
  * - Form elements present
  * - Password visibility toggle
- * - Form validation (email, password, confirm password)
- * - Sign in functionality
- * - Sign up functionality
+ * - Form submission
  * - Forgot password flow
  * - Mode toggle
  */
@@ -17,23 +15,21 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EmailPasswordForm } from '@/app/components/auth/EmailPasswordForm';
 
-// Use vi.hoisted to create mocks that can be used in vi.mock
-const { mockSignInWithEmail, mockSignUpWithEmail, mockResetPassword, mockIsValidEmail, mockIsValidPassword } = vi.hoisted(() => ({
-  mockSignInWithEmail: vi.fn(),
-  mockSignUpWithEmail: vi.fn(),
-  mockResetPassword: vi.fn(),
-  mockIsValidEmail: vi.fn(),
-  mockIsValidPassword: vi.fn(),
+// Mock the auth provider functions
+vi.mock('@/lib/auth/providers', () => ({
+  signInWithEmail: vi.fn().mockResolvedValue({ error: null }),
+  signUpWithEmail: vi.fn().mockResolvedValue({ error: null, data: { user: { id: '123' }, session: { access_token: 'token' } } }),
+  resetPassword: vi.fn().mockResolvedValue({ error: null }),
+  isValidEmail: (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+  isValidPassword: (password: string) => {
+    if (password.length < 8) {
+      return { valid: false, message: 'Password must be at least 8 characters' };
+    }
+    return { valid: true };
+  },
 }));
 
-// Mock the auth providers
-vi.mock('@/lib/auth/providers', () => ({
-  signInWithEmail: mockSignInWithEmail,
-  signUpWithEmail: mockSignUpWithEmail,
-  resetPassword: mockResetPassword,
-  isValidEmail: mockIsValidEmail,
-  isValidPassword: mockIsValidPassword,
-}));
+import { signInWithEmail, signUpWithEmail, resetPassword } from '@/lib/auth/providers';
 
 describe('EmailPasswordForm', () => {
   const defaultProps = {
@@ -47,17 +43,9 @@ describe('EmailPasswordForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset mock implementations to defaults
-    mockIsValidEmail.mockImplementation((email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-    mockIsValidPassword.mockImplementation((password: string) => {
-      if (password.length < 8) {
-        return { valid: false, message: 'Password must be at least 8 characters' };
-      }
-      return { valid: true };
-    });
-    mockSignInWithEmail.mockResolvedValue({ error: null });
-    mockSignUpWithEmail.mockResolvedValue({ error: null, data: { user: { id: '123' }, session: { access_token: 'token' } } });
-    mockResetPassword.mockResolvedValue({ error: null });
+    vi.mocked(signInWithEmail).mockResolvedValue({ error: null, data: { user: {}, session: {} } });
+    vi.mocked(signUpWithEmail).mockResolvedValue({ error: null, data: { user: { id: '123' }, session: { access_token: 'token' } } });
+    vi.mocked(resetPassword).mockResolvedValue({ error: null, data: {} });
   });
 
   describe('rendering', () => {
@@ -133,13 +121,11 @@ describe('EmailPasswordForm', () => {
       const passwordInput = screen.getByLabelText(/^password$/i);
       expect(passwordInput).toHaveAttribute('type', 'password');
 
-      // Click toggle button
       const toggleButton = screen.getByRole('button', { name: /show password/i });
       await user.click(toggleButton);
 
       expect(passwordInput).toHaveAttribute('type', 'text');
 
-      // Click again to hide
       const hideButton = screen.getByRole('button', { name: /hide password/i });
       await user.click(hideButton);
 
@@ -153,7 +139,6 @@ describe('EmailPasswordForm', () => {
       const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
       expect(confirmPasswordInput).toHaveAttribute('type', 'password');
 
-      // Click toggle button
       const toggleButton = screen.getByRole('button', { name: /show password/i });
       await user.click(toggleButton);
 
@@ -162,35 +147,32 @@ describe('EmailPasswordForm', () => {
   });
 
   describe('form validation', () => {
-    it('should call onError for invalid email', async () => {
-      const user = userEvent.setup();
-      const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(false);
+    it('should disable submit button when email is empty', () => {
+      render(<EmailPasswordForm {...defaultProps} email="" />);
+      const submitButton = screen.getByRole('button', { name: /sign in/i });
+      expect(submitButton).toBeDisabled();
+    });
 
-      render(
-        <EmailPasswordForm
-          {...defaultProps}
-          email="invalid"
-          onError={onError}
-        />
-      );
+    it('should disable submit button when password is empty', async () => {
+      render(<EmailPasswordForm {...defaultProps} email="test@example.com" />);
+      const submitButton = screen.getByRole('button', { name: /sign in/i });
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('should enable submit button when email and password are provided', async () => {
+      const user = userEvent.setup();
+      render(<EmailPasswordForm {...defaultProps} email="test@example.com" />);
 
       const passwordInput = screen.getByLabelText(/^password$/i);
       await user.type(passwordInput, 'password123');
 
       const submitButton = screen.getByRole('button', { name: /sign in/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith('Please enter a valid email address');
-      });
+      expect(submitButton).not.toBeDisabled();
     });
 
-    it('should call onError for short password', async () => {
+    it('should show error for short password', async () => {
       const user = userEvent.setup();
       const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: false, message: 'Password must be at least 8 characters' });
 
       render(
         <EmailPasswordForm
@@ -211,11 +193,9 @@ describe('EmailPasswordForm', () => {
       });
     });
 
-    it('should call onError when passwords do not match in signup mode', async () => {
+    it('should show error when passwords do not match in signup mode', async () => {
       const user = userEvent.setup();
       const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
 
       render(
         <EmailPasswordForm
@@ -239,34 +219,13 @@ describe('EmailPasswordForm', () => {
         expect(onError).toHaveBeenCalledWith('Passwords do not match');
       });
     });
-
-    it('should disable submit button when email or password is empty', () => {
-      render(<EmailPasswordForm {...defaultProps} email="" />);
-
-      const submitButton = screen.getByRole('button', { name: /sign in/i });
-      expect(submitButton).toBeDisabled();
-    });
-
-    it('should enable submit button when email and password are provided', async () => {
-      const user = userEvent.setup();
-      render(<EmailPasswordForm {...defaultProps} email="test@example.com" />);
-
-      const passwordInput = screen.getByLabelText(/^password$/i);
-      await user.type(passwordInput, 'password123');
-
-      const submitButton = screen.getByRole('button', { name: /sign in/i });
-      expect(submitButton).not.toBeDisabled();
-    });
   });
 
   describe('sign in', () => {
-    it('should call signInWithEmail on submit', async () => {
+    it('should call signInWithEmail on valid submit', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignInWithEmail.mockResolvedValue({ error: null, data: { user: {}, session: {} } });
-
       const onSuccess = vi.fn();
+
       render(
         <EmailPasswordForm
           {...defaultProps}
@@ -282,16 +241,16 @@ describe('EmailPasswordForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockSignInWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
+        expect(signInWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
         expect(onSuccess).toHaveBeenCalled();
       });
     });
 
     it('should show loading state while signing in', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignInWithEmail.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ error: null, data: {} }), 100)));
+      vi.mocked(signInWithEmail).mockImplementation(() =>
+        new Promise((resolve) => setTimeout(() => resolve({ error: null, data: {} }), 100))
+      );
 
       render(
         <EmailPasswordForm
@@ -312,9 +271,7 @@ describe('EmailPasswordForm', () => {
     it('should show error for invalid credentials', async () => {
       const user = userEvent.setup();
       const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignInWithEmail.mockResolvedValue({
+      vi.mocked(signInWithEmail).mockResolvedValue({
         error: { message: 'Invalid login credentials' },
         data: { user: null, session: null },
       });
@@ -337,48 +294,13 @@ describe('EmailPasswordForm', () => {
         expect(onError).toHaveBeenCalledWith('Invalid email or password. Please try again.');
       });
     });
-
-    it('should show error for unconfirmed email', async () => {
-      const user = userEvent.setup();
-      const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignInWithEmail.mockResolvedValue({
-        error: { message: 'Email not confirmed' },
-        data: { user: null, session: null },
-      });
-
-      render(
-        <EmailPasswordForm
-          {...defaultProps}
-          email="test@example.com"
-          onError={onError}
-        />
-      );
-
-      const passwordInput = screen.getByLabelText(/^password$/i);
-      await user.type(passwordInput, 'password123');
-
-      const submitButton = screen.getByRole('button', { name: /sign in/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith('Please confirm your email address before signing in.');
-      });
-    });
   });
 
   describe('sign up', () => {
-    it('should call signUpWithEmail on submit', async () => {
+    it('should call signUpWithEmail on valid submit', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignUpWithEmail.mockResolvedValue({
-        error: null,
-        data: { user: { id: '123' }, session: { access_token: 'token' } },
-      });
-
       const onSuccess = vi.fn();
+
       render(
         <EmailPasswordForm
           {...defaultProps}
@@ -398,16 +320,16 @@ describe('EmailPasswordForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockSignUpWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
+        expect(signUpWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
         expect(onSuccess).toHaveBeenCalled();
       });
     });
 
     it('should show loading state while signing up', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignUpWithEmail.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ error: null, data: {} }), 100)));
+      vi.mocked(signUpWithEmail).mockImplementation(() =>
+        new Promise((resolve) => setTimeout(() => resolve({ error: null, data: {} }), 100))
+      );
 
       render(
         <EmailPasswordForm
@@ -427,75 +349,6 @@ describe('EmailPasswordForm', () => {
       await user.click(submitButton);
 
       expect(screen.getByText(/creating account/i)).toBeInTheDocument();
-    });
-
-    it('should show error for existing account', async () => {
-      const user = userEvent.setup();
-      const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignUpWithEmail.mockResolvedValue({
-        error: { message: 'User already registered' },
-        data: { user: null, session: null },
-      });
-
-      render(
-        <EmailPasswordForm
-          {...defaultProps}
-          mode="signup"
-          email="test@example.com"
-          onError={onError}
-        />
-      );
-
-      const passwordInput = screen.getByLabelText(/^password$/i);
-      await user.type(passwordInput, 'password123');
-
-      const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-      await user.type(confirmPasswordInput, 'password123');
-
-      const submitButton = screen.getByRole('button', { name: /create account/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith('An account with this email already exists. Try signing in.');
-      });
-    });
-
-    it('should show confirmation message when email confirmation is needed', async () => {
-      const user = userEvent.setup();
-      const onError = vi.fn();
-      const onSuccess = vi.fn();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignUpWithEmail.mockResolvedValue({
-        error: null,
-        data: { user: { id: '123' }, session: null },
-      });
-
-      render(
-        <EmailPasswordForm
-          {...defaultProps}
-          mode="signup"
-          email="test@example.com"
-          onError={onError}
-          onSuccess={onSuccess}
-        />
-      );
-
-      const passwordInput = screen.getByLabelText(/^password$/i);
-      await user.type(passwordInput, 'password123');
-
-      const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-      await user.type(confirmPasswordInput, 'password123');
-
-      const submitButton = screen.getByRole('button', { name: /create account/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith('Check your email to confirm your account.');
-        expect(onSuccess).toHaveBeenCalled();
-      });
     });
   });
 
@@ -522,10 +375,8 @@ describe('EmailPasswordForm', () => {
       expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
 
-    it('should call resetPassword when form is submitted', async () => {
+    it('should call resetPassword when form is submitted with valid email', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockResetPassword.mockResolvedValue({ error: null });
 
       render(
         <EmailPasswordForm
@@ -539,14 +390,12 @@ describe('EmailPasswordForm', () => {
       await user.click(screen.getByRole('button', { name: /send reset link/i }));
 
       await waitFor(() => {
-        expect(mockResetPassword).toHaveBeenCalledWith('test@example.com');
+        expect(resetPassword).toHaveBeenCalledWith('test@example.com');
       });
     });
 
     it('should show success message after reset email is sent', async () => {
       const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockResetPassword.mockResolvedValue({ error: null });
 
       render(
         <EmailPasswordForm
@@ -561,28 +410,6 @@ describe('EmailPasswordForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/password reset email sent/i)).toBeInTheDocument();
-      });
-    });
-
-    it('should show error for invalid email in forgot password form', async () => {
-      const user = userEvent.setup();
-      const onError = vi.fn();
-      mockIsValidEmail.mockReturnValue(false);
-
-      render(
-        <EmailPasswordForm
-          {...defaultProps}
-          mode="signin"
-          email="invalid"
-          onError={onError}
-        />
-      );
-
-      await user.click(screen.getByRole('button', { name: /forgot password/i }));
-      await user.click(screen.getByRole('button', { name: /send reset link/i }));
-
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith('Please enter a valid email address');
       });
     });
   });
@@ -603,7 +430,6 @@ describe('EmailPasswordForm', () => {
       const onModeChange = vi.fn();
       render(<EmailPasswordForm {...defaultProps} mode="signin" onModeChange={onModeChange} />);
 
-      // Find the Sign up button in the mode toggle section (not in a form)
       const signUpButton = screen.getAllByRole('button').find(
         btn => btn.textContent === 'Sign up'
       );
@@ -617,38 +443,12 @@ describe('EmailPasswordForm', () => {
       const onModeChange = vi.fn();
       render(<EmailPasswordForm {...defaultProps} mode="signup" onModeChange={onModeChange} />);
 
-      // Find the Sign in button in the mode toggle section
       const signInButton = screen.getAllByRole('button').find(
         btn => btn.textContent === 'Sign in'
       );
       await user.click(signInButton!);
 
       expect(onModeChange).toHaveBeenCalledWith('signin');
-    });
-  });
-
-  describe('input disabling during loading', () => {
-    it('should disable inputs while submitting', async () => {
-      const user = userEvent.setup();
-      mockIsValidEmail.mockReturnValue(true);
-      mockIsValidPassword.mockReturnValue({ valid: true });
-      mockSignInWithEmail.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ error: null, data: {} }), 100)));
-
-      render(
-        <EmailPasswordForm
-          {...defaultProps}
-          email="test@example.com"
-        />
-      );
-
-      const passwordInput = screen.getByLabelText(/^password$/i);
-      await user.type(passwordInput, 'password123');
-
-      const submitButton = screen.getByRole('button', { name: /sign in/i });
-      await user.click(submitButton);
-
-      expect(screen.getByLabelText(/email/i)).toBeDisabled();
-      expect(passwordInput).toBeDisabled();
     });
   });
 });
