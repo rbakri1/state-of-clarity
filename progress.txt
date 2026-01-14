@@ -43,3 +43,14 @@ Thread: https://ampcode.com/threads/T-019bbe1d-7a41-715a-b463-1cd198e04b82
   - Next.js 15 params are Promises - use `await params` then access the id
   - Match the existing withAuth signature: `async (_req, { user, params })` with optional typing
 ---
+
+## 2026-01-15 - US-004
+Thread: https://ampcode.com/threads/T-019bbe24-a6ac-73cb-81af-2720e8b57271
+- Created export endpoint at /app/api/accountability/[id]/export/route.ts
+- GET method redirects to /accountability/{id}/print for PDF export
+- Uses withAuth middleware, returns 404 if not found, 403 if not owner
+- Files changed: app/api/accountability/[id]/export/route.ts (new)
+- **Learnings for future iterations:**
+  - Use `new URL(path, req.url)` to construct absolute URLs for NextResponse.redirect()
+  - NextResponse.redirect() second parameter is the status code (302 for temporary redirect)
+---
