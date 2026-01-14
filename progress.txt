@@ -1,5 +1,11 @@
 # Ralph Progress Log
 Started: Thu 15 Jan 2026 02:14:40 +04
+
+## Codebase Patterns
+- Use `npm run type-check` (not `typecheck`) for this project
+- Test file type errors exist in __tests__/unit/ but don't block component work
+- For accountability_investigations table, use cast to `ReturnType<typeof supabase.from>` (table not in types yet)
+- Check error field when querying tables that may not exist - handle gracefully with fallback to 0
 ---
 
 ## 2026-01-15 02:22 +04 - US-001
@@ -10,4 +16,16 @@ Thread: https://ampcode.com/threads/T-019bbe99-6cc8-762d-8849-44cdb301be83
   - Header nav links are defined in navLinks array in components/layout/header.tsx
   - Use `npm run type-check` (not `typecheck`) for this project
   - Test file type errors exist in __tests__/unit/services/ but don't block component work
+---
+
+## 2026-01-15 03:42 +04 - US-002
+Thread: https://ampcode.com/threads/T-019bbe9b-d2bb-7279-a0c8-b571482bccab
+- What was implemented: Added investigations count fetch to profile page
+- Files changed: app/profile/page.tsx
+  - Added `investigationsCount` to ProfileStats interface
+  - Added query to accountability_investigations table in Promise.all
+  - Used type cast and error handling for graceful fallback
+- **Learnings for future iterations:**
+  - accountability_investigations table not in Supabase types yet - use type cast
+  - Check `result.error` before accessing count for tables that might not exist
 ---
