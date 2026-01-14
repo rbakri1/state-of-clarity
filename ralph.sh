@@ -4,7 +4,7 @@
 
 set -e
 
-MAX_ITERATIONS=${1:-10}
+MAX_ITERATIONS=${1:-25}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PRD_FILE="$SCRIPT_DIR/prd.json"
 PROGRESS_FILE="$SCRIPT_DIR/progress.txt"
