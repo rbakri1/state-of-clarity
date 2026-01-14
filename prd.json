@@ -160,8 +160,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created results page with header, ethics banner, profile/scenarios/action items sections, sources footer"
     },
     {
       "id": "US-009",
@@ -178,8 +178,8 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created print layout with title page, disclaimer, profile tables, scenarios, action items, and sources. Auto-prints on load. Grayscale-friendly with page breaks."
     },
     {
       "id": "US-010",
