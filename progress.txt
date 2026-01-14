@@ -47,7 +47,7 @@ Thread: https://ampcode.com/threads/T-019bbe2e-0e3b-749f-acf4-a820b91eafca
 ---
 
 ## 2026-01-15 - US-012
-Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
+Thread: https://ampcode.com/threads/T-019bbe2e-0e3b-749f-acf4-a820b91eafca
 - Created unit tests for generation endpoint
 - Tests cover: 401 unauthenticated, 400 ethicsAcknowledged validation, 402 insufficient credits, credit deduction, quality score refund, error refund, SSE event formatting
 - Helper function `readSSEStream` to parse and collect SSE events during tests
@@ -59,4 +59,15 @@ Thread: https://ampcode.com/threads/$AMP_CURRENT_THREAD_ID
   - Mock `withRateLimit` to bypass rate limiting in tests (just return the handler)
   - For testing callbacks in SSE generation, mock the `generateAccountabilityReport` to call the callbacks inline
   - All 9 tests pass, covering comprehensive scenarios for generation endpoint including error handling
+---
+
+## 2026-01-15 - US-013
+Thread: https://ampcode.com/threads/T-019bbe2e-86e6-7214-838c-cd69f26d6d99
+- Created unit tests for export redirect endpoint
+- Tests: 401 unauthenticated, 404 when not found, 403 when user doesn't own, redirects to print page, 302 status, correct ID passed to service
+- Files changed: __tests__/unit/api/accountability-export.test.ts
+- **Learnings for future iterations:**
+  - Export endpoint tests follow same pattern as fetch endpoint tests
+  - For redirect testing, check `response.headers.get("Location")` contains the expected URL
+  - All 6 tests pass
 ---
