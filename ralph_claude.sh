@@ -6,7 +6,7 @@ set -e
 
 MAX_ITERATIONS=${1:-25}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PRD_FILE="$SCRIPT_DIR/prd-accountability-tracker-4-api-layer"
+PRD_FILE="$SCRIPT_DIR/tasks/prd-accountability-tracker-5-frontend.md"
 PROGRESS_FILE="$SCRIPT_DIR/progress.txt"
 ARCHIVE_DIR="$SCRIPT_DIR/archive"
 LAST_BRANCH_FILE="$SCRIPT_DIR/.last-branch"

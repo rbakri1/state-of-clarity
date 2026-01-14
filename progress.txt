@@ -20,3 +20,26 @@ Thread: https://ampcode.com/threads/T-019bbe19-c93e-74ef-886a-87d813787d2a
   - TextEncoder should be created once at module level for efficiency
   - SSE format: `event: {name}\ndata: {json}\n\n` with double newline at end
 ---
+
+## 2026-01-15 - US-002
+Thread: https://ampcode.com/threads/T-019bbe1b-5b10-750e-aa1f-d69a9a3b79ce
+- Created list investigations endpoint at /app/api/accountability/route.ts
+- GET method uses withAuth middleware
+- Returns { investigations: AccountabilityInvestigation[] }
+- Files changed: app/api/accountability/route.ts (new)
+- **Learnings for future iterations:**
+  - `listUserInvestigations` already handles ordering by created_at DESC and returns empty array
+  - Keep API routes minimal - the service layer handles the logic
+---
+
+## 2026-01-15 - US-003
+Thread: https://ampcode.com/threads/T-019bbe1d-7a41-715a-b463-1cd198e04b82
+- Created fetch investigation endpoint at /app/api/accountability/[id]/route.ts
+- GET method with withAuth middleware
+- Returns 404 if not found, 403 if not owner
+- Includes sources from getInvestigationSources
+- Files changed: app/api/accountability/[id]/route.ts (new)
+- **Learnings for future iterations:**
+  - Next.js 15 params are Promises - use `await params` then access the id
+  - Match the existing withAuth signature: `async (_req, { user, params })` with optional typing
+---
