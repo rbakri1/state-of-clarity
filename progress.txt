@@ -1,5 +1,5 @@
 # Ralph Progress Log
-Started: Thu 15 Jan 2026 00:01:58 +04
+Started: Thu 15 Jan 2026 00:21:42 +04
 
 ## Codebase Patterns
 - Use `withAuth` from `@/lib/auth/middleware` for authenticated API routes
@@ -7,62 +7,20 @@ Started: Thu 15 Jan 2026 00:01:58 +04
 - SSE helpers are in `lib/api/sse-helpers.ts` - use `createSSEResponse` and `sendSSE`
 - Credit service functions: `hasCredits`, `deductCredits`, `refundCredits` from `lib/services/credit-service.ts`
 - Accountability service functions: `createInvestigation`, `getInvestigation`, `listUserInvestigations`, `getInvestigationSources` from `lib/services/accountability-service.ts`
+- Accountability report generation: `generateAccountabilityReport` from `lib/agents/accountability-tracker-orchestrator.ts` with callbacks for SSE streaming
 
 ---
 
-## 2026-01-15 - US-001
-Thread: https://ampcode.com/threads/T-019bbe19-c93e-74ef-886a-87d813787d2a
-- Created SSE helper functions in lib/api/sse-helpers.ts
-- Exported `createSSEResponse()` with proper SSE headers
-- Exported `sendSSE()` that formats events as SSE spec
-- Files changed: lib/api/sse-helpers.ts (new)
+## 2026-01-15 - US-006, US-007, US-008, US-009
+Thread: https://ampcode.com/threads/T-019bbe29-832a-714b-bdd0-e315043478ee
+- Implemented full SSE streaming in generation endpoint
+- Added credit check and deduction before generation starts
+- SSE events: agent_started, agent_completed, stage_changed, complete, error
+- Quality gate refund: if qualityScore < 6.0, credit is refunded
+- Error handling: try-catch with refund on failure, SSE error event
+- Files changed: app/api/accountability/generate/route.ts
 - **Learnings for future iterations:**
-  - TextEncoder should be created once at module level for efficiency
-  - SSE format: `event: {name}\ndata: {json}\n\n` with double newline at end
----
-
-## 2026-01-15 - US-002
-Thread: https://ampcode.com/threads/T-019bbe1b-5b10-750e-aa1f-d69a9a3b79ce
-- Created list investigations endpoint at /app/api/accountability/route.ts
-- GET method uses withAuth middleware
-- Returns { investigations: AccountabilityInvestigation[] }
-- Files changed: app/api/accountability/route.ts (new)
-- **Learnings for future iterations:**
-  - `listUserInvestigations` already handles ordering by created_at DESC and returns empty array
-  - Keep API routes minimal - the service layer handles the logic
----
-
-## 2026-01-15 - US-003
-Thread: https://ampcode.com/threads/T-019bbe1d-7a41-715a-b463-1cd198e04b82
-- Created fetch investigation endpoint at /app/api/accountability/[id]/route.ts
-- GET method with withAuth middleware
-- Returns 404 if not found, 403 if not owner
-- Includes sources from getInvestigationSources
-- Files changed: app/api/accountability/[id]/route.ts (new)
-- **Learnings for future iterations:**
-  - Next.js 15 params are Promises - use `await params` then access the id
-  - Match the existing withAuth signature: `async (_req, { user, params })` with optional typing
----
-
-## 2026-01-15 - US-004
-Thread: https://ampcode.com/threads/T-019bbe24-a6ac-73cb-81af-2720e8b57271
-- Created export endpoint at /app/api/accountability/[id]/export/route.ts
-- GET method redirects to /accountability/{id}/print for PDF export
-- Uses withAuth middleware, returns 404 if not found, 403 if not owner
-- Files changed: app/api/accountability/[id]/export/route.ts (new)
-- **Learnings for future iterations:**
-  - Use `new URL(path, req.url)` to construct absolute URLs for NextResponse.redirect()
-  - NextResponse.redirect() second parameter is the status code (302 for temporary redirect)
----
-
-## 2026-01-15 - US-005
-Thread: https://ampcode.com/threads/T-019bbe25-f3ab-7283-a677-2d81f6121159
-- Created generation endpoint skeleton at /app/api/accountability/generate/route.ts
-- POST method with withAuth middleware wrapped in withRateLimit (3 requests per hour)
-- Validates ethicsAcknowledged (400 if false), targetEntity (400 if empty)
-- Logs request and returns placeholder response
-- Files changed: app/api/accountability/generate/route.ts (new)
-- **Learnings for future iterations:**
-  - Compose middleware by wrapping: `withRateLimit(withAuth(handler), config)`
-  - Rate limit config: `{ requests: 3, window: 3600 }` for 3 per hour
+  - The `generateAccountabilityReport` function accepts callbacks for onAgentStarted, onAgentCompleted, onStageChanged
+  - Always close the stream controller with `controller.close()` after sending complete/error event
+  - US-006 through US-009 are tightly coupled - SSE streaming, quality gate refund, and error handling are all in the same endpoint
 ---
