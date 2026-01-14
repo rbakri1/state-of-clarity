@@ -1,0 +1,189 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/accountability-tracker-frontend",
+  "description": "Accountability Tracker Frontend - UI Components & Pages including landing page, ethics modal, generation progress with SSE, results page, and print layout. PRD 5 of 6 (see tasks/prd-accountability-tracker-overview.md).",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create landing page with entity input",
+      "description": "As a user, I want to enter a target entity name and start an investigation so that I can begin researching potential corruption.",
+      "acceptanceCriteria": [
+        "Create /app/accountability/page.tsx",
+        "Hero heading: 'Accountability Tracker' (text-4xl, font-heading, text-ink-800)",
+        "Subheading: 'Systematically investigate potential corruption using UK public records. Evidence-based. Transparent. Ethical.'",
+        "Yellow ethics notice banner with text: 'This tool is for investigative journalism only. Remember: innocent until proven guilty.'",
+        "Input field: placeholder 'Enter name or organization to investigate...' (w-full, px-4, py-4, rounded-xl)",
+        "Submit button: 'Start Investigation (£9.99)' (bg-sage-500, w-full)",
+        "Form validation: input required (browser native)",
+        "On submit: show ethics modal (don't navigate yet)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create ethics acknowledgment modal",
+      "description": "As a user, I must acknowledge ethical principles before proceeding so that I understand the tool's limitations.",
+      "acceptanceCriteria": [
+        "Create /components/accountability/ethics-modal.tsx",
+        "Use Radix Dialog component (max-w-2xl, centered, backdrop blur)",
+        "Display target entity name: 'You are about to investigate: [NAME]'",
+        "List 5 ethical principles (bullet points): Innocent until proven guilty; Correlation does not equal causation; This tool maps theoretical possibilities, NOT confirmed wrongdoing; All findings must be verified through traditional investigative methods; Use responsibly and ethically for legitimate journalism only",
+        "Checkbox with label: 'I understand these principles and will use this tool ethically...'",
+        "'Cancel' button (border-2 border-ivory-600)",
+        "'Proceed with Investigation' button (bg-sage-500, disabled until checkbox checked)",
+        "Clicking 'Proceed' navigates to /accountability/generate?entity=[NAME]",
+        "Proper ARIA labels: aria-modal, aria-labelledby, aria-describedby",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill (test checkbox enable/disable)"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create generation progress page with SSE",
+      "description": "As a user, I want to see real-time progress during investigation generation so that I know the system is working.",
+      "acceptanceCriteria": [
+        "Create /app/accountability/generate/page.tsx",
+        "Read entity from URL search params",
+        "Display entity name: 'Investigating: [NAME]'",
+        "Show 5 progress stages with icons: Entity Classification (User icon), UK Profile Research (Search icon), Corruption Analysis (ListTree icon), Action List Generation (PenLine icon), Quality Check (CheckCircle icon)",
+        "Current stage shows spinning Loader2 icon",
+        "Completed stages show green CheckCircle2 icon",
+        "Pending stages show gray stage icon",
+        "Progress bar with asymptotic curve (0-95%, never 100% until complete)",
+        "SSE connection to /api/accountability/generate with POST body",
+        "Listen for SSE events: agent_started, agent_completed, stage_changed, complete, error",
+        "On complete event: navigate to /accountability/[id] (if success)",
+        "On error event: show error message + refund notice",
+        "On quality gate failure: show 'Insufficient data' message + refund notice",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill (test real generation)"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create SSE hook for generation",
+      "description": "As a developer, I need an SSE hook so that progress tracking is reusable and testable.",
+      "acceptanceCriteria": [
+        "Create /lib/hooks/useInvestigationGeneration.ts",
+        "Hook accepts: targetEntity (string), ethicsAcknowledged (boolean)",
+        "Hook returns: status, progress, currentStage, error, investigationId, agentStatuses",
+        "Hook connects to EventSource: /api/accountability/generate",
+        "Hook updates state on each SSE event",
+        "Hook handles connection errors (retry 3 times)",
+        "Hook cleans up EventSource on unmount",
+        "agentStatuses tracks: agent name, status (pending/running/completed), duration",
+        "Typecheck passes",
+        "Unit test with mocked EventSource"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create results page",
+      "description": "As a user, I want to view completed investigation results so that I can review the findings.",
+      "acceptanceCriteria": [
+        "Create /app/accountability/[id]/page.tsx",
+        "Fetch investigation via /api/accountability/[id]",
+        "Display 404 if investigation not found",
+        "Header section: Target entity name (text-3xl, font-heading), Completion date (text-ink-500), 'Export PDF' button (top-right, opens /accountability/[id]/print in new tab)",
+        "Ethics reminder banner (yellow, always visible): 'Remember: This report maps theoretical corruption possibilities based on structural analysis. Innocent until proven guilty.'",
+        "Profile section (expandable cards for each data source)",
+        "Scenarios section (cards with risk-level badges: red=high, yellow=medium, gray=low)",
+        "Action items section (grouped by priority, checklist style)",
+        "Sources footer (list of URLs with access dates)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create profile display component",
+      "description": "As a user, I want to see UK profile data in a clear format so that I can understand the entity's public record.",
+      "acceptanceCriteria": [
+        "Create /components/accountability/profile-section.tsx",
+        "Props: profileData (UKProfileData)",
+        "Section heading: 'UK Public Records Profile'",
+        "Display data completeness indicators (green check or red X for each source)",
+        "Expandable cards for each data type: Companies House (directorships, company names, roles, dates), Charity Commission (trusteeships, charity names, income), Register of Interests (categories, descriptions, values), Electoral Commission (donations, amounts, dates), Contracts Finder (contract titles, values, award dates)",
+        "Each card shows source URL as link",
+        "Empty state: 'No data found for this source'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill (test expand/collapse)"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create scenarios display component",
+      "description": "As a user, I want to see corruption scenarios in a scannable format so that I can identify key risks.",
+      "acceptanceCriteria": [
+        "Create /components/accountability/scenarios-section.tsx",
+        "Props: scenarios (CorruptionScenario[])",
+        "Section heading: 'Theoretical Corruption Scenarios'",
+        "Ethics reminder: 'These are hypothetical scenarios based on structural analysis, NOT evidence of wrongdoing.'",
+        "Each scenario card shows: Title (font-semibold), Risk level badge (red=high, yellow=medium, gray=low), Description, Enabling positions (bullet list), Incentives (financial, political, career) (3 columns), Red flags (bullet list), Innocent explanations (highlighted in blue box), Historical precedents (if any)",
+        "Expandable 'Show Details' for full scenario",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create action items display component",
+      "description": "As a user, I want to see prioritized action items so that I have a clear investigation roadmap.",
+      "acceptanceCriteria": [
+        "Create /components/accountability/action-items-section.tsx",
+        "Props: actionItems (ActionItem[])",
+        "Section heading: 'Investigation Action Items'",
+        "Group by priority: Priority 1 (High): Red badge, High Priority; Priority 2 (Medium): Yellow badge, Medium Priority; Priority 3 (Low): Gray badge, Low Priority",
+        "Each item shows: Action (what to do), Rationale (why it matters), Data source (where to look), Expected evidence (what you'd find), Estimated time (if provided), Legal considerations (if any) (warning icon)",
+        "Checkbox for tracking (local state only, not persisted)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill (test checkboxes)"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create print layout page",
+      "description": "As a user, I want to export investigations to PDF so that I can download and share results.",
+      "acceptanceCriteria": [
+        "Create /app/accountability/[id]/print/page.tsx",
+        "Fetch investigation via /api/accountability/[id]",
+        "Use print-optimized layout (no nav, no interactive elements)",
+        "Print CSS: @media print { @page { margin: 2cm; } .no-print { display: none; } .page-break { page-break-after: always; } }",
+        "Title page: Large heading 'Accountability Investigation: [TARGET NAME]', Generated date, Large disclaimer about research hypothesis only",
+        "Each section on separate page (page breaks): Profile Data, Each Corruption Scenario (one per page), Action Items, Sources",
+        "Footer on each page: 'RESEARCH HYPOTHESIS ONLY – Generated [DATE]'",
+        "No Sage/Ivory colors (use grayscale for print)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill (use browser print preview)"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
