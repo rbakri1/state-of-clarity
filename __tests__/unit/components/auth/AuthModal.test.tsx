@@ -20,10 +20,16 @@ import {
   useAuthModal,
 } from '@/app/components/auth/AuthModal';
 
+// Use vi.hoisted to create mocks that can be used in vi.mock
+const { mockSignInWithMagicLink, mockIsValidEmail } = vi.hoisted(() => ({
+  mockSignInWithMagicLink: vi.fn(),
+  mockIsValidEmail: vi.fn(),
+}));
+
 // Mock the auth providers
 vi.mock('@/lib/auth/providers', () => ({
-  signInWithMagicLink: vi.fn().mockResolvedValue({ error: null }),
-  isValidEmail: vi.fn((email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)),
+  signInWithMagicLink: mockSignInWithMagicLink,
+  isValidEmail: mockIsValidEmail,
 }));
 
 // Mock the child components
@@ -86,6 +92,9 @@ function TestConsumer() {
 describe('AuthModalProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset mock implementations to defaults
+    mockIsValidEmail.mockImplementation((email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+    mockSignInWithMagicLink.mockResolvedValue({ error: null });
   });
 
   describe('rendering', () => {
@@ -329,8 +338,7 @@ describe('AuthModalProvider', () => {
 
     it('should show error for invalid email format', async () => {
       const user = userEvent.setup();
-      const { isValidEmail } = await import('@/lib/auth/providers');
-      vi.mocked(isValidEmail).mockReturnValue(false);
+      mockIsValidEmail.mockReturnValue(false);
 
       render(
         <AuthModalProvider>
@@ -354,9 +362,8 @@ describe('AuthModalProvider', () => {
 
     it('should show email sent confirmation on success', async () => {
       const user = userEvent.setup();
-      const { signInWithMagicLink, isValidEmail } = await import('@/lib/auth/providers');
-      vi.mocked(isValidEmail).mockReturnValue(true);
-      vi.mocked(signInWithMagicLink).mockResolvedValue({ error: null });
+      mockIsValidEmail.mockReturnValue(true);
+      mockSignInWithMagicLink.mockResolvedValue({ error: null });
 
       render(
         <AuthModalProvider>
@@ -381,9 +388,8 @@ describe('AuthModalProvider', () => {
 
     it('should show error when magic link fails', async () => {
       const user = userEvent.setup();
-      const { signInWithMagicLink, isValidEmail } = await import('@/lib/auth/providers');
-      vi.mocked(isValidEmail).mockReturnValue(true);
-      vi.mocked(signInWithMagicLink).mockResolvedValue({
+      mockIsValidEmail.mockReturnValue(true);
+      mockSignInWithMagicLink.mockResolvedValue({
         error: { message: 'Rate limit exceeded' },
       });
 
@@ -470,9 +476,8 @@ describe('AuthModalProvider', () => {
   describe('email sent screen', () => {
     it('should show try again button on email sent screen', async () => {
       const user = userEvent.setup();
-      const { signInWithMagicLink, isValidEmail } = await import('@/lib/auth/providers');
-      vi.mocked(isValidEmail).mockReturnValue(true);
-      vi.mocked(signInWithMagicLink).mockResolvedValue({ error: null });
+      mockIsValidEmail.mockReturnValue(true);
+      mockSignInWithMagicLink.mockResolvedValue({ error: null });
 
       render(
         <AuthModalProvider>
@@ -495,9 +500,8 @@ describe('AuthModalProvider', () => {
 
     it('should return to initial screen when clicking try again', async () => {
       const user = userEvent.setup();
-      const { signInWithMagicLink, isValidEmail } = await import('@/lib/auth/providers');
-      vi.mocked(isValidEmail).mockReturnValue(true);
-      vi.mocked(signInWithMagicLink).mockResolvedValue({ error: null });
+      mockIsValidEmail.mockReturnValue(true);
+      mockSignInWithMagicLink.mockResolvedValue({ error: null });
 
       render(
         <AuthModalProvider>
