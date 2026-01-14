@@ -119,3 +119,22 @@ Thread: https://ampcode.com/threads/T-019bbd97-50e4-773b-9b8b-63301a942449
   - `Promise.all` with explicit typed promises is cleaner than `Promise.allSettled` with generic handlers
   - Pre-existing test errors in `__tests__/` don't block commits
 ---
+
+## 2026-01-14 22:10 - US-008
+Thread: https://ampcode.com/threads/T-019bbd99-7de8-763f-a0e0-6724533522db
+- Added caching to UK public data service orchestrator
+- Used existing `withCache` utility from `/lib/cache/with-cache.ts`
+- Cache key format: `uk_data:{source}:{normalized_entity_name}`
+- Implemented TTLs per spec:
+  - Companies House: 24hrs (86400s)
+  - Charity Commission: 24hrs (86400s)
+  - Register of Interests: 12hrs (43200s)
+  - Electoral Commission: 12hrs (43200s)
+  - Contracts Finder: 24hrs (86400s)
+- Cache hit/miss logging done by withCache utility automatically
+- Typecheck passes (pre-existing test errors not related to this change)
+- **Learnings for future iterations:**
+  - `withCache` already logs hits/misses via console.log `[Cache] HIT/MISS: {key}`
+  - Normalize cache keys by lowercasing, trimming, and replacing spaces with underscores
+  - Cache wrapper goes inside `safeDataSourceCall` fetcher function
+---
