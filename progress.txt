@@ -145,3 +145,16 @@ Thread: https://ampcode.com/threads/T-019bbd64-ce69-7469-b4d2-efae884b63d8
   - Pattern: Use `Record<string, unknown>` for building dynamic update objects
   - Pattern: Check `!== undefined` (not just truthy) to allow setting fields to 0 or empty arrays
 ---
+
+## 2026-01-14 23:30 - US-011
+Thread: https://ampcode.com/threads/T-019bbd75-54c8-766f-b460-6741eddb7a26
+- Added listUserInvestigations function to /lib/services/accountability-service.ts
+- Function accepts userId and optional limit parameter (default 50)
+- Returns investigations ordered by created_at DESC (newest first)
+- Returns empty array if none found or on error
+- Includes JSDoc comment with @param and @returns documentation
+- Files changed: lib/services/accountability-service.ts
+- **Learnings for future iterations:**
+  - Pattern: Use `.order("column", { ascending: false })` for DESC ordering in Supabase
+  - Pattern: Return empty array on error for list functions (graceful degradation)
+---
