@@ -62,3 +62,36 @@ Thread: https://ampcode.com/threads/T-019bbdc8-3716-723c-9c15-3476d124107e
   - Follow entity-classification-agent.ts pattern for JSON extraction and error handling
   - Pre-existing test file type errors don't block implementation work
 ---
+
+## 2026-01-14 - US-005
+Thread: https://ampcode.com/threads/T-019bbdca-3856-7474-8d36-0cf7bb66163e
+- Implemented corruption analysis agent for generating theoretical corruption scenarios
+- File created: lib/agents/corruption-analysis-agent.ts
+- Uses Claude Sonnet (claude-sonnet-4-20250514) for complex scenario reasoning
+- Generates 3 generic scenarios for sparse profile data (separate for individuals vs organizations)
+- Validates innocentExplanations array is non-empty for each scenario
+- Logs warnings if accusatory language detected (e.g., "is corrupt")
+- Ensures all scenarios have innocentExplanations (adds defaults if missing from LLM response)
+- Returns corruptionScenarios and adds 'corruption_analysis' to completedSteps
+- **Learnings for future iterations:**
+  - HistoricalCase.sourceUrl is optional string (undefined), not null
+  - Follow uk-profile-research-agent.ts pattern for JSON array extraction (use regex /\[[\s\S]*\]/)
+  - Generic scenarios provide graceful fallback when profile data is sparse
+---
+
+## 2026-01-14 - US-006
+Thread: https://ampcode.com/threads/T-019bbdd0-430b-754c-8f2a-9976c84d8857
+- Implemented action list generation agent for prioritized investigation actions
+- File created: lib/agents/action-list-agent.ts
+- Uses Claude Sonnet (claude-sonnet-4-20250514) for reasoning about investigative approaches
+- Generates 10 default action items when profile/scenarios are sparse
+- Validates banned words (hack, bribe, stalk, harass, threaten) and removes violating actions
+- Validates priority balance (warns if >60% are priority 1)
+- Ensures all action items have relatedScenarios field
+- Supplements with default items if fewer than 8 valid items returned
+- Returns actionItems and adds 'action_list_generation' to completedSteps
+- **Learnings for future iterations:**
+  - Follow corruption-analysis-agent.ts pattern for JSON array extraction
+  - Use generateDefaultActionItems() for graceful fallback when LLM data is sparse
+  - Filter out invalid action items rather than failing completely
+---
