@@ -76,3 +76,33 @@ Thread: https://ampcode.com/threads/T-019bbd5d-3f06-72eb-b72d-f2c3362fb22e
   - Pattern: Use string for dates in interfaces (ISO format), number for monetary values
   - Pattern: Include sourceUrl on all record types for traceability
 ---
+
+## 2026-01-14 21:00 - US-006
+Thread: https://ampcode.com/threads/T-019bbd5e-e7bb-74d9-b564-e06919e9b49f
+- Added UKProfileData and scenario types to /lib/types/accountability.ts
+- Exported ConflictOfInterest with conflictType (financial/regulatory/oversight/personal)
+- Exported HistoricalCase with name, year, description, outcome, sourceUrl
+- Exported SourceType union and VerificationStatus type
+- Exported InvestigationSource interface for tracking data sources
+- Exported UKProfileData with all profile fields and dataCompleteness object
+- Exported CorruptionScenario with riskLevel, detectionDifficulty, historicalPrecedents
+- Exported ActionItem with priority (1|2|3) and relatedScenarios array
+- Files changed: lib/types/accountability.ts
+- **Learnings for future iterations:**
+  - Pattern: Use helper types (e.g., ConflictType, RiskLevel) before using in interfaces for reusability
+  - Pattern: Use numeric year for HistoricalCase (more precise than date string)
+---
+
+## 2026-01-14 21:30 - US-007
+Thread: https://ampcode.com/threads/T-019bbd60-4336-750e-9032-a8bd76a5acd5
+- Added database row types to /lib/types/accountability.ts
+- Exported AccountabilityInvestigation interface matching all DB columns
+- Exported AccountabilityInvestigationSource interface for sources table
+- Exported CreateInvestigationInput type for service function input
+- Exported UpdateInvestigationInput type for partial updates (profile_data, corruption_scenarios, action_items, quality_score, quality_notes, generation_time_ms, data_sources_count)
+- Files changed: lib/types/accountability.ts
+- **Learnings for future iterations:**
+  - Pattern: Use `| null` for nullable DB columns (e.g., quality_score, quality_notes)
+  - Pattern: Use Date type in input interfaces, string type in DB row interfaces (Supabase returns ISO strings)
+  - Pattern: Use Record<string, unknown> for JSONB columns with unstructured data (e.g., data_extracted)
+---
