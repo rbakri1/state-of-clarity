@@ -1,0 +1,288 @@
+{
+  "project": "State of Clarity",
+  "branchName": "ralph/accountability-tracker-ai-agents",
+  "description": "Accountability Tracker AI Agents - LangGraph orchestration with 5 agents: entity classification, UK profile research, corruption analysis, action list generation, and quality check. PRD 3 of 6 (see tasks/prd-accountability-tracker-overview.md).",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create system prompts file for all agents",
+      "description": "As a developer, I need centralized system prompts for all accountability tracker agents.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/accountability-personas.ts",
+        "Export ENTITY_CLASSIFICATION_PROMPT - short prompt for Haiku to classify individual vs organization",
+        "Export UK_PROFILE_RESEARCH_PROMPT - 400+ words emphasizing: ONLY verified public records, NO speculation, clinical tone",
+        "Export CORRUPTION_ANALYSIS_PROMPT - 300+ words with CRITICAL ETHICAL FRAMING section, requires innocent explanations",
+        "Export ACTION_LIST_GENERATION_PROMPT - 250+ words emphasizing legal/ethical methods only",
+        "All prompts use conditional language ('could', 'might', 'theoretical')",
+        "Corruption prompt explicitly requires innocentExplanations for every scenario",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create LangGraph state annotation and types",
+      "description": "As a developer, I need the state schema for the LangGraph accountability pipeline.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/accountability-tracker-orchestrator.ts",
+        "Define AccountabilityState interface with: targetEntity, investigationId, entityType, profileData, corruptionScenarios, actionItems, qualityScore, qualityNotes, error, completedSteps",
+        "Create AccountabilityStateAnnotation using Annotation.Root from @langchain/langgraph",
+        "Add reducer for completedSteps that concatenates arrays",
+        "Add replace reducer for object fields (profileData, corruptionScenarios, actionItems)",
+        "Export AccountabilityState type for use in agent files",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Implement entity classification agent",
+      "description": "As a developer, I need an agent that classifies entities as individual or organization.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/entity-classification-agent.ts",
+        "Export async function entityClassificationNode(state: AccountabilityState): Promise<Partial<AccountabilityState>>",
+        "Use Claude Haiku model (claude-3-haiku-20240307) for cost efficiency",
+        "Call Anthropic API with ENTITY_CLASSIFICATION_PROMPT",
+        "Parse JSON response: { entityType, confidence, reasoning }",
+        "Check for 'Ltd', 'Limited', 'plc', 'PLC' as organization indicators before calling LLM",
+        "Return updated state with entityType and add 'entity_classification' to completedSteps",
+        "Default to 'individual' if LLM response is ambiguous",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Implement UK profile research agent",
+      "description": "As a developer, I need an agent that fetches UK public data and synthesizes it into a structured profile.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/uk-profile-research-agent.ts",
+        "Export async function ukProfileResearchNode(state: AccountabilityState): Promise<Partial<AccountabilityState>>",
+        "Call fetchUKPublicData() from /lib/services/uk-public-data-service.ts",
+        "Pass raw data to Claude Opus (claude-3-opus-20240229) for synthesis",
+        "Use UK_PROFILE_RESEARCH_PROMPT with entity name, type, and raw data JSON",
+        "Parse response as UKProfileData interface",
+        "Call addInvestigationSource() for each source returned by fetchUKPublicData",
+        "Return updated state with profileData and add 'uk_profile_research' to completedSteps",
+        "Handle empty data gracefully (return sparse profile, don't error)",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Implement corruption analysis agent",
+      "description": "As a developer, I need an agent that generates theoretical corruption scenarios with ethical framing.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/corruption-analysis-agent.ts",
+        "Export async function corruptionAnalysisNode(state: AccountabilityState): Promise<Partial<AccountabilityState>>",
+        "Use Claude Opus for complex reasoning",
+        "Use CORRUPTION_ANALYSIS_PROMPT with profile data JSON",
+        "Parse response as CorruptionScenario[] array (3-5 scenarios)",
+        "Validate each scenario has non-empty innocentExplanations array",
+        "Validate scenarios use conditional language (log warning if 'is corrupt' found)",
+        "Return updated state with corruptionScenarios and add 'corruption_analysis' to completedSteps",
+        "Handle sparse profile data by generating generic scenarios based on entity type",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Implement action list generation agent",
+      "description": "As a developer, I need an agent that generates prioritized investigation action items.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/action-list-agent.ts",
+        "Export async function actionListGenerationNode(state: AccountabilityState): Promise<Partial<AccountabilityState>>",
+        "Use Claude Opus for reasoning",
+        "Use ACTION_LIST_GENERATION_PROMPT with profile data and corruption scenarios",
+        "Parse response as ActionItem[] array (8-15 items)",
+        "Validate items are balanced across priorities (not all priority 1)",
+        "Validate no illegal methods (check for banned words: hack, bribe, stalk, harass, threaten)",
+        "Each item must have relatedScenarios linking to scenario IDs",
+        "Return updated state with actionItems and add 'action_list_generation' to completedSteps",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Implement quality check agent",
+      "description": "As a developer, I need an agent that calculates quality score and updates the database.",
+      "acceptanceCriteria": [
+        "Create file: /lib/agents/quality-check-agent.ts",
+        "Export async function qualityCheckNode(state: AccountabilityState): Promise<Partial<AccountabilityState>>",
+        "Call calculateQualityScore() from /lib/services/accountability-service.ts",
+        "Call updateInvestigationResults() to persist results to database",
+        "Pass: profileData, corruptionScenarios, actionItems, qualityScore, qualityNotes, generationTimeMs",
+        "Return updated state with qualityScore, qualityNotes and add 'quality_check' to completedSteps",
+        "Log quality gate result to console: 'Quality gate passed/failed: score X.X'",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create LangGraph and wire up all agents",
+      "description": "As a developer, I need the LangGraph that connects all 5 agents sequentially.",
+      "acceptanceCriteria": [
+        "Add to /lib/agents/accountability-tracker-orchestrator.ts",
+        "Import all 5 agent node functions",
+        "Create StateGraph with AccountabilityStateAnnotation",
+        "Add nodes: entity_classification, uk_profile_research, corruption_analysis, action_list_generation, quality_check",
+        "Add edges: START -> entity_classification -> uk_profile_research -> corruption_analysis -> action_list_generation -> quality_check -> END",
+        "Export compiled graph as accountabilityGraph",
+        "Graph compiles without errors",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Implement main execution function with callbacks",
+      "description": "As a developer, I need a main function to run the pipeline with optional SSE callbacks.",
+      "acceptanceCriteria": [
+        "Add to /lib/agents/accountability-tracker-orchestrator.ts",
+        "Define AccountabilityCallbacks interface: onAgentStarted?, onAgentCompleted?, onStageChanged?, onError?",
+        "Export async function generateAccountabilityReport(targetEntity: string, investigationId: string, callbacks?: AccountabilityCallbacks)",
+        "Create initial state with targetEntity and investigationId",
+        "Invoke accountabilityGraph with initial state",
+        "Wrap execution in try-catch, call onError callback if provided",
+        "Return { profileData, corruptionScenarios, actionItems, qualityScore, qualityNotes }",
+        "Log start and end times, calculate total duration",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add callback emissions to each agent",
+      "description": "As a developer, I need agents to emit callbacks for SSE streaming progress.",
+      "acceptanceCriteria": [
+        "Modify orchestrator to pass callbacks through state or closure",
+        "Each agent emits onAgentStarted at beginning with agent name",
+        "Each agent emits onAgentCompleted at end with agent name and duration",
+        "Entity classification emits onStageChanged('classifying')",
+        "UK profile research emits onStageChanged('researching')",
+        "Corruption analysis emits onStageChanged('analyzing')",
+        "Action list emits onStageChanged('generating')",
+        "Quality check emits onStageChanged('checking')",
+        "Callbacks are optional - agents work without them",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Add JSON parsing retry logic",
+      "description": "As a developer, I need LLM responses to retry if JSON parsing fails.",
+      "acceptanceCriteria": [
+        "Create helper function parseJsonWithRetry(llmCall: () => Promise<string>, maxRetries: number = 1)",
+        "If JSON.parse fails, append 'You MUST return valid JSON only.' to prompt and retry",
+        "Log warning on retry: 'JSON parse failed, retrying with stricter prompt'",
+        "Throw descriptive error after max retries exhausted",
+        "Use this helper in profile research, corruption analysis, and action list agents",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Create unit tests for entity classification agent",
+      "description": "As a QA engineer, I need tests for the entity classification agent.",
+      "acceptanceCriteria": [
+        "Create test file: __tests__/unit/agents/entity-classification-agent.test.ts",
+        "Mock Anthropic API for all tests",
+        "Test 'Boris Johnson' returns entityType 'individual'",
+        "Test 'Serco Ltd' returns entityType 'organization' (detects Ltd suffix)",
+        "Test 'John Smith PLC' returns entityType 'organization'",
+        "Test ambiguous name defaults to 'individual'",
+        "Test completedSteps includes 'entity_classification'",
+        "All tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Create unit tests for corruption analysis agent",
+      "description": "As a QA engineer, I need tests for corruption analysis ethical validation.",
+      "acceptanceCriteria": [
+        "Create test file: __tests__/unit/agents/corruption-analysis-agent.test.ts",
+        "Mock Anthropic API for all tests",
+        "Test returns 3-5 CorruptionScenario objects",
+        "Test each scenario has non-empty innocentExplanations array",
+        "Test scenarios use conditional language (no direct accusations)",
+        "Test with empty profile data returns generic scenarios",
+        "Test completedSteps includes 'corruption_analysis'",
+        "All tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Create unit tests for action list agent",
+      "description": "As a QA engineer, I need tests for action list validation.",
+      "acceptanceCriteria": [
+        "Create test file: __tests__/unit/agents/action-list-agent.test.ts",
+        "Mock Anthropic API for all tests",
+        "Test returns 8-15 ActionItem objects",
+        "Test items are balanced across priorities (1, 2, 3)",
+        "Test no banned words in action items (hack, bribe, stalk, harass, threaten)",
+        "Test each item has relatedScenarios field",
+        "Test completedSteps includes 'action_list_generation'",
+        "All tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Create unit tests for LangGraph orchestrator",
+      "description": "As a QA engineer, I need tests for the full pipeline orchestration.",
+      "acceptanceCriteria": [
+        "Create test file: __tests__/unit/agents/accountability-tracker-orchestrator.test.ts",
+        "Mock all 5 agent node functions",
+        "Test graph compiles without errors",
+        "Test generateAccountabilityReport returns all expected fields",
+        "Test callbacks are emitted in correct order (5 agents)",
+        "Test error in one agent propagates to onError callback",
+        "Test completedSteps contains all 5 agent names after success",
+        "All tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
