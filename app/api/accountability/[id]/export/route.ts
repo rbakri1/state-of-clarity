@@ -28,6 +28,6 @@ export const GET = withAuth(async (req, { user, params }) => {
     );
   }
 
-  const url = new URL(`/accountability/${id}/print`, req.url);
-  return NextResponse.redirect(url, 302);
+  const printUrl = new URL(`/accountability/${id}/print`, req.url);
+  return NextResponse.redirect(printUrl, 302);
 });
