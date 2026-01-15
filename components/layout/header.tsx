@@ -77,13 +77,20 @@ export function Header({ className }: HeaderProps) {
 
   const isAuthenticated = !!user;
 
-  const navLinks = [
-    { href: "/ask", label: "Ask Anything" },
+  // Briefings group - Ask and Explore are related features
+  const briefingsLinks = [
+    { href: "/ask", label: "Ask" },
     { href: "/explore", label: "Explore" },
-    { href: "/briefs", label: "Briefs" },
+  ];
+
+  // Other navigation items
+  const otherLinks = [
     { href: "/accountability", label: "Investigations" },
     { href: "/about", label: "About" },
   ];
+
+  // Combined for mobile
+  const navLinks = [...briefingsLinks, ...otherLinks];
 
   return (
     <header
@@ -113,22 +120,49 @@ export function Header({ className }: HeaderProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "text-sm font-ui font-medium",
-                  "hover:text-ink-800 transition-colors duration-200",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2 rounded-md px-1",
-                  pathname === link.href || pathname?.startsWith(link.href + "/")
-                    ? "text-sage-600"
-                    : "text-ink-600"
-                )}
-              >
-                {link.label}
-              </Link>
+          <nav className="hidden md:flex items-center gap-3">
+            {/* Briefings Group - subtle background to show grouping */}
+            <div className="flex items-center gap-0.5 px-1.5 py-1 rounded-lg bg-sage-50 border border-sage-100">
+              {briefingsLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "text-sm font-ui font-medium px-3 py-1.5 rounded-md",
+                    "hover:bg-sage-100 transition-colors duration-200",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500",
+                    pathname === link.href || pathname?.startsWith(link.href + "/")
+                      ? "text-sage-700 bg-sage-100"
+                      : "text-ink-600 hover:text-ink-800"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Separator */}
+            <div className="w-px h-6 bg-ivory-600" />
+
+            {/* Other nav items */}
+            {otherLinks.map((link, index) => (
+              <div key={link.href} className="flex items-center gap-3">
+                <Link
+                  href={link.href}
+                  className={cn(
+                    "text-sm font-ui font-medium px-3 py-1.5 rounded-md",
+                    "hover:bg-ivory-300 transition-colors duration-200",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-500 focus-visible:ring-offset-2",
+                    pathname === link.href || pathname?.startsWith(link.href + "/")
+                      ? "text-sage-600"
+                      : "text-ink-600 hover:text-ink-800"
+                  )}
+                >
+                  {link.label}
+                </Link>
+                {/* Separator after Investigations, before About */}
+                {index === 0 && <div className="w-px h-6 bg-ivory-600" />}
+              </div>
             ))}
 
             {/* Auth Section */}
