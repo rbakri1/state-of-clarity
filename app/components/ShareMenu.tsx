@@ -7,10 +7,12 @@ import {
   Check,
   Mail,
 } from "lucide-react";
+import { trackBriefShared } from "@/lib/posthog";
 
 interface ShareMenuProps {
   title: string;
   excerpt?: string;
+  briefId?: string;
 }
 
 function addUtmParams(url: string, source: string): string {
@@ -20,7 +22,7 @@ function addUtmParams(url: string, source: string): string {
   return urlObj.toString();
 }
 
-export function ShareMenu({ title, excerpt = "" }: ShareMenuProps) {
+export function ShareMenu({ title, excerpt = "", briefId }: ShareMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
@@ -54,10 +56,20 @@ export function ShareMenu({ title, excerpt = "" }: ShareMenuProps) {
     try {
       await navigator.clipboard.writeText(currentUrl);
       setCopied(true);
+      if (briefId) {
+        trackBriefShared({ briefId, shareMethod: "copy_link" });
+      }
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
     }
+  };
+
+  const handleSocialShare = (platform: "twitter" | "facebook" | "email") => {
+    if (briefId) {
+      trackBriefShared({ briefId, shareMethod: platform });
+    }
+    setIsOpen(false);
   };
 
   const shareOptions: {
@@ -150,7 +162,19 @@ export function ShareMenu({ title, excerpt = "" }: ShareMenuProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  const platformMap: Record<string, "twitter" | "facebook" | "email"> = {
+                    "X / Twitter": "twitter",
+                    "Facebook": "facebook",
+                    "Email": "email",
+                  };
+                  const platform = platformMap[option.name];
+                  if (platform) {
+                    handleSocialShare(platform);
+                  } else {
+                    setIsOpen(false);
+                  }
+                }}
               >
                 {option.renderIcon()}
                 <span>{option.name}</span>

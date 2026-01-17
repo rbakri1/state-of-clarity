@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Sparkles, Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
+import { trackUserSignedIn } from "@/lib/posthog";
 
 export default function SignInPage() {
   const searchParams = useSearchParams();
@@ -61,6 +62,7 @@ export default function SignInPage() {
           setMessage({ type: "error", text: error.message });
         }
       } else {
+        trackUserSignedIn("email");
         setMessage({ type: "success", text: "Check your email for the login link. It may take a minute to arrive." });
         setEmail("");
       }
@@ -90,6 +92,8 @@ export default function SignInPage() {
       if (error) {
         setMessage({ type: "error", text: error.message });
         setIsOAuthLoading(null);
+      } else {
+        trackUserSignedIn("google");
       }
     } catch {
       setMessage({ type: "error", text: "Something went wrong. Please try again." });

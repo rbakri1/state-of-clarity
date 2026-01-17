@@ -3,6 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { Component, ReactNode } from "react";
 import { AlertTriangle, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { trackError } from "@/lib/posthog";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -30,9 +31,18 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    // Report to Sentry
     Sentry.withScope((scope) => {
       scope.setExtra("componentStack", errorInfo.componentStack);
       Sentry.captureException(error);
+    });
+
+    // Track in PostHog
+    trackError({
+      errorType: error.name,
+      errorMessage: error.message,
+      componentName: errorInfo.componentStack?.split("\n")[1]?.trim(),
+      url: typeof window !== "undefined" ? window.location.href : undefined,
     });
   }
 

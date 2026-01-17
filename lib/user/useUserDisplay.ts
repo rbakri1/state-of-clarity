@@ -10,6 +10,7 @@
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { identifyUser, resetUser } from "@/lib/posthog";
 
 interface UserDisplayState {
   userId: string | null;
@@ -35,6 +36,15 @@ export function useUserDisplay(): UserDisplayState {
           data: { user },
         } = await supabase.auth.getUser();
         setUser(user);
+
+        // Identify user in PostHog if already logged in
+        if (user) {
+          identifyUser(user.id, {
+            email: user.email,
+            name: user.user_metadata?.full_name,
+            createdAt: user.created_at,
+          });
+        }
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {
@@ -47,9 +57,21 @@ export function useUserDisplay(): UserDisplayState {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setIsLoading(false);
+
+      // Identify or reset user in PostHog
+      if (currentUser) {
+        identifyUser(currentUser.id, {
+          email: currentUser.email,
+          name: currentUser.user_metadata?.full_name,
+          createdAt: currentUser.created_at,
+        });
+      } else if (event === "SIGNED_OUT") {
+        resetUser();
+      }
     });
 
     return () => {

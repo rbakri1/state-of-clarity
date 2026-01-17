@@ -24,6 +24,11 @@ import ClarityScoreModal from "@/app/components/ClarityScoreModal";
 import { ShareMenu } from "@/app/components/ShareMenu";
 import { BookmarkButton } from "@/app/components/BookmarkButton";
 import { ReadingProgressBar } from "@/app/components/ReadingProgressBar";
+import {
+  trackBriefViewed,
+  trackBriefReadingLevelChanged,
+  trackClarityScoreExpanded,
+} from "@/lib/posthog";
 
 const READING_LEVEL_STORAGE_KEY = "soc_reading_level";
 
@@ -68,6 +73,19 @@ export default function BriefPageClient() {
       newParams.set("level", initialLevel);
       router.replace(`?${newParams.toString()}`, { scroll: false });
     }
+
+    // Track brief view
+    const briefId = params.id as string;
+    const referrer = document.referrer;
+    let source: "direct" | "explore" | "search" | "shared" = "direct";
+    if (referrer.includes("/explore")) {
+      source = "explore";
+    } else if (referrer.includes("?q=") || referrer.includes("/search")) {
+      source = "search";
+    } else if (referrer.includes("utm_")) {
+      source = "shared";
+    }
+    trackBriefViewed({ briefId, source });
   }, []);
 
   // Handle scroll for sticky selector behavior
@@ -91,16 +109,29 @@ export default function BriefPageClient() {
   }, []);
 
   const handleLevelChange = useCallback((level: ReadingLevel) => {
+    const previousLevel = activeLevel;
     setActiveLevel(level);
-    
+
     // Update URL without page reload
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.set("level", level);
     router.replace(`?${newParams.toString()}`, { scroll: false });
-    
+
     // Store in localStorage
     localStorage.setItem(READING_LEVEL_STORAGE_KEY, level);
-  }, [searchParams, router]);
+
+    // Track reading level change
+    const levelToNumber: Record<ReadingLevel, number> = {
+      simple: 1,
+      standard: 2,
+      advanced: 3,
+    };
+    trackBriefReadingLevelChanged({
+      briefId: params.id as string,
+      fromLevel: levelToNumber[previousLevel],
+      toLevel: levelToNumber[level],
+    });
+  }, [searchParams, router, activeLevel, params.id]);
 
   const [isClarityModalOpen, setIsClarityModalOpen] = useState(false);
 
@@ -138,6 +169,7 @@ export default function BriefPageClient() {
               <ShareMenu
                 title={brief.question}
                 excerpt={brief.summaries.standard?.slice(0, 100)}
+                briefId={params.id as string}
               />
               <BookmarkButton briefId={params.id as string} />
               <button className="px-3 py-2 sm:px-4 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm sm:text-base">
@@ -156,7 +188,10 @@ export default function BriefPageClient() {
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl sm:text-4xl font-bold leading-tight">{brief.question}</h1>
             <button
-              onClick={() => setIsClarityModalOpen(true)}
+              onClick={() => {
+                setIsClarityModalOpen(true);
+                trackClarityScoreExpanded(params.id as string);
+              }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-sm shrink-0 hover:opacity-90 transition cursor-pointer print:hidden ${getClarityScoreColorClass(brief.clarity_score)}`}
               aria-label="View clarity score breakdown"
             >

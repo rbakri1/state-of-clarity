@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import { DateFilter, type DateRange } from "./date-filter";
 import { MobileFilterDrawer } from "./mobile-filter-drawer";
 import { BriefCard } from "./brief-card";
 import type { Brief } from "@/lib/types/brief";
+import { trackSearchPerformed, trackExplorePageFiltered } from "@/lib/posthog";
 
 interface BriefsResponse {
   briefs: Brief[];
@@ -114,6 +115,7 @@ export function ExploreContent() {
   const [isTagsLoading, setIsTagsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const searchTrackingTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Update URL when search query changes
   const handleSearchChange = useCallback(
@@ -127,8 +129,18 @@ export function ExploreContent() {
         newParams.delete("q");
       }
       router.replace(`?${newParams.toString()}`, { scroll: false });
+
+      // Debounce search tracking (track after 1 second of no typing)
+      if (searchTrackingTimeout.current) {
+        clearTimeout(searchTrackingTimeout.current);
+      }
+      if (query.trim()) {
+        searchTrackingTimeout.current = setTimeout(() => {
+          trackSearchPerformed({ query: query.trim(), resultCount: total });
+        }, 1000);
+      }
     },
-    [searchParams, router]
+    [searchParams, router, total]
   );
 
   // Update URL when tags change
@@ -152,6 +164,7 @@ export function ExploreContent() {
       const newParams = new URLSearchParams(searchParams.toString());
       if (score !== null) {
         newParams.set("minScore", String(score));
+        trackExplorePageFiltered({ filterType: "minScore", filterValue: String(score) });
       } else {
         newParams.delete("minScore");
       }
@@ -171,6 +184,7 @@ export function ExploreContent() {
         newParams.delete("sort");
       }
       router.replace(`?${newParams.toString()}`, { scroll: false });
+      trackExplorePageFiltered({ filterType: "sort", filterValue: sortValue });
     },
     [searchParams, router]
   );
@@ -182,6 +196,7 @@ export function ExploreContent() {
       const newParams = new URLSearchParams(searchParams.toString());
       if (dateValue !== "all") {
         newParams.set("date", dateValue);
+        trackExplorePageFiltered({ filterType: "dateRange", filterValue: dateValue });
       } else {
         newParams.delete("date");
       }
@@ -198,6 +213,7 @@ export function ExploreContent() {
           ? prev.filter((t) => t !== tag)
           : [...prev, tag];
         updateTagsUrl(newTags);
+        trackExplorePageFiltered({ filterType: "tag", filterValue: tag });
         return newTags;
       });
     },

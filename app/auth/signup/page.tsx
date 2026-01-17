@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Sparkles, UserPlus, ArrowLeft, Loader2, Check } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
+import { trackUserSignedUp } from "@/lib/posthog";
 
 export default function SignUpPage() {
   const searchParams = useSearchParams();
@@ -74,6 +75,7 @@ export default function SignUpPage() {
         }
         setEmailSent(false);
       } else {
+        trackUserSignedUp("email");
         setMessage({ type: "success", text: "Check your email to confirm your account. It may take a minute to arrive." });
         setEmailSent(true);
       }
@@ -109,6 +111,8 @@ export default function SignUpPage() {
       if (error) {
         setMessage({ type: "error", text: error.message });
         setIsOAuthLoading(null);
+      } else {
+        trackUserSignedUp("google");
       }
     } catch {
       setMessage({ type: "error", text: "Something went wrong. Please try again." });

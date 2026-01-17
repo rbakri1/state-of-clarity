@@ -66,12 +66,10 @@ export async function GET(request: NextRequest) {
 
         await supabase.from("profiles").insert({
           id: user.id,
-          display_name: displayName,
+          full_name: displayName,
           avatar_url: avatarUrl,
-          preferred_reading_level: "undergrad",
-          topics_of_interest: [],
-          notification_preferences: { email: true, push: false },
-          anonymous_posting: false,
+          preferred_reading_level: "standard",
+          topic_interests: [],
         });
 
         // Grant onboarding credits to new users (3 credits, expires in 30 days)

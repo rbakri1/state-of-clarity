@@ -8,6 +8,12 @@ import { formatQuestionTitle, wouldFormatChange } from "@/lib/text-formatting";
 import { BriefGenerationProgress } from "@/components/generation/generation-progress";
 import { AuthRequiredModal } from "@/components/auth/auth-required-modal";
 import type { GenerationStage } from "@/lib/types/brief";
+import {
+  trackBriefGenerationStarted,
+  trackBriefGenerationCompleted,
+  trackBriefGenerationFailed,
+  trackCTAClicked,
+} from "@/lib/posthog";
 
 const MIN_QUESTION_LENGTH = 10;
 const MAX_QUESTION_LENGTH = 500;
@@ -276,6 +282,15 @@ export default function AskPage() {
       return;
     }
 
+    const trimmedQuestion = question.trim();
+    const startTime = Date.now();
+
+    // Track generation started
+    trackBriefGenerationStarted({
+      question: trimmedQuestion,
+      questionLength: trimmedQuestion.length,
+    });
+
     setIsLoading(true);
     setError(null);
     setGenerationStage("research");
@@ -288,7 +303,7 @@ export default function AskPage() {
       const response = await fetch("/api/briefs/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question.trim() }),
+        body: JSON.stringify({ question: trimmedQuestion }),
       });
 
       // Check for non-streaming error responses (auth, credits, etc.)
@@ -296,16 +311,21 @@ export default function AskPage() {
       if (contentType?.includes("application/json")) {
         const data = await response.json();
         clearInterval(progressInterval);
-        
+
         if (!response.ok) {
           if (response.status === 401) {
             // Store question and pathname for auto-submit after auth
-            localStorage.setItem('pendingQuestion', question.trim());
+            localStorage.setItem('pendingQuestion', trimmedQuestion);
             localStorage.setItem('pendingQuestionPath', window.location.pathname);
             setShowAuthModal(true);
             return;
           }
           if (response.status === 402 && data.creditsLink) {
+            trackBriefGenerationFailed({
+              question: trimmedQuestion,
+              errorMessage: data.error || "Insufficient credits",
+              errorCode: "INSUFFICIENT_CREDITS",
+            });
             setError(`${data.error} `);
             setTimeout(() => {
               window.location.href = data.creditsLink;
@@ -342,7 +362,7 @@ export default function AskPage() {
           if (line.startsWith("data: ")) {
             try {
               const data = JSON.parse(line.slice(6));
-              
+
               // Update progress based on stage
               if (data.stage === "research") {
                 setGenerationStage("research");
@@ -354,13 +374,30 @@ export default function AskPage() {
               if (data.success !== undefined) {
                 clearInterval(progressInterval);
                 setGenerationProgress(100);
-                
+
                 if (data.success && data.briefId) {
+                  // Track successful generation
+                  trackBriefGenerationCompleted({
+                    briefId: data.briefId,
+                    question: trimmedQuestion,
+                    clarityScore: data.clarityScore,
+                    generationTimeMs: Date.now() - startTime,
+                    sourceCount: data.sourceCount || 0,
+                  });
                   window.location.href = `/brief/${data.briefId}`;
                   return;
                 } else if (data.creditRefunded) {
+                  trackBriefGenerationFailed({
+                    question: trimmedQuestion,
+                    errorMessage: data.error || "Quality standards not met",
+                    errorCode: "QUALITY_GATE_FAILED",
+                  });
                   setError(data.error || "Brief generation did not meet quality standards. Your credit has been refunded.");
                 } else if (data.error) {
+                  trackBriefGenerationFailed({
+                    question: trimmedQuestion,
+                    errorMessage: data.error,
+                  });
                   setError(data.error);
                 }
               }
@@ -374,7 +411,12 @@ export default function AskPage() {
       clearInterval(progressInterval);
     } catch (err) {
       clearInterval(progressInterval);
-      setError(err instanceof Error ? err.message : "Failed to generate brief");
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate brief";
+      trackBriefGenerationFailed({
+        question: trimmedQuestion,
+        errorMessage,
+      });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -396,6 +438,10 @@ export default function AskPage() {
   const willBeFormatted = useMemo(() => wouldFormatChange(question), [question]);
 
   const handleExampleClick = (exampleQuestion: string) => {
+    trackCTAClicked({
+      ctaName: "example_question",
+      ctaLocation: "ask_page",
+    });
     setQuestion(exampleQuestion);
     inputRef.current?.focus();
   };
