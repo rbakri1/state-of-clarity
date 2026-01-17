@@ -140,9 +140,9 @@ interface InvestigationViewedProps {
 // Event Tracking Functions
 // ============================================
 
-function track(event: EventName, properties?: Record<string, unknown>) {
+function track<T extends object>(event: EventName, properties?: T) {
   if (typeof window === "undefined") return;
-  posthog.capture(event, properties);
+  posthog.capture(event, properties as Record<string, unknown>);
 }
 
 // Brief Events
