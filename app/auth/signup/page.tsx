@@ -329,6 +329,7 @@ export default function SignUpPage() {
                 )}
               </button>
 
+{/* Apple Sign-In - Hidden until Apple Developer account is activated
               <button
                 type="button"
                 onClick={handleAppleSignUp}
@@ -352,6 +353,7 @@ export default function SignUpPage() {
                   </>
                 )}
               </button>
+              */}
             </div>
 
             <div className="mt-6 text-center text-sm font-ui">

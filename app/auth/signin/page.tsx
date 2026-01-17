@@ -235,6 +235,7 @@ export default function SignInPage() {
                 )}
               </button>
 
+{/* Apple Sign-In - Hidden until Apple Developer account is activated
               <button
                 type="button"
                 onClick={handleAppleSignIn}
@@ -258,6 +259,7 @@ export default function SignInPage() {
                   </>
                 )}
               </button>
+              */}
             </div>
 
             <div className="mt-6 text-center text-sm font-ui">
